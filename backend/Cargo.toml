@@ -1,9 +1,15 @@
 [package]
 name = "open_alarm_system"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+concread = "0.5.5"
+dashmap = "6.1.0"
+lazy_static = "1.5.0"
+orx-concurrent-vec = "3.6.0"
+scc = "2.3.4"
+sharded_queue = "2.0.1"
 tungstenite = "0.21.0"

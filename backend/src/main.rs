@@ -1,49 +1,55 @@
-use std::net::TcpListener;
-use std::sync::{mpsc, Arc, RwLock};
+use dashmap::DashMap;
 use std::thread::{sleep, spawn};
-use tungstenite::accept;
+use std::time::Duration;
 
-struct ValueMeta {
-    owner: i32,
+mod allocator;
+use allocator::allocated_auto_printer;
+
+mod registry;
+use registry::RegPrimVal;
+
+lazy_static::lazy_static! {
+    static ref MAP: DashMap<u32, u32> = DashMap::with_capacity(100);
+    static ref VEC: orx_concurrent_vec::ConcurrentVec<u32> = {
+        let mut vec = orx_concurrent_vec::ConcurrentVec::new();
+        vec.reserve_maximum_capacity(100);
+        vec
+    };
 }
 
 /// A WebSocket echo server
 fn main() {
-    let mut testi32: Vec<RwLock<i32>> = Vec::new();
-    let mut testi32Meta: Vec<RwLock<ValueMeta>> = Vec::new();
+    allocated_auto_printer(std::time::Duration::from_secs(1));
 
-    fn register_value(index: Option<usize>, _owner: i32) {
-        let index = match index {
-            Some(index) => index,
-            None => testi32.len(),
-        };
-        while testi32.len() <= index {
-            testi32.resize_with(100, || RwLock::new(0));
-        }
-        return index;
+    VEC.extend(0..100);
+
+    for i in 1..51u32 {
+        VEC[i as usize].set(i + 100);
     }
 
-    let mut get_value = |index: usize| {
-        return testi32[index].read().unwrap().clone();
-    };
+    let join = spawn(|| {
+        for i in 51..101 {
+            VEC[i].update(|x| *x = 10);
+        }
+    });
 
-    register_value(None, 1);
+    join.join().unwrap();
 
-    println!("Hello, world! {:?}", testi32)
-    // let server = TcpListener::bind("127.0.0.1:9001").unwrap();
+    loop {
+        for i in 1..100 {
+            // MAP.insert(i, i + 100);
+            // match MAP.get(&i) {
+            //     Some(entry) => {
+            //         println!("yoyo {:?}", entry.value());
+            //     }
+            //     None => break,
+            // }
+            VEC[i as usize].update(|i| *i += 200);
+            println!("yoyo {:?}", VEC[i as usize].copied());
 
-    // for stream in server.incoming() {
-    //     spawn(move || {
-    //         let mut websocket = accept(stream.unwrap()).unwrap();
-    //         loop {
-    //             let msg = websocket.read().unwrap();
-
-    //             // We do not want to send back ping/pong messages.
-    //             if msg.is_binary() || msg.is_text() {
-    //                 print!("Received: {}", msg);
-    //                 websocket.send(msg).unwrap();
-    //             }
-    //         }
-    //     });
-    // }
+            sleep(Duration::from_millis(100));
+        }
+        break;
+    }
+    loop {}
 }
