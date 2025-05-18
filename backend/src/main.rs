@@ -1,4 +1,3 @@
-use dashmap::DashMap;
 use std::thread::{sleep, spawn};
 use std::time::Duration;
 
@@ -6,50 +5,61 @@ mod allocator;
 use allocator::allocated_auto_printer;
 
 mod registry;
+use rand::Rng;
 use registry::RegPrimVal;
 
-lazy_static::lazy_static! {
-    static ref MAP: DashMap<u32, u32> = DashMap::with_capacity(100);
-    static ref VEC: orx_concurrent_vec::ConcurrentVec<u32> = {
-        let mut vec = orx_concurrent_vec::ConcurrentVec::new();
-        vec.reserve_maximum_capacity(100);
-        vec
-    };
+struct Test2 {}
+
+struct Test {
+    value: u32,
+    meta: Test2,
 }
 
-/// A WebSocket echo server
+lazy_static::lazy_static! {
+    static ref VEC: orx_concurrent_vec::ConcurrentVec<u32> = orx_concurrent_vec::ConcurrentVec::new();
+}
+
+fn more_than_one_bit_set(x: u32) -> bool {
+    x != 0 && (x & (x - 1)) != 0
+}
+
 fn main() {
     allocated_auto_printer(std::time::Duration::from_secs(1));
 
     VEC.extend(0..100);
 
-    for i in 1..51u32 {
-        VEC[i as usize].set(i + 100);
+    for i in 1..32u32 {
+        spawn(move || {
+            let val = 1 << i;
+            loop {
+                for i in 0..100u32 {
+                    VEC[i as usize].update(|x| *x = val);
+                }
+                sleep(Duration::from_millis(10));
+            }
+        });
     }
 
-    let join = spawn(|| {
-        for i in 51..101 {
-            VEC[i].update(|x| *x = 10);
-        }
-    });
-
-    join.join().unwrap();
-
     loop {
-        for i in 1..100 {
-            // MAP.insert(i, i + 100);
-            // match MAP.get(&i) {
-            //     Some(entry) => {
-            //         println!("yoyo {:?}", entry.value());
-            //     }
-            //     None => break,
-            // }
-            VEC[i as usize].update(|i| *i += 200);
-            println!("yoyo {:?}", VEC[i as usize].copied());
-
-            sleep(Duration::from_millis(100));
+        for i in 0..100 {
+            if more_than_one_bit_set(VEC[i as usize].copied()) {
+                println!("yoyo {} : {:?}", i, VEC[i as usize].copied());
+                break;
+            }
         }
-        break;
+        println!("All Clear");
+        let mut rng = rand::rng();
+        let n: u32 = rng.random_range(0..=99);
+        println!("Random {} : {:?}", n, VEC.len());
+        println!("Random {} : {:?}", n, VEC[n as usize].copied());
+        // for i in 1..100 {
+        //     VEC[i as usize].update(|i| *i += 200);
+        //     println!("yoyo {} : {:?}", i, VEC[i as usize].copied());
+
+        //     sleep(Duration::from_millis(100));
+        // }
+        // break;
+        sleep(Duration::from_millis(10));
     }
     loop {}
 }

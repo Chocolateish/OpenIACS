@@ -7,9 +7,12 @@ edition = "2024"
 
 [dependencies]
 concread = "0.5.5"
+crossbeam = "0.8.4"
+crossbeam-utils = "0.8.21"
 dashmap = "6.1.0"
 lazy_static = "1.5.0"
 orx-concurrent-vec = "3.6.0"
+rand = "0.9.1"
 scc = "2.3.4"
 sharded_queue = "2.0.1"
 tungstenite = "0.21.0"
