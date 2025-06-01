@@ -6,7 +6,7 @@ use allocator::allocated_auto_printer;
 
 mod registry;
 use rand::Rng;
-use registry::primitive::PrimVal;
+use registry::{REG_U32, primitive::PrimVal};
 
 struct Test2 {}
 
@@ -25,8 +25,6 @@ fn more_than_one_bit_set(x: u32) -> bool {
 
 fn main() {
     allocated_auto_printer(std::time::Duration::from_secs(1));
-
-    let test = PrimVal::I32(42);
 
     VEC.extend(0..100);
 
