@@ -1,8 +1,10 @@
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PrimString {
     length: u32,
     id: u32,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Prim {
     BLN = 1,
     I32 = 2,
@@ -13,6 +15,8 @@ pub enum Prim {
     F64 = 7,
     STR = 8,
 }
+
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum PrimVal {
     BLN(bool),
     I32(i32),

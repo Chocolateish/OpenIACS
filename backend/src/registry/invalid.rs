@@ -1,5 +1,6 @@
 use super::primitive::PrimVal;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Inva {
     /// Not existent
     NOEX = 0,
@@ -30,6 +31,8 @@ pub enum Inva {
 }
 
 ///
+///
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum InvaVal<T: Copy> {
     /// Not existent
     NOEX,
