@@ -1,12 +1,16 @@
 use std::thread::{sleep, spawn};
 use std::time::Duration;
 
-mod allocator;
-use allocator::allocated_auto_printer;
+mod lib;
+mod macros;
+mod modules;
 
-mod registry;
+use modules::{
+    allocator::allocated_auto_printer,
+    registry::{REG_U32, primitive::PrimVal},
+};
+
 use rand::Rng;
-use registry::{REG_U32, primitive::PrimVal};
 
 struct Test2 {}
 

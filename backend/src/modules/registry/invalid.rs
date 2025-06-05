@@ -1,6 +1,6 @@
 use super::primitive::PrimVal;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, strum::IntoStaticStr)]
 pub enum Inva {
     /// Not existent
     NOEX = 0,

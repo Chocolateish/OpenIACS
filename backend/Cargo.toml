@@ -16,4 +16,5 @@ orx-concurrent-vec = "3.6.0"
 rand = "0.9.1"
 scc = "2.3.4"
 sharded_queue = "2.0.1"
+strum = { version = "0.27.1", features = ["derive"] }
 tungstenite = "0.21.0"

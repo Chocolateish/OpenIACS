@@ -4,7 +4,7 @@ pub struct PrimString {
     id: u32,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, strum::IntoStaticStr)]
 pub enum Prim {
     BLN = 1,
     I32 = 2,

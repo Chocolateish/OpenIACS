@@ -1,5 +1,6 @@
 use super::primitive::Prim;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, strum::IntoStaticStr)]
 pub enum Registry {
     //8≤ Byte Registries
     ///

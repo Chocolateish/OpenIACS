@@ -21,4 +21,23 @@ impl Link {
     pub fn new(id: u32, registry: Registry, host: Host) -> Self {
         Self { id, registry, host }
     }
+
+    pub fn from_link_as_str(link: &LinkAsStr) -> Option<Self> {
+        let parts: Vec<&str> = link.split('@').collect();
+        if parts.len() != 2 {
+            return None;
+        }
+        return None;
+    }
+
+    // pub fn as_link_as_str(&self) -> LinkAsStr {
+    //     // let mut link = ArrayString::<LinkAsStrMaxSize>::new();
+    //     // link.push_str(&format!(
+    //     //     "{}|{:010}@{}",
+    //     //     self.registry.as_str(),
+    //     //     self.id,
+    //     //     self.host.as_str()
+    //     // ));
+    //     // link
+    // }
 }
