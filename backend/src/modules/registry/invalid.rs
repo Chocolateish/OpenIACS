@@ -30,6 +30,12 @@ pub enum Inva {
     SCCW = 29,
 }
 
+impl Inva {
+    pub fn to_inva_val<T: Copy>(&self, val: T) -> InvaVal<T> {
+        return InvaVal::from_inva_and_val(self, val);
+    }
+}
+
 ///
 ///
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -61,6 +67,26 @@ pub enum InvaVal<T: Copy> {
     ///Source configured wrong
     SCCW(T),
 }
+impl InvaVal<()> {
+    pub fn from_inva_and_val<G: Copy>(inva: &Inva, val: G) -> InvaVal<G> {
+        return match inva {
+            Inva::NOEX => InvaVal::NOEX,
+            Inva::NORE => InvaVal::NORE,
+            Inva::VALI => InvaVal::VALI(val),
+            Inva::INVA => InvaVal::INVA(val),
+            Inva::HAOR => InvaVal::HAOR(val),
+            Inva::HAUR => InvaVal::HAUR(val),
+            Inva::HOOR => InvaVal::HOOR(val),
+            Inva::HAWB => InvaVal::HAWB(val),
+            Inva::HASC => InvaVal::HASC(val),
+            Inva::SOOR => InvaVal::SOOR(val),
+            Inva::SOUR => InvaVal::SOUR(val),
+            Inva::SCOL => InvaVal::SCOL(val),
+            Inva::SCCW => InvaVal::SCCW(val),
+        };
+    }
+}
+
 impl<T: Copy> InvaVal<T> {
     pub fn value(self) -> Option<T> {
         match self {
@@ -78,6 +104,7 @@ impl<T: Copy> InvaVal<T> {
             | InvaVal::SCCW(v) => Some(v),
         }
     }
+
     pub fn as_reg_inv(&self) -> Inva {
         match self {
             InvaVal::NOEX => Inva::NOEX,

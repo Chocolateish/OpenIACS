@@ -1,2 +1,2 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Host(u16);
+pub struct HostLink(pub u16);
