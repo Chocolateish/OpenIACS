@@ -1,0 +1,33 @@
+@import "./line.scss";
+
+chocolatelibui-contextmenu-buffer {
+    display: table-row;
+    height: 1.8rem;
+    text-align: center;
+    position: relative;
+
+    .touch & {
+        height: 3.2rem;
+    }
+
+    @include hover;
+
+    >chocolatelibui-spinner-dots {
+        $spinnerPadding: 0.2rem;
+
+        box-sizing: border-box;
+        position: absolute;
+        height: 1.8rem;
+        z-index: 1;
+        padding: $spinnerPadding;
+        min-width: calc(10rem - $padding - $spinnerPadding);
+
+        .touch & {
+            height: 3.2rem;
+        }
+
+        >svg {
+            fill: var(--\@chocolatelibui\/contextmenu\/hoverText);
+        }
+    }
+}

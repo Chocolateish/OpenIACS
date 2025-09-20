@@ -1,45 +1,29 @@
-import { resolve } from "path";
+/// <reference types="node" />
+import path from "path";
 import { defineConfig } from "vite";
-import { name, dependencies } from "./package.json";
-import dts from "vite-plugin-dts";
 
-export default defineConfig(({ command, mode }) => {
-  console.log(command, mode);
-
-  switch (command) {
-    case "serve":
-      return {
-        server: {
-          host: true,
-          port: 666,
-        },
-        build: {
-          outDir: "../docs",
-          emptyOutDir: true,
-        },
-        preview: {
-          port: 666,
-        },
-        root: "./src",
-      };
-    case "build":
-      if (mode === "tests" || mode === "production") {
-        return {
-          root: "./cypress/pages",
-          build: {
-            outDir: "./dist",
-          },
-          base: "",
-        };
-      } else {
-        return {
-          root: "./src",
-          build: {
-            outDir: "../docs",
-            emptyOutDir: true,
-          },
-          base: "",
-        };
-      }
-  }
+export default defineConfig({
+  server: {
+    port: 5123,
+  },
+  resolve: {
+    alias: {
+      "@package": path.resolve(__dirname, "package.json"),
+      // Common
+      "@result": path.resolve(__dirname, "src/lib/common/result"),
+      "@state": path.resolve(__dirname, "src/lib/common/state"),
+      "@event": path.resolve(__dirname, "src/lib/common/event"),
+      "@string": path.resolve(__dirname, "src/lib/common/string"),
+      "@math": path.resolve(__dirname, "src/lib/common/math"),
+      "@colors": path.resolve(__dirname, "src/lib/common/colors"),
+      // UI
+      "@common": path.resolve(__dirname, "src/lib/ui/common"),
+      "@base": path.resolve(__dirname, "src/lib/ui/base"),
+      "@theme": path.resolve(__dirname, "src/lib/ui/theme"),
+      "@icons": path.resolve(__dirname, "src/lib/ui/icons"),
+      "@svg": path.resolve(__dirname, "src/lib/ui/svg"),
+      "@spinners": path.resolve(__dirname, "src/lib/ui/spinners"),
+      "@contextmenu": path.resolve(__dirname, "src/lib/ui/contextmenu"),
+    },
+  },
 });

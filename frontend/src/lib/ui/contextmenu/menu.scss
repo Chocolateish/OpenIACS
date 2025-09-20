@@ -1,0 +1,40 @@
+@import "./line.scss";
+
+chocolatelibui-contextmenu-menu {
+    display: block;
+    position: fixed;
+    overflow: auto;
+    background-color: var(--\@chocolatelibui\/contextmenu\/background);
+    box-sizing: border-box;
+    min-width: $menuMinWidth;
+    max-width: min($menuMaxWidth, 100%);
+    width: max-content;
+    max-height: 100%;
+    border-radius: 0.5rem;
+    padding: $padding;
+    border: $borderWidth solid var(--\@chocolatelibui\/contextmenu\/border);
+    box-shadow: 0px 0px 10px 3px var(--\@chocolatelibui\/contextmenu\/border);
+    outline: none;
+    overscroll-behavior: contain;
+    z-index: 2;
+    touch-action: none;
+    pointer-events: all;
+
+    &.fullscreen {
+        touch-action: pan-y;
+        border-radius: 0;
+        border: none;
+    }
+
+    >tr {
+        height: 1.8rem;
+
+        .touch & {
+            height: 3.2rem;
+        }
+
+        >chocolatelibui-spinner-dots {
+            position: absolute;
+        }
+    }
+}

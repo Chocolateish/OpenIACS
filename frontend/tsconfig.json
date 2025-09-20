@@ -1,23 +1,44 @@
 {
-  "include": ["src/**/*.ts"],
-  "exclude": ["dist", "node_modules"],
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2022",
+    "useDefineForClassFields": true,
     "module": "ESNext",
-    "lib": ["ESNext", "DOM"],
-    "types": ["cypress"],
-    "moduleResolution": "Node",
-    "strict": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": [],
+    "skipLibCheck": true,
+    "paths": {
+      "@package": ["./package.json"],
+      /*Common */
+      "@result": ["./src/lib/common/result/index.ts"],
+      "@state": ["./src/lib/common/state/index.ts"],
+      "@event": ["./src/lib/common/event/index.ts"],
+      "@string": ["./src/lib/common/string/string.ts"],
+      "@math": ["./src/lib/common/math/index.ts"],
+      "@colors": ["./src/lib/common/colors/index.ts"],
+      /*UI */
+      "@uicommon": ["./src/lib/ui/common/index.ts"],
+      "@base": ["./src/lib/ui/base/index.ts"],
+      "@theme": ["./src/lib/ui/theme/index.ts"],
+      "@icons": ["./src/lib/ui/icons/index.ts"],
+      "@svg": ["./src/lib/ui/svg/index.ts"],
+      "@spinners": ["./src/lib/ui/spinners/index.ts"],
+      "@contextmenu": ["./src/lib/ui/contextmenu/index.ts"]
+    },
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
     "noEmit": true,
+
+    /* Linting */
+    "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noImplicitAny": true,
-    "skipLibCheck": true,
-    "useDefineForClassFields": false,
-    "forceConsistentCasingInFileNames": true
-  }
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src"]
 }
