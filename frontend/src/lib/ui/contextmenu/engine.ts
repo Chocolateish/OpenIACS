@@ -6,12 +6,10 @@ import { type Lines, Menu } from "./menu";
 
 declare global {
   interface Document {
-    "@chocolatelibui/contextmenu": Container | undefined;
+    "@contextmenu": Container | undefined;
   }
   interface Element {
-    "@chocolatelibui/contextmenu":
-      | EventListenerOrEventListenerObject
-      | undefined;
+    "@contextmenu": EventListenerOrEventListenerObject | undefined;
   }
 }
 
@@ -40,7 +38,7 @@ export class Engine {
 
   applyToDoc(doc: Document) {
     let container = new Container(this);
-    doc["@chocolatelibui/contextmenu"] = container;
+    doc["@contextmenu"] = container;
     doc.documentElement.appendChild(container);
     if (this.defaultMenu) {
       this.attachContexMenu(doc.documentElement, this.defaultMenu);
@@ -49,7 +47,7 @@ export class Engine {
 
   /**Attaches a context menu to the given element*/
   attachContexMenu(element: Element, lines?: Lines) {
-    if (element["@chocolatelibui/contextmenu"]) {
+    if (element["@contextmenu"]) {
       console.warn("Context menu already attached to node", element);
     } else {
       if (lines) {
@@ -71,18 +69,15 @@ export class Engine {
         };
         element.addEventListener("contextmenu", listener);
       }
-      element["@chocolatelibui/contextmenu"] = listener;
+      element["@contextmenu"] = listener;
     }
   }
 
   /**Dettaches the context menu from the given element */
   dettachContexMenu(element: Element) {
-    if (element["@chocolatelibui/contextmenu"]) {
-      element.removeEventListener(
-        "contextmenu",
-        element["@chocolatelibui/contextmenu"]
-      );
-      delete element["@chocolatelibui/contextmenu"];
+    if (element["@contextmenu"]) {
+      element.removeEventListener("contextmenu", element["@contextmenu"]);
+      delete element["@contextmenu"];
     } else {
       console.warn("No context menu registered with node", element);
     }
@@ -102,8 +97,8 @@ export class Engine {
     dontCover?: boolean
   ) {
     let container = element
-      ? element.ownerDocument["@chocolatelibui/contextmenu"]
-      : this.handler.main["@chocolatelibui/contextmenu"];
+      ? element.ownerDocument["@contextmenu"]
+      : this.handler.main["@contextmenu"];
     if (container) {
       if (typeof x !== "number" || typeof y !== "number") {
         if (element) {

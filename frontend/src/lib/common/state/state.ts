@@ -2,6 +2,7 @@ import { None, Ok, type Option, Some } from "@result";
 import { StateBase } from "./stateBase";
 import {
   type StateHelper,
+  type StateRead,
   type StateRelated,
   type StateResult,
   type StateWrite,
@@ -95,5 +96,14 @@ export class State<R, W = R, L extends StateRelated = {}>
   set(value: StateResult<R>) {
     this.#value = value;
     this.updateSubscribers(value);
+  }
+
+  //Type
+  get readable() {
+    return this as StateRead<R, L>;
+  }
+
+  get writeable() {
+    return this as StateWrite<R, W, L>;
   }
 }
