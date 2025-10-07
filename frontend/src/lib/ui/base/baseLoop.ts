@@ -31,7 +31,7 @@ export class Loop<T, E extends Node> extends Base {
   #error: (err: StateError) => Node;
   #destructor?: (val: T, element: E) => void;
   #stateArray?: StateArray<T>;
-  #subscriber?: StateSubscriber<StateArrayRead<T>>;
+  #subSubscriber?: StateSubscriber<StateArrayRead<T>>;
   #values: T[] = [];
   #children: E[] = [];
 
@@ -43,15 +43,15 @@ export class Loop<T, E extends Node> extends Base {
   }
 
   set array(array: T[]) {
-    if (this.#subscriber) this.#stateArray?.unsubscribe(this.#subscriber);
+    if (this.#subSubscriber) this.#stateArray?.unsubscribe(this.#subSubscriber);
     this.replaceChildren(...array.map(this.#generator));
   }
 
   set state(state: StateArray<T>) {
     if (state === this.#stateArray) return;
-    if (this.#subscriber) this.#stateArray?.unsubscribe(this.#subscriber);
+    if (this.#subSubscriber) this.#stateArray?.unsubscribe(this.#subSubscriber);
     this.#stateArray = state;
-    this.#subscriber = this.#stateArray.subscribe((val) => {
+    this.#subSubscriber = this.#stateArray.subscribe((val) => {
       if (val.ok) {
         let value = val.value;
         this.#values = stateArrayApplyReadToArray(this.#values, value);
