@@ -1,4 +1,4 @@
-import { Err, Ok } from "@result";
+import { Err, Ok } from "@libResult";
 import { describe, expect, it } from "vitest";
 import { StateResourceFunc } from "./stateResource";
 

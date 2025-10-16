@@ -2,8 +2,8 @@ import {
   createEventHandler,
   type EventConsumer,
   type EventProducer,
-} from "@event";
-import type { StateError, StateRead, StateSubscriber } from "@state";
+} from "@libEvent";
+import type { StateError, StateRead, StateSubscriber } from "@libState";
 import { AccessTypes } from "./access";
 import "./base.scss";
 import { BaseObserver, type BaseObserverOptions } from "./observer";

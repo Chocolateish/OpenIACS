@@ -1,4 +1,4 @@
-import type { StateEnumHelperList } from "@state";
+import type { StateEnumHelperList } from "@libState";
 
 /**Enum of possible access types for base element*/
 export const AccessTypes = {

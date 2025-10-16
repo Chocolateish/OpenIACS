@@ -10,12 +10,12 @@ export default defineConfig({
     alias: {
       "@package": path.resolve(__dirname, "package.json"),
       // Common
-      "@result": path.resolve(__dirname, "src/lib/common/result"),
-      "@state": path.resolve(__dirname, "src/lib/common/state"),
-      "@event": path.resolve(__dirname, "src/lib/common/event"),
-      "@string": path.resolve(__dirname, "src/lib/common/string"),
-      "@math": path.resolve(__dirname, "src/lib/common/math"),
-      "@colors": path.resolve(__dirname, "src/lib/common/colors"),
+      "@libResult": path.resolve(__dirname, "src/lib/common/result"),
+      "@libState": path.resolve(__dirname, "src/lib/common/state"),
+      "@libEvent": path.resolve(__dirname, "src/lib/common/event"),
+      "@libString": path.resolve(__dirname, "src/lib/common/string"),
+      "@libMath": path.resolve(__dirname, "src/lib/common/math"),
+      "@libColors": path.resolve(__dirname, "src/lib/common/colors"),
       // UI
       "@common": path.resolve(__dirname, "src/lib/ui/common"),
       "@base": path.resolve(__dirname, "src/lib/ui/base"),

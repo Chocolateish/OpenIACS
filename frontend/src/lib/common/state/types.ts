@@ -1,4 +1,4 @@
-import type { Option, Result } from "@result";
+import type { Option, Result } from "@libResult";
 
 /**Struct returned when a state errors*/
 export type StateError = {

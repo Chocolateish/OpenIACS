@@ -1,4 +1,4 @@
-import { Ok } from "@result";
+import { Ok } from "@libResult";
 import { describe, expect, it } from "vitest";
 import { State } from "./state";
 import { StateDerived } from "./stateDerived";

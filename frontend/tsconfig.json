@@ -9,12 +9,12 @@
     "paths": {
       "@package": ["./package.json"],
       /*Common */
-      "@result": ["./src/lib/common/result/index.ts"],
-      "@state": ["./src/lib/common/state/index.ts"],
-      "@event": ["./src/lib/common/event/index.ts"],
-      "@string": ["./src/lib/common/string/string.ts"],
-      "@math": ["./src/lib/common/math/index.ts"],
-      "@colors": ["./src/lib/common/colors/index.ts"],
+      "@libResult": ["./src/lib/common/result/index.ts"],
+      "@libState": ["./src/lib/common/state/index.ts"],
+      "@libEvent": ["./src/lib/common/event/index.ts"],
+      "@libString": ["./src/lib/common/string/string.ts"],
+      "@libMath": ["./src/lib/common/math/index.ts"],
+      "@libColors": ["./src/lib/common/colors/index.ts"],
       /*UI */
       "@uicommon": ["./src/lib/ui/common/index.ts"],
       "@base": ["./src/lib/ui/base/index.ts"],

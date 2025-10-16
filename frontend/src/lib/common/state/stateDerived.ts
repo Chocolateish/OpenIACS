@@ -1,4 +1,4 @@
-import { Err } from "@result";
+import { Err } from "@libResult";
 import { StateBase } from "./stateBase";
 import type { StateRead, StateResult, StateSubscriber } from "./types";
 

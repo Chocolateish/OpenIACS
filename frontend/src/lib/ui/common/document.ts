@@ -1,4 +1,4 @@
-import { EventHandler, type EventConsumer } from "@event";
+import { EventHandler, type EventConsumer } from "@libEvent";
 
 interface DocumentHandlerEvents {
   /**Fired when document is added*/

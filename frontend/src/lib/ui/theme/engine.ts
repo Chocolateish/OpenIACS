@@ -1,4 +1,4 @@
-import type { ESubscriber } from "@event";
+import type { ESubscriber } from "@libEvent";
 import type DocumentHandler from "../common/document";
 import {
   AnimationLevels,

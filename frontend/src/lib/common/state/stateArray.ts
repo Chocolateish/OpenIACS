@@ -1,4 +1,4 @@
-import { Err, None, Ok, type Option, Some } from "@result";
+import { Err, None, Ok, type Option, Some } from "@libResult";
 import { StateBase } from "./stateBase";
 import type {
   StateError,

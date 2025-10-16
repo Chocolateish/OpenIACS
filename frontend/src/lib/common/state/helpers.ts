@@ -1,4 +1,4 @@
-import { None, Some, type Option } from "@result";
+import { None, Some, type Option } from "@libResult";
 import type { StateHelper } from "./types";
 
 export interface StateNumberHelperType {

@@ -1,5 +1,5 @@
-import { Ok, type Option } from "@result";
-import { State, type StateSubscriber } from "@state";
+import { Ok, type Option } from "@libResult";
+import { State, type StateSubscriber } from "@libState";
 import {
   StateArray,
   type StateArrayRead,

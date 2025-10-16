@@ -1,4 +1,4 @@
-import { None, Ok, type Option, Some } from "@result";
+import { None, Ok, type Option, Some } from "@libResult";
 import { StateBase } from "./stateBase";
 import {
   type StateHelper,
@@ -17,9 +17,7 @@ export class State<R, W = R, L extends StateRelated = {}>
    * @param setter function called when state value is set via setter, set true let write set it's value
    * @param helper functions to check and limit the value, and to return related states */
   constructor(
-    init:
-      | StateResult<Exclude<R, Function>>
-      | (() => StateResult<Exclude<R, Function>>),
+    init: StateResult<Exclude<R, Function>> | (() => StateResult<R>),
     setter?: ((value: W) => Option<StateResult<R>>) | true,
     helper?: StateHelper<W, L>
   ) {

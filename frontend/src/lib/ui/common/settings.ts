@@ -1,11 +1,11 @@
-import { Ok, type Option } from "@result";
+import { Ok, type Option } from "@libResult";
 import {
   State,
   type StateHelper,
   type StateRelated,
   type StateResult,
   type StateWrite,
-} from "@state";
+} from "@libState";
 
 let nameTransformer: ((name: string) => string) | undefined;
 export let settingsSetNameTransform = (transform: (name: string) => string) => {

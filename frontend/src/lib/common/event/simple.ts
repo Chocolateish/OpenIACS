@@ -156,6 +156,10 @@ export class EventHandler<Events extends {}, Target>
   amount<K extends keyof Events>(eventName: K): number {
     return this.eventHandler_ListenerStorage[eventName]?.length || 0;
   }
+
+  get consumer(): EventConsumer<Events, Target> {
+    return this;
+  }
 }
 
 /**Creates an event handler

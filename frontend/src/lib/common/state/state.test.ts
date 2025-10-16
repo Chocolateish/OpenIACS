@@ -1,4 +1,4 @@
-import { Err, Ok, Some, type Result } from "@result";
+import { Err, Ok, Some, type Result } from "@libResult";
 import { describe, expect, it } from "vitest";
 import { State } from "./state";
 import type { StateError } from "./types";

@@ -305,6 +305,10 @@ export class EventHandlerSub<Events extends {}, Target>
       return 0;
     }
   }
+
+  get consumer(): EventSubConsumer<Events, Target> {
+    return this;
+  }
 }
 
 /**Creates an event handler

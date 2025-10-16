@@ -1,4 +1,4 @@
-import { None, type Option } from "@result";
+import { None, type Option } from "@libResult";
 import {
   type StateRead,
   type StateRelated,

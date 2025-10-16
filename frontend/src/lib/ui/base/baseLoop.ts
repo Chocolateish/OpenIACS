@@ -1,4 +1,4 @@
-import type { StateError, StateSubscriber } from "@state";
+import type { StateError, StateSubscriber } from "@libState";
 import {
   StateArray,
   stateArrayApplyReadToArray,
