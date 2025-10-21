@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { createEventHandlerSub } from "./sub";
+import { EventHandlerSub } from "./sub";
 
 describe("Init", function () {
   it("Create Simple Event Handler", function () {
-    let handler = createEventHandlerSub(undefined);
+    let handler = new EventHandlerSub(undefined);
     expect(handler).toBeDefined();
   });
   it("Create Simple Event Handler With Types", function () {
-    let handler = createEventHandlerSub<{ test: number }, undefined>(undefined);
+    let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
     handler.consumer.on("test", (e) => {
       e.type;
       e.target;
@@ -19,13 +19,13 @@ describe("Init", function () {
 
 describe("Adding and removing listeners", function () {
   it("Checking if listener is added to handler with single type", function () {
-    let handler = createEventHandlerSub<{ test: number }, undefined>(undefined);
+    let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
     expect(handler.producer.inUse("test")).equal(false);
     handler.consumer.on("test", () => {});
     expect(handler.producer.inUse("test")).equal(true);
   });
   it("Checking if listener is added to handler with multiple types", function () {
-    let handler = createEventHandlerSub<
+    let handler = new EventHandlerSub<
       { test: number; test2: number; test3: number },
       undefined
     >(undefined);
@@ -40,20 +40,20 @@ describe("Adding and removing listeners", function () {
     expect(handler.producer.inUse("test3")).equal(true);
   });
   it("Checking if listener is added to handler with single type and specific listener", function () {
-    let handler = createEventHandlerSub<{ test: number }, undefined>(undefined);
+    let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
     expect(handler.producer.inUse("test")).equal(false);
     let lis = handler.consumer.on("test", () => {});
     expect(handler.producer.has("test", lis)).equal(true);
   });
   it("Checking if listener is removed from handler with single type", function () {
-    let handler = createEventHandlerSub<{ test: number }, undefined>(undefined);
+    let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
     let lis = handler.consumer.on("test", () => {});
     expect(handler.producer.inUse("test")).equal(true);
     handler.consumer.off("test", lis);
     expect(handler.producer.inUse("test")).equal(false);
   });
   it("Checking if listener is removed from handler with multiple types", function () {
-    let handler = createEventHandlerSub<
+    let handler = new EventHandlerSub<
       { test: number; test2: number; test3: number },
       undefined
     >(undefined);
@@ -75,7 +75,7 @@ describe("Adding and removing listeners", function () {
     ).equal(false);
   });
   it("Clearing listeners from handler", function () {
-    let handler = createEventHandlerSub<
+    let handler = new EventHandlerSub<
       { test: number; test2: number; test3: number },
       undefined
     >(undefined);
@@ -101,9 +101,7 @@ describe("Adding and removing listeners", function () {
 describe("Dispatching event", function () {
   it("Checking if values are correct when dispatching event", async function () {
     return new Promise<void>((done) => {
-      let handler = createEventHandlerSub<{ test: number }, undefined>(
-        undefined
-      );
+      let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
       handler.consumer.on("test", (e) => {
         expect(e.type).equal("test");
         expect(e.target).equal(undefined);
@@ -114,31 +112,24 @@ describe("Dispatching event", function () {
     });
   });
 
-  it("Checking if values are correct when dispatching event with once option set true", function () {
-    let handler = createEventHandlerSub<{ test: number }, undefined>(undefined);
-    let cool = 0;
-    handler.consumer.once("test", (e) => {
-      cool++;
-      expect(e.type).equal("test");
-      expect(e.target).equal(undefined);
-      expect(e.data).equal(10);
-    });
+  it("Checking listener removing itself on event", function () {
+    let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
+    handler.consumer.on("test", () => {});
+    handler.consumer.on("test", () => true);
     handler.producer.emit("test", 10);
-    expect(handler.producer.inUse("test")).equal(false);
-    handler.producer.emit("test", 10);
-    expect(cool).equal(1);
+    expect(handler.producer.amount("test")).equal(1);
   });
 });
 
 describe("Adding and removing sub listeners", function () {
   it("Checking if listener is added to handler with single type", function () {
-    let handler = createEventHandlerSub<{ test: number }, undefined>(undefined);
+    let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
     expect(handler.producer.inUse("test", ["a", "b", "c"])).equal(false);
     handler.consumer.on("test", () => {}, ["a", "b", "c"]);
     expect(handler.producer.inUse("test", ["a", "b", "c"])).equal(true);
   });
   it("Checking if listener is added to handler with multiple types", function () {
-    let handler = createEventHandlerSub<
+    let handler = new EventHandlerSub<
       { test: number; test2: number; test3: number },
       undefined
     >(undefined);
@@ -153,20 +144,20 @@ describe("Adding and removing sub listeners", function () {
     expect(handler.producer.inUse("test3", ["a", "b", "c"])).equal(true);
   });
   it("Checking if listener is added to handler with single type and specific listener", function () {
-    let handler = createEventHandlerSub<{ test: number }, undefined>(undefined);
+    let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
     expect(handler.producer.inUse("test", ["a", "b", "c"])).equal(false);
     let lis = handler.consumer.on("test", () => {}, ["a", "b", "c"]);
     expect(handler.producer.has("test", lis, ["a", "b", "c"])).equal(true);
   });
   it("Checking if listener is removed from handler with single type", function () {
-    let handler = createEventHandlerSub<{ test: number }, undefined>(undefined);
+    let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
     let lis = handler.consumer.on("test", () => {}, ["a", "b", "c"]);
     expect(handler.producer.inUse("test", ["a", "b", "c"])).equal(true);
     handler.consumer.off("test", lis, ["a", "b", "c"]);
     expect(handler.producer.inUse("test", ["a", "b", "c"])).equal(false);
   });
   it("Checking if listener is removed from handler with multiple types", function () {
-    let handler = createEventHandlerSub<
+    let handler = new EventHandlerSub<
       { test: number; test2: number; test3: number },
       undefined
     >(undefined);
@@ -188,7 +179,7 @@ describe("Adding and removing sub listeners", function () {
     ).equal(false);
   });
   it("Clearing listeners from handler", function () {
-    let handler = createEventHandlerSub<
+    let handler = new EventHandlerSub<
       { test: number; test2: number; test3: number },
       undefined
     >(undefined);
@@ -210,7 +201,7 @@ describe("Adding and removing sub listeners", function () {
     ).equal(false);
   });
   it("Clearing all listeners from handler in once", function () {
-    let handler = createEventHandlerSub<
+    let handler = new EventHandlerSub<
       { test: number; test2: number; test3: number },
       undefined
     >(undefined);
@@ -234,9 +225,7 @@ describe("Adding and removing sub listeners", function () {
 describe("Dispatching sub event", function () {
   it("Checking if values are correct when dispatching event", async function () {
     return new Promise<void>((done) => {
-      let handler = createEventHandlerSub<{ test: number }, undefined>(
-        undefined
-      );
+      let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
       handler.consumer.on(
         "test",
         (e) => {
@@ -251,27 +240,8 @@ describe("Dispatching sub event", function () {
     });
   });
 
-  it("Checking if values are correct when dispatching event with once option set true", function () {
-    let handler = createEventHandlerSub<{ test: number }, undefined>(undefined);
-    let cool = 0;
-    handler.consumer.once(
-      "test",
-      (e) => {
-        cool++;
-        expect(e.type).equal("test");
-        expect(e.target).equal(undefined);
-        expect(e.data).equal(10);
-      },
-      ["a", "b", "c"]
-    );
-    handler.producer.emit("test", 10, ["a", "b", "c"]);
-    expect(handler.producer.inUse("test", ["a", "b", "c"])).equal(false);
-    handler.producer.emit("test", 10, ["a", "b", "c"]);
-    expect(cool).equal(1);
-  });
-
   it("Checking amount of listners", function () {
-    let handler = createEventHandlerSub<{ test: number }, undefined>(undefined);
+    let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
     handler.consumer.on("test", () => {});
     handler.consumer.on("test", () => {});
     handler.consumer.on("test", () => {});
@@ -286,21 +256,26 @@ describe("Target override", function () {
   it("Target override event", async function () {
     return new Promise<void>((done) => {
       let target = {
+        test1: 8,
+        test2: "string2",
+      };
+      let target2 = {
         test1: 5,
         test2: "string",
       };
-      let handler = createEventHandlerSub<{ test: number }, typeof target>(
+      let handler = new EventHandlerSub<{ test: number }, typeof target>(
         target
       );
-      handler.consumer.on("test", (e) => {
+      handler.target = target2;
+      handler.on("test", (e) => {
         expect(e.type).equal("test");
-        expect(e.target).equal(target);
+        expect(e.target).equal(target2);
         expect(e.data).equal(10);
         expect(e.target.test1).equal(5);
         expect(e.target.test2).equal("string");
         done();
       });
-      handler.producer.emit("test", 10);
+      handler.emit("test", 10);
     });
   });
 });

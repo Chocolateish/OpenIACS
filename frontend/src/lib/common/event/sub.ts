@@ -1,5 +1,5 @@
 /**Path to subevent */
-type SubPath = [string, ...string[]];
+type SubPath = string[];
 
 /**Event class
  * contains the needed data to dispatch an event*/
@@ -27,14 +27,9 @@ export type ESubSubscriber<Type, Target, Data> = (
 ) => boolean | void;
 
 export interface EventSubConsumer<Events extends {}, Target> {
-  /**This add the subscriber to the event handler*/
+  /**This add the subscriber to the event handler
+   * Returning true in subscriber will remove the subscriber from the event handler after call*/
   on<K extends keyof Events>(
-    eventName: K,
-    subscriber: ESubSubscriber<K, Target, Events[K]>,
-    sub?: SubPath
-  ): typeof subscriber;
-  /**This add the subscriber to the event handler which is automatically removed at first call*/
-  once<K extends keyof Events>(
     eventName: K,
     subscriber: ESubSubscriber<K, Target, Events[K]>,
     sub?: SubPath
@@ -85,13 +80,14 @@ interface ListenerStorage<K, Handler, Type> {
 export class EventHandlerSub<Events extends {}, Target>
   implements EventSubProducer<Events, Target>
 {
-  constructor(target: Target) {
-    this.target = target;
-  }
+  private _running: string | number | symbol = "";
   target: Target;
   private eventHandler_ListenerStorage: {
     [K in keyof Events]?: ListenerStorage<K, Target, Events[K]>;
   } = {};
+  constructor(target: Target) {
+    this.target = target;
+  }
   on<K extends keyof Events>(
     eventName: K,
     subscriber: ESubSubscriber<K, Target, Events[K]>,
@@ -123,26 +119,17 @@ export class EventHandlerSub<Events extends {}, Target>
     }
     return subscriber;
   }
-  once<K extends keyof Events>(
-    eventName: K,
-    subscriber: ESubSubscriber<K, Target, Events[K]>,
-    sub?: SubPath
-  ): typeof subscriber {
-    this.on(
-      eventName,
-      function (e) {
-        subscriber(e);
-        return true;
-      },
-      sub
-    );
-    return subscriber;
-  }
   off<K extends keyof Events>(
     eventName: K,
     subscriber: ESubSubscriber<K, Target, Events[K]>,
     sub?: SubPath
   ): typeof subscriber {
+    if (eventName === this._running) {
+      console.warn(
+        "Cannot remove subscriber for event while it is being dispatched"
+      );
+      return subscriber;
+    }
     var subLevel = this.eventHandler_ListenerStorage[eventName];
     if (subLevel) {
       if (sub) {
@@ -166,11 +153,13 @@ export class EventHandlerSub<Events extends {}, Target>
     }
     return subscriber;
   }
+
   emit<K extends keyof Events>(
     eventName: K,
     data: Events[K],
     sub?: SubPath
   ): void {
+    this._running = eventName;
     if (sub) {
       var subLevel = this.eventHandler_ListenerStorage[eventName];
       if (subLevel) {
@@ -191,9 +180,6 @@ export class EventHandlerSub<Events extends {}, Target>
       let event = Object.freeze(
         new ESub<K, Target, Events[K]>(eventName, this.target, data, sub)
       );
-      if (funcs.length > 1) {
-        funcs = [...funcs];
-      }
       for (let i = 0, n = funcs.length; i < n; i++) {
         try {
           if (funcs[i](event) === true) {
@@ -206,6 +192,7 @@ export class EventHandlerSub<Events extends {}, Target>
         }
       }
     }
+    this._running = "";
   }
   clear<K extends keyof Events>(
     eventName: K,
@@ -309,16 +296,7 @@ export class EventHandlerSub<Events extends {}, Target>
   get consumer(): EventSubConsumer<Events, Target> {
     return this;
   }
+  get producer(): EventSubProducer<Events, Target> {
+    return this;
+  }
 }
-
-/**Creates an event handler
- * @param target is the owner of the event handler, the event consumers might need this to perform their actions */
-export const createEventHandlerSub = <Events extends {}, Target>(
-  target: Target
-) => {
-  let handler = new EventHandlerSub(target);
-  return {
-    producer: handler as EventSubProducer<Events, Target>,
-    consumer: handler as EventSubConsumer<Events, Target>,
-  };
-};

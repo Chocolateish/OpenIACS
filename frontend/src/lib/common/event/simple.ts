@@ -21,16 +21,13 @@ export type ESubscriber<Type, Target, Data> = (
 ) => boolean | void;
 
 export interface EventConsumer<Events extends {}, Target> {
-  /**This add the subscriber to the event handler*/
+  /**This add the subscriber to the event handler
+   * Returning true in subscriber will remove the subscriber from the event handler after call*/
   on<K extends keyof Events>(
     eventName: K,
     subscriber: ESubscriber<K, Target, Events[K]>
   ): typeof subscriber;
-  /**This add the subscriber to the event handler which is automatically removed at first call*/
-  once<K extends keyof Events>(
-    eventName: K,
-    subscriber: ESubscriber<K, Target, Events[K]>
-  ): typeof subscriber;
+
   /**This removes the subscriber from the event handler*/
   off<K extends keyof Events>(
     eventName: K,
@@ -57,17 +54,17 @@ export interface EventProducer<Events extends {}, Target>
   amount<K extends keyof Events>(eventName: K): number;
 }
 
-export class EventHandler<Events extends {}, Target>
+export class EventHandler<Events extends { [key: string]: any }, Target>
   implements EventProducer<Events, Target>
 {
-  constructor(target: Target) {
-    this.target = target;
-  }
+  private _running: string | number | symbol = "";
   target: Target;
   private eventHandler_ListenerStorage: {
     [K in keyof Events]?: ESubscriber<K, Target, Events[K]>[];
   } = {};
-
+  constructor(target: Target) {
+    this.target = target;
+  }
   on<K extends keyof Events>(
     eventName: K,
     subscriber: ESubscriber<K, Target, Events[K]>
@@ -86,21 +83,16 @@ export class EventHandler<Events extends {}, Target>
     return subscriber;
   }
 
-  once<K extends keyof Events>(
-    eventName: K,
-    subscriber: ESubscriber<K, Target, Events[K]>
-  ) {
-    this.on(eventName, function (e) {
-      subscriber(e);
-      return true;
-    });
-    return subscriber;
-  }
-
   off<K extends keyof Events>(
     eventName: K,
     subscriber: ESubscriber<K, Target, Events[K]>
   ) {
+    if (eventName === this._running) {
+      console.warn(
+        "Cannot remove subscriber for event while it is being dispatched"
+      );
+      return subscriber;
+    }
     let typeListeners = this.eventHandler_ListenerStorage[eventName];
     if (typeListeners) {
       let index = typeListeners.indexOf(subscriber);
@@ -116,12 +108,10 @@ export class EventHandler<Events extends {}, Target>
   emit<K extends keyof Events>(eventName: K, data: Events[K]) {
     let funcs = this.eventHandler_ListenerStorage[eventName];
     if (funcs && funcs.length > 0) {
+      this._running = eventName;
       let event = Object.freeze(
         new E<K, Target, Events[K]>(eventName, this.target, data)
       );
-      if (funcs.length > 1) {
-        funcs = [...funcs];
-      }
       for (let i = 0, n = funcs.length; i < n; i++) {
         try {
           if (funcs[i](event) === true) {
@@ -133,6 +123,7 @@ export class EventHandler<Events extends {}, Target>
           console.warn("Failed while dispatching event", e);
         }
       }
+      this._running = "";
     }
   }
 
@@ -160,17 +151,7 @@ export class EventHandler<Events extends {}, Target>
   get consumer(): EventConsumer<Events, Target> {
     return this;
   }
+  get producer(): EventProducer<Events, Target> {
+    return this;
+  }
 }
-
-/**Creates an event handler
- * @param target is the owner of the event handler, the event consumers might need this to perform their actions*/
-export const createEventHandler = <Events extends {}, Target>(
-  target: Target
-) => {
-  let handler = new EventHandler(target);
-  handler.target = target;
-  return {
-    producer: handler as EventProducer<Events, Target>,
-    consumer: handler as EventConsumer<Events, Target>,
-  };
-};
