@@ -9,20 +9,20 @@
     "paths": {
       "@package": ["./package.json"],
       /*Common */
-      "@libResult": ["./src/lib/common/result/index.ts"],
-      "@libState": ["./src/lib/common/state/index.ts"],
-      "@libEvent": ["./src/lib/common/event/index.ts"],
-      "@libString": ["./src/lib/common/string/string.ts"],
-      "@libMath": ["./src/lib/common/math/index.ts"],
-      "@libColors": ["./src/lib/common/colors/index.ts"],
+      "@libResult": ["src/lib/result/index.ts"],
+      "@libState": ["src/lib/state/index.ts"],
+      "@libEvent": ["src/lib/event/index.ts"],
+      "@libString": ["src/lib/string/string.ts"],
+      "@libMath": ["src/lib/math/index.ts"],
+      "@libColors": ["src/lib/colors/index.ts"],
       /*UI */
-      "@uicommon": ["./src/lib/ui/common/index.ts"],
-      "@base": ["./src/lib/ui/base/index.ts"],
-      "@theme": ["./src/lib/ui/theme/index.ts"],
-      "@icons": ["./src/lib/ui/icons/index.ts"],
-      "@svg": ["./src/lib/ui/svg/index.ts"],
-      "@spinners": ["./src/lib/ui/spinners/index.ts"],
-      "@contextmenu": ["./src/lib/ui/contextmenu/index.ts"]
+      "@uicommon": ["src/common/index.ts"],
+      "@base": ["src/lib/base/index.ts"],
+      "@theme": ["src/lib/theme/index.ts"],
+      "@icons": ["src/icons/index.ts"],
+      "@svg": ["src/lib/svg/index.ts"],
+      "@spinners": ["src/spinners/index.ts"],
+      "@contextmenu": ["src/contextmenu/index.ts"]
     },
 
     /* Bundler mode */

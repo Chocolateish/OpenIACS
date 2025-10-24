@@ -1,9 +1,6 @@
-import { Ok, type Option } from "@libResult";
-import { State, type StateSubscriber } from "@libState";
-import {
-  StateArray,
-  type StateArrayRead,
-} from "../lib/common/state/stateArray";
+import { Ok, type Option } from "../lib/result";
+import { State, type StateSubscriber } from "../lib/state";
+import { StateArray, type StateArrayRead } from "../lib/state/stateArray";
 
 class Base {}
 

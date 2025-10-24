@@ -1,4 +1,4 @@
-import "@libResult";
+import "./lib/result";
 import "./main.scss";
 
 (async () => {})();
