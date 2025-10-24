@@ -1,44 +1,7 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": [],
-    "skipLibCheck": true,
-    "paths": {
-      "@package": ["./package.json"],
-      /*Common */
-      "@libResult": ["src/lib/result/index.ts"],
-      "@libState": ["src/lib/state/index.ts"],
-      "@libEvent": ["src/lib/event/index.ts"],
-      "@libString": ["src/lib/string/string.ts"],
-      "@libMath": ["src/lib/math/index.ts"],
-      "@libColors": ["src/lib/colors/index.ts"],
-      /*UI */
-      "@uicommon": ["src/common/index.ts"],
-      "@base": ["src/lib/base/index.ts"],
-      "@theme": ["src/lib/theme/index.ts"],
-      "@icons": ["src/icons/index.ts"],
-      "@svg": ["src/lib/svg/index.ts"],
-      "@spinners": ["src/spinners/index.ts"],
-      "@contextmenu": ["src/contextmenu/index.ts"]
-    },
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
-  },
-  "include": ["src"]
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
 }

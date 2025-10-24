@@ -1,5 +1,5 @@
 {
-  "name": "lm-service",
+  "name": "openiacs-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,10 +10,12 @@
     "test": "vitest"
   },
   "devDependencies": {
-    "@types/node": "^24.3.1",
-    "sass": "^1.92.0",
-    "typescript": "~5.8.3",
-    "vite": "^7.1.2",
+    "@types/node": "^24.6.0",
+    "jsdom": "^27.0.1",
+    "sass": "^1.93.2",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.7",
+    "vite-plugin-solid": "^2.11.8",
     "vitest": "^3.2.4"
   }
 }

@@ -1,11 +1,13 @@
-/// <reference types="node" />
 import path from "path";
 import { defineConfig } from "vite";
+import solid from "vite-plugin-solid";
 
 export default defineConfig({
+  plugins: [solid()],
   server: {
-    port: 5123,
+    port: 9999,
   },
+  root: path.resolve(__dirname, "src"),
   resolve: {
     alias: {
       "@package": path.resolve(__dirname, "package.json"),
