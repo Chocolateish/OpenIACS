@@ -1,0 +1,14 @@
+$componentMinWidth: 10rem;
+
+.h {
+    display: none;
+}
+
+:root {
+    --componentTitleTextPadding: 0.1rem 0.5rem 0.1rem 0.5rem;
+    --componentCornerRadius: 0.4rem;
+    --componentShadowOut: 0 0.125rem 0.1875rem 0 var(--componentBorderColor);
+    --componentShadowIn: inset 0 0.125rem 0.1875rem 0 var(--componentBorderColor);
+    --componentShadowFocus: 0 0 0 0.2rem var(--componentFocusOutlineColor);
+    --componentShadowFocusIn: inset 0 0 0 0.2rem var(--componentFocusOutlineColor);
+}

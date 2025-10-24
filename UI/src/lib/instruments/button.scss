@@ -1,0 +1,54 @@
+svg.lib-instrument-button {
+  font-size: 16px;
+  overflow: visible;
+  pointer-events: all;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+
+  foreignObject {
+    > div {
+      color: var(--instrButtonText);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  rect {
+    fill: var(--instrButtonBackground);
+    stroke: var(--instrButtonOuterColor);
+  }
+
+  > .light > rect {
+    fill: var(--instrLampGreenColor);
+  }
+
+  .red > rect {
+    fill: var(--instrLampRedColor);
+  }
+
+  > .press {
+    rect {
+      fill: var(--instrButtonBackgroundPressed);
+    }
+  }
+
+  .NONE + g {
+    display: none;
+  }
+
+  .READ + g {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .invalid + g {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}

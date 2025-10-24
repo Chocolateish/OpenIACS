@@ -1,0 +1,91 @@
+$transitionTime: 300ms;
+$transitionType: ease;
+$colorTransitionTime:1000ms;
+$colorTransitionType:ease;
+$headerHeight: 1.6rem;
+
+alarm-list {
+    display: flex;
+    flex-direction: column;
+
+    >div {
+        flex-grow: 1;
+        overflow: auto;
+
+        >div {
+            display: table;
+            min-width: 100%;
+
+            >tr {
+                height: $headerHeight;
+                box-shadow: 0px 0px 3px 1px black;
+                position: -webkit-sticky;
+                position: sticky;
+                top: 0px;
+                z-index: 2;
+                background-color: var(--contentBackGround);
+                -webkit-user-select: none;
+                user-select: none;
+                pointer-events: none;
+
+                >td {
+                    text-align: center;
+                    vertical-align: middle;
+                }
+
+                .anim & {
+                    transition: background-color var(--colorTransitionType) var(--colorTransitionTime);
+                }
+            }
+
+            >div {
+                display: table-row-group;
+            }
+        }
+    }
+
+    >comp-group {
+        flex-shrink: 0;
+    }
+}
+
+alarm-listalarmrow {
+    display: table-row;
+    height: 2rem;
+    border: 1px;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: none;
+
+    &.Triggered:first-child {
+        position: -webkit-sticky;
+        position: sticky;
+        top: $headerHeight;
+        z-index: 1;
+    }
+
+    >td {
+        text-align: center;
+        vertical-align: middle;
+        padding: 0.2rem;
+
+        &:last-child {
+            width: 3rem;
+            padding: 0.2rem;
+            pointer-events: all;
+        }
+    }
+
+    &.Triggered {
+        background-color: var(--alarmListTriggeredBackgroundColor);
+    }
+
+    &.Acknowledged {
+        background-color: var(--alarmListAcknowledgeBackgroundColor);
+    }
+
+    .anim & {
+        transition: background-color var(--colorTransitionType) var(--colorTransitionTime);
+    }
+}

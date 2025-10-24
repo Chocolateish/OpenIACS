@@ -1,0 +1,46 @@
+@use "../components/common.scss";
+
+lib-component-text {
+  display: block;
+  color: var(--componentLabelTextColor);
+  -webkit-user-select: none;
+  user-select: none;
+
+  .anim & {
+    transition: color var(--colorTransitionType) var(--colorTransitionTime);
+  }
+
+  &.READ {
+    filter: var(--readOpacityFilter);
+    pointer-events: none;
+  }
+
+  &.NONE {
+    display: none;
+  }
+}
+
+comp-textvalue {
+  display: flex;
+  flex-direction: column;
+  color: var(--componentLabelTextColor);
+  -webkit-user-select: none;
+  user-select: none;
+
+  .anim & {
+    transition: color var(--colorTransitionType) var(--colorTransitionTime);
+  }
+
+  &.READ {
+    filter: var(--readOpacityFilter);
+    pointer-events: none;
+  }
+
+  &.NONE {
+    display: none;
+  }
+
+  > div > :first-child {
+    font-size: 0.8em;
+  }
+}

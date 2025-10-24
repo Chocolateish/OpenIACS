@@ -1,0 +1,60 @@
+event-logviewer {
+    display: flex;
+    flex-direction: column;
+    $headerHeight: 1.6rem;
+
+    >comp-group {
+        flex-shrink: 0;
+    }
+
+    >div {
+        flex-grow: 1;
+
+        >div {
+            display: table;
+            min-width: 100%;
+
+            >tr:first-child {
+                height: $headerHeight;
+                box-shadow: 0px 0px 3px 1px black;
+                position: -webkit-sticky;
+                position: sticky;
+                top: 0px;
+                z-index: 2;
+                background-color: var(--contentBackGround);
+                -ms-user-select: none;
+                -webkit-user-select: none;
+                user-select: none;
+                pointer-events: none;
+
+                >td {
+                    text-align: center;
+                    vertical-align: middle;
+
+                    &:first-child {
+                        width: 10rem;
+                    }
+                }
+            }
+
+            >div {
+                display: table-row-group;
+            }
+        }
+    }
+}
+
+event-logviewerrow{
+    display: table-row;
+    height: 2rem;
+    border: 1px;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: none;
+
+    >td {
+        text-align: center;
+        vertical-align: middle;
+    }
+}

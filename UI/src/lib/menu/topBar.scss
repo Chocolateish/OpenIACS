@@ -1,0 +1,73 @@
+lib-menu-top-bar {
+  display: flex;
+  flex-direction: row;
+  height: 3rem;
+  width: 100%;
+  background-color: var(--menubarColor);
+  color: var(--menubarTextColor);
+  flex-shrink: 0;
+  flex-grow: 0;
+  text-align: center;
+
+  > * {
+    height: 3rem;
+  }
+
+  .anim & {
+    transition: height var(--sizeTransitionType) var(--sizeTransitionTime),
+      background-color var(--colorTransitionType) var(--colorTransitionTime),
+      color var(--colorTransitionType) var(--colorTransitionTime);
+  }
+
+  > div.devider {
+    display: flex;
+    flex-grow: 1;
+  }
+
+  svg {
+    fill: var(--menubarIconColor);
+
+    .anim & {
+      transition: fill var(--colorTransitionType) var(--colorTransitionTime);
+    }
+  }
+}
+
+lib-menu-top-bar-button {
+  -webkit-user-select: none;
+  user-select: none;
+  display: flex;
+  flex: 0 0 3rem;
+  background-color: inherit;
+
+  @media (pointer: fine) {
+    &:hover {
+      background-color: var(--componentHoverBackGroundColor);
+    }
+  }
+
+  > svg.icon {
+    height: 100%;
+    width: auto;
+    padding: 0.3rem;
+
+    .anim & {
+      transition: padding var(--sizeTransitionType) var(--sizeTransitionTime),
+        fill var(--colorTransitionType) var(--colorTransitionTime);
+    }
+  }
+
+  > div {
+    display: flex;
+    align-items: center;
+    width: max-content;
+
+    &:not(:empty) {
+      padding: 0 0.4rem 0 0.4rem;
+    }
+
+    .anim & {
+      transition: padding var(--sizeTransitionType) var(--sizeTransitionTime);
+    }
+  }
+}

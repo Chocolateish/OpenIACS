@@ -1,0 +1,32 @@
+@use "@libComponentsCSS/common.scss";
+
+module-automationoutputsignal {
+  -webkit-user-select: none;
+  user-select: none;
+  display: block;
+
+  &.READ {
+    filter: var(--readOpacityFilter);
+    pointer-events: none;
+  }
+
+  &.NONE {
+    display: none;
+  }
+
+  > span {
+    display: block;
+    padding: var(--componentTitleTextPadding);
+    color: var(--componentLabelTextColor);
+
+    .anim & {
+      transition: color var(--colorTransitionType) var(--colorTransitionTime);
+    }
+  }
+
+  > div {
+    padding: 0.5rem;
+    border-radius: var(--componentCornerRadius);
+    border: 1px solid var(--componentBorderColor);
+  }
+}

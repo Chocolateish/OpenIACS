@@ -1,0 +1,36 @@
+svg.lib-instrument-grid {
+  overflow: visible;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+
+  > g > :first-child {
+    rx: 1rem;
+    fill: none;
+    stroke: var(--contentTextColor);
+    stroke-width: 0.2rem;
+  }
+  > g > line {
+    stroke: var(--contentTextColor);
+
+    &.colTitleLine {
+      stroke-width: 0.15rem;
+    }
+    &.rowTitleLine {
+      stroke-width: 0.15rem;
+    }
+    &.colLine {
+      stroke-width: 0.1rem;
+      stroke-dasharray: 0.5rem, 0.5rem;
+      stroke-dashoffset: 0.3rem;
+    }
+    &.rowLine {
+      stroke-width: 0.1rem;
+      stroke-dasharray: 1rem, 0.5rem;
+      stroke-dashoffset: 0.5rem;
+    }
+  }
+  > g > text {
+    fill: var(--contentTextColor);
+  }
+}

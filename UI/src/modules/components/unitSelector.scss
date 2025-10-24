@@ -1,0 +1,125 @@
+unit-selector {
+  padding: 0.5rem;
+
+  > lister-container {
+    box-sizing: border-box;
+    min-height: unset;
+    max-height: 100%;
+    height: 100%;
+
+    > div {
+      min-height: unset;
+      max-height: 100%;
+    }
+  }
+}
+
+unit-selectoropener {
+  $height: 2rem;
+  $touchHeight: 3rem;
+
+  min-width: min-content;
+  display: flex;
+
+  &.up {
+    flex-direction: column-reverse;
+  }
+
+  &.down {
+    flex-direction: column;
+  }
+
+  &.left {
+    flex-direction: row-reverse;
+  }
+
+  &.right {
+    flex-direction: row;
+  }
+
+  &.READ {
+    filter: var(--readOpacityFilter);
+    pointer-events: none;
+  }
+
+  &.NONE {
+    display: none;
+  }
+
+  > span {
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    padding: var(--componentTitleTextPadding);
+    color: var(--componentLabelTextColor);
+
+    .anim & {
+      transition: color var(--colorTransitionType) var(--colorTransitionTime);
+    }
+  }
+
+  > div {
+    position: relative;
+    background-color: var(--componentBackGroundColor);
+    color: var(--componentTextColor);
+    border-radius: var(--componentCornerRadius);
+    border: 1px solid var(--componentBorderColor);
+    display: flex;
+    flex-direction: row;
+    box-shadow: var(--componentShadowIn);
+    overflow: hidden;
+    min-width: 6rem;
+    height: $height;
+    box-sizing: border-box;
+    padding: 0.2rem;
+
+    .touch & {
+      height: $touchHeight;
+    }
+
+    > comp-button {
+      min-height: auto;
+    }
+
+    .anim & {
+      transition: background-color var(--colorTransitionType)
+          var(--colorTransitionTime),
+        box-shadow var(--colorTransitionType) var(--colorTransitionTime),
+        border-color var(--colorTransitionType) var(--colorTransitionTime);
+    }
+
+    @media (pointer: fine) {
+      &:hover {
+        background-color: var(--componentHoverBackGroundColor);
+      }
+
+      &:focus-within {
+        box-shadow: var(--componentShadowFocus),
+          inset 0 2px 3px 0px var(--componentBorderColor);
+        position: relative;
+        z-index: 1;
+        outline: none;
+      }
+    }
+
+    > input {
+      all: unset;
+      flex-grow: 1;
+      margin-right: 0.2rem;
+
+      .anim & {
+        transition: color var(--colorTransitionType) var(--colorTransitionTime);
+      }
+    }
+
+    > svg {
+      flex-grow: 0;
+      flex-shrink: 0;
+      fill: var(--componentTextColor);
+
+      .anim & {
+        transition: fill var(--colorTransitionType) var(--colorTransitionTime);
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+svg.lib-instrument-slider {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  overflow: visible;
+
+  .bar {
+    fill: var(--ElementNeutralColor);
+  }
+
+  .barmarked {
+    fill: var(--ElementActiveColor);
+  }
+
+  .slider {
+    fill: var(--NormalEnabledBackgroundColor);
+    stroke: var(--NormalEnabledBorderColor);
+  }
+
+  .text {
+    fill: var(--ElementActiveColor);
+  }
+
+  .icon {
+    fill: var(--ElementNeutralColor);
+  }
+
+  .boxbackground {
+    fill: var(--NormalEnabledBackgroundColor);
+    opacity: 0;
+  }
+
+  .NONE + g {
+    display: none;
+  }
+
+  .READ + g {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .invalid + g {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}

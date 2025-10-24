@@ -1,0 +1,91 @@
+svg.lib-instrument-tank {
+  overflow: visible;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+
+  .outer_border {
+    fill: none;
+    stroke: var(--instrTankOuterColor);
+    stroke-width: 1;
+  }
+
+  .background {
+    fill: var(--instrTankBackgroundColor);
+  }
+
+  .messureBackground {
+    fill: var(--instrMessureBackGroundColor);
+    border-bottom-right-radius: 30px;
+  }
+
+  .outerFrame {
+    fill: none;
+    stroke-width: 2.5;
+    stroke: var(--outerBackground);
+  }
+
+  .messureVal {
+    fill: var(--instrmessurValGroundColor);
+    opacity: 0.35;
+  }
+
+  .divider {
+    stroke: var(--instrdividerColor);
+  }
+
+  .leveler {
+    stroke: var(--instrdividerColor);
+  }
+
+  .valueDivider {
+    stroke: var(--instrdividerColor);
+  }
+
+  .headline {
+    font-weight: bold;
+    stroke: var(--instrElementActive);
+  }
+
+  .subline {
+    stroke: none;
+    color: var(--instrElementNeutral);
+  }
+
+  .value3 {
+    :first-child {
+      color: var(--instrElementactiv);
+    }
+
+    :last-child {
+      color: var(--instrElementNeutral);
+    }
+  }
+
+  .value4 {
+    stroke: none;
+    color: var(--instrmessurValGroundColor);
+  }
+
+  .value5 {
+    stroke: none;
+    color: var(--instrElementNeutral);
+  }
+
+  .overAllBaground {
+    fill: var(--instrTankBackgroundColor);
+  }
+
+  .NONE + g {
+    display: none;
+  }
+
+  .READ + g {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .invalid + g {
+    opacity: 0.5;
+  }
+}

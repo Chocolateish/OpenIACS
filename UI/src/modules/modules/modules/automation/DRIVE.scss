@@ -1,0 +1,100 @@
+svg.instr-driver {
+    overflow: visible;
+    pointer-events: all;
+
+    .symbolFw {
+        fill: var(--elementNeutralColor);
+    }
+
+    .symbolBw {
+        visibility: hidden;
+    }
+
+    .circle {
+        stroke: var(--elementNeutralColor);
+        fill: none;
+        stroke-width: 1;
+    }
+
+    .forward {
+        .symbolFw {
+            fill: var(--elementActiveColor);
+        }
+
+        .symbolBw {
+            visibility: hidden;
+        }
+
+        .circle {
+            fill: none;
+            stroke-width: 2;
+            stroke: var(--alertRunningColor);
+
+        }
+    }
+
+    .backward {
+        .symbolFw {
+            visibility: hidden;
+        }
+
+        .symbolBw {
+            fill: var(--elementActiveColor);
+            visibility: visible;
+        }
+
+        .circle {
+            fill: none;
+            stroke: var(--alertRunningColor);
+            stroke-width: 2;
+        }
+    }
+
+    .outherborder {
+        fill: var(--instrumentPortColor);
+        stroke: var(--indentEnabledBorderColor);
+
+        &.selected {
+            fill: var(--instrumentStarbordColor);
+            stroke: var(--selectedEnabledBorderColor);
+        }
+    }
+
+    .NONE+g {
+        display: none;
+    }
+
+    .READ+g {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    .invalid+g {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+}
+
+
+instr-driverwindow {
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+
+    >*+* {
+        margin-top: 0.5rem;
+    }
+
+    >div {
+        display: flex;
+        flex-direction: row;
+
+        >*+* {
+            margin-left: 0.5rem;
+        }
+
+        >* {
+            flex-grow: 1;
+        }
+    }
+}

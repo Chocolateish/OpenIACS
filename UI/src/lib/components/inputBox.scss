@@ -1,0 +1,178 @@
+@use "../components/common.scss";
+
+lib-component-inputbox {
+  $height: 2rem;
+  $touchHeight: 3rem;
+
+  min-width: min-content;
+  display: flex;
+
+  &.up {
+    flex-direction: column-reverse;
+  }
+
+  &.down {
+    flex-direction: column;
+  }
+
+  &.READ {
+    filter: var(--readOpacityFilter);
+  }
+
+  &.NONE {
+    display: none;
+  }
+
+  > span {
+    -webkit-user-select: none;
+    user-select: none;
+    padding: var(--componentTitleTextPadding);
+    color: var(--componentLabelTextColor);
+
+    .anim & {
+      transition: color var(--colorTransitionType) var(--colorTransitionTime);
+    }
+  }
+
+  > div {
+    height: $height;
+    background-color: var(--componentBackGroundColor);
+    color: var(--componentTextColor);
+    border-radius: var(--componentCornerRadius);
+    border: 1px solid var(--componentBorderColor);
+    display: flex;
+    box-shadow: var(--componentShadowIn);
+    overflow: hidden;
+    min-width: 6rem;
+
+    .touch & {
+      height: $touchHeight;
+    }
+
+    .anim & {
+      transition: background-color var(--colorTransitionType)
+          var(--colorTransitionTime),
+        box-shadow var(--colorTransitionType) var(--colorTransitionTime),
+        border-color var(--colorTransitionType) var(--colorTransitionTime),
+        height var(--sizeTransitionType) var(--sizeTransitionTime);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background-color: var(--componentHoverBackGroundColor);
+      }
+    }
+
+    &:focus-within {
+      box-shadow: var(--componentShadowFocus),
+        inset 0 2px 3px 0px var(--componentBorderColor);
+      position: relative;
+      z-index: 1;
+    }
+
+    > input {
+      all: unset;
+      flex-grow: 1;
+      color: var(--componentTextColor);
+      padding: 0 0.3rem 0 0.3rem;
+      line-height: $height;
+
+      .touch & {
+        line-height: $touchHeight;
+      }
+
+      .anim & {
+        transition: color var(--colorTransitionType) var(--colorTransitionTime),
+          height var(--sizeTransitionType) var(--sizeTransitionTime);
+      }
+
+      &[type="date"]::-webkit-calendar-picker-indicator,
+      &[type="time"]::-webkit-calendar-picker-indicator,
+      &[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        display: none;
+      }
+
+      &[type="number"] {
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button {
+          display: none;
+        }
+      }
+
+      &[type="color"] {
+        padding: 0.4rem;
+
+        &::-webkit-color-swatch-wrapper {
+          border-width: 0px;
+          padding: 0;
+        }
+
+        &::-webkit-color-swatch {
+          border: none;
+          border-radius: var(--componentCornerRadius);
+        }
+
+        &::-moz-color-swatch {
+          border: none;
+          border-radius: var(--componentCornerRadius);
+        }
+      }
+
+      &[type="file"] {
+        padding-left: 0;
+
+        &::file-selector-button {
+          margin: 0 0.5rem 0 0;
+          height: 100%;
+          background-color: inherit;
+          border-radius: 0;
+          border-color: none;
+          border: unset;
+          box-shadow: var(--componentShadowOut);
+        }
+
+        &::after {
+          content: "drop file here";
+        }
+      }
+    }
+
+    > div {
+      display: flex;
+      align-items: center;
+      padding: 0.2rem;
+      -webkit-user-select: none;
+      user-select: none;
+
+      &:empty {
+        padding: 0;
+      }
+
+      .anim & {
+        transition: color var(--colorTransitionType) var(--colorTransitionTime);
+      }
+    }
+
+    > svg {
+      align-self: center;
+      height: 100%;
+      width: auto;
+      max-width: $height;
+      padding: 0.4rem;
+      flex-shrink: 0;
+      fill: var(--componentSymbolColor);
+
+      .touch & {
+        max-width: $touchHeight;
+        padding: 0.5rem;
+      }
+
+      .anim & {
+        transition: max-width var(--sizeTransitionType)
+            var(--sizeTransitionTime),
+          padding var(--sizeTransitionType) var(--sizeTransitionTime),
+          fill var(--colorTransitionType) var(--colorTransitionTime);
+      }
+    }
+  }
+}

@@ -1,0 +1,250 @@
+@use "../components/common.scss";
+
+lib-component-group {
+  $padding: 0.8rem;
+  display: flex;
+  padding: $padding;
+  background-color: inherit;
+
+  &.READ {
+    filter: var(--readOpacityFilter);
+    pointer-events: none;
+  }
+
+  &.NONE {
+    display: none;
+  }
+
+  &.bIn {
+    border: 1px solid var(--componentBorderColor);
+    border-radius: var(--componentCornerRadius);
+    box-shadow: var(--componentShadowIn);
+  }
+
+  &.bOut {
+    border: 1px solid var(--componentBorderColor);
+    border-radius: var(--componentCornerRadius);
+    box-shadow: var(--componentShadowOut);
+  }
+
+  &.drawTop {
+    position: sticky;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    border-width: 0 0 1px 0;
+    border-radius: 0 0 var(--componentCornerRadius) var(--componentCornerRadius);
+  }
+
+  &.drawBottom {
+    position: sticky;
+    z-index: 1;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    border-width: 1px 0 0 0;
+    border-radius: var(--componentCornerRadius) var(--componentCornerRadius) 0 0;
+  }
+
+  &.drawLeft {
+    position: sticky;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    margin: 0;
+    border-width: 0 1px 0 0;
+    border-radius: 0 var(--componentCornerRadius) var(--componentCornerRadius) 0;
+  }
+
+  &.drawRight {
+    position: sticky;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    border-width: 0 0 0 1px;
+    border-radius: var(--componentCornerRadius) 0 0 var(--componentCornerRadius);
+  }
+
+  .anim & {
+    transition: border-color var(--colorTransitionType)
+        var(--colorTransitionTime),
+      box-shadow var(--colorTransitionType) var(--colorTransitionTime);
+  }
+
+  &.vert {
+    flex-direction: column;
+    min-height: max-content;
+
+    > * + * {
+      margin-top: $padding;
+    }
+  }
+
+  &.horz {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 0;
+    padding-left: $padding;
+    padding-bottom: $padding;
+
+    > * {
+      margin-top: $padding;
+      flex: 1 1 1px;
+      margin-right: $padding;
+    }
+  }
+}
+
+lib-component-group-collapsible-group {
+  $padding: 0.8rem;
+  $basis: 2.5rem;
+  $touchBasis: 3rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: inherit;
+  position: relative;
+
+  &.READ {
+    filter: var(--readOpacityFilter);
+    pointer-events: none;
+  }
+
+  &.NONE {
+    display: none;
+  }
+
+  &.bIn {
+    border: 1px solid var(--componentBorderColor);
+    border-radius: var(--componentCornerRadius);
+    box-shadow: var(--componentShadowIn);
+  }
+
+  &.bOut {
+    border: 1px solid var(--componentBorderColor);
+    border-radius: var(--componentCornerRadius);
+    box-shadow: var(--componentShadowOut);
+  }
+
+  .anim & {
+    transition: border-color var(--colorTransitionType)
+        var(--colorTransitionTime),
+      box-shadow var(--colorTransitionType) var(--colorTransitionTime);
+  }
+
+  > span {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    background-color: var(--componentBackGroundColor);
+    border-radius: var(--componentCornerRadius);
+    border: 1px solid var(--componentBorderColor);
+    height: $basis;
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      box-shadow: var(--componentShadowFocusIn);
+    }
+
+    .touch & {
+      padding: $padding;
+      height: $touchBasis;
+    }
+
+    .anim & {
+      transition: background-color var(--colorTransitionType)
+          var(--colorTransitionTime),
+        border-color var(--colorTransitionType) var(--colorTransitionTime),
+        height var(--sizeTransitionType) var(--sizeTransitionTime),
+        padding var(--sizeTransitionType) var(--sizeTransitionTime);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background-color: var(--componentHoverBackGroundColor);
+      }
+    }
+
+    > div {
+      flex-grow: 1;
+      color: var(--componentTextColor);
+      text-align: center;
+
+      &:empty {
+        flex-grow: 0;
+      }
+
+      .anim & {
+        transition: color var(--colorTransitionType) var(--colorTransitionTime);
+      }
+    }
+
+    > svg {
+      height: 100%;
+      width: auto;
+      box-sizing: border-box;
+      fill: var(--componentSymbolColor);
+
+      .anim & {
+        transition: fill var(--colorTransitionType) var(--colorTransitionTime);
+      }
+    }
+  }
+
+  > div {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: $padding;
+    overflow: auto;
+
+    &.READ {
+      filter: var(--readOpacityFilter);
+      pointer-events: none;
+    }
+
+    &.NONE {
+      display: none;
+    }
+
+    &.collapsed {
+      display: none;
+    }
+  }
+
+  &.vert > div {
+    flex-direction: column;
+
+    > * + * {
+      margin-top: 0.6rem;
+    }
+  }
+
+  &.horz > div {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 0;
+    padding-left: $padding;
+    padding-bottom: $padding;
+
+    > * {
+      margin-top: $padding;
+      flex: 1 1 1px;
+      margin-right: $padding;
+    }
+  }
+}

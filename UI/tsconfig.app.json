@@ -1,0 +1,62 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": [],
+    "skipLibCheck": true,
+
+    /* Paths */
+    "paths": {
+      "@package": ["./package.json"],
+
+      //Lib
+      "@libBase": ["./src/lib/base/index"],
+      "@libCommon": ["./src/lib/common/index"],
+      "@libComponents": ["./src/lib/components/index"],
+      "@libEvent": ["./src/lib/event/index"],
+      "@libInstr": ["./src/lib/instruments/index"],
+      "@libLister": ["./src/lib/lister/index"],
+      "@libMenu": ["./src/lib/menu/index"],
+      "@libPages": ["./src/lib/pages/index"],
+      "@libPrompts": ["./src/lib/prompts/index"],
+      "@libUI": ["./src/lib/ui/index"],
+      "@libValues": ["./src/lib/values/index"],
+      "@libTheme": ["./src/lib/theme/index"],
+      "@libResult": ["./src/lib/result/index"],
+      "@libState": ["./src/lib/state/index"],
+      "@libColors": ["./src/lib/colors"],
+      "@libExtFeat": ["./src/lib/externalFeatures"],
+      "@libIcons": ["./src/lib/icons"],
+
+      //Modules
+      "@modCommon": ["./src/modules/common/index"],
+      "@alarm/*": ["./src/modules/alarm/*"],
+      "@components/*": ["./src/modules/components/*"],
+      "@common/*": ["./src/modules/common/*"],
+      "@globals/*": ["./src/modules/globals/*"],
+      "@ioSystem/*": ["./src/modules/ioSystem/*"],
+      "@module/*": ["./src/modules/module/*"],
+      "@modules/*": ["./src/modules/modules/*"],
+      "@system/*": ["./src/modules/system/*"]
+    },
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src"]
+}

@@ -1,0 +1,33 @@
+svg.lib-instrument-background {
+  overflow: visible;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none;
+
+  .black {
+    stroke: var(--instrBackgroundBlack) !important;
+  }
+  .blackFill {
+    fill: var(--instrBackgroundBlack) !important;
+  }
+  .yellow {
+    stroke: var(--instrBackgroundYellow) !important;
+  }
+  .yellowFill {
+    fill: var(--instrBackgroundYellow) !important;
+  }
+  .lightBlue {
+    stroke: var(--instrBackgroundLightBlue) !important;
+  }
+  .lightBlueFill {
+    fill: var(--instrBackgroundLightBlue) !important;
+  }
+  .green {
+    stroke: var(--instrBackgroundGreen) !important;
+  }
+  .greenFill {
+    fill: var(--instrBackgroundGreen) !important;
+  }
+}

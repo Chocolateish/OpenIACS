@@ -1,0 +1,57 @@
+$readOpacity: 50%;
+
+svg.lib-instrument-readout {
+  display: block;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+  font-size: 1rem;
+  min-width: min-content;
+  overflow: visible;
+  pointer-events: all;
+
+  &.NONE {
+    display: none;
+  }
+
+  &.READ {
+    filter: opacity($readOpacity);
+  }
+
+  .text {
+    all: unset;
+    display: block;
+    font-size: 1em;
+    color: var(--instrReadOutTextColor);
+    max-width: 8rem;
+  }
+
+  .value {
+    font-size: 1.4em;
+    color: var(--instrReadOutValueColor);
+    font-weight: bold;
+  }
+
+  span {
+    font-size: 0.7em;
+    color: var(--instrReadOutValueColor);
+    font-weight: normal;
+  }
+
+  .warn {
+    fill: var(--instrDialInvalidColor);
+  }
+
+  .NONE + g {
+    display: none;
+  }
+
+  .READ + g {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .invalid + g {
+    opacity: 0.5;
+  }
+}

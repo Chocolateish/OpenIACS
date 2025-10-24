@@ -1,0 +1,88 @@
+$readOpacity: 50%;
+
+svg.lib-instrument-dial {
+  display: block;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+
+  > svg {
+    display: block;
+  }
+
+  > div {
+    position: absolute;
+  }
+
+  .backRing {
+    stroke: var(--instrDialBackgroundRingColor);
+    fill: none;
+  }
+
+  .outRing {
+    stroke: var(--instrDialOuterRingColor);
+    fill: none;
+  }
+
+  .maTick {
+    stroke: var(--instrDialMajorTickColor);
+    fill: none;
+  }
+
+  .miTick {
+    stroke: var(--instrDialMinorTickColor);
+    fill: none;
+  }
+
+  .needle {
+    fill: var(--instrDialNeedleColor);
+  }
+
+  .anim & .needle {
+    transition: transform 1s ease;
+  }
+
+  .lab {
+    fill: var(--instrDialLabelColor);
+  }
+
+  .text {
+    fill: var(--instrDialTextColor);
+  }
+
+  .value {
+    fill: var(--instrDialValueColor);
+  }
+
+  .unit {
+    fill: var(--instrDialUnitColor);
+  }
+
+  .zones {
+    fill: none;
+
+    > .red {
+      stroke: var(--instrDialRedColor);
+    }
+    > .green {
+      stroke: var(--instrDialGreenColor);
+    }
+  }
+
+  .warn {
+    fill: var(--instrDialInvalidColor);
+  }
+
+  .NONE + g {
+    display: none;
+  }
+
+  .READ + g {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .invalid + g {
+    opacity: 0.5;
+  }
+}

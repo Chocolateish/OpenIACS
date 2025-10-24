@@ -1,0 +1,76 @@
+svg.lib-instrument-fan {
+  -webkit-user-select: none;
+  user-select: none;
+  overflow: visible;
+  pointer-events: all;
+
+  .symbolFan {
+    fill: var(--ElementNeutralColor);
+  }
+
+  .symbolPlay1 {
+    visibility: visible;
+    fill: var(--ElementNeutralColor);
+  }
+
+  .symbolPlay2 {
+    visibility: hidden;
+  }
+
+  .circle {
+    fill: none;
+    stroke-width: 1;
+    stroke: var(--ElementNeutralColor);
+  }
+
+  .play1 {
+    .symbolFan {
+      fill: var(--ElementActiveColor);
+    }
+
+    .symbolPlay1 {
+      fill: var(--ElementActiveColor);
+    }
+
+    .circle {
+      fill: none;
+      stroke: var(--alertRunningColor);
+      stroke-width: 2;
+    }
+  }
+
+  .play2 {
+    .symbolFan {
+      fill: var(--ElementActiveColor);
+    }
+
+    .symbolPlay1 {
+      visibility: hidden;
+    }
+
+    .symbolPlay2 {
+      visibility: visible;
+      fill: var(--ElementActiveColor);
+    }
+
+    .circle {
+      stroke: var(--alertRunningColor);
+      fill: none;
+      stroke-width: 2;
+    }
+  }
+
+  .NONE + g {
+    display: none;
+  }
+
+  .READ + g {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .invalid + g {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}

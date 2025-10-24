@@ -1,0 +1,62 @@
+svg.lib-instrument-valve {
+  overflow: visible;
+  pointer-events: all;
+
+  .symbol {
+    fill: var(--ElementNeutralColor);
+  }
+
+  .bar {
+    visibility: visible;
+    fill: var(--ElementNeutralColor);
+  }
+
+  .circle {
+    stroke: var(--ElementNeutralColor);
+    stroke-width: 1;
+  }
+
+  .open {
+    .symbol {
+      fill: var(--alertRunningColor);
+    }
+
+    .bar {
+      visibility: hidden;
+    }
+
+    .circle {
+      stroke: var(--alertRunningColor);
+      stroke-width: 2;
+    }
+  }
+
+  .outherborder {
+    fill: var(--instrumentPortColor);
+    stroke: var(--indentEnabledBorderColor);
+
+    &.selected {
+      fill: var(--instrumentStarbordColor);
+      stroke: var(--selectedEnabledBorderColor);
+    }
+  }
+
+  .circle {
+    fill: none;
+    stroke: var(--ElementNeutralColor);
+  }
+
+  .NONE + g {
+    display: none;
+  }
+
+  .READ + g {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .invalid + g {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}

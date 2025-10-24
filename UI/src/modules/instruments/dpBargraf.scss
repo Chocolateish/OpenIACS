@@ -1,0 +1,21 @@
+svg.instr-dpbargraf {
+    overflow: visible;
+    user-select: none;
+    pointer-events: none;
+
+    .frame {
+        fill: var(--contentBackGround);
+        stroke: green;
+        opacity: 1;
+    }
+
+    .val {
+        fill: red;
+    }
+
+
+
+    .startLine {
+        stroke: green;
+    }
+}

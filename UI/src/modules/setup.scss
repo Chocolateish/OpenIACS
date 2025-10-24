@@ -1,0 +1,43 @@
+topbar-alarmline {
+    display: flex;
+    align-items: center;
+    -webkit-user-select: none;
+    user-select: none;
+
+    >div {
+        display: flex;
+        align-items: center;
+        height: 2.4rem;
+        width: 16rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--componentBorderColor);
+        background-color: var(--contentBackGround);
+
+        &.Triggered {
+            background-color: var(--alarmListTriggeredBackgroundColor);
+        }
+
+        &.Acknowledged {
+            background-color: var(--alarmListAcknowledgeBackgroundColor);
+        }
+
+        .anim & {
+            transition: border-color var(--colorTransitionType) var(--colorTransitionTime), background-color var(--colorTransitionType) var(--colorTransitionTime);
+        }
+
+        >svg {
+            margin: 0.3rem 0rem 0.3rem 0.3rem;
+            flex-shrink: 0;
+        }
+
+        >div {
+            display: -webkit-box;
+            margin: 0rem 0.3rem 0rem 0.3rem;
+            max-height: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+    }
+}

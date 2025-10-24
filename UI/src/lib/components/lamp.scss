@@ -1,0 +1,91 @@
+@use "../components/common.scss";
+
+lib-component-lamp {
+  $height: 2.5rem;
+  $touchHeight: 3rem;
+
+  display: flex;
+  box-sizing: border-box;
+  box-shadow: var(--componentShadowOut);
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+  border-radius: 1.5rem;
+  border: 1px solid var(--componentBorderColor);
+  background-color: var(--componentBackGroundColor);
+  position: relative;
+  min-height: $height;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 0rem;
+  min-width: min-content;
+
+  .touch & {
+    min-height: $touchHeight;
+  }
+
+  &.NONE {
+    display: none;
+  }
+
+  .anim & {
+    transition: min-height var(--sizeTransitionType) var(--sizeTransitionTime),
+      box-shadow ease 200ms,
+      border-color var(--colorTransitionType) var(--colorTransitionTime),
+      background-color var(--colorTransitionType) var(--colorTransitionTime);
+  }
+
+  > svg {
+    height: $height;
+    width: auto;
+    max-width: $height + 1rem;
+    padding: 0.4rem;
+    flex-shrink: 0;
+    background-color: initial;
+    fill: var(--componentSymbolColor);
+
+    .touch & {
+      height: $touchHeight;
+      max-width: $touchHeight + 1rem;
+      padding: 0.6rem;
+    }
+
+    .anim & {
+      transition: fill var(--colorTransitionType) var(--colorTransitionTime),
+        height var(--sizeTransitionType) var(--sizeTransitionTime),
+        max-width var(--sizeTransitionType) var(--sizeTransitionTime);
+    }
+  }
+
+  > div {
+    flex-grow: 1;
+    color: var(--componentTextColor);
+    text-align: center;
+
+    &:not(:empty) {
+      min-width: 6rem;
+      padding: 0.3rem;
+    }
+
+    .anim & {
+      transition: color var(--colorTransitionType) var(--colorTransitionTime);
+    }
+  }
+
+  &[color="green"] {
+    background-color: var(--componentGreenColor);
+  }
+
+  &[color="red"] {
+    background-color: var(--componentRedColor);
+  }
+
+  &[color="blue"] {
+    background-color: var(--componentBlueColor);
+  }
+
+  &[color="yellow"] {
+    background-color: var(--componentYellowColor);
+  }
+}

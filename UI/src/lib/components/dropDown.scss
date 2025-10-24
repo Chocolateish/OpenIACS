@@ -1,0 +1,260 @@
+@use "../components/common.scss";
+
+lib-component-dropdown {
+  $height: 2rem;
+  $touchHeight: 3rem;
+
+  min-width: min-content;
+  -webkit-user-select: none;
+  user-select: none;
+  display: block;
+
+  &.READ {
+    filter: var(--readOpacityFilter);
+    pointer-events: none;
+  }
+
+  &.NONE {
+    display: none;
+  }
+
+  > span {
+    display: block;
+    padding: var(--componentTitleTextPadding);
+    color: var(--componentLabelTextColor);
+
+    .anim & {
+      transition: color var(--colorTransitionType) var(--colorTransitionTime);
+    }
+  }
+
+  > div {
+    position: relative;
+
+    > div {
+      box-sizing: border-box;
+      min-height: $height;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0rem;
+      border-radius: var(--componentCornerRadius);
+      border: 1px solid var(--componentBorderColor);
+      background-color: var(--componentBackGroundColor);
+      position: relative;
+      box-shadow: var(--componentShadowOut);
+
+      .anim & {
+        transition: height var(--sizeTransitionType) var(--sizeTransitionTime),
+          background-color var(--colorTransitionType) var(--colorTransitionTime),
+          box-shadow var(--colorTransitionType) var(--colorTransitionTime),
+          border-color var(--colorTransitionType) var(--colorTransitionTime);
+      }
+
+      &:focus {
+        outline: none;
+      }
+
+      &:focus-visible::after {
+        content: "";
+        outline: none;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        border-radius: inherit;
+        box-shadow: var(--componentShadowFocus);
+        z-index: 99;
+      }
+
+      &:hover {
+        background-color: var(--componentHoverBackGroundColor);
+      }
+
+      .touch & {
+        min-height: $touchHeight;
+      }
+
+      > div {
+        padding: 0.25rem;
+        flex-grow: 1;
+        max-height: 100%;
+        overflow-y: hidden;
+        color: var(--componentTextColor);
+        min-width: 4rem;
+
+        .anim & {
+          transition: color var(--colorTransitionType)
+            var(--colorTransitionTime);
+        }
+      }
+
+      > svg {
+        box-sizing: border-box;
+        height: calc($height - 2px);
+        max-width: $height;
+        width: auto;
+        padding: 0.25rem;
+        flex-shrink: 0;
+        fill: var(--componentSymbolColor);
+
+        .touch & {
+          height: calc($touchHeight - 2px);
+          max-width: $touchHeight;
+          padding: 0.5rem;
+        }
+
+        .anim & {
+          transition: max-width var(--sizeTransitionType)
+              var(--sizeTransitionTime),
+            padding var(--sizeTransitionType) var(--sizeTransitionTime),
+            fill var(--colorTransitionType) var(--colorTransitionTime);
+        }
+      }
+    }
+
+    > span {
+      position: absolute;
+      width: 100%;
+      overflow-y: auto;
+      border-radius: var(--componentCornerRadius);
+      border: 1px solid var(--componentUnselectedBorderColor);
+      background-color: var(--componentUnselectedBackGroundColor);
+      overflow-x: hidden;
+      z-index: 2147483646;
+      box-sizing: border-box;
+      box-shadow: var(--componentShadowOut);
+
+      .anim & {
+        transition: transform var(--sizeTransitionType)
+            var(--sizeTransitionTime),
+          background-color var(--colorTransitionType) var(--colorTransitionTime),
+          box-shadow var(--colorTransitionType) var(--colorTransitionTime),
+          border-color var(--colorTransitionType) var(--colorTransitionTime);
+      }
+
+      &:focus {
+        outline: none;
+      }
+
+      &.top {
+        transform: translateY(-$height);
+
+        .touch & {
+          transform: translateY(-$touchHeight);
+        }
+      }
+
+      &.bot {
+        transform: translateY(-100%);
+      }
+
+      > div {
+        position: relative;
+        min-height: $height;
+        display: flex;
+        align-items: center;
+        background-color: inherit;
+
+        .anim & {
+          transition: height var(--sizeTransitionType) var(--sizeTransitionTime),
+            background-color var(--colorTransitionType)
+              var(--colorTransitionTime);
+        }
+
+        &.next:not(.sel),
+        &:hover:not(.sel) {
+          background-color: var(--componentHoverBackGroundColor);
+        }
+
+        &.sel {
+          border-radius: var(--componentCornerRadius);
+          background-color: var(--componentBackGroundColor);
+
+          &:first-child::after {
+            border-top-width: 0px;
+          }
+
+          &:last-child::after {
+            border-bottom-width: 0px;
+          }
+
+          &.next,
+          &:hover {
+            background-color: var(--componentHoverBackGroundColor);
+          }
+
+          &::after {
+            content: "";
+            box-sizing: border-box;
+            position: absolute;
+            width: 100%;
+            height: calc(100% - 1px);
+            margin: -1px;
+            border-radius: var(--componentCornerRadius);
+            border: 1px solid var(--componentBorderColor);
+            z-index: 1;
+
+            .anim & {
+              transition: color var(--colorTransitionType)
+                  var(--colorTransitionTime),
+                border-color var(--colorTransitionType)
+                  var(--colorTransitionTime);
+            }
+          }
+
+          .anim & {
+            transition: background-color var(--colorTransitionType)
+              var(--colorTransitionTime);
+          }
+
+          > svg {
+            fill: var(--componentSymbolColor);
+
+            .anim & {
+              transition: fill var(--colorTransitionType)
+                var(--colorTransitionTime);
+            }
+          }
+        }
+
+        .touch & {
+          min-height: $touchHeight;
+        }
+
+        > svg {
+          height: $height;
+          width: $height;
+          padding: 0.25rem;
+          flex-shrink: 0;
+          fill: var(--componentUnselectedSymbolColor);
+
+          .touch & {
+            height: $touchHeight;
+            width: $touchHeight;
+            padding: 0.6rem;
+          }
+
+          .anim & {
+            transition: width var(--sizeTransitionType)
+                var(--sizeTransitionTime),
+              padding var(--sizeTransitionType) var(--sizeTransitionTime),
+              fill var(--colorTransitionType) var(--colorTransitionTime);
+          }
+        }
+
+        > div {
+          padding: 0.25rem;
+          color: var(--componentTextColor);
+
+          .anim & {
+            transition: color var(--colorTransitionType)
+              var(--colorTransitionTime);
+          }
+        }
+      }
+    }
+  }
+}
