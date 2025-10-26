@@ -11,21 +11,21 @@ export default defineConfig({
   resolve: {
     alias: {
       "@package": path.resolve(__dirname, "package.json"),
-      // Common
-      "@libResult": path.resolve(__dirname, "src/lib/common/result"),
-      "@libState": path.resolve(__dirname, "src/lib/common/state"),
-      "@libEvent": path.resolve(__dirname, "src/lib/common/event"),
-      "@libString": path.resolve(__dirname, "src/lib/common/string"),
-      "@libMath": path.resolve(__dirname, "src/lib/common/math"),
-      "@libColors": path.resolve(__dirname, "src/lib/common/colors"),
-      // UI
-      "@common": path.resolve(__dirname, "src/lib/ui/common"),
-      "@base": path.resolve(__dirname, "src/lib/ui/base"),
-      "@theme": path.resolve(__dirname, "src/lib/ui/theme"),
-      "@icons": path.resolve(__dirname, "src/lib/ui/icons"),
-      "@svg": path.resolve(__dirname, "src/lib/ui/svg"),
-      "@spinners": path.resolve(__dirname, "src/lib/ui/spinners"),
-      "@contextmenu": path.resolve(__dirname, "src/lib/ui/contextmenu"),
+
+      //Lib
+      "@libBase": path.resolve(__dirname, "src/lib/base/index"),
+      "@libColors": path.resolve(__dirname, "./src/lib/colors/index"),
+      "@libCommon": path.resolve(__dirname, "./src/lib/common/index"),
+      "@libContextmenu": path.resolve(__dirname, "./src/lib/contextmenu/index"),
+      "@libEvent": path.resolve(__dirname, "./src/lib/event/index"),
+      "@libIcons": path.resolve(__dirname, "./src/lib/icons/index"),
+      "@libMath": path.resolve(__dirname, "./src/lib/math/index"),
+      "@libResult": path.resolve(__dirname, "./src/lib/result/index"),
+      "@libSpinners": path.resolve(__dirname, "./src/lib/spinners/index"),
+      "@libState": path.resolve(__dirname, "./src/lib/state/index"),
+      "@libString": path.resolve(__dirname, "./src/lib/string/index"),
+      "@libSvg": path.resolve(__dirname, "./src/lib/svg/index"),
+      "@libTheme": path.resolve(__dirname, "./src/lib/theme/index"),
     },
   },
 });

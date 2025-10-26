@@ -21,12 +21,12 @@ import {
   type StateWriteOk,
 } from "./types";
 
-export class State<READ, WRITE, RELATED extends StateRelated = {}>
+export class StateLazy<READ, WRITE, RELATED extends StateRelated = {}>
   extends StateBaseSync<Result<READ, StateError>, RELATED>
   implements StateWriteBase<Result<READ, StateError>, true, RELATED, WRITE>
 {
   constructor(
-    init: Result<READ, StateError>,
+    init: () => Result<READ, StateError>,
     setter?: StateSetter<READ, WRITE> | true,
     helper?: StateHelper<WRITE, RELATED>
   ) {
@@ -41,7 +41,29 @@ export class State<READ, WRITE, RELATED extends StateRelated = {}>
             }
           : setter;
     if (helper) this.#helper = helper;
-    this.#value = init;
+    let clean = () => {
+      //@ts-expect-error
+      delete this.then;
+      //@ts-expect-error
+      delete this.get;
+      //@ts-expect-error
+      delete this.write;
+      return (this.#value = init());
+    };
+    this.then = async <TResult1 = Result<READ, StateError>>(
+      func: (
+        value: Result<READ, StateError>
+      ) => TResult1 | PromiseLike<TResult1>
+    ): Promise<TResult1> => {
+      return func(clean());
+    };
+    this.get = () => {
+      return clean() as any;
+    };
+    this.write = (value) => {
+      clean();
+      this.write(value);
+    };
   }
 
   #value?: Result<READ, StateError>;
@@ -96,12 +118,12 @@ export class State<READ, WRITE, RELATED extends StateRelated = {}>
   }
 }
 
-export class StateOk<READ, WRITE, RELATED extends StateRelated = {}>
+export class StateLazyOk<READ, WRITE, RELATED extends StateRelated = {}>
   extends StateBaseSyncOk<ResultOk<READ>, RELATED>
   implements StateWriteBase<ResultOk<READ>, true, RELATED, WRITE>
 {
   constructor(
-    init: ResultOk<READ>,
+    init: () => ResultOk<READ>,
     setter?: StateSetterOk<READ, WRITE> | true,
     helper?: StateHelper<WRITE, RELATED>
   ) {
@@ -116,7 +138,27 @@ export class StateOk<READ, WRITE, RELATED extends StateRelated = {}>
             }
           : setter;
     if (helper) this.#helper = helper;
-    this.#value = init;
+    let clean = () => {
+      //@ts-expect-error
+      delete this.then;
+      //@ts-expect-error
+      delete this.get;
+      //@ts-expect-error
+      delete this.write;
+      return (this.#value = init());
+    };
+    this.then = async <TResult1 = ResultOk<READ>>(
+      func: (value: ResultOk<READ>) => TResult1 | PromiseLike<TResult1>
+    ): Promise<TResult1> => {
+      return func(clean());
+    };
+    this.get = () => {
+      return clean() as any;
+    };
+    this.write = (value) => {
+      clean();
+      this.write(value);
+    };
   }
 
   #value?: ResultOk<READ>;
@@ -171,47 +213,51 @@ export class StateOk<READ, WRITE, RELATED extends StateRelated = {}>
   }
 }
 
-/**Creates a state from an initial value.
- * @param init initial value for state.
+/**Creates a state from an initial lazy function that is evaluated on first access of the state.
+ * @param init function returning initial value.
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
 export function from<READ, RELATED extends StateRelated = {}, WRITE = READ>(
-  init: READ,
+  init: () => READ,
   setter?: StateSetter<READ, WRITE> | true,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new State<READ, WRITE, RELATED>(Ok(init), setter, helper);
+  return new StateLazy<READ, WRITE, RELATED>(() => Ok(init()), setter, helper);
 }
 
-/**Creates a state from an initial value, that is guaranteed to be OK.
- * @param init initial value for state.
+/**Creates a state from an initial lazy function that is evaluated on first access of the state, and that is guaranteed to be OK.
+ * @param init function returning initial value.
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
 export function ok<READ, RELATED extends StateRelated = {}, WRITE = READ>(
-  init: READ,
+  init: () => READ,
   setter?: StateSetterOk<READ, WRITE> | true,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new StateOk<READ, WRITE, RELATED>(Ok(init), setter, helper);
+  return new StateLazyOk<READ, WRITE, RELATED>(
+    () => Ok(init()),
+    setter,
+    helper
+  );
 }
 
-/**Creates a state from an initial error.
- * @param err initial error for state.
+/**Creates a state from an initial lazy function that is evaluated on first access of the state, that returns an error.
+ * @param err function returning initial error.
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
 export function err<READ, RELATED extends StateRelated = {}, WRITE = READ>(
-  err: StateError,
+  err: () => StateError,
   setter?: StateSetter<READ, WRITE> | true,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new State<READ, WRITE, RELATED>(Err(err), setter, helper);
+  return new StateLazy<READ, WRITE, RELATED>(() => Err(err()), setter, helper);
 }
 
-/**Creates a state which holds a value, from an initial Result.
- * @param init initial result for state.
+/**Creates a state which holds a value from a lazy function that is evaluated on first access of the state, that returns a Result.
+ * @param init function returning initial result.
  * @param setter function called when state value is set via setter, set true let write set it's value
  * @param helper functions to check and limit the value, and to return related states
  * */
@@ -220,15 +266,15 @@ export function from_result<
   RELATED extends StateRelated = {},
   WRITE = READ
 >(
-  init: Result<READ, StateError>,
+  init: () => Result<READ, StateError>,
   setter?: StateSetter<READ, WRITE> | true,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new State<READ, WRITE, RELATED>(init, setter, helper);
+  return new StateLazy<READ, WRITE, RELATED>(init, setter, helper);
 }
 
-/**Creates a state which holds a value, from an initial OK Result, the state will be guarenteed to be OK.
- * @param init initial result ok for state.
+/**Creates a state which holds a value from a lazy function that is evaluated on first access of the state, that returns a Result that is guarenteed to be OK.
+ * @param init function returning initial result ok.
  * @param setter function called when state value is set via setter, set true let write set it's value
  * @param helper functions to check and limit the value, and to return related states
  * */
@@ -237,9 +283,9 @@ export function from_result_ok<
   RELATED extends StateRelated = {},
   WRITE = READ
 >(
-  init: ResultOk<READ>,
+  init: () => ResultOk<READ>,
   setter?: StateSetterOk<READ, WRITE> | true,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new StateOk<READ, WRITE, RELATED>(init, setter, helper);
+  return new StateLazyOk<READ, WRITE, RELATED>(init, setter, helper);
 }

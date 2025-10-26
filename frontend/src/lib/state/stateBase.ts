@@ -1,18 +1,13 @@
-import { None, type Option } from "@libResult";
+import { None, ResultOk, type Option, type Result } from "@libResult";
 import {
+  type StateError,
   type StateReadBase,
   type StateRelated,
-  type StateResult,
   type StateSubscriberBase,
 } from "./types";
 
-/** Represents a writable state object with subscription and related utilities.
- * @template READ - The type of the state’s value when read.
- * @template SYNC - Whether `get()` is available synchronously (true = available).
- * @template OK - Indicates if state can have erroneous values (true = no errors).
- * @template RELATED - The type of related states, defaults to an empty object.*/
 export abstract class StateBase<
-  READ extends StateResult<any>,
+  READ extends Result<any, StateError>,
   SYNC extends boolean,
   RELATED extends StateRelated = {}
 > implements StateReadBase<READ, SYNC, RELATED>
@@ -83,12 +78,61 @@ export abstract class StateBase<
   }
 
   //Type
-  get readable() {
-    return this as StateReadBase<READ, SYNC, RELATED>;
+  get readable(): StateReadBase<READ, SYNC, RELATED> {
+    return this;
   }
 }
 
+export abstract class StateBaseOk<
+  READ extends ResultOk<any>,
+  SYNC extends boolean,
+  RELATED extends StateRelated = {}
+> extends StateBase<READ, SYNC, RELATED> {}
+
+export abstract class StateBaseSync<
+  READ extends Result<any>,
+  RELATED extends StateRelated = {}
+> extends StateBase<READ, true, RELATED> {}
+
+export abstract class StateBaseSyncOk<
+  READ extends ResultOk<any>,
+  RELATED extends StateRelated = {}
+> extends StateBase<READ, true, RELATED> {}
+
 /**Checks if a variable is an instance of a state*/
-export const instanceOfState = (state: any) => {
-  return state instanceof StateBase;
-};
+export function isState<STATE>(
+  state: STATE
+): STATE extends StateBase<infer READ, infer SYNC, infer RELATED>
+  ? StateBase<READ, SYNC, RELATED>
+  : undefined {
+  return state instanceof StateBase ? (state as any) : (undefined as any);
+}
+
+/**Checks if a variable is an instance of a state with guarenteed ok result*/
+export function isStateOk<STATE>(
+  state: STATE
+): STATE extends StateBaseOk<infer READ, infer SYNC, infer RELATED>
+  ? StateBaseOk<READ, SYNC, RELATED>
+  : undefined {
+  return state instanceof StateBaseSyncOk || state instanceof StateBaseOk
+    ? (state as any)
+    : (undefined as any);
+}
+
+/**Checks if a variable is an instance of a state with sync getting*/
+export function isStateSync<STATE>(
+  state: STATE
+): STATE extends StateBaseSync<infer READ, infer RELATED>
+  ? StateBaseSync<READ, RELATED>
+  : undefined {
+  return state instanceof StateBaseSync ? (state as any) : (undefined as any);
+}
+
+/**Checks if a variable is an instance of a state with sync getting and guarenteed ok result*/
+export function isStateSyncOk<STATE>(
+  state: STATE
+): STATE extends StateBaseSyncOk<infer READ, infer RELATED>
+  ? StateBaseSyncOk<READ, RELATED>
+  : undefined {
+  return state instanceof StateBaseSyncOk ? (state as any) : (undefined as any);
+}

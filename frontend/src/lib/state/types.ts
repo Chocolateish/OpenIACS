@@ -1,4 +1,4 @@
-import type { Option, ResultErr, ResultOk } from "@libResult";
+import type { Option, Result, ResultOk } from "@libResult";
 
 /**Struct returned when a state errors*/
 export type StateError = {
@@ -8,22 +8,15 @@ export type StateError = {
   code: string;
 };
 
-/**Redifinition of result with fixed error type for state*/
-export type StateErr = ResultErr<StateError>;
-
-/**Shorthand for state result
- * @template READ - The type of the state’s value when read.*/
-export type StateResult<READ> = ResultOk<READ> | StateErr;
-
 /**Function used to subscribe to state changes
  * @template READ - The type of the state’s value when read.*/
-export type StateSubscriberBase<READ extends StateResult<any>> = (
+export type StateSubscriberBase<READ extends Result<any, StateError>> = (
   value: READ
 ) => void;
 
 /**Function used to subscribe to state changes
  * @template READ - The type of the state’s value when read.*/
-export type StateSubscriber<READ> = (value: StateResult<READ>) => void;
+export type StateSubscriber<READ> = (value: Result<READ, StateError>) => void;
 
 /**Function used to subscribe to state changes with guarenteed Ok value
  * @template READ - The type of the state’s value when read.*/
@@ -40,6 +33,14 @@ export type StateHelper<WRITE, L extends StateRelated = {}> = {
   related?: () => Option<L>;
 };
 
+export type StateSetter<READ, WRITE> = (
+  value: WRITE
+) => Option<Result<READ, StateError>>;
+
+export type StateSetterOk<READ, WRITE> = (
+  value: WRITE
+) => Option<ResultOk<READ>>;
+
 //###########################################################################################################################################################
 //      _____  ______          _____  ______ _____     _____ ____  _   _ _______ ________   _________
 //     |  __ \|  ____|   /\   |  __ \|  ____|  __ \   / ____/ __ \| \ | |__   __|  ____\ \ / /__   __|
@@ -53,7 +54,7 @@ export type StateHelper<WRITE, L extends StateRelated = {}> = {
  * @template SYNC - Whether `get()` is available synchronously (true = available).
  * @template RELATED - The type of related states, defaults to an empty object.*/
 export interface StateReadBase<
-  READ extends StateResult<any>,
+  READ extends Result<any, StateError>,
   SYNC extends boolean,
   RELATED extends StateRelated = {}
 > {
@@ -61,7 +62,7 @@ export interface StateReadBase<
   then<TResult1 = READ>(
     func: (value: READ) => TResult1 | PromiseLike<TResult1>
   ): PromiseLike<TResult1>;
-  /**Gets the current value of the state*/
+  /**Gets the current value of the state if state is sync*/
   get(): SYNC extends true ? READ : unknown;
   /**This adds a function as a subscriber to the state
    * @param update set true to update subscriber*/
@@ -70,6 +71,8 @@ export interface StateReadBase<
   unsubscribe<B extends StateSubscriberBase<READ>>(func: B): B;
   /**This returns related states if any*/
   related(): Option<RELATED>;
+  /**Returns state as a readable state type*/
+  readonly readable: StateReadBase<READ, SYNC, RELATED>;
 }
 
 /** Represents a readable state object with subscription and related utilities.
@@ -80,7 +83,7 @@ export type StateRead<
   TYPE,
   SYNC extends boolean = any,
   RELATED extends StateRelated = {}
-> = StateReadBase<StateResult<TYPE>, SYNC, RELATED>;
+> = StateReadBase<Result<TYPE, StateError>, SYNC, RELATED>;
 
 /** Represents a readable state object with guarenteed Ok value and subscription and related utilities.
  * @template TYPE - The type of the state’s value when read.
@@ -106,10 +109,10 @@ export type StateReadOk<
  * @template SYNC - Whether `get()` is available synchronously (true = available).
  * @template RELATED - The type of related states, defaults to an empty object.*/
 export interface StateWriteBase<
-  READ extends StateResult<any>,
+  READ extends Result<any, StateError>,
   SYNC extends boolean,
   RELATED extends StateRelated = {},
-  WRITE = READ extends StateResult<infer T> ? T : never
+  WRITE = READ extends Result<infer T, StateError> ? T : never
 > extends StateReadBase<READ, SYNC, RELATED> {
   /** This sets the value of the state and updates all subscribers */
   write(value: WRITE): void;
@@ -130,7 +133,7 @@ export type StateWrite<
   SYNC extends boolean = any,
   RELATED extends StateRelated = {},
   WRITE = TYPE
-> = StateWriteBase<StateResult<TYPE>, SYNC, RELATED, WRITE>;
+> = StateWriteBase<Result<TYPE, StateError>, SYNC, RELATED, WRITE>;
 
 /** Represents a readable state object with guarenteed Ok value and subscription and related utilities.
  * @template TYPE - The type of the state’s value when read.

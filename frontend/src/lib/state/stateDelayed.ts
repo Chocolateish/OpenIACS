@@ -7,7 +7,7 @@ import {
   ResultOk,
   Some,
 } from "@libResult";
-import { StateBaseSync, StateBaseSyncOk } from "./stateBase";
+import { StateBase } from "./stateBase";
 import {
   type StateError,
   type StateHelper,
@@ -21,12 +21,12 @@ import {
   type StateWriteOk,
 } from "./types";
 
-export class State<READ, WRITE, RELATED extends StateRelated = {}>
-  extends StateBaseSync<Result<READ, StateError>, RELATED>
-  implements StateWriteBase<Result<READ, StateError>, true, RELATED, WRITE>
+export class StateDelayed<READ, WRITE, RELATED extends StateRelated = {}>
+  extends StateBase<Result<READ, StateError>, false, RELATED>
+  implements StateWriteBase<Result<READ, StateError>, false, RELATED, WRITE>
 {
   constructor(
-    init: Result<READ, StateError>,
+    init: PromiseLike<Result<READ, StateError>>,
     setter?: StateSetter<READ, WRITE> | true,
     helper?: StateHelper<WRITE, RELATED>
   ) {
@@ -41,7 +41,32 @@ export class State<READ, WRITE, RELATED extends StateRelated = {}>
             }
           : setter;
     if (helper) this.#helper = helper;
-    this.#value = init;
+    let clean = new Promise<Result<READ, StateError>>(async (a) => {
+      try {
+        this.#value = await init;
+      } catch (error) {
+        this.#value = Err({
+          reason: (error as Error).message,
+          code: "INIT",
+        });
+      }
+      //@ts-expect-error
+      delete this.then;
+      //@ts-expect-error
+      delete this.write;
+      a(this.#value);
+    });
+    this.then = async <TResult1 = Result<READ, StateError>>(
+      func: (
+        value: Result<READ, StateError>
+      ) => TResult1 | PromiseLike<TResult1>
+    ): Promise<TResult1> => {
+      return func(await clean);
+    };
+    this.write = async (value) => {
+      await clean;
+      this.write(value);
+    };
   }
 
   #value?: Result<READ, StateError>;
@@ -55,16 +80,16 @@ export class State<READ, WRITE, RELATED extends StateRelated = {}>
     return func(this.#value!);
   }
 
-  get(): Result<READ, StateError> {
-    return this.#value!;
+  get(): never {
+    return undefined as never;
   }
 
   related(): Option<RELATED> {
     return this.#helper?.related ? this.#helper.related() : None();
   }
 
-  get readable(): StateRead<READ, true, RELATED> {
-    return this as StateRead<READ, true, RELATED>;
+  get readable(): StateRead<READ, false, RELATED> {
+    return this as StateRead<READ, false, RELATED>;
   }
 
   //Writer Context
@@ -84,8 +109,8 @@ export class State<READ, WRITE, RELATED extends StateRelated = {}>
     return this.#helper?.limit ? this.#helper.limit(value) : Some(value);
   }
 
-  get writeable(): StateWrite<READ, true, RELATED, WRITE> {
-    return this as StateWrite<READ, true, RELATED, WRITE>;
+  get writeable(): StateWrite<READ, false, RELATED, WRITE> {
+    return this as StateWrite<READ, false, RELATED, WRITE>;
   }
 
   //Owner Context
@@ -96,12 +121,12 @@ export class State<READ, WRITE, RELATED extends StateRelated = {}>
   }
 }
 
-export class StateOk<READ, WRITE, RELATED extends StateRelated = {}>
-  extends StateBaseSyncOk<ResultOk<READ>, RELATED>
-  implements StateWriteBase<ResultOk<READ>, true, RELATED, WRITE>
+export class StateDelayedOk<READ, WRITE, RELATED extends StateRelated = {}>
+  extends StateBase<ResultOk<READ>, false, RELATED>
+  implements StateWriteBase<ResultOk<READ>, false, RELATED, WRITE>
 {
   constructor(
-    init: ResultOk<READ>,
+    init: PromiseLike<ResultOk<READ>>,
     setter?: StateSetterOk<READ, WRITE> | true,
     helper?: StateHelper<WRITE, RELATED>
   ) {
@@ -116,7 +141,23 @@ export class StateOk<READ, WRITE, RELATED extends StateRelated = {}>
             }
           : setter;
     if (helper) this.#helper = helper;
-    this.#value = init;
+    let clean = new Promise<ResultOk<READ>>(async (a) => {
+      this.#value = await init;
+      //@ts-expect-error
+      delete this.then;
+      //@ts-expect-error
+      delete this.write;
+      a(this.#value);
+    });
+    this.then = async <TResult1 = ResultOk<READ>>(
+      func: (value: ResultOk<READ>) => TResult1 | PromiseLike<TResult1>
+    ): Promise<TResult1> => {
+      return func(await clean);
+    };
+    this.write = async (value) => {
+      await clean;
+      this.write(value);
+    };
   }
 
   #value?: ResultOk<READ>;
@@ -130,16 +171,16 @@ export class StateOk<READ, WRITE, RELATED extends StateRelated = {}>
     return func(this.#value!);
   }
 
-  get(): ResultOk<READ> {
-    return this.#value!;
+  get(): never {
+    return undefined as never;
   }
 
   related(): Option<RELATED> {
     return this.#helper?.related ? this.#helper.related() : None();
   }
 
-  get readable(): StateReadOk<READ, true, RELATED> {
-    return this as StateReadOk<READ, true, RELATED>;
+  get readable(): StateReadOk<READ, false, RELATED> {
+    return this as StateReadOk<READ, false, RELATED>;
   }
 
   //Writer Context
@@ -159,8 +200,8 @@ export class StateOk<READ, WRITE, RELATED extends StateRelated = {}>
     return this.#helper?.limit ? this.#helper.limit(value) : Some(value);
   }
 
-  get writeable(): StateWriteOk<READ, true, RELATED, WRITE> {
-    return this as StateWriteOk<READ, true, RELATED, WRITE>;
+  get writeable(): StateWriteOk<READ, false, RELATED, WRITE> {
+    return this as StateWriteOk<READ, false, RELATED, WRITE>;
   }
 
   //Owner Context
@@ -171,47 +212,59 @@ export class StateOk<READ, WRITE, RELATED extends StateRelated = {}>
   }
 }
 
-/**Creates a state from an initial value.
- * @param init initial value for state.
+/**Creates a state from an initial lazy function that is evaluated on first access of the state.
+ * @param init function returning initial value.
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
 export function from<READ, RELATED extends StateRelated = {}, WRITE = READ>(
-  init: READ,
+  init: PromiseLike<READ>,
   setter?: StateSetter<READ, WRITE> | true,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new State<READ, WRITE, RELATED>(Ok(init), setter, helper);
+  return new StateDelayed<READ, WRITE, RELATED>(
+    init.then((v) => Ok(v)),
+    setter,
+    helper
+  );
 }
 
-/**Creates a state from an initial value, that is guaranteed to be OK.
- * @param init initial value for state.
+/**Creates a state from an initial lazy function that is evaluated on first access of the state, and that is guaranteed to be OK.
+ * @param init function returning initial value.
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
 export function ok<READ, RELATED extends StateRelated = {}, WRITE = READ>(
-  init: READ,
+  init: PromiseLike<READ>,
   setter?: StateSetterOk<READ, WRITE> | true,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new StateOk<READ, WRITE, RELATED>(Ok(init), setter, helper);
+  return new StateDelayedOk<READ, WRITE, RELATED>(
+    init.then((v) => Ok(v)),
+    setter,
+    helper
+  );
 }
 
-/**Creates a state from an initial error.
- * @param err initial error for state.
+/**Creates a state from an initial lazy function that is evaluated on first access of the state, that returns an error.
+ * @param err function returning initial error.
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
 export function err<READ, RELATED extends StateRelated = {}, WRITE = READ>(
-  err: StateError,
+  err: PromiseLike<StateError>,
   setter?: StateSetter<READ, WRITE> | true,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new State<READ, WRITE, RELATED>(Err(err), setter, helper);
+  return new StateDelayed<READ, WRITE, RELATED>(
+    err.then((e) => Err(e)),
+    setter,
+    helper
+  );
 }
 
-/**Creates a state which holds a value, from an initial Result.
- * @param init initial result for state.
+/**Creates a state which holds a value from a delayed value (promise), that is awaited on first access of the state.
+ * @param init Promise returning result.
  * @param setter function called when state value is set via setter, set true let write set it's value
  * @param helper functions to check and limit the value, and to return related states
  * */
@@ -220,15 +273,15 @@ export function from_result<
   RELATED extends StateRelated = {},
   WRITE = READ
 >(
-  init: Result<READ, StateError>,
+  init: PromiseLike<Result<READ, StateError>>,
   setter?: StateSetter<READ, WRITE> | true,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new State<READ, WRITE, RELATED>(init, setter, helper);
+  return new StateDelayed<READ, WRITE, RELATED>(init, setter, helper);
 }
 
-/**Creates a state which holds a value, from an initial OK Result, the state will be guarenteed to be OK.
- * @param init initial result ok for state.
+/**Creates a state which holds a value from a delayed value (promise), that is awaited on first access of the state, and is guarenteed to be OK.
+ * @param init Promise returning result ok, don't throw in the promise or it will break.
  * @param setter function called when state value is set via setter, set true let write set it's value
  * @param helper functions to check and limit the value, and to return related states
  * */
@@ -237,9 +290,9 @@ export function from_result_ok<
   RELATED extends StateRelated = {},
   WRITE = READ
 >(
-  init: ResultOk<READ>,
+  init: PromiseLike<ResultOk<READ>>,
   setter?: StateSetterOk<READ, WRITE> | true,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new StateOk<READ, WRITE, RELATED>(init, setter, helper);
+  return new StateDelayedOk<READ, WRITE, RELATED>(init, setter, helper);
 }

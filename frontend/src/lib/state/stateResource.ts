@@ -1,6 +1,6 @@
-import { Err, None, type Option, Some } from "@libResult";
+import { Err, None, type Option, type Result, Some } from "@libResult";
 import { StateBase } from "./stateBase";
-import type { StateRelated, StateResult, StateWriteBase } from "./types";
+import type { StateError, StateRelated, StateWriteBase } from "./types";
 
 /**State Resource
  * state for representing a remote resource
@@ -19,9 +19,9 @@ import type { StateRelated, StateResult, StateWriteBase } from "./types";
  * @template WRITE - The type which can be written to the state.
  * @template RELATED - The type of related states, defaults to an empty object.*/
 export abstract class StateResourceBase<
-    READ extends StateResult<any>,
+    READ extends Result<any, StateError>,
     RELATED extends StateRelated = {},
-    WRITE = READ extends StateResult<infer T> ? T : never
+    WRITE = READ extends Result<infer T, StateError> ? T : never
   >
   extends StateBase<READ, false, RELATED>
   implements StateWriteBase<READ, false, RELATED, WRITE>
@@ -160,9 +160,9 @@ export abstract class StateResourceBase<
  * @template WRITE - The type which can be written to the state.
  * @template RELATED - The type of related states, defaults to an empty object.*/
 class StateResourceFunc<
-  READ extends StateResult<any>,
+  READ extends Result<any, StateError>,
   RELATED extends StateRelated = {},
-  WRITE = READ extends StateResult<infer T> ? T : never
+  WRITE = READ extends Result<infer T, StateError> ? T : never
 > extends StateResourceBase<READ, RELATED, WRITE> {
   /**Creates a state which connects to an async source and keeps updated with any changes to the source
    * @param once function called when state value is requested once, the function should throw if it fails to get data
@@ -260,7 +260,7 @@ export type StateResource<
   TYPE,
   RELATED extends StateRelated = {},
   WRITE = TYPE
-> = StateResourceFunc<StateResult<TYPE>, RELATED, WRITE>;
+> = StateResourceFunc<Result<TYPE, StateError>, RELATED, WRITE>;
 
 /**Alternative state resource which can be initialized with functions
  * @template READ - The type of the state’s value when read.
@@ -271,15 +271,15 @@ export function stateResource<
   RELATED extends StateRelated = {},
   WRITE = TYPE
 >(
-  once: () => Promise<StateResult<TYPE>>,
-  setup: (update: (value: StateResult<TYPE>) => void) => void,
+  once: () => Promise<Result<TYPE, StateError>>,
+  setup: (update: (value: Result<TYPE, StateError>) => void) => void,
   teardown: () => void,
   debounce: number,
   timeout: number,
   retention: number,
   setter?: (
     value: WRITE,
-    state: StateResourceFunc<StateResult<TYPE>, RELATED, WRITE>
+    state: StateResourceFunc<Result<TYPE, StateError>, RELATED, WRITE>
   ) => void,
   helper?: {
     limit?: (value: WRITE) => Option<WRITE>;
@@ -287,7 +287,7 @@ export function stateResource<
     related?: () => Option<any>;
   }
 ) {
-  return new StateResourceFunc<StateResult<TYPE>, RELATED, WRITE>(
+  return new StateResourceFunc<Result<TYPE, StateError>, RELATED, WRITE>(
     once,
     setup,
     teardown,

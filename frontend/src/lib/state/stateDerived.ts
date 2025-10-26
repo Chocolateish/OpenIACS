@@ -1,17 +1,12 @@
-import { Err, ResultOk } from "@libResult";
+import { Err, ResultOk, type Result } from "@libResult";
 import { StateBase } from "./stateBase";
-import type {
-  StateReadBase,
-  StateReadOk,
-  StateResult,
-  StateSubscriberBase,
-} from "./types";
+import type { StateError, StateReadBase, StateSubscriberBase } from "./types";
 
 /**The `StateDerived` class is used to create a state which is derived from other states. The derived state will update when any of the other states update.
  * @template INPUT - The type allowed for the input of the derive
  * @template OUTPUT - The type outputted by the derive*/
-class StateDerivedInternal<
-    OUTPUT extends StateResult<any>,
+export class StateDerived<
+    OUTPUT extends Result<any, StateError>,
     INPUT extends OUTPUT extends ResultOk<any>
       ? [StateReadBase<any, any>, ...StateReadBase<any, any>[]]
       : StateReadBase<any, any>[]
@@ -151,6 +146,18 @@ class StateDerivedInternal<
     return this.getter(this.#states.map((s) => s.get()) as any);
   }
 
+  get readable(): StateReadBase<
+    OUTPUT,
+    OUTPUT extends ResultOk<any> ? true : false,
+    {}
+  > {
+    return this as StateReadBase<
+      OUTPUT,
+      OUTPUT extends ResultOk<any> ? true : false,
+      {}
+    >;
+  }
+
   //Owner
 
   /**The `setStates` method is used to update the states used by the `StateDerived` class.
@@ -180,61 +187,4 @@ class StateDerivedInternal<
       this.#fulfillWaiting(this.#buffer);
     }
   }
-}
-
-/**Creates a state that is derived from other states. The derived state will update when any of the other states update.
- * @template INPUT - The type allowed for the input of the derive
- * @template OUTPUT - The type outputted by the derive*/
-export type StateDerived<
-  INPUT extends StateReadBase<any, any>[],
-  OUTPUT
-> = StateDerivedInternal<StateResult<OUTPUT>, INPUT>;
-
-/**Creates a state that is derived from other states, and guarenteed to not have errors. The derived state will update when any of the other states update.
- * @template INPUT - The type allowed for the input of the derive
- * @template OUTPUT - The type outputted by the derive*/
-export type StateDerivedOk<
-  INPUT extends [StateReadOk<any, any>, ...StateReadOk<any, any>[]],
-  OUTPUT
-> = StateDerivedInternal<ResultOk<OUTPUT>, INPUT>;
-
-/**Creates a state that is derived from other states. The derived state will update when any of the other states update.
- * @template INPUT - The type allowed for the input of the derive
- * @template OUTPUT - The type outputted by the derive*/
-export function stateDerived<INPUT extends StateReadBase<any, any>[], OUTPUT>(
-  transform:
-    | ((values: {
-        [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
-          ? READ
-          : never;
-      }) => StateResult<OUTPUT>)
-    | false,
-  ...states: INPUT
-) {
-  return new StateDerivedInternal<StateResult<OUTPUT>, INPUT>(
-    transform,
-    ...states
-  ) as StateDerived<INPUT, OUTPUT>;
-}
-
-/**Creates a state that is derived from other states, and guarenteed to not have errors. The derived state will update when any of the other states update.
- * @template INPUT - The type allowed for the input of the derive
- * @template OUTPUT - The type outputted by the derive*/
-export function stateDerivedOk<
-  INPUT extends [StateReadOk<any, any>, ...StateReadOk<any, any>[]],
-  OUTPUT
->(
-  transform:
-    | ((values: {
-        [I in keyof INPUT]: INPUT[I] extends StateReadOk<infer READ, any>
-          ? ResultOk<READ>
-          : never;
-      }) => ResultOk<OUTPUT>)
-    | false,
-  ...states: INPUT
-) {
-  return new StateDerivedInternal<ResultOk<OUTPUT>, INPUT>(
-    transform,
-    ...states
-  ) as StateDerivedOk<INPUT, OUTPUT>;
 }
