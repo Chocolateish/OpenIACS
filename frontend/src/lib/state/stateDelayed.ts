@@ -11,6 +11,8 @@ import { StateBase } from "./stateBase";
 import {
   type StateError,
   type StateHelper,
+  type StateOwner,
+  type StateOwnerBase,
   type StateRead,
   type StateReadOk,
   type StateRelated,
@@ -23,7 +25,9 @@ import {
 
 export class StateDelayed<READ, WRITE, RELATED extends StateRelated = {}>
   extends StateBase<Result<READ, StateError>, false, RELATED>
-  implements StateWriteBase<Result<READ, StateError>, false, RELATED, WRITE>
+  implements
+    StateWriteBase<Result<READ, StateError>, false, RELATED, WRITE>,
+    StateOwnerBase<Result<READ, StateError>>
 {
   constructor(
     init: PromiseLike<Result<READ, StateError>>,
@@ -41,7 +45,13 @@ export class StateDelayed<READ, WRITE, RELATED extends StateRelated = {}>
             }
           : setter;
     if (helper) this.#helper = helper;
-    let clean = new Promise<Result<READ, StateError>>(async (a) => {
+    let clean = () => {
+      //@ts-expect-error
+      delete this.then;
+      //@ts-expect-error
+      delete this.write;
+    };
+    let getAndClean = new Promise<Result<READ, StateError>>(async (a) => {
       try {
         this.#value = await init;
       } catch (error) {
@@ -50,10 +60,7 @@ export class StateDelayed<READ, WRITE, RELATED extends StateRelated = {}>
           code: "INIT",
         });
       }
-      //@ts-expect-error
-      delete this.then;
-      //@ts-expect-error
-      delete this.write;
+      clean();
       a(this.#value);
     });
     this.then = async <TResult1 = Result<READ, StateError>>(
@@ -61,11 +68,14 @@ export class StateDelayed<READ, WRITE, RELATED extends StateRelated = {}>
         value: Result<READ, StateError>
       ) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
-      return func(await clean);
+      return func(await getAndClean);
     };
-    this.write = async (value) => {
-      await clean;
-      this.write(value);
+    let write = this.write.bind(this);
+    this.write = (value) => {
+      this.#value = {} as any;
+      let didWrite = write(value);
+      if (didWrite) clean();
+      return didWrite;
     };
   }
 
@@ -73,57 +83,66 @@ export class StateDelayed<READ, WRITE, RELATED extends StateRelated = {}>
   #setter?: StateSetter<READ, WRITE>;
   #helper?: StateHelper<WRITE, RELATED>;
 
+  //##################################################################################################################################################
   //Reader Context
   async then<TResult1 = Result<READ, StateError>>(
     func: (value: Result<READ, StateError>) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
     return func(this.#value!);
   }
-
   get(): never {
     return undefined as never;
   }
-
   related(): Option<RELATED> {
     return this.#helper?.related ? this.#helper.related() : None();
   }
-
   get readable(): StateRead<READ, false, RELATED> {
     return this as StateRead<READ, false, RELATED>;
   }
 
+  //##################################################################################################################################################
   //Writer Context
-  /**Requests a change of value from the state */
-  write(value: WRITE): void {
+  write(value: WRITE): boolean {
     if (this.#setter && (!this.#value!.ok || this.#value?.value !== value))
-      this.#setter(value).map(this.set.bind(this));
+      return (
+        this.#setter(value).map(this.set.bind(this)).unwrapOr(false) !== false
+      );
+    return false;
   }
-
-  /**Checks the value against the limit set by the helper, returns a reason for value being unvalid or none if it is valid*/
   check(value: WRITE): Option<string> {
     return this.#helper?.check ? this.#helper.check(value) : None();
   }
-
-  /**Limits the value to the limit set by the helper, if no limiter is set, the value is returned as is*/
   limit(value: WRITE): Option<WRITE> {
     return this.#helper?.limit ? this.#helper.limit(value) : Some(value);
   }
-
   get writeable(): StateWrite<READ, false, RELATED, WRITE> {
     return this as StateWrite<READ, false, RELATED, WRITE>;
   }
 
+  //##################################################################################################################################################
   //Owner Context
-  /**Sets the value of the state */
   set(value: Result<READ, StateError>) {
     this.#value = value;
     this.updateSubscribers(value);
+  }
+  setOk(value: READ): void {
+    this.#value = Ok(value);
+    this.updateSubscribers(this.#value);
+  }
+  setErr(err: StateError): void {
+    this.#value = Err(err);
+    this.updateSubscribers(this.#value);
+  }
+  get owner(): StateOwner<READ> {
+    return this as StateOwner<READ>;
   }
 }
 
 export class StateDelayedOk<READ, WRITE, RELATED extends StateRelated = {}>
   extends StateBase<ResultOk<READ>, false, RELATED>
-  implements StateWriteBase<ResultOk<READ>, false, RELATED, WRITE>
+  implements
+    StateWriteBase<ResultOk<READ>, false, RELATED, WRITE>,
+    StateOwnerBase<ResultOk<READ>>
 {
   constructor(
     init: PromiseLike<ResultOk<READ>>,
@@ -141,22 +160,28 @@ export class StateDelayedOk<READ, WRITE, RELATED extends StateRelated = {}>
             }
           : setter;
     if (helper) this.#helper = helper;
-    let clean = new Promise<ResultOk<READ>>(async (a) => {
-      this.#value = await init;
+    let clean = () => {
       //@ts-expect-error
       delete this.then;
       //@ts-expect-error
       delete this.write;
+    };
+    let getAndClean = new Promise<ResultOk<READ>>(async (a) => {
+      this.#value = await init;
+      clean();
       a(this.#value);
     });
     this.then = async <TResult1 = ResultOk<READ>>(
       func: (value: ResultOk<READ>) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
-      return func(await clean);
+      return func(await getAndClean);
     };
-    this.write = async (value) => {
-      await clean;
-      this.write(value);
+    let write = this.write.bind(this);
+    this.write = (value) => {
+      this.#value = {} as any;
+      let didWrite = write(value);
+      if (didWrite) clean();
+      return didWrite;
     };
   }
 
@@ -164,51 +189,55 @@ export class StateDelayedOk<READ, WRITE, RELATED extends StateRelated = {}>
   #setter?: StateSetterOk<READ, WRITE>;
   #helper?: StateHelper<WRITE, RELATED>;
 
+  //##################################################################################################################################################
   //Reader Context
   async then<TResult1 = ResultOk<READ>>(
     func: (value: ResultOk<READ>) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
     return func(this.#value!);
   }
-
   get(): never {
     return undefined as never;
   }
-
   related(): Option<RELATED> {
     return this.#helper?.related ? this.#helper.related() : None();
   }
-
   get readable(): StateReadOk<READ, false, RELATED> {
     return this as StateReadOk<READ, false, RELATED>;
   }
 
+  //##################################################################################################################################################
   //Writer Context
-  /**Requests a change of value from the state */
-  write(value: WRITE): void {
+  write(value: WRITE): boolean {
     if (this.#setter && (!this.#value!.ok || this.#value?.value !== value))
-      this.#setter(value).map(this.set.bind(this));
+      return (
+        this.#setter(value).map(this.set.bind(this)).unwrapOr(false) !== false
+      );
+    return false;
   }
-
-  /**Checks the value against the limit set by the helper, returns a reason for value being unvalid or none if it is valid*/
   check(value: WRITE): Option<string> {
     return this.#helper?.check ? this.#helper.check(value) : None();
   }
-
-  /**Limits the value to the limit set by the helper, if no limiter is set, the value is returned as is*/
   limit(value: WRITE): Option<WRITE> {
     return this.#helper?.limit ? this.#helper.limit(value) : Some(value);
   }
-
   get writeable(): StateWriteOk<READ, false, RELATED, WRITE> {
     return this as StateWriteOk<READ, false, RELATED, WRITE>;
   }
 
+  //##################################################################################################################################################
   //Owner Context
-  /**Sets the value of the state */
   set(value: ResultOk<READ>) {
     this.#value = value;
     this.updateSubscribers(value);
+  }
+  setOk(value: READ): void {
+    this.#value = Ok(value);
+    this.updateSubscribers(this.#value);
+  }
+  setErr(_err: never): void {}
+  get owner(): StateOwner<READ> {
+    return this as StateOwner<READ>;
   }
 }
 

@@ -3,27 +3,6 @@
 // import { state, stateOk } from "./state";
 // import type { StateError } from "./types";
 
-// describe("Initial testState", function () {
-//   it("Creating a testState with initial error", async function () {
-//     let testState = state(Err({ reason: "Yo", code: "Yo" }));
-//     expect((await testState).err).equal(true);
-//   });
-//   it("Creating a testState with initial value", async function () {
-//     let testState = state(Ok(2));
-//     expect((await testState).unwrap).equal(2);
-//   });
-//   it("Creating a testState with function", async () => {
-//     let testState = state(() => {
-//       return Ok(2);
-//     });
-//     expect((await testState).unwrap).equal(2);
-//     let testState2 = state(() => {
-//       return Ok(2);
-//     });
-//     expect((await testState2).unwrap).equal(2);
-//   });
-// });
-
 // describe("Setting testState value", function () {
 //   it("From owner context", async function () {
 //     let testState = state(Ok(2));
@@ -55,94 +34,6 @@
 //   it("Using get", async function () {
 //     let testState = state(Ok(2));
 //     expect(testState.get().unwrap).equal(2);
-//   });
-//   it("Using await", async function () {
-//     let testState = state(Ok(2));
-//     expect((await testState).unwrap).equal(2);
-//   });
-//   it("Using then", async () => {
-//     let testState = state(Ok(2));
-//     expect(
-//       await testState.then((val) => {
-//         expect(val.unwrap).equal(2);
-//         return 8;
-//       })
-//     ).eq(8);
-//   });
-//   it("Using then with chaining return", async () => {
-//     let testState = state(Ok(2));
-//     expect(
-//       await testState
-//         .then((val) => {
-//           expect(val.unwrap).equal(2);
-//           return 8;
-//         })
-//         .then((val) => {
-//           expect(val).equal(8);
-//           return 12;
-//         })
-//     ).eq(12);
-//   });
-//   it("Using then with chaining throw", async () => {
-//     let testState = state(Ok(2));
-//     expect(
-//       await testState
-//         .then((val) => {
-//           expect(val.unwrap).equal(2);
-//           throw 8;
-//         })
-//         .then(
-//           () => {},
-//           (val) => {
-//             expect(val).equal(8);
-//             return 12;
-//           }
-//         )
-//     ).eq(12);
-//   });
-//   it("Using then with async chaining return", async () => {
-//     let testState = state(Ok(2));
-//     expect(
-//       await testState
-//         .then(async (val) => {
-//           await new Promise((a) => {
-//             setTimeout(a, 10);
-//           });
-//           expect(val.unwrap).equal(2);
-//           return 8;
-//         })
-//         .then((val) => {
-//           expect(val).equal(8);
-//           return 12;
-//         })
-//     ).eq(12);
-//   });
-//   it("Using then with async chaining throw", async () => {
-//     let testState = state(Ok(2));
-//     expect(
-//       await testState
-//         .then(async (val) => {
-//           await new Promise((a) => {
-//             setTimeout(a, 10);
-//           });
-//           expect(val.unwrap).equal(2);
-//           throw 8;
-//         })
-//         .then(
-//           () => {},
-//           (val) => {
-//             expect(val).equal(8);
-//             return 12;
-//           }
-//         )
-//     ).eq(12);
-//   });
-// });
-
-// describe("None error testState", async function () {
-//   it("Writing to testState with error value", async function () {
-//     let testState = stateOk<number>(Ok(2));
-//     expect(testState.get().value).equal(2);
 //   });
 // });
 

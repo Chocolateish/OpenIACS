@@ -16,6 +16,8 @@ import type {
   StateRead,
   StateReadBase,
   StateReadOk,
+  StateSetter,
+  StateSetterOk,
   StateWrite,
   StateWriteBase,
   StateWriteOk,
@@ -86,7 +88,14 @@ export { isState, isStateOk, isStateSync, isStateSyncOk } from "./stateBase";
 //     |_____/ \__\__,_|\__\___|    |_|\__, | .__/ \___||___/
 //                                      __/ | |
 //                                     |___/|_|
-export type { StateRead, StateReadOk, StateWrite, StateWriteOk };
+export type {
+  StateRead,
+  StateReadOk,
+  StateSetter,
+  StateSetterOk,
+  StateWrite,
+  StateWriteOk,
+};
 
 //      ______      _                 _                _____ _
 //     |  ____|    | |               (_)              / ____| |

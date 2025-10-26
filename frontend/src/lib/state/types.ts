@@ -33,11 +33,11 @@ export type StateHelper<WRITE, L extends StateRelated = {}> = {
   related?: () => Option<L>;
 };
 
-export type StateSetter<READ, WRITE> = (
+export type StateSetter<READ, WRITE = READ> = (
   value: WRITE
 ) => Option<Result<READ, StateError>>;
 
-export type StateSetterOk<READ, WRITE> = (
+export type StateSetterOk<READ, WRITE = READ> = (
   value: WRITE
 ) => Option<ResultOk<READ>>;
 
@@ -114,8 +114,9 @@ export interface StateWriteBase<
   RELATED extends StateRelated = {},
   WRITE = READ extends Result<infer T, StateError> ? T : never
 > extends StateReadBase<READ, SYNC, RELATED> {
-  /** This sets the value of the state and updates all subscribers */
-  write(value: WRITE): void;
+  /** This sets the value of the state and updates all subscribers
+   * @returns true if value was set successfully, false otherwise.*/
+  write(value: WRITE): boolean;
   /**Limits given value to valid range if possible returns None if not possible */
   limit: (value: WRITE) => Option<WRITE>;
   /**Checks if the value is valid and returns reason for invalidity */
@@ -124,7 +125,7 @@ export interface StateWriteBase<
   readonly writeable: StateWriteBase<READ, SYNC, RELATED, WRITE>;
 }
 
-/** Represents a readable state object with subscription and related utilities.
+/** Represents a writable state object with subscription and related utilities.
  * @template TYPE - The type of the state’s value when read.
  * @template SYNC - Whether `get()` is available synchronously (true = available).
  * @template RELATED - The type of related states, defaults to an empty object.*/
@@ -135,7 +136,7 @@ export type StateWrite<
   WRITE = TYPE
 > = StateWriteBase<Result<TYPE, StateError>, SYNC, RELATED, WRITE>;
 
-/** Represents a readable state object with guarenteed Ok value and subscription and related utilities.
+/** Represents a writable state object with guarenteed Ok value and subscription and related utilities.
  * @template TYPE - The type of the state’s value when read.
  * @template SYNC - Whether `get()` is available synchronously (true = available).
  * @template RELATED - The type of related states, defaults to an empty object.*/
@@ -145,3 +146,32 @@ export type StateWriteOk<
   RELATED extends StateRelated = {},
   WRITE = TYPE
 > = StateWriteBase<ResultOk<TYPE>, SYNC, RELATED, WRITE>;
+
+//###########################################################################################################################################################
+//       ____                              _____            _            _
+//      / __ \                            / ____|          | |          | |
+//     | |  | |_      ___ __   ___ _ __  | |     ___  _ __ | |_ _____  _| |_
+//     | |  | \ \ /\ / / '_ \ / _ \ '__| | |    / _ \| '_ \| __/ _ \ \/ / __|
+//     | |__| |\ V  V /| | | |  __/ |    | |___| (_) | | | | ||  __/>  <| |_
+//      \____/  \_/\_/ |_| |_|\___|_|     \_____\___/|_| |_|\__\___/_/\_\\__|
+//###########################################################################################################################################################
+/** Represents the standard owner interface for a state object.
+ * @template READ - The type of the state’s value when read.*/
+export interface StateOwnerBase<READ extends Result<any, StateError>> {
+  /** This sets the value of the state to a result and updates all subscribers */
+  set(value: Result<any, StateError>): void;
+  /** This sets the value of the state to a ok result and updates all subscribers */
+  setOk(value: READ extends Result<infer T, StateError> ? T : never): void;
+  /** This sets the value of the state to an err result and updates all subscribers */
+  setErr(err: READ extends ResultOk<any> ? unknown : StateError): void;
+  /**Returns the same state as just a owner, for access management*/
+  readonly owner: StateOwnerBase<READ>;
+}
+
+/** Represents the standard owner interface for a state object.
+ * @template TYPE - The type of the state’s value when read.*/
+export type StateOwner<TYPE> = StateOwnerBase<Result<TYPE, StateError>>;
+
+/** Represents the standard owner interface for a state object, that is guarenteed to be Ok.
+ * @template TYPE - The type of the state’s value when read.*/
+export type StateOwnerOk<TYPE> = StateOwnerBase<ResultOk<TYPE>>;
