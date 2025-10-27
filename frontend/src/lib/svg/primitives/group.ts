@@ -1,6 +1,6 @@
-import { nameSpace } from "../shared";
+import { createSVGElement } from "./shared";
 
 /**This draws a triangle*/
-export let group = () => {
-  return document.createElementNS(nameSpace, "g") as SVGGElement;
-};
+export function group(): SVGGElement {
+  return createSVGElement("g");
+}

@@ -140,7 +140,7 @@ export abstract class StateResourceBase<
   }
 
   //Writer Context
-  abstract write(value: WRITE): void;
+  abstract write(value: WRITE): boolean;
 
   check(_value: WRITE): Option<string> {
     return None();
@@ -181,7 +181,7 @@ class StateResourceFunc<
     setter?: (
       value: WRITE,
       state: StateResourceFunc<READ, RELATED, WRITE>
-    ) => void,
+    ) => boolean,
     helper?: {
       limit?: (value: WRITE) => Option<WRITE>;
       check?: (value: WRITE) => Option<string>;
@@ -200,7 +200,10 @@ class StateResourceFunc<
   }
 
   #setter:
-    | ((value: WRITE, state: StateResourceFunc<READ, RELATED, WRITE>) => void)
+    | ((
+        value: WRITE,
+        state: StateResourceFunc<READ, RELATED, WRITE>
+      ) => boolean)
     | undefined;
   #debounce: number;
   #timeout: number;
@@ -239,8 +242,9 @@ class StateResourceFunc<
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
   protected teardownConnection(): void {}
 
-  write(value: WRITE): void {
-    if (this.#setter) this.#setter(value, this);
+  write(value: WRITE): boolean {
+    if (this.#setter) return this.#setter(value, this);
+    return false;
   }
 
   check(value: WRITE): Option<string> {
@@ -280,7 +284,7 @@ export function stateResource<
   setter?: (
     value: WRITE,
     state: StateResourceFunc<Result<TYPE, StateError>, RELATED, WRITE>
-  ) => void,
+  ) => boolean,
   helper?: {
     limit?: (value: WRITE) => Option<WRITE>;
     check?: (value: WRITE) => Option<string>;

@@ -23,7 +23,7 @@ import {
   type StateWriteOk,
 } from "./types";
 
-export class StateDelayed<READ, WRITE, RELATED extends StateRelated = {}>
+export class StateDelayed<READ, WRITE = READ, RELATED extends StateRelated = {}>
   extends StateBase<Result<READ, StateError>, false, RELATED>
   implements
     StateWriteBase<Result<READ, StateError>, false, RELATED, WRITE>,
@@ -138,7 +138,11 @@ export class StateDelayed<READ, WRITE, RELATED extends StateRelated = {}>
   }
 }
 
-export class StateDelayedOk<READ, WRITE, RELATED extends StateRelated = {}>
+export class StateDelayedOk<
+    READ,
+    WRITE = READ,
+    RELATED extends StateRelated = {}
+  >
   extends StateBase<ResultOk<READ>, false, RELATED>
   implements
     StateWriteBase<ResultOk<READ>, false, RELATED, WRITE>,

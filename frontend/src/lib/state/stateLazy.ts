@@ -24,7 +24,7 @@ import {
   type StateWriteOk,
 } from "./types";
 
-export class StateLazy<READ, WRITE, RELATED extends StateRelated = {}>
+export class StateLazy<READ, WRITE = READ, RELATED extends StateRelated = {}>
   extends StateBaseSync<Result<READ, StateError>, RELATED>
   implements
     StateWriteBase<Result<READ, StateError>, true, RELATED, WRITE>,
@@ -154,7 +154,7 @@ export class StateLazy<READ, WRITE, RELATED extends StateRelated = {}>
   }
 }
 
-export class StateLazyOk<READ, WRITE, RELATED extends StateRelated = {}>
+export class StateLazyOk<READ, WRITE = READ, RELATED extends StateRelated = {}>
   extends StateBaseSyncOk<ResultOk<READ>, RELATED>
   implements
     StateWriteBase<ResultOk<READ>, true, RELATED, WRITE>,

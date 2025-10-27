@@ -1,5 +1,5 @@
 //Enum describing the diffrent possible anchor points
-export const AnchorPoint = {
+export const SVGAnchorPoint = {
   bottomLeft: 0,
   middleLeft: 1,
   topLeft: 2,
@@ -10,4 +10,5 @@ export const AnchorPoint = {
   bottomCenter: 7,
   middleCenter: 8,
 } as const;
-export type AnchorPoint = (typeof AnchorPoint)[keyof typeof AnchorPoint];
+export type SVGAnchorPoint =
+  (typeof SVGAnchorPoint)[keyof typeof SVGAnchorPoint];

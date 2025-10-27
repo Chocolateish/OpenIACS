@@ -80,8 +80,6 @@ export let defineElement = <T extends BaseOptions>(
   }
   defineName = namespace + defineName;
   try {
-    console.log(defineName);
-
     // @ts-expect-error
     customElements.define(defineName, element);
   } catch (e) {

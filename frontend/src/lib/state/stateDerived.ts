@@ -6,14 +6,9 @@ import type { StateError, StateReadBase, StateSubscriberBase } from "./types";
  * @template INPUT - The type allowed for the input of the derive
  * @template OUTPUT - The type outputted by the derive*/
 export class StateDerived<
-    OUTPUT extends Result<any, StateError>,
-    INPUT extends OUTPUT extends ResultOk<any>
-      ? [StateReadBase<any, any>, ...StateReadBase<any, any>[]]
-      : StateReadBase<any, any>[]
-  >
-  extends StateBase<OUTPUT, OUTPUT extends ResultOk<any> ? true : false>
-  implements StateReadBase<OUTPUT, OUTPUT extends ResultOk<any> ? true : false>
-{
+  OUTPUT extends Result<any, StateError>,
+  INPUT extends StateReadBase<any, any>[]
+> extends StateBase<OUTPUT, OUTPUT extends ResultOk<any> ? true : false> {
   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
    * @param transform - Function to translate value of state or states to something else, false means first states values is used.
    * @param states - The other states to be used in the derived state.*/
@@ -187,4 +182,42 @@ export class StateDerived<
       this.#fulfillWaiting(this.#buffer);
     }
   }
+}
+
+/**Creates a state which is derived from other states. The derived state will update when any of the other states update.
+ * @param transform - Function to translate value of state or states to something else, false means first states values is used.
+ * @param states - The other states to be used in the derived state.*/
+export function from_states<
+  OUTPUT extends Result<any, StateError>,
+  INPUT extends [StateReadBase<any, any>, ...StateReadBase<any, any>[]]
+>(
+  transform:
+    | ((values: {
+        [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
+          ? READ
+          : never;
+      }) => OUTPUT)
+    | false,
+  ...states: INPUT
+) {
+  return new StateDerived<OUTPUT, INPUT>(transform, ...states);
+}
+
+/**Creates a state which is derived from other states. The derived state will update when any of the other states update.
+ * @param transform - Function to translate value of state or states to something else, false means first states values is used.
+ * @param states - The other states to be used in the derived state.*/
+export function from_state_array<
+  OUTPUT extends Result<any, StateError>,
+  INPUT extends StateReadBase<any, any>[]
+>(
+  transform:
+    | ((values: {
+        [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
+          ? READ
+          : never;
+      }) => OUTPUT)
+    | false,
+  states: INPUT
+) {
+  return new StateDerived<OUTPUT, INPUT>(transform, ...states);
 }

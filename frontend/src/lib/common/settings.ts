@@ -1,11 +1,5 @@
-import { Ok, type Option } from "../result";
-import {
-  State,
-  type StateHelper,
-  type StateRelated,
-  type StateResult,
-  type StateWrite,
-} from "../state";
+import type { ResultOk } from "@libResult";
+import type { StateWriteOk } from "@libState";
 
 let nameTransformer: ((name: string) => string) | undefined;
 export let settingsSetNameTransform = (transform: (name: string) => string) => {
@@ -34,9 +28,7 @@ export let settingsInit = (
   name: string,
   description: string
 ) => {
-  if (nameTransformer) {
-    packageName = nameTransformer(packageName);
-  }
+  if (nameTransformer) packageName = nameTransformer(packageName);
   let changed: string | undefined;
   if (packageVersions[packageName] !== packageVersion) {
     changed = packageVersions[packageName];
@@ -55,23 +47,12 @@ export let settingsInit = (
   ));
 };
 
-class SettingsState<R, W = R, L extends StateRelated = {}> extends State<
-  R,
-  W,
-  L
-> {
+class Setting {
+  readonly state: StateWriteOk<any>;
   readonly name: string;
   readonly description: string;
-  constructor(
-    init:
-      | StateResult<Exclude<R, Function>>
-      | (() => StateResult<Exclude<R, Function>>),
-    name: string,
-    description: string,
-    setter?: ((value: W) => Option<StateResult<R>>) | true,
-    helper?: StateHelper<W, L>
-  ) {
-    super(init, setter, helper);
+  constructor(state: StateWriteOk<any>, name: string, description: string) {
+    this.state = state;
     this.name = name;
     this.description = description;
   }
@@ -80,7 +61,7 @@ class SettingsState<R, W = R, L extends StateRelated = {}> extends State<
 /**Group of settings should never be instantiated manually use initSettings*/
 export class SettingsGroup {
   private pathID: string;
-  private settings: { [key: string]: StateWrite<any> } = {};
+  private settings: { [key: string]: Setting } = {};
   private subGroups: { [key: string]: SettingsGroup } = {};
   readonly versionChanged: string | undefined;
   readonly name: string;
@@ -103,10 +84,7 @@ export class SettingsGroup {
    * @param name name of group formatted for user reading
    * @param description a description of what the setting group is about formatted for user reading*/
   makeSubGroup(id: string, name: string, description: string) {
-    if (id in this.subGroups) {
-      console.warn("Sub group already registered " + id);
-      return undefined;
-    }
+    if (id in this.subGroups) throw "Sub group already registered " + id;
     return (this.subGroups[id] = new SettingsGroup(
       this.pathID + "/" + id,
       name,
@@ -115,61 +93,79 @@ export class SettingsGroup {
     ));
   }
 
-  /**Adds a state to the settings
+  /**Gets value of setting or fallbacks to default
+   * @param id unique identifier for this setting in the parent group
+   * @param fallback value to use if no setting is stored
+   * @param versionChanged function called when the version of the package changed to migrate old value to new formats
+   */
+  get<TYPE>(
+    id: string,
+    fallback: TYPE,
+    versionChanged?: (existing: string, oldVersion: string) => TYPE
+  ): TYPE {
+    let saved = localStorage[this.pathID + "/" + id];
+    try {
+      if (this.versionChanged && versionChanged) {
+        let changedValue = versionChanged(
+          JSON.parse(saved),
+          this.versionChanged
+        );
+        localStorage[this.pathID + "/" + id] = JSON.stringify(changedValue);
+        return changedValue;
+      }
+      return JSON.parse(saved);
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  /**Sets value of setting, that has not been registered to a state
+   * @param id unique identifier for this setting in the parent group
+   * @param value value to set*/
+  set(id: string, value: any) {
+    if (id in this.settings)
+      throw new Error("Settings is registered " + this.pathID + "/" + id);
+    localStorage[this.pathID + "/" + id] = JSON.stringify(value);
+  }
+
+  /**Registers a state to a setting
    * @param id unique identifier for this setting in the parent group
    * @param name name of setting formatted for user reading
    * @param description a description of what the setting is about formatted for user reading
-   * @param init initial value for the setting, use a promise for an eager async value, use a function returning a promise for a lazy async value
-   * @param setter a function that will be called when the setting is written to, if true written value will be directly saved
-   * @param helper helper struct for setting, for limiting, checking and getting related values
-   * @param versionChanged function to call when the version of the setting changed, existing value is passed as argument, return modified value
+   * @param state initial value for the setting, use a promise for an eager async value, use a function returning a promise for a lazy async value
    */
-  addSetting<R, W = R, L extends {} = {}>(
+  register<READ>(
     id: string,
     name: string,
     description: string,
-    init: R | (() => R),
-    setter?: ((value: W) => Option<StateResult<R>>) | true,
-    helper?: StateHelper<W, L>,
-    versionChanged?: (existing: R, oldVersion: string) => R
-  ): State<R, W, L> {
+    state: StateWriteOk<READ>
+  ) {
     if (id in this.settings)
-      throw new Error("Settings already registered " + id);
-    let saved = localStorage[this.pathID + "/" + id];
-    let state = (this.settings[id] = new SettingsState<R, W, L>(
-      () => {
-        if (saved) {
-          try {
-            if (this.versionChanged && versionChanged) {
-              let changedValue = versionChanged(
-                JSON.parse(saved),
-                this.versionChanged
-              );
-              localStorage[this.pathID + "/" + id] =
-                JSON.stringify(changedValue);
-              return Ok<R>(changedValue) as any;
-            }
-            return Ok<R>(JSON.parse(saved));
-          } catch (e) {}
-        }
-        let initValue: R;
-        if (typeof init === "function") {
-          // @ts-expect-error
-          initValue = init();
-        } else {
-          initValue = init;
-        }
-        localStorage[this.pathID + "/" + id] = JSON.stringify(initValue);
-        return Ok(initValue);
-      },
-      name,
-      description,
-      setter,
-      helper
-    ));
+      throw new Error("Settings already registered " + this.pathID + "/" + id);
+    this.settings[id] = new Setting(state, name, description);
     state.subscribe((value) => {
       localStorage[this.pathID + "/" + id] = JSON.stringify(value.unwrap);
     });
-    return state as State<R, W, L>;
+  }
+
+  /**Registers a state to a setting
+   * @param id unique identifier for this setting in the parent group
+   * @param name name of setting formatted for user reading
+   * @param description a description of what the setting is about formatted for user reading
+   * @param state initial value for the setting, use a promise for an eager async value, use a function returning a promise for a lazy async value
+   */
+  registerTransform<READ, TYPE>(
+    id: string,
+    name: string,
+    description: string,
+    state: StateWriteOk<READ>,
+    transform: (state: ResultOk<READ>) => TYPE
+  ) {
+    if (id in this.settings)
+      throw new Error("Settings already registered " + this.pathID + "/" + id);
+    this.settings[id] = new Setting(state, name, description);
+    state.subscribe((value) => {
+      localStorage[this.pathID + "/" + id] = JSON.stringify(transform(value));
+    });
   }
 }

@@ -1,48 +1,52 @@
 //Modifies the stroke color of a svg element
-export let stroke = (stroke: string, elem: SVGElement) => {
+export function stroke<T extends SVGElement>(elem: T, stroke: string): T {
   elem.setAttribute("stroke", stroke);
   return elem;
-};
+}
 
 //Modifies the stroke-width of a svg element
-export let strokeWidth = (width: number, elem: SVGElement) => {
+export function strokeWidth<T extends SVGElement>(elem: T, width: number): T {
   elem.setAttribute("stroke-width", String(width));
   return elem;
-};
+}
 
 //Modifies the stroke and stroke-width of a svg element
-export let strokeAndWidth = (
+export function strokeAndWidth<T extends SVGElement>(
+  elem: T,
   stroke: string,
-  width: number,
-  elem: SVGElement
-) => {
+  width: number
+): T {
   elem.setAttribute("stroke", stroke);
   elem.setAttribute("stroke-width", String(width));
   return elem;
-};
+}
 
 //Modifies the fill color of a svg element
-export let fill = (fill: string, elem: SVGElement) => {
+export function fill<T extends SVGElement>(elem: T, fill: string): T {
   elem.setAttribute("fill", fill);
   return elem;
-};
+}
 
 //Modifies the stroke and fill color of a svg element
-export let strokeFill = (stroke: string, fill: string, elem: SVGElement) => {
+export function strokeFill<T extends SVGElement>(
+  elem: T,
+  stroke: string,
+  fill: string
+): T {
   elem.setAttribute("stroke", stroke);
   elem.setAttribute("fill", fill);
   return elem;
-};
+}
 
 //Modifies the stroke, fill and stroke-width of a svg element
-export let strokeFillWidth = (
+export function strokeFillWidth<T extends SVGElement>(
+  elem: T,
   stroke: string,
   fill: string,
-  width: number,
-  elem: SVGElement
-) => {
+  width: number
+): T {
   elem.setAttribute("stroke", stroke);
   elem.setAttribute("fill", fill);
   elem.setAttribute("stroke-width", String(width));
   return elem;
-};
+}

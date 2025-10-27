@@ -1,11 +1,13 @@
 import { EventHandler } from "@libEvent";
-import type {
-  StateError,
-  StateRead,
-  StateReadBase,
-  StateSubscriber,
-  StateSubscriberBase,
+import type { Result } from "@libResult";
+import {
+  isState,
+  type StateRead,
+  type StateReadBase,
+  type StateSubscriber,
+  type StateSubscriberBase,
 } from "@libState";
+import type { StateError, StateReadOk } from "../state/types";
 import { AccessTypes } from "./access";
 import "./base.scss";
 import { BaseObserver, type BaseObserverOptions } from "./observer";
@@ -35,6 +37,17 @@ export interface BaseOptions {
   /**Options to use for element observer */
   observerOptions?: BaseObserverOptions;
 }
+
+// Helpers for opts
+type DataProps<T> = {
+  [K in keyof T as T[K] extends Function ? never : K]: T[K];
+};
+type WithStateRead<T> = {
+  [K in keyof T]?: T[K] | StateReadOk<T[K]>;
+};
+type WithStateReadTransform<T> = {
+  [K in keyof T]?: [StateReadOk<T[K]>, (val: T[K]) => T[K]];
+};
 
 /**Shared class for elements to extend
  * All none abstract elements must use the defineElement function to declare itself
@@ -83,8 +96,8 @@ export abstract class Base<
 
   #access?: AccessTypes;
 
-  #propStates?: { [k in keyof this]: [StateSubscriber<any>, boolean] };
-  #attributeStates?: { [k: string]: [StateSubscriber<any>, boolean] };
+  #propStates?: { [k in keyof this]: [StateSubscriberBase<any>, boolean] };
+  #attributeStates?: { [k: string]: [StateSubscriberBase<any>, boolean] };
 
   /**Runs when element is attached to document*/
   protected connectedCallback() {
@@ -142,6 +155,28 @@ export abstract class Base<
     return this;
   }
 
+  /**Sets any attribute on the base element, to either a fixed value or a state value */
+  opts(opts: WithStateRead<DataProps<this>>): this {
+    for (let key in opts) {
+      let opt = opts[key];
+      let isKeyState = isState(opt);
+      if (isKeyState) this.attachStateToProp(key, isKeyState);
+      else this[key] = opt as any;
+    }
+    return this;
+  }
+
+  /**Sets any attribute on the base element, to either a fixed value or a state value */
+  optsTransform(opts: WithStateReadTransform<DataProps<this>>): this {
+    for (let key in opts) {
+      let opt = opts[key]!;
+      this.attachState(opt[0], (val) => {
+        this[key] = opt[1](val.unwrap);
+      });
+    }
+    return this;
+  }
+
   /**Returns an observer for the element */
   get observer(): BaseObserver {
     return this.#observer
@@ -187,9 +222,9 @@ export abstract class Base<
 
   /**Attaches a state to a function, so that the function is subscribed to the state when the component is connected
    * @param visible when set true the function is only subscribed when the element is visible, this requires an observer to be attached to the element*/
-  attachState<T extends StateReadBase<any, any>>(
-    state: T,
-    func: StateSubscriberBase<T extends StateReadBase<infer U, any> ? U : any>,
+  attachState<READ extends Result<any, StateError>>(
+    state: StateReadBase<READ, any, any>,
+    func: StateSubscriberBase<READ>,
     visible?: boolean
   ) {
     if (visible) {

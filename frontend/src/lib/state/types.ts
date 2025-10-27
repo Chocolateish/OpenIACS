@@ -115,7 +115,7 @@ export interface StateWriteBase<
   WRITE = READ extends Result<infer T, StateError> ? T : never
 > extends StateReadBase<READ, SYNC, RELATED> {
   /** This sets the value of the state and updates all subscribers
-   * @returns true if value was set successfully, false otherwise.*/
+   * @returns true if value was accepted, true does not guarentee that the value is set, as values can represent remote resources*/
   write(value: WRITE): boolean;
   /**Limits given value to valid range if possible returns None if not possible */
   limit: (value: WRITE) => Option<WRITE>;

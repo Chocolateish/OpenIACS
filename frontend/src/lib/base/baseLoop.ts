@@ -1,11 +1,6 @@
-import {
-  StateArray,
-  stateArrayApplyReadToArray,
-  stateArrayApplyReadToArrayTransform,
-  type StateArrayRead,
-  type StateError,
-  type StateSubscriber,
-} from "@libState";
+import { state_array, type StateArray, type StateSubscriber } from "@libState";
+import type { StateArrayRead } from "../state/stateArray";
+import type { StateError } from "../state/types";
 import { Base } from "./base";
 
 interface A<T, E extends Node> {
@@ -55,8 +50,8 @@ export class Loop<T, E extends Node> extends Base {
     this.#subSubscriber = this.#stateArray.subscribe((val) => {
       if (val.ok) {
         let value = val.value;
-        this.#values = stateArrayApplyReadToArray(this.#values, value);
-        this.#children = stateArrayApplyReadToArrayTransform(
+        this.#values = state_array.applyReadToArray(this.#values, value);
+        this.#children = state_array.applyReadToArrayTransform(
           this.#children,
           value,
           this.#generator

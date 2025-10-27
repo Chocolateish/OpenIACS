@@ -36,7 +36,7 @@ export interface StateArrayWrite<TYPE> {
 
 /** Applies a read from a state array to another array
  * @template TYPE - Types allowed in both arrays.*/
-export function stateArrayApplyReadToArray<TYPE>(
+export function applyReadToArray<TYPE>(
   array: TYPE[],
   read: StateArrayRead<TYPE>
 ): TYPE[] {
@@ -58,7 +58,7 @@ export function stateArrayApplyReadToArray<TYPE>(
 /** Applies a read from a state array to another array with a transform function
  * @template INPUT - Types allowed in state array.
  * @template OUTPUT - Types allowed in array to modify.*/
-export function stateArrayApplyReadToArrayTransform<INPUT, OUTPUT>(
+export function applyReadToArrayTransform<INPUT, OUTPUT>(
   array: OUTPUT[],
   read: StateArrayRead<INPUT>,
   transform: (value: INPUT, index: number, array: readonly INPUT[]) => OUTPUT
@@ -103,64 +103,22 @@ export class StateArray<
    * @param setter function called when state value is set via setter, set true let write set it's value
    * @param helper functions to check and limit*/
   constructor(
-    init: Result<TYPE[], StateError> | (() => Result<TYPE[], StateError>),
-    setter?: (
-      value: StateArrayWrite<TYPE>
-    ) => Option<Result<StateArrayWrite<TYPE>, StateError>>,
+    init?: Result<TYPE[], StateError>,
+    setter?: (value: StateArrayWrite<TYPE>) => Option<StateArrayWrite<TYPE>>,
     helper?: StateHelper<StateArrayWrite<TYPE>, RELATED>
   ) {
     super();
-    if (setter) this.write = setter;
+    if (setter) this.#setter = setter;
     if (helper) this.#helper = helper;
-    if (typeof init === "function") {
-      let clean = (): Result<StateArrayRead<TYPE>, StateError> => {
-        //@ts-expect-error
-        delete this.then;
-        //@ts-expect-error
-        delete this.get;
-        //@ts-expect-error
-        delete this.write;
-        let value = init();
-        if (value.ok) {
-          this.#array = value.value;
-          this.#error = undefined;
-          return Ok({
-            array: this.#array,
-            type: "none",
-            index: 0,
-            items: this.#array,
-          });
-        } else {
-          this.#array = [];
-          this.#error = value.error;
-          return Err(this.#error);
-        }
-      };
-      this.then = <TResult1 = StateArrayRead<TYPE>>(
-        func: (
-          value: Result<StateArrayRead<TYPE>, StateError>
-        ) => TResult1 | PromiseLike<TResult1>
-      ): Promise<TResult1> => {
-        return func(clean()) as Promise<TResult1>;
-      };
-      this.get = () => {
-        return clean() as any;
-      };
-      this.write = (value) => {
-        clean();
-        this.write(value);
-      };
-    } else if (init) {
-      this.set(init);
-    } else {
-      this.set(Ok([]));
-    }
+    if (init) this.set(init);
+    else this.set(Ok([]));
   }
 
   //Internal Context
   #error?: StateError;
   #array: TYPE[] = [];
   #helper?: StateHelper<StateArrayWrite<TYPE>, RELATED>;
+  #setter?: (value: StateArrayWrite<TYPE>) => Option<StateArrayWrite<TYPE>>;
 
   //Reader Context
   async then<TResult1 = Result<StateArrayRead<TYPE>, StateError>>(
@@ -193,7 +151,12 @@ export class StateArray<
 
   //Writer Context
   /**Requests a change of value from the state */
-  write(value: StateArrayWrite<TYPE>): void {
+  write(value: StateArrayWrite<TYPE>): boolean {
+    if (this.#setter) {
+      let setValue = this.#setter(value);
+      if (setValue.none) return false;
+      value = setValue.value;
+    }
     let change = false;
     switch (value.type) {
       case "added":
@@ -212,6 +175,7 @@ export class StateArray<
       (value as StateArrayRead<TYPE>).array = this.#array;
       this.updateSubscribers(Ok(value as StateArrayRead<TYPE>));
     }
+    return true;
   }
 
   /**Checks the value against the limit set by the limiter, if no limiter is set, undefined is returned*/

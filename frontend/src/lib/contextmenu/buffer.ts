@@ -1,5 +1,5 @@
-import { Dots } from "@spinners";
-import { defineElement../spinners../base";
+import { defineElement } from "@libBase";
+import { Dots } from "@libSpinners";
 import "./buffer.scss";
 import { Line } from "./line";
 
