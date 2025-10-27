@@ -1,13 +1,11 @@
-import {
-  StateEnumHelper,
-  StateNumberHelper,
-  StateStringHelper,
-  type StateEnumHelperAnyType,
-  type StateEnumHelperList,
-  type StateEnumHelperType,
-  type StateNumberHelperType,
-  type StateStringHelperType,
+import type {
+  StateEnumHelperAnyType,
+  StateEnumHelperList,
+  StateEnumHelperType,
+  StateNumberHelperType,
+  StateStringHelperType,
 } from "./helpers";
+import * as helper from "./helpers";
 import type { State, StateOk } from "./state";
 import * as normal from "./state";
 import type { StateArray, StateArrayRead, StateArrayWrite } from "./stateArray";
@@ -20,6 +18,7 @@ import * as derived from "./stateDerived";
 import type { StateLazy, StateLazyOk } from "./stateLazy";
 import * as lazy from "./stateLazy";
 import type {
+  StateError,
   StateOwner,
   StateOwnerOk,
   StateRead,
@@ -111,6 +110,18 @@ export type { StateArray, StateArrayRead, StateArrayWrite };
 //     | |  | | |____| |____| |    | |____| | \ \ ____) |
 //     |_|  |_|______|______|_|    |______|_|  \_\_____/
 export { isState, isStateOk, isStateSync, isStateSyncOk } from "./stateBase";
+export let state_helper = {
+  StateNumberHelper: helper.StateNumberHelper,
+  StateStringHelper: helper.StateStringHelper,
+  StateEnumHelper: helper.StateEnumHelper,
+};
+export type {
+  StateEnumHelperAnyType,
+  StateEnumHelperList,
+  StateEnumHelperType,
+  StateNumberHelperType,
+  StateStringHelperType,
+};
 
 //       _____ _______    _______ ______   _________     _______  ______  _____
 //      / ____|__   __|/\|__   __|  ____| |__   __\ \   / /  __ \|  ____|/ ____|
@@ -140,9 +151,6 @@ export type {
 //     |______/_/ \_\  |_|  |______|_| \_|_____/|_____\____/|_| \_|  \_____|______/_/    \_\_____/_____/|______|_____/
 export let classes = {
   StateBase,
-  StateNumberHelper,
-  StateStringHelper,
-  StateEnumHelper,
 };
 
 //      ________   _________ ______ _   _  _____ _____ ____  _   _   _________     _______  ______  _____
@@ -151,13 +159,4 @@ export let classes = {
 //     |  __|   > <    | |  |  __| | . ` |\___ \  | || |  | | . ` |    | |    \   / |  ___/|  __|  \___ \
 //     | |____ / . \   | |  | |____| |\  |____) |_| || |__| | |\  |    | |     | |  | |    | |____ ____) |
 //     |______/_/ \_\  |_|  |______|_| \_|_____/|_____\____/|_| \_|    |_|     |_|  |_|    |______|_____/
-export type {
-  StateEnumHelperAnyType,
-  StateEnumHelperList,
-  StateEnumHelperType,
-  StateNumberHelper,
-  StateNumberHelperType,
-  StateReadBase,
-  StateStringHelperType,
-  StateWriteBase,
-};
+export type { StateError, StateReadBase, StateWriteBase };

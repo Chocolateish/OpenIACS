@@ -1,8 +1,8 @@
-import { grey } from "@colors";
+import { Base, defineElement } from "@libBase";
+import { grey } from "@libColors";
+import { svg_primitives } from "@libSvg";
+import { initVariableRoot } from "@libTheme";
 import { name } from "@package";
-import { Base, defineElement } from "../base";
-import { circle } from "../svg";
-import { initVariableRoot } from "../theme";
 import "./index.scss";
 
 let variables = initVariableRoot(
@@ -22,18 +22,18 @@ variables.makeVariable(
 
 let spinnerSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 spinnerSVG.setAttribute("viewBox", "0 0 64 64");
-spinnerSVG.appendChild(circle(32, 6, 0));
-spinnerSVG.appendChild(circle(45, 9.483, 0));
-spinnerSVG.appendChild(circle(54.516, 19, 0));
-spinnerSVG.appendChild(circle(58, 32, 0));
-spinnerSVG.appendChild(circle(54.516, 45, 0));
-spinnerSVG.appendChild(circle(45, 54.516, 0));
-spinnerSVG.appendChild(circle(32, 58, 0));
-spinnerSVG.appendChild(circle(19, 54.516, 0));
-spinnerSVG.appendChild(circle(9.483, 45, 0));
-spinnerSVG.appendChild(circle(6, 32, 0));
-spinnerSVG.appendChild(circle(9.483, 19, 0));
-spinnerSVG.appendChild(circle(19, 9.483, 0));
+spinnerSVG.appendChild(svg_primitives.circle(32, 6, 0));
+spinnerSVG.appendChild(svg_primitives.circle(45, 9.483, 0));
+spinnerSVG.appendChild(svg_primitives.circle(54.516, 19, 0));
+spinnerSVG.appendChild(svg_primitives.circle(58, 32, 0));
+spinnerSVG.appendChild(svg_primitives.circle(54.516, 45, 0));
+spinnerSVG.appendChild(svg_primitives.circle(45, 54.516, 0));
+spinnerSVG.appendChild(svg_primitives.circle(32, 58, 0));
+spinnerSVG.appendChild(svg_primitives.circle(19, 54.516, 0));
+spinnerSVG.appendChild(svg_primitives.circle(9.483, 45, 0));
+spinnerSVG.appendChild(svg_primitives.circle(6, 32, 0));
+spinnerSVG.appendChild(svg_primitives.circle(9.483, 19, 0));
+spinnerSVG.appendChild(svg_primitives.circle(19, 9.483, 0));
 
 export class Dots extends Base {
   /**Returns the name used to define the element */

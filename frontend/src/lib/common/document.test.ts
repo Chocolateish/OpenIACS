@@ -1,6 +1,5 @@
-import { describe, it } from "node:test";
-import { expect } from "vitest";
-import DocumentHandler from "./document";
+import { describe, expect, it } from "vitest";
+import { DocumentHandler } from "./document";
 
 let docs = new DocumentHandler(document);
 
@@ -12,12 +11,11 @@ describe("Document", async () => {
   });
   it("Attach event listener then register document", async () => {
     await new Promise<void>((a) => {
-      let newDoc: Document;
+      let newDoc: Document = document.implementation.createHTMLDocument("test");
       docs.events.on("added", (doc) => {
-        expect(doc.data === newDoc).to.equal(true);
+        expect(doc.data).toEqual(newDoc);
         a();
       });
-      newDoc = document.implementation.createHTMLDocument("test");
       docs.registerDocument(newDoc);
     });
   });
@@ -58,12 +56,12 @@ describe("Document", async () => {
     });
     it("Attach event listener then register document", async () => {
       await new Promise<void>((a) => {
-        let newDoc: Document;
+        let newDoc: Document =
+          document.implementation.createHTMLDocument("test");
         docs.events.on("added", (doc) => {
-          expect(doc.data === newDoc).to.equal(true);
+          expect(doc.data).toEqual(newDoc);
           a();
         });
-        newDoc = document.implementation.createHTMLDocument("test");
         docs.registerDocument(newDoc);
       });
     });

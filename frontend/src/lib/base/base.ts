@@ -4,10 +4,11 @@ import {
   isState,
   type StateRead,
   type StateReadBase,
+  type StateReadOk,
   type StateSubscriber,
   type StateSubscriberBase,
 } from "@libState";
-import type { StateError, StateReadOk } from "../state/types";
+import type { StateError } from "../state/types";
 import { AccessTypes } from "./access";
 import "./base.scss";
 import { BaseObserver, type BaseObserverOptions } from "./observer";

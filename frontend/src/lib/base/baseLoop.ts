@@ -1,6 +1,10 @@
-import { state_array, type StateArray, type StateSubscriber } from "@libState";
-import type { StateArrayRead } from "../state/stateArray";
-import type { StateError } from "../state/types";
+import {
+  state_array,
+  type StateArray,
+  type StateArrayRead,
+  type StateError,
+  type StateSubscriber,
+} from "@libState";
 import { Base } from "./base";
 
 interface A<T, E extends Node> {

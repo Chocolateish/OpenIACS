@@ -7,7 +7,7 @@ interface DocumentHandlerEvents {
   removed: Document;
 }
 
-export default class DocumentHandler {
+export class DocumentHandler {
   /**Stores all managed documents */
   private _documents: Document[];
   /**Stores the main docuement of the manager */

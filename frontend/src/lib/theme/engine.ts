@@ -1,5 +1,5 @@
-import type DocumentHandler from "../common/document";
-import type { ESubscriber } from "../event";
+import type { DocumentHandler } from "@libCommon";
+import type { ESubscriber } from "@libEvent";
 import {
   AnimationLevels,
   InputModes,
