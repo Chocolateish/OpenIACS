@@ -158,7 +158,7 @@ export class StateDerived<
   /**The `setStates` method is used to update the states used by the `StateDerived` class.
    * @param states - The new states. This function should accept an array of states and return the derived state.*/
   setStates(...states: INPUT) {
-    if (this.subscribers.size) {
+    if (this.inUse()) {
       this.#disconnect();
       this.#states = [...states] as INPUT;
       this.#connect();

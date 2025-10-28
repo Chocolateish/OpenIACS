@@ -33,13 +33,19 @@ export type StateHelper<WRITE, L extends StateRelated = {}> = {
   related?: () => Option<L>;
 };
 
-export type StateSetter<READ, WRITE = READ> = (
+export type StateSetterBase<READ extends Result<any, StateError>, WRITE> = (
   value: WRITE
-) => Option<Result<READ, StateError>>;
+) => Option<READ>;
 
-export type StateSetterOk<READ, WRITE = READ> = (
-  value: WRITE
-) => Option<ResultOk<READ>>;
+export type StateSetter<READ, WRITE = READ> = StateSetterBase<
+  Result<READ, StateError>,
+  WRITE
+>;
+
+export type StateSetterOk<READ, WRITE = READ> = StateSetterBase<
+  ResultOk<READ>,
+  WRITE
+>;
 
 //###########################################################################################################################################################
 //      _____  ______          _____  ______ _____     _____ ____  _   _ _______ ________   _________

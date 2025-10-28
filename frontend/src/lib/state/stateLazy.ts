@@ -7,7 +7,7 @@ import {
   ResultOk,
   Some,
 } from "@libResult";
-import { StateBaseSync, StateBaseSyncOk } from "./stateBase";
+import { StateBaseSync } from "./stateBase";
 import {
   type StateError,
   type StateHelper,
@@ -15,24 +15,28 @@ import {
   type StateOwnerBase,
   type StateOwnerOk,
   type StateRead,
+  type StateReadBase,
   type StateReadOk,
   type StateRelated,
   type StateSetter,
+  type StateSetterBase,
   type StateSetterOk,
   type StateWrite,
   type StateWriteBase,
   type StateWriteOk,
 } from "./types";
 
-export class StateLazy<READ, WRITE = READ, RELATED extends StateRelated = {}>
-  extends StateBaseSync<Result<READ, StateError>, RELATED>
-  implements
-    StateWriteBase<Result<READ, StateError>, true, RELATED, WRITE>,
-    StateOwnerBase<Result<READ, StateError>>
+export class StateLazyInternal<
+    READ extends Result<any, StateError>,
+    WRITE,
+    RELATED extends StateRelated = {}
+  >
+  extends StateBaseSync<READ, RELATED>
+  implements StateWriteBase<READ, true, RELATED, WRITE>, StateOwnerBase<READ>
 {
   constructor(
-    init: () => Result<READ, StateError>,
-    setter?: StateSetter<READ, WRITE> | true,
+    init: () => READ,
+    setter?: StateSetterBase<READ, WRITE> | true,
     helper?: StateHelper<WRITE, RELATED>
   ) {
     super();
@@ -41,8 +45,8 @@ export class StateLazy<READ, WRITE = READ, RELATED extends StateRelated = {}>
         setter === true
           ? (value) => {
               return this.#helper?.limit
-                ? this.#helper?.limit(value).map((v) => Ok(v as any as READ))
-                : Some(Ok(value as any as READ));
+                ? this.#helper?.limit(value).map((v) => Ok(v as any) as READ)
+                : Some(Ok(value as any) as READ);
             }
           : setter;
     if (helper) this.#helper = helper;
@@ -64,10 +68,8 @@ export class StateLazy<READ, WRITE = READ, RELATED extends StateRelated = {}>
       clean();
       return (this.#value = init());
     };
-    this.then = async <TResult1 = Result<READ, StateError>>(
-      func: (
-        value: Result<READ, StateError>
-      ) => TResult1 | PromiseLike<TResult1>
+    this.then = async <TResult1 = READ>(
+      func: (value: READ) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
       return func(getAndClean());
     };
@@ -95,25 +97,25 @@ export class StateLazy<READ, WRITE = READ, RELATED extends StateRelated = {}>
     };
   }
 
-  #value?: Result<READ, StateError>;
-  #setter?: StateSetter<READ, WRITE>;
+  #value?: READ;
+  #setter?: StateSetterBase<READ, WRITE>;
   #helper?: StateHelper<WRITE, RELATED>;
 
   //##################################################################################################################################################
   //Reader Context
-  async then<TResult1 = Result<READ, StateError>>(
-    func: (value: Result<READ, StateError>) => TResult1 | PromiseLike<TResult1>
+  async then<TResult1 = READ>(
+    func: (value: READ) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
     return func(this.#value!);
   }
-  get(): Result<READ, StateError> {
+  get(): READ {
     return this.#value!;
   }
   related(): Option<RELATED> {
     return this.#helper?.related ? this.#helper.related() : None();
   }
-  get readable(): StateRead<READ, true, RELATED> {
-    return this as StateRead<READ, true, RELATED>;
+  get readable(): StateReadBase<READ, true, RELATED> {
+    return this;
   }
 
   //##################################################################################################################################################
@@ -131,146 +133,50 @@ export class StateLazy<READ, WRITE = READ, RELATED extends StateRelated = {}>
   limit(value: WRITE): Option<WRITE> {
     return this.#helper?.limit ? this.#helper.limit(value) : Some(value);
   }
-  get writeable(): StateWrite<READ, true, RELATED, WRITE> {
-    return this as StateWrite<READ, true, RELATED, WRITE>;
+  get writeable(): StateWriteBase<READ, true, RELATED, WRITE> {
+    return this;
   }
 
   //##################################################################################################################################################
   //Owner Context
-  set(value: Result<READ, StateError>) {
+  set(value: READ) {
     this.#value = value;
     this.updateSubscribers(value);
   }
-  setOk(value: READ): void {
-    this.#value = Ok(value);
+  setOk(value: READ extends Result<infer T, StateError> ? T : never): void {
+    this.#value = Ok(value) as READ;
     this.updateSubscribers(this.#value);
   }
   setErr(err: StateError): void {
-    this.#value = Err(err);
+    this.#value = Err(err) as READ;
     this.updateSubscribers(this.#value);
   }
-  get owner(): StateOwner<READ> {
-    return this as StateOwner<READ>;
+  get owner(): StateOwnerBase<READ> {
+    return this;
   }
 }
 
-export class StateLazyOk<READ, WRITE = READ, RELATED extends StateRelated = {}>
-  extends StateBaseSyncOk<ResultOk<READ>, RELATED>
-  implements
-    StateWriteBase<ResultOk<READ>, true, RELATED, WRITE>,
-    StateOwnerBase<ResultOk<READ>>
-{
-  constructor(
-    init: () => ResultOk<READ>,
-    setter?: StateSetterOk<READ, WRITE> | true,
-    helper?: StateHelper<WRITE, RELATED>
-  ) {
-    super();
-    if (setter)
-      this.#setter =
-        setter === true
-          ? (value) => {
-              return this.#helper?.limit
-                ? this.#helper?.limit(value).map((v) => Ok(v as any as READ))
-                : Some(Ok(value as any as READ));
-            }
-          : setter;
-    if (helper) this.#helper = helper;
-    let clean = () => {
-      //@ts-expect-error
-      delete this.then;
-      //@ts-expect-error
-      delete this.get;
-      //@ts-expect-error
-      delete this.write;
-      //@ts-expect-error
-      delete this.set;
-      //@ts-expect-error
-      delete this.setOk;
-    };
-    let getAndClean = () => {
-      clean();
-      return (this.#value = init());
-    };
-    this.then = async <TResult1 = ResultOk<READ>>(
-      func: (value: ResultOk<READ>) => TResult1 | PromiseLike<TResult1>
-    ): Promise<TResult1> => {
-      return func(getAndClean());
-    };
-    this.get = () => {
-      return getAndClean();
-    };
-    let write = this.write.bind(this);
-    this.write = (value) => {
-      this.#value = {} as any;
-      let didWrite = write(value);
-      if (didWrite) clean();
-      return didWrite;
-    };
-    this.set = (value) => {
-      clean();
-      this.set(value);
-    };
-    this.setOk = (value) => {
-      clean();
-      this.setOk(value);
-    };
-  }
-
-  #value?: ResultOk<READ>;
-  #setter?: StateSetterOk<READ, WRITE>;
-  #helper?: StateHelper<WRITE, RELATED>;
-
-  //##################################################################################################################################################
-  //Reader Context
-  async then<TResult1 = ResultOk<READ>>(
-    func: (value: ResultOk<READ>) => TResult1 | PromiseLike<TResult1>
-  ): Promise<TResult1> {
-    return func(this.#value!);
-  }
-  get(): ResultOk<READ> {
-    return this.#value!;
-  }
-  related(): Option<RELATED> {
-    return this.#helper?.related ? this.#helper.related() : None();
-  }
-  get readable(): StateReadOk<READ, true, RELATED> {
-    return this as StateReadOk<READ, true, RELATED>;
-  }
-
-  //##################################################################################################################################################
-  //Writer Context
-  write(value: WRITE): boolean {
-    if (this.#setter && (!this.#value!.ok || this.#value?.value !== value))
-      return (
-        this.#setter(value).map(this.set.bind(this)).unwrapOr(false) !== false
-      );
-    return false;
-  }
-  check(value: WRITE): Option<string> {
-    return this.#helper?.check ? this.#helper.check(value) : None();
-  }
-  limit(value: WRITE): Option<WRITE> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Some(value);
-  }
-  get writeable(): StateWriteOk<READ, true, RELATED, WRITE> {
-    return this as StateWriteOk<READ, true, RELATED, WRITE>;
-  }
-
-  //##################################################################################################################################################
-  //Owner Context
-  set(value: ResultOk<READ>) {
-    this.#value = value;
-    this.updateSubscribers(value);
-  }
-  setOk(value: READ): void {
-    this.#value = Ok(value);
-    this.updateSubscribers(this.#value);
-  }
-  setErr(_err: never): void {}
-  get owner(): StateOwnerOk<READ> {
-    return this as StateOwnerOk<READ>;
-  }
+export interface StateLazy<
+  READ,
+  WRITE = READ,
+  RELATED extends StateRelated = {}
+> extends StateLazyInternal<Result<READ, StateError>, WRITE, RELATED> {
+  readonly readable: StateRead<READ, true, RELATED>;
+  readonly writeable: StateWrite<READ, true, RELATED, WRITE>;
+  readonly owner: StateOwner<READ>;
+  setOk(value: READ): void;
+  setErr(err: StateError): void;
+}
+export interface StateLazyOk<
+  READ,
+  WRITE = READ,
+  RELATED extends StateRelated = {}
+> extends StateLazyInternal<ResultOk<READ>, WRITE, RELATED> {
+  readonly readable: StateReadOk<READ, true, RELATED>;
+  readonly writeable: StateWriteOk<READ, true, RELATED, WRITE>;
+  readonly owner: StateOwnerOk<READ>;
+  setOk(value: READ): void;
+  setErr(err: never): void;
 }
 
 /**Creates a state from an initial lazy function that is evaluated on first access of the state.
@@ -283,7 +189,11 @@ export function from<READ, RELATED extends StateRelated = {}, WRITE = READ>(
   setter?: StateSetter<READ, WRITE> | true,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new StateLazy<READ, WRITE, RELATED>(() => Ok(init()), setter, helper);
+  return new StateLazyInternal<Result<READ, StateError>, WRITE, RELATED>(
+    () => Ok(init()),
+    setter,
+    helper
+  ) as StateLazy<READ, WRITE, RELATED>;
 }
 
 /**Creates a state from an initial lazy function that is evaluated on first access of the state, and that is guaranteed to be OK.
@@ -296,11 +206,11 @@ export function ok<READ, RELATED extends StateRelated = {}, WRITE = READ>(
   setter?: StateSetterOk<READ, WRITE> | true,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new StateLazyOk<READ, WRITE, RELATED>(
+  return new StateLazyInternal<ResultOk<READ>, WRITE, RELATED>(
     () => Ok(init()),
     setter,
     helper
-  );
+  ) as StateLazyOk<READ, WRITE, RELATED>;
 }
 
 /**Creates a state from an initial lazy function that is evaluated on first access of the state, that returns an error.
@@ -313,7 +223,11 @@ export function err<READ, RELATED extends StateRelated = {}, WRITE = READ>(
   setter?: StateSetter<READ, WRITE> | true,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new StateLazy<READ, WRITE, RELATED>(() => Err(err()), setter, helper);
+  return new StateLazyInternal<Result<READ, StateError>, WRITE, RELATED>(
+    () => Err(err()),
+    setter,
+    helper
+  ) as StateLazy<READ, WRITE, RELATED>;
 }
 
 /**Creates a state which holds a value from a lazy function that is evaluated on first access of the state, that returns a Result.
@@ -330,7 +244,11 @@ export function from_result<
   setter?: StateSetter<READ, WRITE> | true,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new StateLazy<READ, WRITE, RELATED>(init, setter, helper);
+  return new StateLazyInternal<Result<READ, StateError>, WRITE, RELATED>(
+    init,
+    setter,
+    helper
+  ) as StateLazy<READ, WRITE, RELATED>;
 }
 
 /**Creates a state which holds a value from a lazy function that is evaluated on first access of the state, that returns a Result that is guarenteed to be OK.
@@ -347,5 +265,9 @@ export function from_result_ok<
   setter?: StateSetterOk<READ, WRITE> | true,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new StateLazyOk<READ, WRITE, RELATED>(init, setter, helper);
+  return new StateLazyInternal<ResultOk<READ>, WRITE, RELATED>(
+    init,
+    setter,
+    helper
+  ) as StateLazyOk<READ, WRITE, RELATED>;
 }

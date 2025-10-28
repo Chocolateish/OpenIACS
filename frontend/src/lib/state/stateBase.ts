@@ -12,7 +12,8 @@ export abstract class StateBase<
   RELATED extends StateRelated = {}
 > implements StateReadBase<READ, SYNC, RELATED>
 {
-  protected subscribers: Set<StateSubscriberBase<READ>> = new Set();
+  #subscribers: Set<StateSubscriberBase<READ>> = new Set();
+  #promises?: ((val: READ) => void)[];
 
   //Reader Context
   abstract then<TResult1 = READ>(
@@ -20,21 +21,21 @@ export abstract class StateBase<
   ): PromiseLike<TResult1>;
 
   subscribe<B extends StateSubscriberBase<READ>>(func: B, update?: boolean): B {
-    if (this.subscribers.has(func)) {
+    if (this.#subscribers.has(func)) {
       console.warn("Function already registered as subscriber");
       return func;
     }
-    this.onSubscribe(this.subscribers.size == 0);
-    this.subOnSubscribe(this.subscribers.size == 0);
-    this.subscribers.add(func);
+    this.onSubscribe(this.#subscribers.size == 0);
+    this.subOnSubscribe(this.#subscribers.size == 0);
+    this.#subscribers.add(func);
     if (update) this.then(func);
     return func;
   }
 
   unsubscribe<B extends StateSubscriberBase<READ>>(func: B): B {
-    if (this.subscribers.delete(func)) {
-      this.onUnsubscribe(this.subscribers.size == 0);
-      this.subOnUnsubscribe(this.subscribers.size == 0);
+    if (this.#subscribers.delete(func)) {
+      this.onUnsubscribe(this.#subscribers.size == 0);
+      this.subOnUnsubscribe(this.#subscribers.size == 0);
     } else console.warn("Subscriber not found with state", this, func);
     return func;
   }
@@ -58,17 +59,17 @@ export abstract class StateBase<
 
   /**Returns if the state is being used */
   inUse(): boolean {
-    return Boolean(this.subscribers.size);
+    return Boolean(this.#subscribers.size);
   }
 
   /**Returns if the state has a subscriber */
   hasSubscriber(subscriber: StateSubscriberBase<READ>): boolean {
-    return this.subscribers.has(subscriber);
+    return this.#subscribers.has(subscriber);
   }
 
   /**Updates all subscribers with a value */
   protected updateSubscribers(value: READ): void {
-    for (const subscriber of this.subscribers) {
+    for (const subscriber of this.#subscribers) {
       try {
         subscriber(value);
       } catch (e) {
@@ -81,6 +82,23 @@ export abstract class StateBase<
   get readable(): StateReadBase<READ, SYNC, RELATED> {
     return this;
   }
+
+  //Promises
+  protected async appendPromise<TResult1 = READ>(
+    func: (value: READ) => TResult1 | PromiseLike<TResult1>
+  ): Promise<TResult1> {
+    return func(
+      await new Promise<READ>((a) => {
+        if (!this.#promises) this.#promises = [];
+        this.#promises.push(a);
+      })
+    );
+  }
+  protected fulfillPromises(value: READ) {
+    if (this.#promises)
+      for (let i = 0; i < this.#promises.length; i++) this.#promises[i](value);
+    this.#promises = [];
+  }
 }
 
 export abstract class StateBaseOk<
@@ -90,7 +108,7 @@ export abstract class StateBaseOk<
 > extends StateBase<READ, SYNC, RELATED> {}
 
 export abstract class StateBaseSync<
-  READ extends Result<any>,
+  READ extends Result<any, StateError>,
   RELATED extends StateRelated = {}
 > extends StateBase<READ, true, RELATED> {}
 

@@ -1,209 +1,271 @@
-// import { Err, ResultOk, type Result } from "@libResult";
-// import { StateBase } from "./stateBase";
-// import type {
-//   StateError,
-//   StateReadBase,
-//   StateRelated,
-//   StateSubscriberBase,
-// } from "./types";
+import { ResultOk, type Option, type Result } from "@libResult";
+import { StateBase } from "./stateBase";
+import type {
+  StateError,
+  StateRead,
+  StateReadBase,
+  StateReadOk,
+  StateRelated,
+  StateSubscriberBase,
+} from "./types";
 
-// /**The `StateDerived` class is used to create a state which is derived from other states. The derived state will update when any of the other states update.
-//  * @template INPUT - The type allowed for the input of the derive
-//  * @template OUTPUT - The type outputted by the derive*/
-// export class StateProxy<
-//   OUTPUT,
-//   INPUT extends StateReadBase<any, any, RELATED>,
-//   RELATED extends StateRelated = {}
-// > extends StateBase<
-//   Result<OUTPUT, StateError>,
-//   INPUT extends StateReadBase<any, infer SYNC, RELATED> ? SYNC : false,
-//   RELATED
-// > {
-//   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
-//    * @param transform - Function to translate value of state or states to something else, false means first states values is used.
-//    * @param states - The other states to be used in the derived state.*/
-//   constructor(
-//     states: INPUT,
-//     transform:
-//       | ((
-//           values: INPUT extends StateReadBase<infer READ, any> ? READ : never
-//         ) => OUTPUT)
-//       | false
-//   ) {
-//     super();
-//     if (typeof transform === "function") this.getter = transform;
-//     this.#states = states;
-//   }
+export type StateProxySetterBase<
+  INPUT extends Result<any, StateError>,
+  OUTPUT extends Result<any, StateError>
+> = (value: INPUT) => OUTPUT;
 
-//   #state: number = 0; //0 = not subscribed, 1 = buffer invalid subscribed, 2 = buffer valid
-//   #buffer: OUTPUT | undefined;
-//   #waiting: ((value: OUTPUT | PromiseLike<OUTPUT>) => void)[] = [];
+export type StateProxySetter<INPUT, OUTPUT> = StateProxySetterBase<
+  Result<INPUT, StateError>,
+  Result<OUTPUT, StateError>
+>;
 
-//   #states: INPUT;
-//   #stateBuffers: {
-//     [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
-//       ? READ
-//       : never;
-//   } = [] as any;
-//   #stateSubscribers: StateSubscriberBase<any>[] = [];
+export type StateProxySetterFromOk<INPUT, OUTPUT> = StateProxySetterBase<
+  ResultOk<INPUT>,
+  Result<OUTPUT, StateError>
+>;
 
-//   protected getter(values: {
-//     [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
-//       ? READ
-//       : never;
-//   }): OUTPUT {
-//     return values[0] as any;
-//   }
+export type StateProxySetterOk<INPUT, OUTPUT> = StateProxySetterBase<
+  Result<INPUT, StateError>,
+  ResultOk<OUTPUT>
+>;
 
-//   /**Called when subscriber is added*/
-//   protected subOnSubscribe(_first: boolean) {
-//     if (_first) this.#connect();
-//   }
+export type StateProxySetterOkFromOk<INPUT, OUTPUT> = StateProxySetterBase<
+  ResultOk<INPUT>,
+  ResultOk<OUTPUT>
+>;
 
-//   /**Called when subscriber is removed*/
-//   protected subOnUnsubscribe(_last: boolean) {
-//     if (_last) this.#disconnect();
-//   }
+export class StateProxyInternal<
+  OUTPUT extends Result<any, StateError>,
+  SYNC extends boolean,
+  RELATED extends StateRelated,
+  INPUT extends Result<any, StateError>
+> extends StateBase<OUTPUT, SYNC, RELATED> {
+  /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
+   * @param transform - Function to translate value of state or states to something else, false means first states values is used.
+   * @param state - The other states to be used in the derived state.*/
+  constructor(
+    state: StateReadBase<INPUT, SYNC, RELATED>,
+    transform?: StateProxySetterBase<INPUT, OUTPUT>
+  ) {
+    super();
+    this.#state = state;
+    if (transform) this.transform = transform;
+  }
 
-//   async #calculate(first: boolean) {
-//     this.#state = 3;
-//     await Promise.resolve();
-//     this.#buffer = this.getter(this.#stateBuffers);
-//     if (!first) this.updateSubscribers(this.#buffer);
-//     this.#fulfillWaiting(this.#buffer);
-//     this.#state = 2;
-//   }
+  #state: StateReadBase<INPUT, SYNC, RELATED>;
+  #subscriber?: StateSubscriberBase<INPUT>;
+  #buffer?: OUTPUT;
 
-//   #connect() {
-//     if (this.#states.length > 1) {
-//       this.#state = 1;
-//       let count = this.#states.length;
-//       for (let i = 0; i < this.#states.length; i++) {
-//         this.#stateSubscribers[i] = this.#states[i].subscribe((value) => {
-//           if (this.#state === 2) {
-//             this.#stateBuffers[i] = value;
-//             this.#calculate(false);
-//           } else if (this.#state === 1 && !this.#stateBuffers[i]) {
-//             this.#stateBuffers[i] = value;
-//             count--;
-//             if (count === 0) {
-//               this.#state = 2;
-//               this.#calculate(true);
-//             }
-//           } else this.#stateBuffers[i] = value;
-//         }, true);
-//       }
-//     } else if (this.#states.length === 1) {
-//       this.#state = 1;
-//       this.#stateSubscribers[0] = this.#states[0].subscribe((value) => {
-//         this.#state = 2;
-//         this.#buffer = this.getter([value] as any);
-//         this.updateSubscribers(this.#buffer);
-//         this.#fulfillWaiting(this.#buffer);
-//       }, true);
-//     }
-//   }
+  protected transform(value: INPUT): OUTPUT {
+    return value as any as OUTPUT;
+  }
 
-//   #disconnect() {
-//     for (let i = 0; i < this.#states.length; i++)
-//       this.#states[i].unsubscribe(this.#stateSubscribers[i]);
-//     this.#stateSubscribers = [];
-//     this.#stateBuffers = [] as any;
-//     this.#buffer = undefined;
-//     this.#state = 0;
-//   }
+  protected subOnSubscribe(_first: boolean) {
+    if (_first) this.#connect();
+  }
 
-//   #fulfillWaiting(value: OUTPUT) {
-//     for (let i = 0; i < this.#waiting.length; i++) this.#waiting[i](value);
-//     this.#waiting = [];
-//   }
+  protected subOnUnsubscribe(_last: boolean) {
+    if (_last) this.#disconnect();
+  }
 
-//   //Reader Context
-//   async then<TResult1 = OUTPUT>(
-//     func: (value: OUTPUT) => TResult1 | PromiseLike<TResult1>
-//   ): Promise<TResult1> {
-//     if (this.#buffer) return func(this.#buffer);
-//     switch (this.#state) {
-//       default:
-//       case 0:
-//         if (this.#states.length)
-//           return func(this.getter((await Promise.all(this.#states)) as any));
-//         else {
-//           //@ts-expect-error
-//           return func(Err({ reason: "No states registered", code: "INV" }));
-//         }
-//       case 1:
-//       case 3:
-//         return new Promise<OUTPUT>((a) => {
-//           this.#waiting.push(a);
-//         }).then(func);
-//       case 2:
-//         return func(this.#buffer!);
-//     }
-//   }
+  #connect() {
+    this.#subscriber = this.#state.subscribe((value) => {
+      this.#buffer = this.transform(value);
+      this.fulfillPromises(this.#buffer);
+      this.updateSubscribers(this.#buffer);
+    }, Boolean(this.#buffer));
+  }
 
-//   get(): (OUTPUT extends ResultOk<any> ? true : false) extends true
-//     ? OUTPUT
-//     : unknown {
-//     if (this.#buffer) return this.#buffer;
-//     return this.getter(this.#states.map((s) => s.get()) as any);
-//   }
+  #disconnect() {
+    if (this.#subscriber) this.#state.unsubscribe(this.#subscriber);
+    this.#subscriber = undefined;
+    this.#buffer = undefined;
+  }
 
-//   get readable(): StateReadBase<
-//     OUTPUT,
-//     OUTPUT extends ResultOk<any> ? true : false,
-//     {}
-//   > {
-//     return this as StateReadBase<
-//       OUTPUT,
-//       OUTPUT extends ResultOk<any> ? true : false,
-//       {}
-//     >;
-//   }
+  async then<TResult1 = OUTPUT>(
+    func: (value: OUTPUT) => TResult1 | PromiseLike<TResult1>
+  ): Promise<TResult1> {
+    if (this.#buffer) return func(this.#buffer);
+    if (!this.#subscriber) this.#connect();
+    return this.appendPromise(func);
+  }
 
-//   //Owner
+  get(): SYNC extends true ? OUTPUT : unknown {
+    if (this.#buffer) return this.#buffer;
+    return this.transform(this.#state.get() as INPUT);
+  }
 
-//   /**The `setStates` method is used to update the states used by the `StateDerived` class.
-//    * @param states - The new states. This function should accept an array of states and return the derived state.*/
-//   setStates(...states: INPUT) {
-//     if (this.subscribers.size) {
-//       this.#disconnect();
-//       this.#states = [...states] as INPUT;
-//       this.#connect();
-//     } else this.#states = [...states] as INPUT;
-//   }
+  related(): Option<RELATED> {
+    return this.#state.related();
+  }
 
-//   /**The `setGetter` method is used to update the getter function used by the `StateDerived` class.
-//    * This function is used to compute the derived state based on the current states.
-//    * @param getter - The new getter function. This function should accept an array of states and return the derived state.*/
-//   setGetter(
-//     getter: (values: {
-//       [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
-//         ? READ
-//         : never;
-//     }) => OUTPUT
-//   ) {
-//     this.getter = getter;
-//     if (this.#state === 2) {
-//       this.#buffer = this.getter(this.#stateBuffers);
-//       this.updateSubscribers(this.#buffer);
-//       this.#fulfillWaiting(this.#buffer);
-//     }
-//   }
-// }
+  get readable(): StateReadBase<OUTPUT, SYNC, RELATED> {
+    return this;
+  }
 
-// /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
-//  * @param transform - Function to translate value of state or states to something else, false means first states values is used.
-//  * @param states - The other states to be used in the derived state.*/
-// export function from<READ, RELATED extends StateRelated = {}, WRITE = READ>(
-//   transform:
-//     | ((values: {
-//         [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
-//           ? READ
-//           : never;
-//       }) => OUTPUT)
-//     | false,
-//   ...states: INPUT
-// ) {
-//   return new StateLazy<READ, WRITE, RELATED>(() => Ok(init()), setter, helper);
-// }
+  //Owner
+
+  /**Sets the state that is being proxied, and updates subscribers with new value*/
+  setState(state: StateReadBase<INPUT, SYNC, RELATED>) {
+    if (this.inUse()) {
+      this.#disconnect();
+      this.#state = state;
+      this.#connect();
+    } else this.#state = state;
+  }
+
+  /**Changes the transform function of the proxy, and updates subscribers with new value*/
+  async setTransform(transform: StateProxySetterBase<INPUT, OUTPUT>) {
+    this.transform = transform;
+    if (this.inUse()) {
+      this.#buffer = undefined;
+      this.#buffer = this.transform(await this.#state);
+      this.updateSubscribers(this.#buffer);
+      this.fulfillPromises(this.#buffer);
+    }
+  }
+}
+
+export interface StateProxy<
+  OUTPUT,
+  SYNC extends boolean,
+  RELATED extends StateRelated = {},
+  INPUT = OUTPUT
+> extends StateProxyInternal<
+    Result<OUTPUT, StateError>,
+    SYNC,
+    RELATED,
+    Result<INPUT, StateError>
+  > {
+  readonly readable: StateRead<OUTPUT, SYNC, RELATED>;
+  setState(state: StateRead<INPUT, SYNC, RELATED>): void;
+  setTransform(transform: StateProxySetter<INPUT, OUTPUT>): Promise<void>;
+}
+export interface StateProxyFromOK<
+  OUTPUT,
+  SYNC extends boolean,
+  RELATED extends StateRelated = {},
+  INPUT = OUTPUT
+> extends StateProxyInternal<
+    Result<OUTPUT, StateError>,
+    SYNC,
+    RELATED,
+    ResultOk<INPUT>
+  > {
+  readonly readable: StateRead<OUTPUT, SYNC, RELATED>;
+  setState(state: StateReadOk<INPUT, SYNC, RELATED>): void;
+  setTransform(transform: StateProxySetterFromOk<INPUT, OUTPUT>): Promise<void>;
+}
+export interface StateProxyOk<
+  OUTPUT,
+  SYNC extends boolean,
+  RELATED extends StateRelated = {},
+  INPUT = OUTPUT
+> extends StateProxyInternal<
+    ResultOk<OUTPUT>,
+    SYNC,
+    RELATED,
+    Result<INPUT, StateError>
+  > {
+  readonly readable: StateReadOk<OUTPUT, SYNC, RELATED>;
+  setState(state: StateRead<INPUT, SYNC, RELATED>): void;
+  setTransform(transform: StateProxySetterOk<INPUT, OUTPUT>): Promise<void>;
+}
+
+export interface StateProxyOkFromOk<
+  OUTPUT,
+  SYNC extends boolean,
+  RELATED extends StateRelated = {},
+  INPUT = OUTPUT
+> extends StateProxyInternal<ResultOk<OUTPUT>, SYNC, RELATED, ResultOk<INPUT>> {
+  readonly readable: StateReadOk<OUTPUT, SYNC, RELATED>;
+  setState(state: StateReadOk<INPUT, SYNC, RELATED>): void;
+  setTransform(
+    transform: StateProxySetterOkFromOk<INPUT, OUTPUT>
+  ): Promise<void>;
+}
+
+/**Creates a proxy state which mirrors another state, with an optional transform function.
+ * @param state - state to proxy.
+ * @param transform - Function to transform value of proxy*/
+export function from<
+  OUTPUT,
+  SYNC extends boolean,
+  RELATED extends StateRelated = {},
+  INPUT = OUTPUT
+>(
+  state: StateRead<INPUT, SYNC, RELATED>,
+  transform?: StateProxySetter<INPUT, OUTPUT>
+) {
+  return new StateProxyInternal<
+    Result<OUTPUT, StateError>,
+    SYNC,
+    RELATED,
+    Result<INPUT, StateError>
+  >(state, transform) as StateProxy<OUTPUT, SYNC, RELATED, INPUT>;
+}
+
+/**Creates a proxy state which mirrors another state, with an optional transform function.
+ * @param state - state to proxy.
+ * @param transform - Function to transform value of proxy*/
+export function from_ok<
+  OUTPUT,
+  SYNC extends boolean,
+  RELATED extends StateRelated = {},
+  INPUT = OUTPUT
+>(
+  state: StateReadOk<INPUT, SYNC, RELATED>,
+  transform?: StateProxySetterFromOk<INPUT, OUTPUT>
+) {
+  return new StateProxyInternal<
+    Result<OUTPUT, StateError>,
+    SYNC,
+    RELATED,
+    Result<INPUT, StateError>
+  >(state, transform as any) as StateProxyFromOK<OUTPUT, SYNC, RELATED, INPUT>;
+}
+
+/**Creates a proxy state which mirrors another state, with an optional transform function.
+ * @param state - state to proxy.
+ * @param transform - Function to transform value of proxy*/
+export function ok<
+  OUTPUT,
+  SYNC extends boolean,
+  RELATED extends StateRelated = {},
+  INPUT = OUTPUT
+>(
+  state: StateRead<INPUT, SYNC, RELATED>,
+  transform?: StateProxySetterOk<INPUT, OUTPUT>
+) {
+  return new StateProxyInternal<
+    Result<OUTPUT, StateError>,
+    SYNC,
+    RELATED,
+    Result<INPUT, StateError>
+  >(state, transform) as StateProxyOk<OUTPUT, SYNC, RELATED, INPUT>;
+}
+
+/**Creates a proxy state which mirrors another state, with an optional transform function.
+ * @param state - state to proxy.
+ * @param transform - Function to transform value of proxy*/
+export function ok_from_ok<
+  OUTPUT,
+  SYNC extends boolean,
+  RELATED extends StateRelated = {},
+  INPUT = OUTPUT
+>(
+  state: StateReadOk<INPUT, SYNC, RELATED>,
+  transform?: StateProxySetterOkFromOk<INPUT, OUTPUT>
+) {
+  return new StateProxyInternal<
+    Result<OUTPUT, StateError>,
+    SYNC,
+    RELATED,
+    Result<INPUT, StateError>
+  >(state, transform as any) as StateProxyOkFromOk<
+    OUTPUT,
+    SYNC,
+    RELATED,
+    INPUT
+  >;
+}
