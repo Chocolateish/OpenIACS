@@ -9,30 +9,28 @@ import type {
   StateSubscriberBase,
 } from "./types";
 
-export type StateProxySetterBase<
+export type StateProxyTransformBase<
   INPUT extends Result<any, StateError>,
   OUTPUT extends Result<any, StateError>
 > = (value: INPUT) => OUTPUT;
 
-export type StateProxySetter<INPUT, OUTPUT> = StateProxySetterBase<
+export type StateProxyTransform<INPUT, OUTPUT> = StateProxyTransformBase<
   Result<INPUT, StateError>,
   Result<OUTPUT, StateError>
 >;
 
-export type StateProxySetterFromOk<INPUT, OUTPUT> = StateProxySetterBase<
+export type StateProxyTransformFromOk<INPUT, OUTPUT> = StateProxyTransformBase<
   ResultOk<INPUT>,
   Result<OUTPUT, StateError>
 >;
 
-export type StateProxySetterOk<INPUT, OUTPUT> = StateProxySetterBase<
+export type StateProxyTransformOk<INPUT, OUTPUT> = StateProxyTransformBase<
   Result<INPUT, StateError>,
   ResultOk<OUTPUT>
 >;
 
-export type StateProxySetterOkFromOk<INPUT, OUTPUT> = StateProxySetterBase<
-  ResultOk<INPUT>,
-  ResultOk<OUTPUT>
->;
+export type StateProxyTransformOkFromOk<INPUT, OUTPUT> =
+  StateProxyTransformBase<ResultOk<INPUT>, ResultOk<OUTPUT>>;
 
 export class StateProxyInternal<
   OUTPUT extends Result<any, StateError>,
@@ -45,7 +43,7 @@ export class StateProxyInternal<
    * @param state - The other states to be used in the derived state.*/
   constructor(
     state: StateReadBase<INPUT, SYNC, RELATED>,
-    transform?: StateProxySetterBase<INPUT, OUTPUT>
+    transform?: StateProxyTransformBase<INPUT, OUTPUT>
   ) {
     super();
     this.#state = state;
@@ -82,6 +80,8 @@ export class StateProxyInternal<
     this.#buffer = undefined;
   }
 
+  //##################################################################################################################################################
+  //Reader Context
   async then<TResult1 = OUTPUT>(
     func: (value: OUTPUT) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
@@ -103,8 +103,8 @@ export class StateProxyInternal<
     return this;
   }
 
-  //Owner
-
+  //##################################################################################################################################################
+  //Owner Context
   /**Sets the state that is being proxied, and updates subscribers with new value*/
   setState(state: StateReadBase<INPUT, SYNC, RELATED>) {
     if (this.inUse()) {
@@ -115,7 +115,7 @@ export class StateProxyInternal<
   }
 
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
-  async setTransform(transform: StateProxySetterBase<INPUT, OUTPUT>) {
+  async setTransform(transform: StateProxyTransformBase<INPUT, OUTPUT>) {
     this.transform = transform;
     if (this.inUse()) {
       this.#buffer = undefined;
@@ -139,7 +139,7 @@ export interface StateProxy<
   > {
   readonly readable: StateRead<OUTPUT, SYNC, RELATED>;
   setState(state: StateRead<INPUT, SYNC, RELATED>): void;
-  setTransform(transform: StateProxySetter<INPUT, OUTPUT>): Promise<void>;
+  setTransform(transform: StateProxyTransform<INPUT, OUTPUT>): Promise<void>;
 }
 export interface StateProxyFromOK<
   OUTPUT,
@@ -154,7 +154,9 @@ export interface StateProxyFromOK<
   > {
   readonly readable: StateRead<OUTPUT, SYNC, RELATED>;
   setState(state: StateReadOk<INPUT, SYNC, RELATED>): void;
-  setTransform(transform: StateProxySetterFromOk<INPUT, OUTPUT>): Promise<void>;
+  setTransform(
+    transform: StateProxyTransformFromOk<INPUT, OUTPUT>
+  ): Promise<void>;
 }
 export interface StateProxyOk<
   OUTPUT,
@@ -169,7 +171,7 @@ export interface StateProxyOk<
   > {
   readonly readable: StateReadOk<OUTPUT, SYNC, RELATED>;
   setState(state: StateRead<INPUT, SYNC, RELATED>): void;
-  setTransform(transform: StateProxySetterOk<INPUT, OUTPUT>): Promise<void>;
+  setTransform(transform: StateProxyTransformOk<INPUT, OUTPUT>): Promise<void>;
 }
 
 export interface StateProxyOkFromOk<
@@ -181,7 +183,7 @@ export interface StateProxyOkFromOk<
   readonly readable: StateReadOk<OUTPUT, SYNC, RELATED>;
   setState(state: StateReadOk<INPUT, SYNC, RELATED>): void;
   setTransform(
-    transform: StateProxySetterOkFromOk<INPUT, OUTPUT>
+    transform: StateProxyTransformOkFromOk<INPUT, OUTPUT>
   ): Promise<void>;
 }
 
@@ -189,13 +191,13 @@ export interface StateProxyOkFromOk<
  * @param state - state to proxy.
  * @param transform - Function to transform value of proxy*/
 export function from<
-  OUTPUT,
+  INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},
-  INPUT = OUTPUT
+  OUTPUT = INPUT
 >(
   state: StateRead<INPUT, SYNC, RELATED>,
-  transform?: StateProxySetter<INPUT, OUTPUT>
+  transform?: StateProxyTransform<INPUT, OUTPUT>
 ) {
   return new StateProxyInternal<
     Result<OUTPUT, StateError>,
@@ -209,13 +211,13 @@ export function from<
  * @param state - state to proxy.
  * @param transform - Function to transform value of proxy*/
 export function from_ok<
-  OUTPUT,
+  INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},
-  INPUT = OUTPUT
+  OUTPUT = INPUT
 >(
   state: StateReadOk<INPUT, SYNC, RELATED>,
-  transform?: StateProxySetterFromOk<INPUT, OUTPUT>
+  transform?: StateProxyTransformFromOk<INPUT, OUTPUT>
 ) {
   return new StateProxyInternal<
     Result<OUTPUT, StateError>,
@@ -229,13 +231,31 @@ export function from_ok<
  * @param state - state to proxy.
  * @param transform - Function to transform value of proxy*/
 export function ok<
-  OUTPUT,
+  INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},
-  INPUT = OUTPUT
+  OUTPUT = INPUT
 >(
   state: StateRead<INPUT, SYNC, RELATED>,
-  transform?: StateProxySetterOk<INPUT, OUTPUT>
+  transform: StateProxyTransformOk<INPUT, OUTPUT>
+): StateProxyOk<OUTPUT, SYNC, RELATED, INPUT>;
+export function ok<
+  INPUT,
+  SYNC extends boolean,
+  RELATED extends StateRelated = {},
+  OUTPUT = INPUT
+>(
+  state: StateReadOk<INPUT, SYNC, RELATED>,
+  transform?: StateProxyTransformOk<INPUT, OUTPUT>
+): StateProxyOk<OUTPUT, SYNC, RELATED, INPUT>;
+export function ok<
+  INPUT,
+  SYNC extends boolean,
+  RELATED extends StateRelated = {},
+  OUTPUT = INPUT
+>(
+  state: StateRead<INPUT, SYNC, RELATED>,
+  transform?: StateProxyTransformOk<INPUT, OUTPUT>
 ) {
   return new StateProxyInternal<
     Result<OUTPUT, StateError>,
@@ -249,13 +269,13 @@ export function ok<
  * @param state - state to proxy.
  * @param transform - Function to transform value of proxy*/
 export function ok_from_ok<
-  OUTPUT,
+  INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},
-  INPUT = OUTPUT
+  OUTPUT = INPUT
 >(
   state: StateReadOk<INPUT, SYNC, RELATED>,
-  transform?: StateProxySetterOkFromOk<INPUT, OUTPUT>
+  transform?: StateProxyTransformOkFromOk<INPUT, OUTPUT>
 ) {
   return new StateProxyInternal<
     Result<OUTPUT, StateError>,

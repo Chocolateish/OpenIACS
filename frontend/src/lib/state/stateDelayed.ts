@@ -27,16 +27,16 @@ import {
 } from "./types";
 
 export class StateDelayedInternal<
-    READ extends Result<any, StateError>,
-    WRITE = READ,
-    RELATED extends StateRelated = {}
+    TYPE extends Result<any, StateError>,
+    RELATED extends StateRelated,
+    WRITE = TYPE
   >
-  extends StateBase<READ, false, RELATED>
-  implements StateWriteBase<READ, false, RELATED, WRITE>, StateOwnerBase<READ>
+  extends StateBase<TYPE, false, RELATED>
+  implements StateWriteBase<TYPE, false, RELATED, WRITE>, StateOwnerBase<TYPE>
 {
   constructor(
-    init: PromiseLike<READ>,
-    setter?: StateSetterBase<READ, WRITE> | true,
+    init: PromiseLike<TYPE>,
+    setter?: StateSetterBase<TYPE, WRITE> | true,
     helper?: StateHelper<WRITE, RELATED>
   ) {
     super();
@@ -45,8 +45,8 @@ export class StateDelayedInternal<
         setter === true
           ? (value) => {
               return this.#helper?.limit
-                ? this.#helper?.limit(value).map((v) => Ok(v as any) as READ)
-                : Some(Ok(value as any) as READ);
+                ? this.#helper?.limit(value).map((v) => Ok(v as any) as TYPE)
+                : Some(Ok(value as any) as TYPE);
             }
           : setter;
     if (helper) this.#helper = helper;
@@ -56,20 +56,20 @@ export class StateDelayedInternal<
       //@ts-expect-error
       delete this.write;
     };
-    let getAndClean = new Promise<READ>(async (a) => {
+    let getAndClean = new Promise<TYPE>(async (a) => {
       try {
         this.#value = await init;
       } catch (error) {
         this.#value = Err({
           reason: (error as Error).message,
           code: "INIT",
-        }) as READ;
+        }) as TYPE;
       }
       clean();
       a(this.#value);
     });
-    this.then = async <TResult1 = READ>(
-      func: (value: READ) => TResult1 | PromiseLike<TResult1>
+    this.then = async <TResult1 = TYPE>(
+      func: (value: TYPE) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
       return func(await getAndClean);
     };
@@ -82,14 +82,14 @@ export class StateDelayedInternal<
     };
   }
 
-  #value?: READ;
-  #setter?: StateSetterBase<READ, WRITE>;
+  #value?: TYPE;
+  #setter?: StateSetterBase<TYPE, WRITE>;
   #helper?: StateHelper<WRITE, RELATED>;
 
   //##################################################################################################################################################
   //Reader Context
-  async then<TResult1 = READ>(
-    func: (value: READ) => TResult1 | PromiseLike<TResult1>
+  async then<TResult1 = TYPE>(
+    func: (value: TYPE) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
     return func(this.#value!);
   }
@@ -99,7 +99,7 @@ export class StateDelayedInternal<
   related(): Option<RELATED> {
     return this.#helper?.related ? this.#helper.related() : None();
   }
-  get readable(): StateReadBase<READ, false, RELATED> {
+  get readable(): StateReadBase<TYPE, false, RELATED> {
     return this;
   }
 
@@ -118,49 +118,43 @@ export class StateDelayedInternal<
   limit(value: WRITE): Option<WRITE> {
     return this.#helper?.limit ? this.#helper.limit(value) : Some(value);
   }
-  get writeable(): StateWriteBase<READ, false, RELATED, WRITE> {
+  get writeable(): StateWriteBase<TYPE, false, RELATED, WRITE> {
     return this;
   }
 
   //##################################################################################################################################################
   //Owner Context
-  set(value: READ) {
+  set(value: TYPE) {
     this.#value = value;
     this.updateSubscribers(value);
   }
-  setOk(value: READ extends Result<infer T, StateError> ? T : never): void {
-    this.#value = Ok(value) as READ;
+  setOk(value: TYPE extends Result<infer T, StateError> ? T : never): void {
+    this.#value = Ok(value) as TYPE;
     this.updateSubscribers(this.#value);
   }
   setErr(err: StateError): void {
-    this.#value = Err(err) as READ;
+    this.#value = Err(err) as TYPE;
     this.updateSubscribers(this.#value);
   }
-  get owner(): StateOwnerBase<READ> {
+  get owner(): StateOwnerBase<TYPE> {
     return this;
   }
 }
 
-export interface StateDelayed<
-  READ,
-  WRITE = READ,
-  RELATED extends StateRelated = {}
-> extends StateDelayedInternal<Result<READ, StateError>, WRITE, RELATED> {
-  readonly readable: StateRead<READ, false, RELATED>;
-  readonly writeable: StateWrite<READ, false, RELATED, WRITE>;
-  readonly owner: StateOwner<READ>;
-  setOk(value: READ): void;
+export interface StateDelayed<TYPE, RELATED extends StateRelated = {}>
+  extends StateDelayedInternal<Result<TYPE, StateError>, RELATED, TYPE> {
+  readonly readable: StateRead<TYPE, false, RELATED>;
+  readonly writeable: StateWrite<TYPE, false, RELATED>;
+  readonly owner: StateOwner<TYPE>;
+  setOk(value: TYPE): void;
   setErr(err: StateError): void;
 }
-export interface StateDelayedOk<
-  READ,
-  WRITE = READ,
-  RELATED extends StateRelated = {}
-> extends StateDelayedInternal<ResultOk<READ>, WRITE, RELATED> {
-  readonly readable: StateReadOk<READ, false, RELATED>;
-  readonly writeable: StateWriteOk<READ, false, RELATED, WRITE>;
-  readonly owner: StateOwnerOk<READ>;
-  setOk(value: READ): void;
+export interface StateDelayedOk<TYPE, RELATED extends StateRelated = {}>
+  extends StateDelayedInternal<ResultOk<TYPE>, RELATED, TYPE> {
+  readonly readable: StateReadOk<TYPE, false, RELATED>;
+  readonly writeable: StateWriteOk<TYPE, false, RELATED>;
+  readonly owner: StateOwnerOk<TYPE>;
+  setOk(value: TYPE): void;
   setErr(err: never): void;
 }
 
@@ -169,16 +163,16 @@ export interface StateDelayedOk<
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
-export function from<READ, RELATED extends StateRelated = {}, WRITE = READ>(
-  init: PromiseLike<READ>,
-  setter?: StateSetter<READ, WRITE> | true,
-  helper?: StateHelper<WRITE, RELATED>
+export function from<TYPE, RELATED extends StateRelated = {}>(
+  init: PromiseLike<TYPE>,
+  setter?: StateSetter<TYPE> | true,
+  helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateDelayedInternal<Result<READ, StateError>, WRITE, RELATED>(
+  return new StateDelayedInternal<Result<TYPE, StateError>, RELATED, TYPE>(
     init.then((v) => Ok(v)),
     setter,
     helper
-  ) as StateDelayed<READ, WRITE, RELATED>;
+  ) as StateDelayed<TYPE, RELATED>;
 }
 
 /**Creates a state from an initial lazy function that is evaluated on first access of the state, and that is guaranteed to be OK.
@@ -186,16 +180,16 @@ export function from<READ, RELATED extends StateRelated = {}, WRITE = READ>(
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
-export function ok<READ, RELATED extends StateRelated = {}, WRITE = READ>(
-  init: PromiseLike<READ>,
-  setter?: StateSetterOk<READ, WRITE> | true,
-  helper?: StateHelper<WRITE, RELATED>
+export function ok<TYPE, RELATED extends StateRelated = {}>(
+  init: PromiseLike<TYPE>,
+  setter?: StateSetterOk<TYPE> | true,
+  helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateDelayedInternal<ResultOk<READ>, WRITE, RELATED>(
+  return new StateDelayedInternal<ResultOk<TYPE>, RELATED, TYPE>(
     init.then((v) => Ok(v)),
     setter,
     helper
-  ) as StateDelayedOk<READ, WRITE, RELATED>;
+  ) as StateDelayedOk<TYPE, RELATED>;
 }
 
 /**Creates a state from an initial lazy function that is evaluated on first access of the state, that returns an error.
@@ -203,16 +197,16 @@ export function ok<READ, RELATED extends StateRelated = {}, WRITE = READ>(
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
-export function err<READ, RELATED extends StateRelated = {}, WRITE = READ>(
+export function err<TYPE, RELATED extends StateRelated = {}>(
   err: PromiseLike<StateError>,
-  setter?: StateSetter<READ, WRITE> | true,
-  helper?: StateHelper<WRITE, RELATED>
+  setter?: StateSetter<TYPE> | true,
+  helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateDelayedInternal<Result<READ, StateError>, WRITE, RELATED>(
+  return new StateDelayedInternal<Result<TYPE, StateError>, RELATED, TYPE>(
     err.then((e) => Err(e)),
     setter,
     helper
-  ) as StateDelayed<READ, WRITE, RELATED>;
+  ) as StateDelayed<TYPE, RELATED>;
 }
 
 /**Creates a state which holds a value from a delayed value (promise), that is awaited on first access of the state.
@@ -220,20 +214,16 @@ export function err<READ, RELATED extends StateRelated = {}, WRITE = READ>(
  * @param setter function called when state value is set via setter, set true let write set it's value
  * @param helper functions to check and limit the value, and to return related states
  * */
-export function from_result<
-  READ,
-  RELATED extends StateRelated = {},
-  WRITE = READ
->(
-  init: PromiseLike<Result<READ, StateError>>,
-  setter?: StateSetter<READ, WRITE> | true,
-  helper?: StateHelper<WRITE, RELATED>
+export function from_result<TYPE, RELATED extends StateRelated = {}>(
+  init: PromiseLike<Result<TYPE, StateError>>,
+  setter?: StateSetter<TYPE> | true,
+  helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateDelayedInternal<Result<READ, StateError>, WRITE, RELATED>(
+  return new StateDelayedInternal<Result<TYPE, StateError>, RELATED, TYPE>(
     init,
     setter,
     helper
-  ) as StateDelayed<READ, WRITE, RELATED>;
+  ) as StateDelayed<TYPE, RELATED>;
 }
 
 /**Creates a state which holds a value from a delayed value (promise), that is awaited on first access of the state, and is guarenteed to be OK.
@@ -241,18 +231,14 @@ export function from_result<
  * @param setter function called when state value is set via setter, set true let write set it's value
  * @param helper functions to check and limit the value, and to return related states
  * */
-export function from_result_ok<
-  READ,
-  RELATED extends StateRelated = {},
-  WRITE = READ
->(
-  init: PromiseLike<ResultOk<READ>>,
-  setter?: StateSetterOk<READ, WRITE> | true,
-  helper?: StateHelper<WRITE, RELATED>
+export function from_result_ok<TYPE, RELATED extends StateRelated = {}>(
+  init: PromiseLike<ResultOk<TYPE>>,
+  setter?: StateSetterOk<TYPE> | true,
+  helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateDelayedInternal<ResultOk<READ>, WRITE, RELATED>(
+  return new StateDelayedInternal<ResultOk<TYPE>, RELATED, TYPE>(
     init,
     setter,
     helper
-  ) as StateDelayedOk<READ, WRITE, RELATED>;
+  ) as StateDelayedOk<TYPE, RELATED>;
 }

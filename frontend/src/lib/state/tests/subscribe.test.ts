@@ -1,4 +1,10 @@
-import { state, state_delayed, state_lazy } from "@libState";
+import {
+  state,
+  state_delayed,
+  state_lazy,
+  state_proxy,
+  state_proxy_write,
+} from "@libState";
 import { describe, expect, it } from "vitest";
 
 let gen_error = () => {
@@ -21,6 +27,18 @@ let gen_states = () => {
         (async () => gen_error())()
       ),
     },
+    proxyOks: {
+      "state_proxy.ok": state_proxy.ok(state.ok(1)),
+      "state_proxy.ok_from_ok": state_proxy.ok_from_ok(state.ok(1)),
+      "state_proxy_write.ok": state_proxy_write.ok(state.ok(1)),
+      "state_proxy_write.ok_from_ok": state_proxy_write.ok_from_ok(state.ok(1)),
+    },
+    proxys: {
+      "state_proxy.from": state_proxy.from(state.from(1)),
+      "state_proxy.from_ok": state_proxy.from_ok(state.ok(1)),
+      "state_proxy_write.from": state_proxy_write.from(state.from(1)),
+      "state_proxy_write.from_ok": state_proxy_write.from_ok(state.ok(1)),
+    },
   };
 };
 
@@ -30,10 +48,12 @@ describe(
     timeout: 50,
   },
   function () {
-    let { testsOks, tests } = gen_states();
-    for (const key in testsOks) {
+    let { testsOks, tests, proxyOks, proxys } = gen_states();
+    let oks = { ...testsOks, ...proxyOks };
+    let alls = { ...tests, ...proxys };
+    for (const key in oks) {
       it(key, async function () {
-        let state = testsOks[key as keyof typeof testsOks];
+        let state = oks[key as keyof typeof oks];
         await new Promise<void>((a) => {
           state.subscribe(() => {
             a();
@@ -41,9 +61,9 @@ describe(
         });
       });
     }
-    for (const key in tests) {
+    for (const key in alls) {
       it(key, async function () {
-        let state = tests[key as keyof typeof tests];
+        let state = alls[key as keyof typeof alls];
         await new Promise<void>((a) => {
           state.subscribe(() => {
             a();

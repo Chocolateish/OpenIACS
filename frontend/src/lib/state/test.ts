@@ -10,3 +10,5 @@ let test = state_proxy.from(state.from(5), (val) => {
   return val;
 });
 let yoyo = test.readable;
+
+let test2 = state_proxy.ok(stest);

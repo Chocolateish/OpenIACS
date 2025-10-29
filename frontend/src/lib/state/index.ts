@@ -19,6 +19,8 @@ import type { StateLazy, StateLazyOk } from "./stateLazy";
 import * as lazy from "./stateLazy";
 import type { StateProxy, StateProxyOk } from "./stateProxy";
 import * as proxy from "./stateProxy";
+import type { StateProxyWrite, StateProxyWriteOk } from "./stateProxyWrite";
+import * as proxy_write from "./stateProxyWrite";
 import type {
   StateError,
   StateOwner,
@@ -89,6 +91,9 @@ export type { StateDelayed, StateDelayedOk };
 //     |_|    |_|  \_\\____/_/ \_\   |_|    |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
 export let state_proxy = {
   from: proxy.from,
+  ok: proxy.ok,
+  from_ok: proxy.from_ok,
+  ok_from_ok: proxy.ok_from_ok,
 };
 export type { StateProxy, StateProxyOk };
 
@@ -98,8 +103,13 @@ export type { StateProxy, StateProxyOk };
 //     |  ___/|  _  /| |  | |> <    \   /     \ \/  \/ / |  _  /  | |    | |  |  __|     | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  / \___ \
 //     | |    | | \ \| |__| / . \    | |       \  /\  /  | | \ \ _| |_   | |  | |____   _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
 //     |_|    |_|  \_\\____/_/ \_\   |_|        \/  \/   |_|  \_\_____|  |_|  |______| |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
-export let state_proxy_write = {};
-export type {};
+export let state_proxy_write = {
+  from: proxy_write.from,
+  ok: proxy_write.ok,
+  from_ok: proxy_write.from_ok,
+  ok_from_ok: proxy_write.ok_from_ok,
+};
+export type { StateProxyWrite, StateProxyWriteOk };
 
 //      _____  ______ _____  _______      ________ _____    _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
 //     |  __ \|  ____|  __ \|_   _\ \    / /  ____|  __ \  |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|

@@ -1,4 +1,4 @@
-import { EventHandler, type EventConsumer } from "../event";
+import { EventHandler } from "../event";
 
 interface DocumentHandlerEvents {
   /**Fired when document is added*/
@@ -9,37 +9,35 @@ interface DocumentHandlerEvents {
 
 export class DocumentHandler {
   /**Stores all managed documents */
-  private _documents: Document[];
+  #documents: Document[];
   /**Stores the main docuement of the manager */
-  public readonly main: Document;
+  readonly main: Document;
   /**Event handler */
-  private _events: EventHandler<DocumentHandlerEvents, this>;
+  #events: EventHandler<DocumentHandlerEvents, this> = new EventHandler(this);
   /**Manager events */
-  public readonly events: EventConsumer<DocumentHandlerEvents, this>;
+  readonly events = this.#events.consumer;
 
   constructor(mainDocument: Document) {
     this.main = mainDocument;
-    this._documents = [mainDocument];
-    this.events = this._events = new EventHandler(this);
-    this._events.target = this;
+    this.#documents = [mainDocument];
   }
 
   /**Itterates a function over all existing documents */
   forDocuments(func: (document: Document) => void) {
-    for (let i = 0; i < this._documents.length; i++) func(this._documents[i]);
+    for (let i = 0; i < this.#documents.length; i++) func(this.#documents[i]);
   }
 
   get documents() {
-    return [...this._documents];
+    return [...this.#documents];
   }
 
   /**Registers a document with the theme engine, which will be updated with
    * @param document document to register
    * @param styles copies all style from main document if set true */
   registerDocument(document: Document, styles?: boolean) {
-    if (this._documents.includes(document))
+    if (this.#documents.includes(document))
       return console.warn("Document registered twice");
-    this._documents.push(document);
+    this.#documents.push(document);
     if (styles) {
       let headElements = this.main.head.children;
       for (let i = 0; i < headElements.length; i++) {
@@ -52,16 +50,16 @@ export class DocumentHandler {
         }
       }
     }
-    this._events.emit("added", document);
+    this.#events.emit("added", document);
   }
 
   /**Registers a document with the theme engine, which will be updated with */
   deregisterDocument(document: Document) {
-    let index = this._documents.indexOf(document);
+    let index = this.#documents.indexOf(document);
     if (index == -1) return console.warn("Document not registered");
-    if (this._documents[index] === this.main)
+    if (this.#documents[index] === this.main)
       return console.warn("Main document cannot be removed");
-    this._documents.splice(index, 1);
-    this._events.emit("removed", document);
+    this.#documents.splice(index, 1);
+    this.#events.emit("removed", document);
   }
 }

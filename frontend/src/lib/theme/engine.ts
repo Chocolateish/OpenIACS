@@ -15,13 +15,13 @@ import { bottomGroups, engines } from "./shared";
 
 export class ThemeEngine {
   /**Reference to document handler*/
-  private _handler: DocumentHandler;
-  private _listener: ESubscriber<"added", DocumentHandler, Document>;
+  #handler: DocumentHandler;
+  #listener: ESubscriber<"added", DocumentHandler, Document>;
 
   constructor(documentHandler: DocumentHandler) {
     engines.push(this);
-    this._handler = documentHandler;
-    this._listener = this._handler.events.on("added", (e) => {
+    this.#handler = documentHandler;
+    this.#listener = this.#handler.events.on("added", (e) => {
       this.applyAllToDoc(e.data);
     });
     documentHandler.forDocuments((doc) => {
@@ -31,7 +31,7 @@ export class ThemeEngine {
 
   /**Run to clean up references to and from this engine*/
   destructor() {
-    this._handler.events.off("added", this._listener);
+    this.#handler.events.off("added", this.#listener);
     let index = engines.indexOf(this);
     if (index == -1) return console.warn("Theme engine already destructed");
     engines.splice(index, 1);
@@ -51,7 +51,7 @@ export class ThemeEngine {
 
   /**This applies the current theme to a document*/
   applyScrollbar(scroll: ScrollbarModes) {
-    this._handler.forDocuments((doc) => {
+    this.#handler.forDocuments((doc) => {
       this.applyScrollbarToDoc(doc, scroll);
     });
   }
@@ -68,7 +68,7 @@ export class ThemeEngine {
 
   /**This applies the current theme to a document*/
   applyAnimation(anim: AnimationLevels) {
-    this._handler.forDocuments((doc) => {
+    this.#handler.forDocuments((doc) => {
       this.applyAnimationToDoc(doc, anim);
     });
   }
@@ -89,7 +89,7 @@ export class ThemeEngine {
 
   /**This applies the current theme to a document*/
   applyTheme(theme: Themes) {
-    this._handler.forDocuments((doc) => {
+    this.#handler.forDocuments((doc) => {
       this.applyThemeToDoc(doc, theme);
     });
   }
@@ -100,7 +100,7 @@ export class ThemeEngine {
 
   /**This applies the current scale to a document*/
   applyScale(scale: number) {
-    this._handler.forDocuments((doc) => {
+    this.#handler.forDocuments((doc) => {
       this.applyScaleToDoc(doc, scale);
     });
   }
@@ -110,7 +110,7 @@ export class ThemeEngine {
 
   /**Auto Input Mode */
   applyInput(mode: InputModes) {
-    this._handler.forDocuments((doc) => {
+    this.#handler.forDocuments((doc) => {
       this.applyInputToDoc(doc, mode);
     });
   }
@@ -142,7 +142,7 @@ export class ThemeEngine {
     variable: { [s: string]: string }
   ) {
     let themeBuff = (await theme).unwrap;
-    this._handler.forDocuments((doc) => {
+    this.#handler.forDocuments((doc) => {
       doc.documentElement.style.setProperty(key, variable[themeBuff]);
     });
   }

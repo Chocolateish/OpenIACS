@@ -27,16 +27,16 @@ import {
 } from "./types";
 
 export class StateLazyInternal<
-    READ extends Result<any, StateError>,
-    WRITE,
-    RELATED extends StateRelated = {}
+    TYPE extends Result<any, StateError>,
+    RELATED extends StateRelated,
+    WRITE
   >
-  extends StateBaseSync<READ, RELATED>
-  implements StateWriteBase<READ, true, RELATED, WRITE>, StateOwnerBase<READ>
+  extends StateBaseSync<TYPE, RELATED>
+  implements StateWriteBase<TYPE, true, RELATED, WRITE>, StateOwnerBase<TYPE>
 {
   constructor(
-    init: () => READ,
-    setter?: StateSetterBase<READ, WRITE> | true,
+    init: () => TYPE,
+    setter?: StateSetterBase<TYPE, WRITE> | true,
     helper?: StateHelper<WRITE, RELATED>
   ) {
     super();
@@ -45,8 +45,8 @@ export class StateLazyInternal<
         setter === true
           ? (value) => {
               return this.#helper?.limit
-                ? this.#helper?.limit(value).map((v) => Ok(v as any) as READ)
-                : Some(Ok(value as any) as READ);
+                ? this.#helper?.limit(value).map((v) => Ok(v as any) as TYPE)
+                : Some(Ok(value as any) as TYPE);
             }
           : setter;
     if (helper) this.#helper = helper;
@@ -68,8 +68,8 @@ export class StateLazyInternal<
       clean();
       return (this.#value = init());
     };
-    this.then = async <TResult1 = READ>(
-      func: (value: READ) => TResult1 | PromiseLike<TResult1>
+    this.then = async <TResult1 = TYPE>(
+      func: (value: TYPE) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
       return func(getAndClean());
     };
@@ -97,24 +97,24 @@ export class StateLazyInternal<
     };
   }
 
-  #value?: READ;
-  #setter?: StateSetterBase<READ, WRITE>;
+  #value?: TYPE;
+  #setter?: StateSetterBase<TYPE, WRITE>;
   #helper?: StateHelper<WRITE, RELATED>;
 
   //##################################################################################################################################################
   //Reader Context
-  async then<TResult1 = READ>(
-    func: (value: READ) => TResult1 | PromiseLike<TResult1>
+  async then<TResult1 = TYPE>(
+    func: (value: TYPE) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
     return func(this.#value!);
   }
-  get(): READ {
+  get(): TYPE {
     return this.#value!;
   }
   related(): Option<RELATED> {
     return this.#helper?.related ? this.#helper.related() : None();
   }
-  get readable(): StateReadBase<READ, true, RELATED> {
+  get readable(): StateReadBase<TYPE, true, RELATED> {
     return this;
   }
 
@@ -133,49 +133,43 @@ export class StateLazyInternal<
   limit(value: WRITE): Option<WRITE> {
     return this.#helper?.limit ? this.#helper.limit(value) : Some(value);
   }
-  get writeable(): StateWriteBase<READ, true, RELATED, WRITE> {
+  get writeable(): StateWriteBase<TYPE, true, RELATED, WRITE> {
     return this;
   }
 
   //##################################################################################################################################################
   //Owner Context
-  set(value: READ) {
+  set(value: TYPE) {
     this.#value = value;
     this.updateSubscribers(value);
   }
-  setOk(value: READ extends Result<infer T, StateError> ? T : never): void {
-    this.#value = Ok(value) as READ;
+  setOk(value: TYPE extends Result<infer T, StateError> ? T : never): void {
+    this.#value = Ok(value) as TYPE;
     this.updateSubscribers(this.#value);
   }
   setErr(err: StateError): void {
-    this.#value = Err(err) as READ;
+    this.#value = Err(err) as TYPE;
     this.updateSubscribers(this.#value);
   }
-  get owner(): StateOwnerBase<READ> {
+  get owner(): StateOwnerBase<TYPE> {
     return this;
   }
 }
 
-export interface StateLazy<
-  READ,
-  WRITE = READ,
-  RELATED extends StateRelated = {}
-> extends StateLazyInternal<Result<READ, StateError>, WRITE, RELATED> {
-  readonly readable: StateRead<READ, true, RELATED>;
-  readonly writeable: StateWrite<READ, true, RELATED, WRITE>;
-  readonly owner: StateOwner<READ>;
-  setOk(value: READ): void;
+export interface StateLazy<TYPE, RELATED extends StateRelated = {}>
+  extends StateLazyInternal<Result<TYPE, StateError>, RELATED, TYPE> {
+  readonly readable: StateRead<TYPE, true, RELATED>;
+  readonly writeable: StateWrite<TYPE, true, RELATED>;
+  readonly owner: StateOwner<TYPE>;
+  setOk(value: TYPE): void;
   setErr(err: StateError): void;
 }
-export interface StateLazyOk<
-  READ,
-  WRITE = READ,
-  RELATED extends StateRelated = {}
-> extends StateLazyInternal<ResultOk<READ>, WRITE, RELATED> {
-  readonly readable: StateReadOk<READ, true, RELATED>;
-  readonly writeable: StateWriteOk<READ, true, RELATED, WRITE>;
-  readonly owner: StateOwnerOk<READ>;
-  setOk(value: READ): void;
+export interface StateLazyOk<TYPE, RELATED extends StateRelated = {}>
+  extends StateLazyInternal<ResultOk<TYPE>, RELATED, TYPE> {
+  readonly readable: StateReadOk<TYPE, true, RELATED>;
+  readonly writeable: StateWriteOk<TYPE, true, RELATED>;
+  readonly owner: StateOwnerOk<TYPE>;
+  setOk(value: TYPE): void;
   setErr(err: never): void;
 }
 
@@ -184,16 +178,16 @@ export interface StateLazyOk<
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
-export function from<READ, RELATED extends StateRelated = {}, WRITE = READ>(
-  init: () => READ,
-  setter?: StateSetter<READ, WRITE> | true,
-  helper?: StateHelper<WRITE, RELATED>
+export function from<TYPE, RELATED extends StateRelated = {}>(
+  init: () => TYPE,
+  setter?: StateSetter<TYPE> | true,
+  helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateLazyInternal<Result<READ, StateError>, WRITE, RELATED>(
+  return new StateLazyInternal<Result<TYPE, StateError>, RELATED, TYPE>(
     () => Ok(init()),
     setter,
     helper
-  ) as StateLazy<READ, WRITE, RELATED>;
+  ) as StateLazy<TYPE, RELATED>;
 }
 
 /**Creates a state from an initial lazy function that is evaluated on first access of the state, and that is guaranteed to be OK.
@@ -201,16 +195,16 @@ export function from<READ, RELATED extends StateRelated = {}, WRITE = READ>(
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
-export function ok<READ, RELATED extends StateRelated = {}, WRITE = READ>(
-  init: () => READ,
-  setter?: StateSetterOk<READ, WRITE> | true,
-  helper?: StateHelper<WRITE, RELATED>
+export function ok<TYPE, RELATED extends StateRelated = {}>(
+  init: () => TYPE,
+  setter?: StateSetterOk<TYPE> | true,
+  helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateLazyInternal<ResultOk<READ>, WRITE, RELATED>(
+  return new StateLazyInternal<ResultOk<TYPE>, RELATED, TYPE>(
     () => Ok(init()),
     setter,
     helper
-  ) as StateLazyOk<READ, WRITE, RELATED>;
+  ) as StateLazyOk<TYPE, RELATED>;
 }
 
 /**Creates a state from an initial lazy function that is evaluated on first access of the state, that returns an error.
@@ -218,16 +212,16 @@ export function ok<READ, RELATED extends StateRelated = {}, WRITE = READ>(
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
-export function err<READ, RELATED extends StateRelated = {}, WRITE = READ>(
+export function err<TYPE, RELATED extends StateRelated = {}>(
   err: () => StateError,
-  setter?: StateSetter<READ, WRITE> | true,
-  helper?: StateHelper<WRITE, RELATED>
+  setter?: StateSetter<TYPE> | true,
+  helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateLazyInternal<Result<READ, StateError>, WRITE, RELATED>(
+  return new StateLazyInternal<Result<TYPE, StateError>, RELATED, TYPE>(
     () => Err(err()),
     setter,
     helper
-  ) as StateLazy<READ, WRITE, RELATED>;
+  ) as StateLazy<TYPE, RELATED>;
 }
 
 /**Creates a state which holds a value from a lazy function that is evaluated on first access of the state, that returns a Result.
@@ -235,20 +229,16 @@ export function err<READ, RELATED extends StateRelated = {}, WRITE = READ>(
  * @param setter function called when state value is set via setter, set true let write set it's value
  * @param helper functions to check and limit the value, and to return related states
  * */
-export function from_result<
-  READ,
-  RELATED extends StateRelated = {},
-  WRITE = READ
->(
-  init: () => Result<READ, StateError>,
-  setter?: StateSetter<READ, WRITE> | true,
-  helper?: StateHelper<WRITE, RELATED>
+export function from_result<TYPE, RELATED extends StateRelated = {}>(
+  init: () => Result<TYPE, StateError>,
+  setter?: StateSetter<TYPE> | true,
+  helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateLazyInternal<Result<READ, StateError>, WRITE, RELATED>(
+  return new StateLazyInternal<Result<TYPE, StateError>, RELATED, TYPE>(
     init,
     setter,
     helper
-  ) as StateLazy<READ, WRITE, RELATED>;
+  ) as StateLazy<TYPE, RELATED>;
 }
 
 /**Creates a state which holds a value from a lazy function that is evaluated on first access of the state, that returns a Result that is guarenteed to be OK.
@@ -256,18 +246,14 @@ export function from_result<
  * @param setter function called when state value is set via setter, set true let write set it's value
  * @param helper functions to check and limit the value, and to return related states
  * */
-export function from_result_ok<
-  READ,
-  RELATED extends StateRelated = {},
-  WRITE = READ
->(
-  init: () => ResultOk<READ>,
-  setter?: StateSetterOk<READ, WRITE> | true,
-  helper?: StateHelper<WRITE, RELATED>
+export function from_result_ok<TYPE, RELATED extends StateRelated = {}>(
+  init: () => ResultOk<TYPE>,
+  setter?: StateSetterOk<TYPE> | true,
+  helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateLazyInternal<ResultOk<READ>, WRITE, RELATED>(
+  return new StateLazyInternal<ResultOk<TYPE>, RELATED, TYPE>(
     init,
     setter,
     helper
-  ) as StateLazyOk<READ, WRITE, RELATED>;
+  ) as StateLazyOk<TYPE, RELATED>;
 }
