@@ -145,7 +145,7 @@ export class OptionNone implements OptionBase<never> {
 //     |_|  \_\___||___/\__,_|_|\__|
 //###########################################################################################################################################################
 
-interface ResultBase<T, E> {
+export interface ResultBase<T, E> {
   /**Is true when the result is valid and false when it is invalid*/
   readonly ok: boolean;
   /**Is false when the result is valid and true when it is invalid*/

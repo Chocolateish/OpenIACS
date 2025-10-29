@@ -54,7 +54,7 @@ export abstract class StateResourceBase<
   /**Called when subscriber is added*/
   protected subOnSubscribe(_first: boolean) {
     if (_first) {
-      if (this.#subscribers.size === 0) {
+      if (!this.inUse()) {
         if (this.#retentionTimout) {
           clearTimeout(this.#retentionTimout);
           this.#retentionTimout = 0;
