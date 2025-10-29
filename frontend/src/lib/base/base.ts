@@ -46,9 +46,6 @@ type DataProps<T> = {
 type WithStateRead<T> = {
   [K in keyof T]?: T[K] | StateReadOk<T[K]>;
 };
-type WithStateReadTransform<T> = {
-  [K in keyof T]?: [StateReadOk<any>, (val: any) => T[K]];
-};
 
 /**Shared class for elements to extend
  * All none abstract elements must use the defineElement function to declare itself
