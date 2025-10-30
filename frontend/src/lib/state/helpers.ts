@@ -1,5 +1,5 @@
 import { None, Some, type Option } from "@libResult";
-import type { StateHelper } from "./types";
+import type { StateHelper, StateRead, StateRelated } from "./types";
 
 export interface StateNumberHelperType {
   min?: number;
@@ -153,7 +153,8 @@ export type StateEnumHelperList = {
   };
 };
 
-export interface StateEnumHelperType<T extends StateEnumHelperList> {
+export interface StateEnumHelperType<T extends StateEnumHelperList>
+  extends StateRelated {
   list: T;
 }
 export interface StateEnumHelperAnyType {
@@ -162,8 +163,9 @@ export interface StateEnumHelperAnyType {
 
 export class StateEnumHelper<
   K extends string | number | symbol,
-  T extends StateEnumHelperList
-> implements StateEnumHelperType<T>, StateHelper<K, StateEnumHelperType<T>>
+  T extends StateEnumHelperList,
+  R extends StateRelated = StateEnumHelperType<T>
+> implements StateHelper<K, R>, StateEnumHelperType<T>
 {
   list: T;
 
@@ -180,7 +182,36 @@ export class StateEnumHelper<
     return Some(value);
   }
 
-  related(): Option<StateEnumHelperType<T>> {
-    return Some(this as StateEnumHelperType<T>);
+  related(): Option<R> {
+    return Some(this as unknown as R);
   }
+}
+
+export function state_enum_iterate<T, R extends StateEnumHelperType<any>>(
+  related: R,
+  func: (key: keyof R["list"], val: R["list"][keyof R["list"]]) => T
+) {
+  return Object.keys(related.list).map((key) => {
+    return func(key, related.list[key]);
+  });
+}
+
+export async function state_compare(
+  state1: StateRead<any, true>,
+  state2: StateRead<any, true>
+): Promise<boolean> {
+  let res1 = await state1;
+  let res2 = await state2;
+  if (res1.err || res2.err) return false;
+  return res1.value === res2.value;
+}
+
+export function state_compare_sync(
+  state1: StateRead<any, true>,
+  state2: StateRead<any, true>
+): boolean {
+  let res1 = state1.get();
+  let res2 = state2.get();
+  if (res1.err || res2.err) return false;
+  return res1.value === res2.value;
 }

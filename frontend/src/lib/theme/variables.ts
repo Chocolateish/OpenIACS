@@ -1,5 +1,6 @@
+import { themeEngine } from "./engine";
 import { Themes } from "./settings";
-import { bottomGroups, engines } from "./shared";
+import { bottomGroups } from "./shared";
 
 let nameTransformer: ((name: string) => string) | undefined;
 export let themeSetNameTransform = (transform: (name: string) => string) => {
@@ -15,9 +16,9 @@ export let themeInitVariableRoot = (
   name: string,
   description: string
 ) => {
-  if (nameTransformer) {
-    packageName = nameTransformer(packageName);
-  }
+  if (packageName.includes("-"))
+    throw new Error("Dash not permitted in package name " + packageName);
+  if (nameTransformer) packageName = nameTransformer(packageName);
   bottomGroups[packageName] = new ThemeVariableGroup(
     packageName,
     name,
@@ -54,15 +55,15 @@ export class ThemeVariableGroup {
    * @param name name of group formatted for user reading
    * @param description a description of what the setting group is about formatted for user reading*/
   makeSubGroup(id: string, name: string, description: string) {
-    if (id in this.subGroups) {
+    if (id in this.subGroups)
       throw new Error("Sub group already registered " + id);
-    } else {
-      return (this.subGroups[id] = new ThemeVariableGroup(
-        this.pathID + "/" + id,
-        name,
-        description
-      ));
-    }
+    if (id.includes("-"))
+      throw new Error("Dash not permitted in variable id " + id);
+    return (this.subGroups[id] = new ThemeVariableGroup(
+      this.pathID + "-" + id,
+      name,
+      description
+    ));
   }
 
   /**Makes a variable
@@ -82,11 +83,12 @@ export class ThemeVariableGroup {
     type: K,
     typeParams: VariableType[K],
     example?: () => Element
-  ) {
-    if (id in this.variables) {
+  ): string {
+    if (id in this.variables)
       throw new Error("Settings already registered " + id);
-    }
-    let key = "--" + this.pathID + "/" + id;
+    if (id.includes("-"))
+      throw new Error("Dash not permitted in variable id " + id);
+    let key = "--" + this.pathID + "-" + id;
     let variable = (this.variables[key] = {
       name,
       desc: description,
@@ -95,24 +97,18 @@ export class ThemeVariableGroup {
       typeParams,
       example,
     });
-    for (let i = 0; i < engines.length; i++) {
-      //@ts-ignore
-      engines[i].applySingleProperty(key, variable.vars);
-    }
-
-    return;
+    themeEngine.applySingleProperty(key, variable.vars);
+    return key;
   }
 
   /**Applies the groups
    * @param style unique identifier for this variable in the group
    * @param theme name of variable formatted for user reading*/
   applyThemes(style: CSSStyleDeclaration, theme: string) {
-    for (const key in this.variables) {
+    for (const key in this.variables)
       style.setProperty(key, this.variables[key].vars[theme]);
-    }
-    for (const key in this.subGroups) {
+    for (const key in this.subGroups)
       this.subGroups[key].applyThemes(style, theme);
-    }
   }
 }
 

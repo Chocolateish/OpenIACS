@@ -141,6 +141,15 @@ export class StateDerived<
     return this.getter(this.#states.map((s) => s.get()) as any);
   }
 
+  getOk(): (OUTPUT extends ResultOk<any> ? true : false) extends true
+    ? OUTPUT extends ResultOk<infer T>
+      ? T
+      : unknown
+    : unknown {
+    if (this.#buffer) return this.#buffer.unwrap;
+    return this.getter(this.#states.map((s) => s.get()) as any).unwrap;
+  }
+
   get readable(): StateReadBase<
     OUTPUT,
     OUTPUT extends ResultOk<any> ? true : false,
@@ -187,7 +196,7 @@ export class StateDerived<
 /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
  * @param transform - Function to translate value of state or states to something else, false means first states values is used.
  * @param states - The other states to be used in the derived state.*/
-export function from_states<
+export function state_derived_from_states<
   OUTPUT extends Result<any, StateError>,
   INPUT extends [StateReadBase<any, any>, ...StateReadBase<any, any>[]]
 >(
@@ -206,7 +215,7 @@ export function from_states<
 /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
  * @param transform - Function to translate value of state or states to something else, false means first states values is used.
  * @param states - The other states to be used in the derived state.*/
-export function from_state_array<
+export function state_derived_from_state_array<
   OUTPUT extends Result<any, StateError>,
   INPUT extends StateReadBase<any, any>[]
 >(

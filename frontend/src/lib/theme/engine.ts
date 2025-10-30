@@ -1,5 +1,4 @@
-import type { DocumentHandler } from "@libCommon";
-import type { ESubscriber } from "@libEvent";
+import { documentHandler } from "@libCommon";
 import {
   AnimationLevels,
   InputModes,
@@ -11,17 +10,11 @@ import {
   scrollBarMode,
   theme,
 } from "./settings";
-import { bottomGroups, engines } from "./shared";
+import { bottomGroups } from "./shared";
 
-export class ThemeEngine {
-  /**Reference to document handler*/
-  #handler: DocumentHandler;
-  #listener: ESubscriber<"added", DocumentHandler, Document>;
-
-  constructor(documentHandler: DocumentHandler) {
-    engines.push(this);
-    this.#handler = documentHandler;
-    this.#listener = this.#handler.events.on("added", (e) => {
+export let themeEngine = new (class ThemeEngine {
+  constructor() {
+    documentHandler.events.on("added", (e) => {
       this.applyAllToDoc(e.data);
     });
     documentHandler.forDocuments((doc) => {
@@ -29,29 +22,18 @@ export class ThemeEngine {
     });
   }
 
-  /**Run to clean up references to and from this engine*/
-  destructor() {
-    this.#handler.events.off("added", this.#listener);
-    let index = engines.indexOf(this);
-    if (index == -1) return console.warn("Theme engine already destructed");
-    engines.splice(index, 1);
-  }
-
   /**This applies the current theme to a document*/
-  private async applyAllToDoc(doc: Document) {
-    this.applyScrollbarToDoc(doc, (await scrollBarMode).unwrap);
-    this.applyThemeToDoc(doc, (await theme).unwrap);
-    this.applyInputToDoc(doc, (await inputMode).unwrap);
-    this.applyScaleToDoc(doc, (await scale).unwrap / 100);
-    await new Promise((a) => {
-      setTimeout(a, 100);
-    });
-    this.applyAnimationToDoc(doc, (await animationLevel).unwrap);
+  private applyAllToDoc(doc: Document) {
+    this.applyScrollbarToDoc(doc, scrollBarMode.getOk());
+    this.applyThemeToDoc(doc, theme.getOk());
+    this.applyInputToDoc(doc, inputMode.getOk());
+    this.applyScaleToDoc(doc, scale.getOk() / 100);
+    this.applyAnimationToDoc(doc, animationLevel.getOk());
   }
 
   /**This applies the current theme to a document*/
   applyScrollbar(scroll: ScrollbarModes) {
-    this.#handler.forDocuments((doc) => {
+    documentHandler.forDocuments((doc) => {
       this.applyScrollbarToDoc(doc, scroll);
     });
   }
@@ -68,7 +50,7 @@ export class ThemeEngine {
 
   /**This applies the current theme to a document*/
   applyAnimation(anim: AnimationLevels) {
-    this.#handler.forDocuments((doc) => {
+    documentHandler.forDocuments((doc) => {
       this.applyAnimationToDoc(doc, anim);
     });
   }
@@ -89,7 +71,7 @@ export class ThemeEngine {
 
   /**This applies the current theme to a document*/
   applyTheme(theme: Themes) {
-    this.#handler.forDocuments((doc) => {
+    documentHandler.forDocuments((doc) => {
       this.applyThemeToDoc(doc, theme);
     });
   }
@@ -100,7 +82,7 @@ export class ThemeEngine {
 
   /**This applies the current scale to a document*/
   applyScale(scale: number) {
-    this.#handler.forDocuments((doc) => {
+    documentHandler.forDocuments((doc) => {
       this.applyScaleToDoc(doc, scale);
     });
   }
@@ -110,7 +92,7 @@ export class ThemeEngine {
 
   /**Auto Input Mode */
   applyInput(mode: InputModes) {
-    this.#handler.forDocuments((doc) => {
+    documentHandler.forDocuments((doc) => {
       this.applyInputToDoc(doc, mode);
     });
   }
@@ -136,14 +118,38 @@ export class ThemeEngine {
     }
   }
 
-  //@ts-ignore
-  private async applySingleProperty(
-    key: string,
-    variable: { [s: string]: string }
-  ) {
-    let themeBuff = (await theme).unwrap;
-    this.#handler.forDocuments((doc) => {
+  applySingleProperty(key: string, variable: { [s: string]: string }) {
+    let themeBuff = theme.getOk();
+    documentHandler.forDocuments((doc) => {
       doc.documentElement.style.setProperty(key, variable[themeBuff]);
     });
   }
-}
+})();
+
+theme.subscribe((val) => {
+  themeEngine.applyTheme(val.value);
+});
+let scaleValue = 16;
+let scaleRem = 16;
+scale.subscribe((val) => {
+  scaleValue = val.value / 100;
+  scaleRem = scaleValue * 16;
+  themeEngine.applyScale(scaleValue);
+});
+/**Converts the given rems to pixels */
+export const remToPx = (rem: number) => {
+  return rem * scaleRem;
+};
+/**Converts the given pixels to rems */
+export const pxToRem = (px: number) => {
+  return px / scaleRem;
+};
+scrollBarMode.subscribe((val) => {
+  themeEngine.applyScrollbar(val.value);
+});
+inputMode.subscribe((val) => {
+  themeEngine.applyInput(val.value);
+});
+animationLevel.subscribe((val) => {
+  themeEngine.applyAnimation(val.value);
+});

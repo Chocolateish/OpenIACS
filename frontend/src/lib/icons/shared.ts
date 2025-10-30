@@ -1,5 +1,5 @@
 import { nodeClone } from "@libCommon";
-import type { SVGFunc } from "@libSvg";
+import type { SVGFunc } from "@libSVG";
 
 export function generateFunction(name: string, icon: string): SVGFunc {
   let svg: SVGSVGElement;

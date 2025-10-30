@@ -1,42 +1,4 @@
-import type {
-  StateEnumHelperAnyType,
-  StateEnumHelperList,
-  StateEnumHelperType,
-  StateNumberHelperType,
-  StateStringHelperType,
-} from "./helpers";
-import * as helper from "./helpers";
-import type { State, StateOk } from "./state";
-import * as normal from "./state";
-import type { StateArray, StateArrayRead, StateArrayWrite } from "./stateArray";
-import * as array from "./stateArray";
 import { StateBase } from "./stateBase";
-import type { StateDelayed, StateDelayedOk } from "./stateDelayed";
-import * as delayed from "./stateDelayed";
-import type { StateDerived } from "./stateDerived";
-import * as derived from "./stateDerived";
-import type { StateLazy, StateLazyOk } from "./stateLazy";
-import * as lazy from "./stateLazy";
-import type { StateProxy, StateProxyOk } from "./stateProxy";
-import * as proxy from "./stateProxy";
-import type { StateProxyWrite, StateProxyWriteOk } from "./stateProxyWrite";
-import * as proxy_write from "./stateProxyWrite";
-import type {
-  StateError,
-  StateOwner,
-  StateOwnerOk,
-  StateRead,
-  StateReadBase,
-  StateReadOk,
-  StateSetter,
-  StateSetterOk,
-  StateSubscriber,
-  StateSubscriberBase,
-  StateSubscriberOk,
-  StateWrite,
-  StateWriteBase,
-  StateWriteOk,
-} from "./types";
 
 //       _____ _______    _______ ______   _____ _   _ _____ _______ _____          _      _____ ____________ _____
 //      / ____|__   __|/\|__   __|  ____| |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \
@@ -44,14 +6,15 @@ import type {
 //      \___ \   | | / /\ \ | |  |  __|     | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  /
 //      ____) |  | |/ ____ \| |  | |____   _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \
 //     |_____/   |_/_/    \_\_|  |______| |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\
-export let state = {
-  from: normal.from,
-  ok: normal.ok,
-  err: normal.err,
-  from_result: normal.from_result,
-  from_result_ok: normal.from_result_ok,
-};
-export type { State, StateOk };
+export {
+  state_err,
+  state_from,
+  state_from_result,
+  state_from_result_ok,
+  state_ok,
+  type State,
+  type StateOk,
+} from "./state";
 
 //      _                ________     __  _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
 //     | |        /\    |___  /\ \   / / |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
@@ -59,14 +22,15 @@ export type { State, StateOk };
 //     | |      / /\ \    / /    \   /     | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  / \___ \
 //     | |____ / ____ \  / /__    | |     _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
 //     |______/_/    \_\/_____|   |_|    |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
-export let state_lazy = {
-  from: lazy.from,
-  ok: lazy.ok,
-  err: lazy.err,
-  from_result: lazy.from_result,
-  from_result_ok: lazy.from_result_ok,
-};
-export type { StateLazy, StateLazyOk };
+export {
+  state_lazy_err,
+  state_lazy_from,
+  state_lazy_from_result,
+  state_lazy_from_result_ok,
+  state_lazy_ok,
+  type StateLazy,
+  type StateLazyOk,
+} from "./stateLazy";
 
 //      _____  ______ _           __     ________ _____    _____ _   _ _____ _______ _____          _      _____ ____________ _____
 //     |  __ \|  ____| |        /\\ \   / /  ____|  __ \  |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \
@@ -74,14 +38,15 @@ export type { StateLazy, StateLazyOk };
 //     | |  | |  __| | |      / /\ \\   / |  __| | |  | |   | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  /
 //     | |__| | |____| |____ / ____ \| |  | |____| |__| |  _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \
 //     |_____/|______|______/_/    \_\_|  |______|_____/  |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\
-export let state_delayed = {
-  from: delayed.from,
-  ok: delayed.ok,
-  err: delayed.err,
-  from_result: delayed.from_result,
-  from_result_ok: delayed.from_result_ok,
-};
-export type { StateDelayed, StateDelayedOk };
+export {
+  state_delayed_err,
+  state_delayed_from,
+  state_delayed_from_result,
+  state_delayed_from_result_ok,
+  state_delayed_ok,
+  type StateDelayed,
+  type StateDelayedOk,
+} from "./stateDelayed";
 
 //      _____  _____   ______   ____     __  _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
 //     |  __ \|  __ \ / __ \ \ / /\ \   / / |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
@@ -89,13 +54,14 @@ export type { StateDelayed, StateDelayedOk };
 //     |  ___/|  _  /| |  | |> <    \   /     | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  / \___ \
 //     | |    | | \ \| |__| / . \    | |     _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
 //     |_|    |_|  \_\\____/_/ \_\   |_|    |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
-export let state_proxy = {
-  from: proxy.from,
-  ok: proxy.ok,
-  from_ok: proxy.from_ok,
-  ok_from_ok: proxy.ok_from_ok,
-};
-export type { StateProxy, StateProxyOk };
+export {
+  state_proxy_from,
+  state_proxy_from_ok,
+  state_proxy_ok,
+  state_proxy_ok_from_ok,
+  type StateProxy,
+  type StateProxyOk,
+} from "./stateProxy";
 
 //      _____  _____   ______   ____     __ __          _______  _____ _______ ______   _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
 //     |  __ \|  __ \ / __ \ \ / /\ \   / / \ \        / /  __ \|_   _|__   __|  ____| |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
@@ -103,13 +69,14 @@ export type { StateProxy, StateProxyOk };
 //     |  ___/|  _  /| |  | |> <    \   /     \ \/  \/ / |  _  /  | |    | |  |  __|     | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  / \___ \
 //     | |    | | \ \| |__| / . \    | |       \  /\  /  | | \ \ _| |_   | |  | |____   _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
 //     |_|    |_|  \_\\____/_/ \_\   |_|        \/  \/   |_|  \_\_____|  |_|  |______| |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
-export let state_proxy_write = {
-  from: proxy_write.from,
-  ok: proxy_write.ok,
-  from_ok: proxy_write.from_ok,
-  ok_from_ok: proxy_write.ok_from_ok,
-};
-export type { StateProxyWrite, StateProxyWriteOk };
+export {
+  state_proxy_write_from,
+  state_proxy_write_from_ok,
+  state_proxy_write_ok,
+  state_proxy_write_ok_from_ok,
+  type StateProxyWrite,
+  type StateProxyWriteOk,
+} from "./stateProxyWrite";
 
 //      _____  ______ _____  _______      ________ _____    _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
 //     |  __ \|  ____|  __ \|_   _\ \    / /  ____|  __ \  |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
@@ -117,11 +84,22 @@ export type { StateProxyWrite, StateProxyWriteOk };
 //     | |  | |  __| |  _  /  | |   \ \/ / |  __| | |  | |   | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  / \___ \
 //     | |__| | |____| | \ \ _| |_   \  /  | |____| |__| |  _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
 //     |_____/|______|_|  \_\_____|   \/   |______|_____/  |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
-export let state_derived = {
-  from_states: derived.from_states,
-  from_state_array: derived.from_state_array,
-};
-export type { StateDerived };
+export {
+  state_derived_from_state_array,
+  state_derived_from_states,
+  type StateDerived,
+} from "./stateDerived";
+
+//      _____  ______ _____  _______      ________  _____   _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
+//     |  __ \|  ____|  __ \|_   _\ \    / /  ____|/ ____| |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
+//     | |  | | |__  | |__) | | |  \ \  / /| |__  | (___     | | |  \| | | |    | |    | |    /  \  | |      | |    / /| |__  | |__) | (___
+//     | |  | |  __| |  _  /  | |   \ \/ / |  __|  \___ \    | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  / \___ \
+//     | |__| | |____| | \ \ _| |_   \  /  | |____ ____) |  _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
+//     |_____/|______|_|  \_\_____|   \/   |______|_____/  |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
+export {
+  state_derives_sum_from,
+  state_derives_sum_from_ok,
+} from "./stateDerives";
 
 //               _____  _____        __     __  _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
 //         /\   |  __ \|  __ \     /\\ \   / / |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
@@ -129,12 +107,13 @@ export type { StateDerived };
 //       / /\ \ |  _  /|  _  /   / /\ \\   /     | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  / \___ \
 //      / ____ \| | \ \| | \ \  / ____ \| |     _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
 //     /_/    \_\_|  \_\_|  \_\/_/    \_\_|    |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
-export let state_array = {
-  StateArray: array.StateArray,
-  applyReadToArray: array.applyReadToArray,
-  applyReadToArrayTransform: array.applyReadToArrayTransform,
-};
-export type { StateArray, StateArrayRead, StateArrayWrite };
+export {
+  state_array_apply_read_to_array,
+  state_array_apply_read_to_array_transform,
+  StateArray,
+  type StateArrayRead,
+  type StateArrayWrite,
+} from "./stateArray";
 
 //      _    _ ______ _      _____  ______ _____   _____
 //     | |  | |  ____| |    |  __ \|  ____|  __ \ / ____|
@@ -142,19 +121,26 @@ export type { StateArray, StateArrayRead, StateArrayWrite };
 //     |  __  |  __| | |    |  ___/|  __| |  _  / \___ \
 //     | |  | | |____| |____| |    | |____| | \ \ ____) |
 //     |_|  |_|______|______|_|    |______|_|  \_\_____/
-export { isState, isStateOk, isStateSync, isStateSyncOk } from "./stateBase";
-export let state_helper = {
-  StateNumberHelper: helper.StateNumberHelper,
-  StateStringHelper: helper.StateStringHelper,
-  StateEnumHelper: helper.StateEnumHelper,
-};
-export type {
-  StateEnumHelperAnyType,
-  StateEnumHelperList,
-  StateEnumHelperType,
-  StateNumberHelperType,
-  StateStringHelperType,
-};
+export {
+  state_compare,
+  state_compare_sync,
+  state_enum_iterate,
+  StateEnumHelper,
+  StateNumberHelper,
+  StateStringHelper,
+  type StateEnumHelperAnyType,
+  type StateEnumHelperList,
+  type StateEnumHelperType,
+  type StateNumberHelperType,
+  type StateStringHelperType,
+} from "./helpers";
+
+export {
+  state_is,
+  state_ok_is,
+  state_sync_is,
+  state_sync_ok_is,
+} from "./stateBase";
 
 //       _____ _______    _______ ______   _________     _______  ______  _____
 //      / ____|__   __|/\|__   __|  ____| |__   __\ \   / /  __ \|  ____|/ ____|
@@ -174,7 +160,7 @@ export type {
   StateSubscriberOk,
   StateWrite,
   StateWriteOk,
-};
+} from "./types";
 
 //      ________   _________ ______ _   _  _____ _____ ____  _   _    _____ _                _____ _____ ______  _____
 //     |  ____\ \ / /__   __|  ____| \ | |/ ____|_   _/ __ \| \ | |  / ____| |        /\    / ____/ ____|  ____|/ ____|
@@ -182,7 +168,7 @@ export type {
 //     |  __|   > <    | |  |  __| | . ` |\___ \  | || |  | | . ` | | |    | |      / /\ \  \___ \\___ \|  __|  \___ \
 //     | |____ / . \   | |  | |____| |\  |____) |_| || |__| | |\  | | |____| |____ / ____ \ ____) |___) | |____ ____) |
 //     |______/_/ \_\  |_|  |______|_| \_|_____/|_____\____/|_| \_|  \_____|______/_/    \_\_____/_____/|______|_____/
-export let classes = {
+export let extenstion = {
   StateBase,
 };
 
@@ -192,4 +178,4 @@ export let classes = {
 //     |  __|   > <    | |  |  __| | . ` |\___ \  | || |  | | . ` |    | |    \   / |  ___/|  __|  \___ \
 //     | |____ / . \   | |  | |____| |\  |____) |_| || |__| | |\  |    | |     | |  | |    | |____ ____) |
 //     |______/_/ \_\  |_|  |______|_| \_|_____/|_____\____/|_| \_|    |_|     |_|  |_|    |______|_____/
-export type { StateError, StateReadBase, StateWriteBase };
+export type { StateError, StateReadBase, StateWriteBase } from "./types";

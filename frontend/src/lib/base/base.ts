@@ -1,7 +1,7 @@
 import { EventHandler } from "@libEvent";
 import type { Result } from "@libResult";
 import {
-  isState,
+  state_is,
   type StateRead,
   type StateReadBase,
   type StateReadOk,
@@ -157,7 +157,7 @@ export abstract class Base<
   opts(opts: WithStateRead<DataProps<this>>): this {
     for (let key in opts) {
       let opt = opts[key];
-      let isKeyState = isState(opt);
+      let isKeyState = state_is(opt);
       if (isKeyState) this.attachStateToProp(key, isKeyState);
       else this[key] = opt as any;
     }

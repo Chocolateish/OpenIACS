@@ -1,6 +1,6 @@
 import { Base, defineElement } from "@libBase";
 import { grey } from "@libColors";
-import { svg_primitives } from "@libSvg";
+import { svg_primitives } from "@libSVG";
 import { initVariableRoot } from "@libTheme";
 import { name } from "@package";
 import "./index.scss";

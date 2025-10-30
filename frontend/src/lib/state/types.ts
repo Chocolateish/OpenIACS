@@ -64,6 +64,12 @@ export interface StateReadBase<
   ): PromiseLike<TResult1>;
   /**Gets the current value of the state if state is sync*/
   get(): SYNC extends true ? TYPE : unknown;
+  /**Gets the value of the state without result, only works when state is OK */
+  getOk(): SYNC extends true
+    ? TYPE extends ResultOk<infer T>
+      ? T
+      : unknown
+    : unknown;
   /**This adds a function as a subscriber to the state
    * @param update set true to update subscriber*/
   subscribe<B extends StateSubscriberBase<TYPE>>(func: B, update?: boolean): B;

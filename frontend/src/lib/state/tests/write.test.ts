@@ -1,6 +1,6 @@
 import { Err, Ok, Some } from "@libResult";
 import { describe, expect, it } from "vitest";
-import { state, state_delayed, state_lazy } from "../index";
+import * as all from "../index";
 import type { StateHelper, StateSetter, StateSetterOk } from "../types";
 
 let gen_error = () => {
@@ -13,14 +13,14 @@ let gen_states = (
 ) => {
   return {
     testsResults: {
-      "state.from": state.from(1, setter, helper),
-      "state_lazy.from": state_lazy.from(() => 1, setter, helper),
-      "state_delayed.from": state_delayed.from(
+      "state.from": all.state_from(1, setter, helper),
+      "state_lazy.from": all.state_lazy_from(() => 1, setter, helper),
+      "state_delayed.from": all.state_delayed_from(
         (async () => 1)(),
         setter,
         helper
       ),
-      "state_delayed.from with sleep": state_delayed.from(
+      "state_delayed.from with sleep": all.state_delayed_from(
         (async () => {
           await new Promise((a) => {
             setTimeout(a, 10);
@@ -32,10 +32,14 @@ let gen_states = (
       ),
     },
     testsOks: {
-      "state.ok": state.ok(1, setterOk, helper),
-      "state_lazy.ok": state_lazy.ok(() => 1, setterOk, helper),
-      "state_delayed.ok": state_delayed.ok((async () => 1)(), setterOk, helper),
-      "state_delayed.ok with sleep": state_delayed.ok(
+      "state.ok": all.state_ok(1, setterOk, helper),
+      "state_lazy.ok": all.state_lazy_ok(() => 1, setterOk, helper),
+      "state_delayed.ok": all.state_delayed_ok(
+        (async () => 1)(),
+        setterOk,
+        helper
+      ),
+      "state_delayed.ok with sleep": all.state_delayed_ok(
         (async () => {
           await new Promise((a) => {
             setTimeout(a, 10);
@@ -47,13 +51,13 @@ let gen_states = (
       ),
     },
     testsErrs: {
-      "state.err": state.err<number>(gen_error(), setter, helper),
-      "state_lazy.err": state_lazy.err<number>(
+      "state.err": all.state_err<number>(gen_error(), setter, helper),
+      "state_lazy.err": all.state_lazy_err<number>(
         () => gen_error(),
         setter,
         helper
       ),
-      "state_delayed.err with sleep": state_delayed.err<number>(
+      "state_delayed.err with sleep": all.state_delayed_err<number>(
         (async () => {
           await new Promise((a) => {
             setTimeout(a, 10);

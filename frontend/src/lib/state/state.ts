@@ -66,6 +66,9 @@ export class StateInternal<
   get(): TYPE {
     return this.#value!;
   }
+  getOk(): TYPE extends ResultOk<infer T> ? T : unknown {
+    return this.#value!.unwrap;
+  }
   related(): Option<RELATED> {
     return this.#helper?.related ? this.#helper.related() : None();
   }
@@ -133,7 +136,7 @@ export interface StateOk<TYPE, RELATED extends StateRelated = {}>
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
-export function from<TYPE, RELATED extends StateRelated = {}>(
+export function state_from<TYPE, RELATED extends StateRelated = {}>(
   init: TYPE,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
@@ -150,7 +153,7 @@ export function from<TYPE, RELATED extends StateRelated = {}>(
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
-export function ok<TYPE, RELATED extends StateRelated = {}>(
+export function state_ok<TYPE, RELATED extends StateRelated = {}>(
   init: TYPE,
   setter?: StateSetterOk<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
@@ -167,7 +170,7 @@ export function ok<TYPE, RELATED extends StateRelated = {}>(
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
-export function err<TYPE, RELATED extends StateRelated = {}>(
+export function state_err<TYPE, RELATED extends StateRelated = {}>(
   err: StateError,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
@@ -184,7 +187,7 @@ export function err<TYPE, RELATED extends StateRelated = {}>(
  * @param setter function called when state value is set via setter, set true let write set it's value
  * @param helper functions to check and limit the value, and to return related states
  * */
-export function from_result<TYPE, RELATED extends StateRelated = {}>(
+export function state_from_result<TYPE, RELATED extends StateRelated = {}>(
   init: Result<TYPE, StateError>,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
@@ -201,7 +204,7 @@ export function from_result<TYPE, RELATED extends StateRelated = {}>(
  * @param setter function called when state value is set via setter, set true let write set it's value
  * @param helper functions to check and limit the value, and to return related states
  * */
-export function from_result_ok<TYPE, RELATED extends StateRelated = {}>(
+export function state_from_result_ok<TYPE, RELATED extends StateRelated = {}>(
   init: ResultOk<TYPE>,
   setter?: StateSetterOk<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>

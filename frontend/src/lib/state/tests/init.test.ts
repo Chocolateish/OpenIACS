@@ -1,6 +1,6 @@
 import { Err, Ok } from "@libResult";
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { state, state_delayed, state_lazy } from "../index";
+import * as all from "../index";
 import { StateInternal, type State, type StateOk } from "../state";
 import {
   StateDelayedInternal,
@@ -15,111 +15,111 @@ import {
 
 describe("Initialize normal state", function () {
   it("by state.from", async function () {
-    let init = state.from(1);
+    let init = all.state_from(1);
     expect(init).instanceOf(StateInternal);
-    expectTypeOf(init).toEqualTypeOf<State<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<State<number, {}>>();
   });
   it("by state.ok", async function () {
-    let init = state.ok(1);
+    let init = all.state_ok(1);
     expect(init).instanceOf(StateInternal);
-    expectTypeOf(init).toEqualTypeOf<StateOk<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<StateOk<number, {}>>();
   });
   it("by state.err", async function () {
-    let init = state.err<number>({ code: "CL", reason: "Conn Lost" });
+    let init = all.state_err<number>({ code: "CL", reason: "Conn Lost" });
     expect(init).instanceOf(StateInternal);
-    expectTypeOf(init).toEqualTypeOf<State<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<State<number, {}>>();
   });
   it("by state.from_result with ok", async function () {
-    let init = state.from_result<number>(Ok(1));
+    let init = all.state_from_result<number>(Ok(1));
     expect(init).instanceOf(StateInternal);
-    expectTypeOf(init).toEqualTypeOf<State<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<State<number, {}>>();
   });
   it("by state.from_result with err", async function () {
-    let init = state.from_result<number>(
+    let init = all.state_from_result<number>(
       Err({ code: "CL", reason: "Conn Lost" })
     );
     expect(init).instanceOf(StateInternal);
-    expectTypeOf(init).toEqualTypeOf<State<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<State<number, {}>>();
   });
   it("by state.from_result_ok", async function () {
-    let init = state.from_result_ok<number>(Ok(1));
+    let init = all.state_from_result_ok<number>(Ok(1));
     expect(init).instanceOf(StateInternal);
-    expectTypeOf(init).toEqualTypeOf<StateOk<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<StateOk<number, {}>>();
   });
 });
 
 describe("Initialize lazy state", function () {
   it("by state_lazy.from", async function () {
-    let init = state_lazy.from(() => 1);
+    let init = all.state_lazy_from(() => 1);
     expect(init).instanceOf(StateLazyInternal);
-    expectTypeOf(init).toEqualTypeOf<StateLazy<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<StateLazy<number, {}>>();
   });
   it("by state_lazy.ok", async function () {
-    let init = state_lazy.ok(() => 1);
+    let init = all.state_lazy_ok(() => 1);
     expect(init).instanceOf(StateLazyInternal);
-    expectTypeOf(init).toEqualTypeOf<StateLazyOk<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<StateLazyOk<number, {}>>();
   });
   it("by state_lazy.err", async function () {
-    let init = state_lazy.err<number>(() => {
+    let init = all.state_lazy_err<number>(() => {
       return { code: "CL", reason: "Conn Lost" };
     });
     expect(init).instanceOf(StateLazyInternal);
-    expectTypeOf(init).toEqualTypeOf<StateLazy<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<StateLazy<number, {}>>();
   });
   it("by state_lazy.from_result with ok", async function () {
-    let init = state_lazy.from_result<number>(() => Ok(1));
+    let init = all.state_lazy_from_result<number>(() => Ok(1));
     expect(init).instanceOf(StateLazyInternal);
-    expectTypeOf(init).toEqualTypeOf<StateLazy<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<StateLazy<number, {}>>();
   });
   it("by state_lazy.from_result with err", async function () {
-    let init = state_lazy.from_result<number>(() =>
+    let init = all.state_lazy_from_result<number>(() =>
       Err({ code: "CL", reason: "Conn Lost" })
     );
     expect(init).instanceOf(StateLazyInternal);
-    expectTypeOf(init).toEqualTypeOf<StateLazy<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<StateLazy<number, {}>>();
   });
   it("by state_lazy.from_result_ok", async function () {
-    let init = state_lazy.from_result_ok<number>(() => Ok(1));
+    let init = all.state_lazy_from_result_ok<number>(() => Ok(1));
     expect(init).instanceOf(StateLazyInternal);
-    expectTypeOf(init).toEqualTypeOf<StateLazyOk<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<StateLazyOk<number, {}>>();
   });
 });
 
 describe("Initialize delayed state", function () {
   it("by state_delayed.from", async function () {
-    let init = state_delayed.from((async () => 1)());
+    let init = all.state_delayed_from((async () => 1)());
     expect(init).instanceOf(StateDelayedInternal);
-    expectTypeOf(init).toEqualTypeOf<StateDelayed<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<StateDelayed<number, {}>>();
   });
   it("by state_delayed.ok", async function () {
-    let init = state_delayed.ok((async () => 1)());
+    let init = all.state_delayed_ok((async () => 1)());
     expect(init).instanceOf(StateDelayedInternal);
-    expectTypeOf(init).toEqualTypeOf<StateDelayedOk<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<StateDelayedOk<number, {}>>();
   });
   it("by state_delayed.err", async function () {
-    let init = state_delayed.err<number>(
+    let init = all.state_delayed_err<number>(
       (async () => {
         return { code: "CL", reason: "Conn Lost" };
       })()
     );
     expect(init).instanceOf(StateDelayedInternal);
-    expectTypeOf(init).toEqualTypeOf<StateDelayed<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<StateDelayed<number, {}>>();
   });
   it("by state_delayed.from_result with ok", async function () {
-    let init = state_delayed.from_result<number>((async () => Ok(1))());
+    let init = all.state_delayed_from_result<number>((async () => Ok(1))());
     expect(init).instanceOf(StateDelayedInternal);
-    expectTypeOf(init).toEqualTypeOf<StateDelayed<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<StateDelayed<number, {}>>();
   });
   it("by state_delayed.from_result with err", async function () {
-    let init = state_delayed.from_result<number>(
+    let init = all.state_delayed_from_result<number>(
       (async () => Err({ code: "CL", reason: "Conn Lost" }))()
     );
     expect(init).instanceOf(StateDelayedInternal);
-    expectTypeOf(init).toEqualTypeOf<StateDelayed<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<StateDelayed<number, {}>>();
   });
   it("by state_delayed.from_result_ok", async function () {
-    let init = state_delayed.from_result_ok<number>((async () => Ok(1))());
+    let init = all.state_delayed_from_result_ok<number>((async () => Ok(1))());
     expect(init).instanceOf(StateDelayedInternal);
-    expectTypeOf(init).toEqualTypeOf<StateDelayedOk<number, number, {}>>();
+    expectTypeOf(init).toEqualTypeOf<StateDelayedOk<number, {}>>();
   });
 });

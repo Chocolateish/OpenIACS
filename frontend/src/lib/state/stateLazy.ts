@@ -56,6 +56,8 @@ export class StateLazyInternal<
       //@ts-expect-error
       delete this.get;
       //@ts-expect-error
+      delete this.getOk;
+      //@ts-expect-error
       delete this.write;
       //@ts-expect-error
       delete this.set;
@@ -75,6 +77,9 @@ export class StateLazyInternal<
     };
     this.get = () => {
       return getAndClean();
+    };
+    this.getOk = () => {
+      return getAndClean().unwrap;
     };
     let write = this.write.bind(this);
     this.write = (value) => {
@@ -110,6 +115,9 @@ export class StateLazyInternal<
   }
   get(): TYPE {
     return this.#value!;
+  }
+  getOk(): TYPE extends ResultOk<infer T> ? T : unknown {
+    return this.#value!.unwrap;
   }
   related(): Option<RELATED> {
     return this.#helper?.related ? this.#helper.related() : None();
@@ -178,7 +186,7 @@ export interface StateLazyOk<TYPE, RELATED extends StateRelated = {}>
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
-export function from<TYPE, RELATED extends StateRelated = {}>(
+export function state_lazy_from<TYPE, RELATED extends StateRelated = {}>(
   init: () => TYPE,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
@@ -195,7 +203,7 @@ export function from<TYPE, RELATED extends StateRelated = {}>(
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
-export function ok<TYPE, RELATED extends StateRelated = {}>(
+export function state_lazy_ok<TYPE, RELATED extends StateRelated = {}>(
   init: () => TYPE,
   setter?: StateSetterOk<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
@@ -212,7 +220,7 @@ export function ok<TYPE, RELATED extends StateRelated = {}>(
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
-export function err<TYPE, RELATED extends StateRelated = {}>(
+export function state_lazy_err<TYPE, RELATED extends StateRelated = {}>(
   err: () => StateError,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
@@ -229,7 +237,7 @@ export function err<TYPE, RELATED extends StateRelated = {}>(
  * @param setter function called when state value is set via setter, set true let write set it's value
  * @param helper functions to check and limit the value, and to return related states
  * */
-export function from_result<TYPE, RELATED extends StateRelated = {}>(
+export function state_lazy_from_result<TYPE, RELATED extends StateRelated = {}>(
   init: () => Result<TYPE, StateError>,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
@@ -246,7 +254,10 @@ export function from_result<TYPE, RELATED extends StateRelated = {}>(
  * @param setter function called when state value is set via setter, set true let write set it's value
  * @param helper functions to check and limit the value, and to return related states
  * */
-export function from_result_ok<TYPE, RELATED extends StateRelated = {}>(
+export function state_lazy_from_result_ok<
+  TYPE,
+  RELATED extends StateRelated = {}
+>(
   init: () => ResultOk<TYPE>,
   setter?: StateSetterOk<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>

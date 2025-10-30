@@ -7,7 +7,7 @@ interface DocumentHandlerEvents {
   removed: Document;
 }
 
-export class DocumentHandler {
+export let documentHandler = new (class DocumentHandler {
   /**Stores all managed documents */
   #documents: Document[];
   /**Stores the main docuement of the manager */
@@ -62,4 +62,4 @@ export class DocumentHandler {
     this.#documents.splice(index, 1);
     this.#events.emit("removed", document);
   }
-}
+})(document);

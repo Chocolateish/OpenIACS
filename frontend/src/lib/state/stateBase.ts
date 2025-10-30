@@ -42,6 +42,12 @@ export abstract class StateBase<
 
   abstract get(): SYNC extends true ? READ : unknown;
 
+  abstract getOk(): SYNC extends true
+    ? READ extends ResultOk<infer T>
+      ? T
+      : unknown
+    : unknown;
+
   related(): Option<RELATED> {
     return None();
   }
@@ -118,7 +124,7 @@ export abstract class StateBaseSyncOk<
 > extends StateBase<READ, true, RELATED> {}
 
 /**Checks if a variable is an instance of a state*/
-export function isState<STATE>(
+export function state_is<STATE>(
   state: STATE
 ): STATE extends StateBase<infer READ, infer SYNC, infer RELATED>
   ? StateBase<READ, SYNC, RELATED>
@@ -127,7 +133,7 @@ export function isState<STATE>(
 }
 
 /**Checks if a variable is an instance of a state with guarenteed ok result*/
-export function isStateOk<STATE>(
+export function state_ok_is<STATE>(
   state: STATE
 ): STATE extends StateBaseOk<infer READ, infer SYNC, infer RELATED>
   ? StateBaseOk<READ, SYNC, RELATED>
@@ -138,7 +144,7 @@ export function isStateOk<STATE>(
 }
 
 /**Checks if a variable is an instance of a state with sync getting*/
-export function isStateSync<STATE>(
+export function state_sync_is<STATE>(
   state: STATE
 ): STATE extends StateBaseSync<infer READ, infer RELATED>
   ? StateBaseSync<READ, RELATED>
@@ -147,7 +153,7 @@ export function isStateSync<STATE>(
 }
 
 /**Checks if a variable is an instance of a state with sync getting and guarenteed ok result*/
-export function isStateSyncOk<STATE>(
+export function state_sync_ok_is<STATE>(
   state: STATE
 ): STATE extends StateBaseSyncOk<infer READ, infer RELATED>
   ? StateBaseSyncOk<READ, RELATED>

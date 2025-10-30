@@ -36,7 +36,7 @@ export interface StateArrayWrite<TYPE> {
 
 /** Applies a read from a state array to another array
  * @template TYPE - Types allowed in both arrays.*/
-export function applyReadToArray<TYPE>(
+export function state_array_apply_read_to_array<TYPE>(
   array: TYPE[],
   read: StateArrayRead<TYPE>
 ): TYPE[] {
@@ -58,7 +58,7 @@ export function applyReadToArray<TYPE>(
 /** Applies a read from a state array to another array with a transform function
  * @template INPUT - Types allowed in state array.
  * @template OUTPUT - Types allowed in array to modify.*/
-export function applyReadToArrayTransform<INPUT, OUTPUT>(
+export function state_array_apply_read_to_array_transform<INPUT, OUTPUT>(
   array: OUTPUT[],
   read: StateArrayRead<INPUT>,
   transform: (value: INPUT, index: number, array: readonly INPUT[]) => OUTPUT
@@ -143,6 +143,10 @@ export class StateArray<
       index: 0,
       items: this.#array,
     }) as any;
+  }
+
+  getOk(): unknown {
+    return;
   }
 
   related(): Option<RELATED> {

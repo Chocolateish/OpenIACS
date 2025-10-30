@@ -16,7 +16,6 @@ export type Lines =
   | Promise<LineAny>;
 
 export class Menu extends Base {
-  private container: Container | undefined;
   private submenu: Menu | undefined;
   private closer: Option | undefined;
   private x: number | undefined;

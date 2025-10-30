@@ -96,6 +96,15 @@ export class StateProxyWriteInternal<
     return this.transformRead(this.#state.get() as INPUT);
   }
 
+  getOk(): SYNC extends true
+    ? OUTPUT extends ResultOk<infer T>
+      ? T
+      : unknown
+    : unknown {
+    if (this.#buffer) return this.#buffer.unwrap;
+    return this.transformRead(this.#state.get() as INPUT).unwrap;
+  }
+
   related(): Option<RELATED> {
     return this.#state.related();
   }
@@ -250,7 +259,7 @@ export interface StateProxyWriteOkFromOk<
 /**Creates a proxy state which mirrors another state, with an optional transform function.
  * @param state - state to proxy.
  * @param transformRead - Function to transform value of proxy*/
-export function from<
+export function state_proxy_write_from<
   INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},
@@ -278,7 +287,7 @@ export function from<
 /**Creates a proxy state which mirrors another state, with an optional transform function.
  * @param state - state to proxy.
  * @param transformRead - Function to transform value of proxy*/
-export function from_ok<
+export function state_proxy_write_from_ok<
   INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},
@@ -306,7 +315,7 @@ export function from_ok<
 /**Creates a proxy state which mirrors another state, with an optional transform function.
  * @param state - state to proxy.
  * @param transformRead - Function to transform value of proxy*/
-export function ok<
+export function state_proxy_write_ok<
   INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},
@@ -316,7 +325,7 @@ export function ok<
   transform: StateProxyTransformOk<INPUT, OUTPUT>,
   transformWrite?: StateProxyWriteTransform<OUTPUT, INPUT>
 ): StateProxyWriteOk<OUTPUT, SYNC, RELATED, INPUT>;
-export function ok<
+export function state_proxy_write_ok<
   INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},
@@ -326,7 +335,7 @@ export function ok<
   transform?: StateProxyTransformOk<INPUT, OUTPUT>,
   transformWrite?: StateProxyWriteTransform<OUTPUT, INPUT>
 ): StateProxyWriteOk<OUTPUT, SYNC, RELATED, INPUT>;
-export function ok<
+export function state_proxy_write_ok<
   INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},
@@ -354,7 +363,7 @@ export function ok<
 /**Creates a proxy state which mirrors another state, with an optional transform function.
  * @param state - state to proxy.
  * @param transformRead - Function to transform value of proxy*/
-export function ok_from_ok<
+export function state_proxy_write_ok_from_ok<
   INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},

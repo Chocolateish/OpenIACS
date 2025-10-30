@@ -6,9 +6,13 @@ import {
   material_hardware_mouse_rounded,
   material_image_edit_rounded,
 } from "@libIcons";
-import { state, state_helper, type StateEnumHelperList } from "@libState";
+import {
+  state_ok,
+  StateEnumHelper,
+  StateNumberHelper,
+  type StateEnumHelperList,
+} from "@libState";
 import { name, version } from "@package";
-import { engines } from "./shared";
 
 const settings = settingsInit(
   name,
@@ -43,22 +47,17 @@ const themesInternal = {
   },
 } satisfies StateEnumHelperList;
 
-const themeInternal = state.ok<Themes>(
+const themeInternal = state_ok(
   settings.get(
     ThemeID,
     window.matchMedia &&
       window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? Themes.Dark
-      : Themes.Light
+      ? (Themes.Dark as Themes)
+      : (Themes.Light as Themes)
   ),
   true,
-  new state_helper.StateEnumHelper(themesInternal)
+  new StateEnumHelper(themesInternal)
 );
-themeInternal.subscribe((val) => {
-  engines.forEach((engine) => {
-    engine.applyTheme(val.unwrap);
-  });
-});
 settings.register(ThemeID, "Theme", "Theme to use for the UI", themeInternal);
 export const theme = themeInternal.writeable;
 
@@ -76,29 +75,13 @@ window
 //      ____) | |____ / ____ \| |____| |____
 //     |_____/ \_____/_/    \_\______|______|
 const ScaleID = "scale";
-let scaleValue = 1;
-const scaleInternal = state.ok(
+const scaleInternal = state_ok(
   settings.get(ScaleID, 100),
   true,
-  new state_helper.StateNumberHelper(50, 400, "%", 0, 1)
+  new StateNumberHelper(50, 400, "%", 0, 1)
 );
 settings.register(ScaleID, "Scale", "UI scale", scaleInternal);
-scaleInternal.subscribe((val) => {
-  scaleValue = val.unwrap / 100;
-  engines.forEach((engine) => {
-    engine.applyScale(scaleValue);
-  });
-});
 export const scale = scaleInternal.writeable;
-
-/**Converts the given rems to pixels */
-export const remToPx = (rem: number) => {
-  return rem * scaleValue;
-};
-/**Converts the given pixels to rems */
-export const pxToRem = (px: number) => {
-  return px / scaleValue;
-};
 
 //       _____  _____ _____   ____  _      _      ____          _____
 //      / ____|/ ____|  __ \ / __ \| |    | |    |  _ \   /\   |  __ \
@@ -127,10 +110,10 @@ const scrollbarModesInternal = {
   },
 } satisfies StateEnumHelperList;
 
-const scrollBarModeInternal = state.ok<ScrollbarModes>(
-  settings.get(ScrollbarID, ScrollbarModes.THIN),
+const scrollBarModeInternal = state_ok(
+  settings.get(ScrollbarID, ScrollbarModes.THIN as ScrollbarModes),
   true,
-  new state_helper.StateEnumHelper(scrollbarModesInternal)
+  new StateEnumHelper(scrollbarModesInternal)
 );
 settings.register(
   "scrollbar",
@@ -138,11 +121,6 @@ settings.register(
   "Size of the scrollbar to use",
   scrollBarModeInternal
 );
-scrollBarModeInternal.subscribe((val) => {
-  engines.forEach((engine) => {
-    engine.applyScrollbar(val.unwrap);
-  });
-});
 export const scrollBarMode = scrollBarModeInternal.writeable;
 
 //      _____ _   _ _____  _    _ _______   __  __  ____  _____  ______
@@ -177,10 +155,10 @@ const inputModesInternal = {
   },
 } satisfies StateEnumHelperList;
 
-const inputModeInternal = state.ok<InputModes>(
-  settings.get(InputModeID, InputModes.TOUCH),
+const inputModeInternal = state_ok(
+  settings.get(InputModeID, InputModes.TOUCH as InputModes),
   true,
-  new state_helper.StateEnumHelper(inputModesInternal)
+  new StateEnumHelper(inputModesInternal)
 );
 settings.register(
   InputModeID,
@@ -188,11 +166,6 @@ settings.register(
   "Setting for preffered input mode, changes UI elements to be more optimized for the selected input mode",
   inputModeInternal
 );
-inputModeInternal.subscribe((val) => {
-  engines.forEach((engine) => {
-    engine.applyInput(val.unwrap);
-  });
-});
 export const inputMode = inputModeInternal.writeable;
 
 //               _   _ _____ __  __       _______ _____ ____  _   _   _      ________      ________ _
@@ -224,10 +197,10 @@ const animationLevelsInternal = {
   [AnimationLevels.NONE]: { name: "None", description: "No animations" },
 } satisfies StateEnumHelperList;
 
-const animationLevelInternal = state.ok<AnimationLevels>(
-  settings.get(AnimationLevelID, AnimationLevels.ALL),
+const animationLevelInternal = state_ok(
+  settings.get(AnimationLevelID, AnimationLevels.ALL as AnimationLevels),
   true,
-  new state_helper.StateEnumHelper(animationLevelsInternal)
+  new StateEnumHelper(animationLevelsInternal)
 );
 settings.register(
   AnimationLevelID,
@@ -235,10 +208,4 @@ settings.register(
   "Setting for animation level, changes the amount of animations used in the UI",
   animationLevelInternal
 );
-animationLevelInternal.subscribe((val) => {
-  engines.forEach((engine) => {
-    engine.applyAnimation(val.unwrap);
-  });
-});
-
 export const animationLevel = animationLevelInternal.writeable;

@@ -1,6 +1,6 @@
-import { blue, grey } from "@colors";
+import { blue, grey } from "@libColors";
+import { initVariableRoot } from "@libTheme";
 import { name } from "@package";
-import { initVariableRoot } from "../theme";
 
 export let variables = initVariableRoot(
   name,

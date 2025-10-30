@@ -95,6 +95,15 @@ export class StateProxyInternal<
     return this.transform(this.#state.get() as INPUT);
   }
 
+  getOk(): SYNC extends true
+    ? OUTPUT extends ResultOk<infer T>
+      ? T
+      : unknown
+    : unknown {
+    if (this.#buffer) return this.#buffer.unwrap;
+    return this.transform(this.#state.get() as INPUT).unwrap;
+  }
+
   related(): Option<RELATED> {
     return this.#state.related();
   }
@@ -128,7 +137,7 @@ export class StateProxyInternal<
 
 export interface StateProxy<
   OUTPUT,
-  SYNC extends boolean,
+  SYNC extends boolean = any,
   RELATED extends StateRelated = {},
   INPUT = OUTPUT
 > extends StateProxyInternal<
@@ -143,7 +152,7 @@ export interface StateProxy<
 }
 export interface StateProxyFromOK<
   OUTPUT,
-  SYNC extends boolean,
+  SYNC extends boolean = any,
   RELATED extends StateRelated = {},
   INPUT = OUTPUT
 > extends StateProxyInternal<
@@ -190,7 +199,7 @@ export interface StateProxyOkFromOk<
 /**Creates a proxy state which mirrors another state, with an optional transform function.
  * @param state - state to proxy.
  * @param transform - Function to transform value of proxy*/
-export function from<
+export function state_proxy_from<
   INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},
@@ -210,7 +219,7 @@ export function from<
 /**Creates a proxy state which mirrors another state, with an optional transform function.
  * @param state - state to proxy.
  * @param transform - Function to transform value of proxy*/
-export function from_ok<
+export function state_proxy_from_ok<
   INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},
@@ -230,7 +239,7 @@ export function from_ok<
 /**Creates a proxy state which mirrors another state, with an optional transform function.
  * @param state - state to proxy.
  * @param transform - Function to transform value of proxy*/
-export function ok<
+export function state_proxy_ok<
   INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},
@@ -239,7 +248,7 @@ export function ok<
   state: StateRead<INPUT, SYNC, RELATED>,
   transform: StateProxyTransformOk<INPUT, OUTPUT>
 ): StateProxyOk<OUTPUT, SYNC, RELATED, INPUT>;
-export function ok<
+export function state_proxy_ok<
   INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},
@@ -248,7 +257,7 @@ export function ok<
   state: StateReadOk<INPUT, SYNC, RELATED>,
   transform?: StateProxyTransformOk<INPUT, OUTPUT>
 ): StateProxyOk<OUTPUT, SYNC, RELATED, INPUT>;
-export function ok<
+export function state_proxy_ok<
   INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},
@@ -268,7 +277,7 @@ export function ok<
 /**Creates a proxy state which mirrors another state, with an optional transform function.
  * @param state - state to proxy.
  * @param transform - Function to transform value of proxy*/
-export function ok_from_ok<
+export function state_proxy_ok_from_ok<
   INPUT,
   SYNC extends boolean,
   RELATED extends StateRelated = {},

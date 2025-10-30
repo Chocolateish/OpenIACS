@@ -139,6 +139,10 @@ export abstract class StateResourceBase<
     return;
   }
 
+  getOk(): unknown {
+    return;
+  }
+
   //Writer Context
   abstract write(value: WRITE): boolean;
 

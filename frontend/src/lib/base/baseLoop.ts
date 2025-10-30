@@ -1,5 +1,6 @@
 import {
-  state_array,
+  state_array_apply_read_to_array,
+  state_array_apply_read_to_array_transform,
   type StateArray,
   type StateArrayRead,
   type StateError,
@@ -54,8 +55,8 @@ export class Loop<T, E extends Node> extends Base {
     this.#subSubscriber = this.#stateArray.subscribe((val) => {
       if (val.ok) {
         let value = val.value;
-        this.#values = state_array.applyReadToArray(this.#values, value);
-        this.#children = state_array.applyReadToArrayTransform(
+        this.#values = state_array_apply_read_to_array(this.#values, value);
+        this.#children = state_array_apply_read_to_array_transform(
           this.#children,
           value,
           this.#generator

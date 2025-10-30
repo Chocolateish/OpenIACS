@@ -93,8 +93,11 @@ export class StateDelayedInternal<
   ): Promise<TResult1> {
     return func(this.#value!);
   }
-  get(): never {
-    return undefined as never;
+  get(): unknown {
+    return;
+  }
+  getOk(): unknown {
+    return;
   }
   related(): Option<RELATED> {
     return this.#helper?.related ? this.#helper.related() : None();
@@ -163,7 +166,7 @@ export interface StateDelayedOk<TYPE, RELATED extends StateRelated = {}>
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
-export function from<TYPE, RELATED extends StateRelated = {}>(
+export function state_delayed_from<TYPE, RELATED extends StateRelated = {}>(
   init: PromiseLike<TYPE>,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
@@ -180,7 +183,7 @@ export function from<TYPE, RELATED extends StateRelated = {}>(
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
-export function ok<TYPE, RELATED extends StateRelated = {}>(
+export function state_delayed_ok<TYPE, RELATED extends StateRelated = {}>(
   init: PromiseLike<TYPE>,
   setter?: StateSetterOk<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
@@ -197,7 +200,7 @@ export function ok<TYPE, RELATED extends StateRelated = {}>(
  * @param setter function called when state value is set via setter, set true let write set it's value.
  * @param helper functions to check and limit the value, and to return related states.
  * */
-export function err<TYPE, RELATED extends StateRelated = {}>(
+export function state_delayed_err<TYPE, RELATED extends StateRelated = {}>(
   err: PromiseLike<StateError>,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
@@ -214,7 +217,10 @@ export function err<TYPE, RELATED extends StateRelated = {}>(
  * @param setter function called when state value is set via setter, set true let write set it's value
  * @param helper functions to check and limit the value, and to return related states
  * */
-export function from_result<TYPE, RELATED extends StateRelated = {}>(
+export function state_delayed_from_result<
+  TYPE,
+  RELATED extends StateRelated = {}
+>(
   init: PromiseLike<Result<TYPE, StateError>>,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
@@ -231,7 +237,10 @@ export function from_result<TYPE, RELATED extends StateRelated = {}>(
  * @param setter function called when state value is set via setter, set true let write set it's value
  * @param helper functions to check and limit the value, and to return related states
  * */
-export function from_result_ok<TYPE, RELATED extends StateRelated = {}>(
+export function state_delayed_from_result_ok<
+  TYPE,
+  RELATED extends StateRelated = {}
+>(
   init: PromiseLike<ResultOk<TYPE>>,
   setter?: StateSetterOk<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
