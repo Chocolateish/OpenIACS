@@ -24,7 +24,7 @@ export default defineConfig({
       "@libSpinners": path.resolve(__dirname, "./src/lib/spinners/index"),
       "@libState": path.resolve(__dirname, "./src/lib/state/index"),
       "@libString": path.resolve(__dirname, "./src/lib/string/index"),
-      "@libSvg": path.resolve(__dirname, "./src/lib/svg/index"),
+      "@libSVG": path.resolve(__dirname, "./src/lib/svg/index"),
       "@libTheme": path.resolve(__dirname, "./src/lib/theme/index"),
     },
   },

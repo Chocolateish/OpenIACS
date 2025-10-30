@@ -1,13 +1,10 @@
 import { Base, defineElement } from "../base";
 import "./container.scss";
-import { Engine } from "./engine";
 import { Menu } from "./menu";
 
 let containerZIndex = "99999999";
 
 export class Container extends Base {
-  engine: Engine;
-
   private activeElementBuffer: HTMLOrSVGElement | null | undefined;
 
   /**Returns the name used to define the element */
@@ -16,12 +13,11 @@ export class Container extends Base {
   }
   /**Returns the namespace override for the element*/
   static elementNameSpace() {
-    return "chocolatelibui-contextmenu";
+    return "contextmenu";
   }
 
-  constructor(engine: Engine) {
+  constructor() {
     super();
-    this.engine = engine;
     this.tabIndex = -1;
     let preventer = (e: Event) => {
       e.preventDefault();
@@ -42,8 +38,6 @@ export class Container extends Base {
 
   /**Attaches a menu to the container */
   attachMenu(menu: Menu) {
-    //@ts-expect-error
-    menu.container = this;
     this.activeElementBuffer = this.ownerDocument
       .activeElement as HTMLOrSVGElement | null;
     this.replaceChildren(menu);

@@ -1,9 +1,8 @@
-import { name } from "@package";
 import { themeInitVariableRoot } from "./variables";
 
 export let themeBuildInVariables = () => {
   let root = themeInitVariableRoot(
-    name,
+    "common",
     "Shared Variables",
     "Shared variables across features"
   );

@@ -49,6 +49,39 @@ export let validateElementName = (name: string) => {
 };
 
 /**Defines elements inheriting from the base*/
+export let baseElementName = <T extends BaseOptions>(
+  element: (abstract new (...options: any) => Base<T>) & {
+    elementName(): string;
+    elementNameSpace(): string;
+  }
+): string => {
+  let namespace = element.elementNameSpace();
+  let check = element.elementName;
+  let defineName = "";
+  let runner = element;
+  // @ts-expect-error
+  while (runner !== HTMLElement) {
+    if (namespace !== runner.elementNameSpace()) {
+      break;
+    }
+    let name = runner.elementName();
+    runner = Object.getPrototypeOf(runner);
+    if (check === runner.elementName) {
+      throw new Error(
+        "Element uses same name as ancestor, abstract classes should return '@abstract@'"
+      );
+    }
+    if (!name.length) {
+      throw new Error("Element doesn't define element name");
+    }
+    if (name !== "@abstract@") {
+      defineName = "-" + name + defineName;
+    }
+  }
+  return namespace + defineName;
+};
+
+/**Defines elements inheriting from the base*/
 export let defineElement = <T extends BaseOptions>(
   element: (abstract new (...options: any) => Base<T>) & {
     elementName(): string;

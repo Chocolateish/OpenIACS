@@ -9,7 +9,7 @@ export abstract class Line extends Base {
   }
   /**Returns the namespace override for the element*/
   static elementNameSpace() {
-    return "chocolatelibui-contextmenu";
+    return "contextmenu";
   }
 
   /**Changes focus to the next line

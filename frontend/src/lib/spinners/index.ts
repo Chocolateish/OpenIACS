@@ -2,11 +2,10 @@ import { Base, defineElement } from "@libBase";
 import { grey } from "@libColors";
 import { svg_primitives } from "@libSVG";
 import { initVariableRoot } from "@libTheme";
-import { name } from "@package";
 import "./index.scss";
 
 let variables = initVariableRoot(
-  name,
+  "spinners",
   "Spinner",
   "Spinner used as a placeholder for data with and unknown arrival time"
 );

@@ -72,7 +72,7 @@ export class StateProxyWriteInternal<
       this.#buffer = this.transformRead(value);
       this.fulfillPromises(this.#buffer);
       this.updateSubscribers(this.#buffer);
-    }, Boolean(this.#buffer));
+    }, !Boolean(this.#buffer));
   }
 
   #disconnect() {

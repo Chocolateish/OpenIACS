@@ -28,7 +28,7 @@ export class Menu extends Base {
   }
   /**Returns the namespace override for the element*/
   static elementNameSpace() {
-    return "chocolatelibui-contextmenu";
+    return "contextmenu";
   }
 
   constructor(lines: Lines) {

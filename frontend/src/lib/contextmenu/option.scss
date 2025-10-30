@@ -1,9 +1,9 @@
 @import "./line.scss";
 
-chocolatelibui-contextmenu-option {
-    @include line;
+contextmenu-option {
+  @include line;
 
-    .checkmark {
-        text-align: center;
-    }
+  .checkmark {
+    text-align: center;
+  }
 }

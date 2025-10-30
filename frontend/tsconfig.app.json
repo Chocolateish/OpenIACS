@@ -24,7 +24,7 @@
       "@libSpinners": ["./src/lib/spinners/index"],
       "@libState": ["./src/lib/state/index"],
       "@libString": ["./src/lib/string/index"],
-      "@libSvg": ["./src/lib/svg/index"],
+      "@libSVG": ["./src/lib/svg/index"],
       "@libTheme": ["./src/lib/theme/index"]
     },
     /* Bundler mode */

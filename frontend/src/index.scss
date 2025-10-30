@@ -1,3 +1,10 @@
+lib-test-1 {
+  display: block;
+  width: 200px;
+  height: 200px;
+  background-color: var(--chocolatelibui-theme-primary);
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -17,6 +24,8 @@ body {
   margin: 0;
   display: flex;
   place-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
   min-width: 320px;
   min-height: 100vh;
 }
