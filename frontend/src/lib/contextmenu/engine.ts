@@ -51,7 +51,7 @@ export function contextMenuAttach(
       (e as MouseEvent).clientY
     );
   };
-  element.addEventListener("contextmenu", listener);
+  element.addEventListener("contextmenu", listener, { capture: true });
   element["@contextmenu"] = listener;
 }
 

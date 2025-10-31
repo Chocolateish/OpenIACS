@@ -1,10 +1,8 @@
 import { Ok } from "@libResult";
 import { describe, expect, it } from "vitest";
 import * as all from "../index";
+import { state_test_gen_error } from "./shared";
 
-let gen_error = () => {
-  return { code: "CL", reason: "Conn Lost" };
-};
 let gen_states = () => {
   return {
     testsOks: {
@@ -16,10 +14,12 @@ let gen_states = () => {
       "state_delayed.ok": all.state_delayed_ok((async () => 1)()),
     },
     testsErrs: {
-      "state.err": all.state_err<number>(gen_error()),
-      "state_lazy.err": all.state_lazy_err<number>(() => gen_error()),
+      "state.err": all.state_err<number>(state_test_gen_error()),
+      "state_lazy.err": all.state_lazy_err<number>(() =>
+        state_test_gen_error()
+      ),
       "state_delayed.err": all.state_delayed_err<number>(
-        (async () => gen_error())()
+        (async () => state_test_gen_error())()
       ),
     },
   };

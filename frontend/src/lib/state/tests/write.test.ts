@@ -2,10 +2,8 @@ import { Err, Ok, Some } from "@libResult";
 import { describe, expect, it } from "vitest";
 import * as all from "../index";
 import type { StateHelper, StateSetter, StateSetterOk } from "../types";
+import { state_test_gen_error } from "./shared";
 
-let gen_error = () => {
-  return { code: "CL", reason: "Conn Lost" };
-};
 let gen_states = (
   setter: StateSetter<number> | true,
   setterOk: StateSetterOk<number> | true,
@@ -51,9 +49,13 @@ let gen_states = (
       ),
     },
     testsErrs: {
-      "state.err": all.state_err<number>(gen_error(), setter, helper),
+      "state.err": all.state_err<number>(
+        state_test_gen_error(),
+        setter,
+        helper
+      ),
       "state_lazy.err": all.state_lazy_err<number>(
-        () => gen_error(),
+        () => state_test_gen_error(),
         setter,
         helper
       ),
@@ -62,7 +64,7 @@ let gen_states = (
           await new Promise((a) => {
             setTimeout(a, 10);
           });
-          return gen_error();
+          return state_test_gen_error();
         })(),
         setter,
         helper
@@ -141,7 +143,7 @@ describe(
   },
   function () {
     let { testsResults, testsErrs } = gen_states(
-      () => Some(Err(gen_error())),
+      () => Some(Err(state_test_gen_error())),
       (val) => Some(Ok(val * 2))
     );
     let states = { ...testsResults, ...testsErrs };
@@ -150,7 +152,7 @@ describe(
         let state = states[key as keyof typeof states];
         expect(state.write(10)).equal(true);
         let awaited = await state;
-        expect(awaited).toEqual(Err(gen_error()));
+        expect(awaited).toEqual(Err(state_test_gen_error()));
       });
     }
   }

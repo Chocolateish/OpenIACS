@@ -1,43 +1,14 @@
+import { Err, Ok } from "@libResult";
 import { describe, expect, it } from "vitest";
-import * as all from "../index";
+import {
+  state_test_gen_error as gen_error,
+  state_test_gen_normals as normals,
+  state_test_gen_proxies as proxies,
+  type StateTestsRead,
+} from "./shared";
 
-let gen_error = () => {
-  return { code: "CL", reason: "Conn Lost" };
-};
-let gen_states = () => {
-  return {
-    testsOks: {
-      "state.ok": all.state_ok(1),
-      "state_lazy.ok": all.state_lazy_ok(() => 1),
-      "state_delayed.ok": all.state_delayed_ok((async () => 1)()),
-    },
-    tests: {
-      "state.from": all.state_from(1),
-      "state_lazy.from": all.state_lazy_from(() => 1),
-      "state_delayed.from": all.state_delayed_from((async () => 1)()),
-      "state.err": all.state_err<number>(gen_error()),
-      "state_lazy.err": all.state_lazy_err<number>(() => gen_error()),
-      "state_delayed.err": all.state_delayed_err<number>(
-        (async () => gen_error())()
-      ),
-    },
-    proxyOks: {
-      "state_proxy.ok": all.state_proxy_ok(all.state_ok(1)),
-      "state_proxy.ok_from_ok": all.state_proxy_ok_from_ok(all.state_ok(1)),
-      "state_proxy_write.ok": all.state_proxy_write_ok(all.state_ok(1)),
-      "state_proxy_write.ok_from_ok": all.state_proxy_write_ok_from_ok(
-        all.state_ok(1)
-      ),
-    },
-    proxys: {
-      "state_proxy.from": all.state_proxy_from(all.state_from(1)),
-      "state_proxy.from_ok": all.state_proxy_from_ok(all.state_ok(1)),
-      "state_proxy_write.from": all.state_proxy_write_from(all.state_from(1)),
-      "state_proxy_write.from_ok": all.state_proxy_write_from_ok(
-        all.state_ok(1)
-      ),
-    },
-  };
+let gen_states = (): StateTestsRead[] => {
+  return [...normals(), ...proxies()];
 };
 
 describe(
@@ -46,141 +17,64 @@ describe(
     timeout: 50,
   },
   function () {
-    let { testsOks, tests, proxyOks, proxys } = gen_states();
-    let oks = { ...testsOks, ...proxyOks };
-    let alls = { ...tests, ...proxys };
-    for (const key in oks) {
-      it(key, async function () {
-        let state = oks[key as keyof typeof oks];
-        await new Promise<void>((a) => {
-          state.subscribe(() => {
-            a();
-          }, true);
+    let tests = gen_states();
+    for (let i = 0; i < tests.length; i++) {
+      const test = tests[i];
+      it(test[0], async function () {
+        let count = 0;
+        let sub1 = test[1].subscribe(() => {
+          count++;
+        }, true);
+        expect(test[3].inUse()).equal(true);
+        expect(test[3].hasSubscriber(sub1)).equal(true);
+        expect(test[3].amountSubscriber()).equal(1);
+        await new Promise((a) => {
+          setTimeout(a, 8);
         });
-      });
-    }
-    for (const key in alls) {
-      it(key, async function () {
-        let state = alls[key as keyof typeof alls];
-        await new Promise<void>((a) => {
-          state.subscribe(() => {
-            a();
-          }, true);
+        expect(count).equal(1);
+        let sub2 = test[1].subscribe(() => {
+          count += 10;
         });
+        expect(test[3].inUse()).equal(true);
+        expect(test[3].hasSubscriber(sub2)).equal(true);
+        expect(test[3].amountSubscriber()).equal(2);
+        expect(count).equal(1);
+        test[2](Ok(8));
+        expect(count).equal(12);
+        let sub3 = test[1].subscribe(() => {
+          count += 100;
+          throw new Error("Gaurded against crash");
+        });
+        expect(test[3].inUse()).equal(true);
+        expect(test[3].hasSubscriber(sub3)).equal(true);
+        expect(test[3].amountSubscriber()).equal(3);
+        test[2](Ok(12));
+        expect(count).equal(123);
+        test[1].unsubscribe(sub1);
+        test[1].unsubscribe(sub2);
+        expect(test[3].inUse()).equal(true);
+        expect(test[3].hasSubscriber(sub3)).equal(true);
+        expect(test[3].amountSubscriber()).equal(1);
+        test[2](Ok(12));
+        expect(count).equal(223);
+        test[1].unsubscribe(sub3);
+        expect(test[3].inUse()).equal(false);
+        expect(test[3].amountSubscriber()).equal(0);
+        let sub4 = test[1].subscribe((val) => {
+          count += 1000;
+          expect(val).toEqual(Ok(15));
+        });
+        test[2](Ok(15));
+        expect(count).equal(1223);
+        test[1].unsubscribe(sub4);
+        let sub5 = test[1].subscribe((val) => {
+          count += 10000;
+          expect(val).toEqual(gen_error());
+        });
+        test[2](Err(gen_error()));
+        expect(count).equal(11223);
+        test[1].unsubscribe(sub5);
       });
     }
   }
 );
-
-describe(
-  "Subscribing with update set to false, then setting value",
-  {
-    timeout: 50,
-  },
-  function () {
-    let { testsOks, tests } = gen_states();
-    for (const key in testsOks) {
-      it(key, async function () {
-        let state = testsOks[key as keyof typeof testsOks];
-        await new Promise<void>((a) => {
-          state.subscribe((val) => {
-            expect(val.value).equal(5);
-            a();
-          });
-          state.setOk(5);
-        });
-      });
-    }
-    for (const key in tests) {
-      it(key, async function () {
-        let state = tests[key as keyof typeof tests];
-        await new Promise<void>((a) => {
-          state.subscribe((val) => {
-            expect(val.unwrap).equal(5);
-            a();
-          });
-          state.setOk(5);
-        });
-      });
-    }
-  }
-);
-
-// describe("State subscriber", function () {
-//   it("Add one subscribers with update set true", function () {
-//     let testState = state(Ok(2));
-//     testState.subscribe((value) => {
-//       expect(value.unwrap).equal(2);
-//     }, true);
-//   });
-//   it("Add two subscribers with update set true", async function () {
-//     let testState = state(Ok(2));
-//     let values = await Promise.all([
-//       new Promise<Result<number, StateError>>((a) => {
-//         testState.subscribe(a, true);
-//       }),
-//       new Promise<Result<number, StateError>>((a) => {
-//         testState.subscribe(a, true);
-//       }),
-//     ]);
-//     expect(values).deep.equal([Ok(2), Ok(2)]);
-//   });
-//   it("Insert two subscribers then remove first subscribers", function () {
-//     let testState = state(Ok(2));
-//     let func = testState.subscribe(() => {}, true);
-//     let check = false;
-//     testState.subscribe(() => {
-//       check = true;
-//     }, false);
-//     expect(testState.inUse()).deep.equal(true);
-//     testState.unsubscribe(func);
-//     expect(testState.inUse()).deep.equal(true);
-//     testState.set(Ok(4));
-//     expect(check).equal(true);
-//   });
-//   it("Insert two subscribers then removeing both subscribers", function () {
-//     let testState = state(Ok(2));
-//     let func1 = testState.subscribe(() => {
-//       expect(0).equal(1);
-//     }, false);
-//     let func2 = testState.subscribe(() => {
-//       expect(0).equal(1);
-//     }, false);
-//     expect(testState.inUse()).deep.equal(true);
-//     testState.unsubscribe(func1);
-//     testState.unsubscribe(func2);
-//     expect(testState.inUse()).deep.equal(false);
-//     testState.set(Ok(4));
-//   });
-//   it("Setting value with one subscribers", function () {
-//     let testState = state(Ok(2));
-//     let check = false;
-//     testState.subscribe(() => {
-//       check = true;
-//     }, false);
-//     testState.set(Ok(10));
-//     expect(check).equal(true);
-//   });
-//   it("Setting value with multiple subscribers", async function () {
-//     let testState = state(Ok(2));
-//     let sum = 0;
-//     testState.subscribe((val) => {
-//       sum += val.unwrap;
-//     }, true);
-//     testState.subscribe((val) => {
-//       sum += val.unwrap;
-//     }, true);
-//     testState.subscribe((val) => {
-//       sum += val.unwrap;
-//     }, true);
-//     testState.set(Ok(10));
-//     expect(sum).equal(36);
-//   });
-//   it("Setting value with subscribers with exception", function () {
-//     let testState = state(Ok(2));
-//     testState.subscribe(() => {
-//       throw false;
-//     }, false);
-//     testState.set(Ok(10));
-//   });
-// });

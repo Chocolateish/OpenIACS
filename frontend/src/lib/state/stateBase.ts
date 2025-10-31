@@ -73,6 +73,11 @@ export abstract class StateBase<
     return this.#subscribers.has(subscriber);
   }
 
+  /**Returns if the state has a subscriber */
+  amountSubscriber(): number {
+    return this.#subscribers.size;
+  }
+
   /**Updates all subscribers with a value */
   protected updateSubscribers(value: READ): void {
     for (const subscriber of this.#subscribers) {

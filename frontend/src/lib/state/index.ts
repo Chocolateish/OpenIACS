@@ -87,7 +87,10 @@ export {
 export {
   state_derived_from_state_array,
   state_derived_from_states,
+  state_derived_ok_from_state_array,
+  state_derived_ok_from_states,
   type StateDerived,
+  type StateDerivedOk,
 } from "./stateDerived";
 
 //      _____  ______ _____  _______      ________  _____   _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
@@ -99,6 +102,7 @@ export {
 export {
   state_derives_sum_from,
   state_derives_sum_from_ok,
+  state_derives_sum_ok_from_ok,
 } from "./stateDerives";
 
 //               _____  _____        __     __  _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____

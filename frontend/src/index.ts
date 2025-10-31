@@ -1,20 +1,14 @@
-import { contextMenuDefault, linesGenerator } from "@libContextmenu";
+import { contextLine, contextMenu, contextMenuDefault } from "@libContextmenu";
 import "./index.scss";
 
 contextMenuDefault(
-  linesGenerator([
-    {
-      text: "Default Option 1",
-      action: () => {
-        console.log("Option 1 clicked");
-      },
-    },
-    {
-      text: "Default Option 1",
-      action: () => {
-        console.log("Option 1 clicked");
-      },
-    },
+  contextMenu([
+    contextLine("Default Option 1", () => {
+      console.log("Option 1 clicked");
+    }),
+    contextLine("Default Option 1", () => {
+      console.log("Option 1 clicked");
+    }),
   ])
 );
 

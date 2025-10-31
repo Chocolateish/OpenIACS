@@ -1,11 +1,17 @@
 import { Err, ResultOk, type Result } from "@libResult";
 import { StateBase } from "./stateBase";
-import type { StateError, StateReadBase, StateSubscriberBase } from "./types";
+import type {
+  StateError,
+  StateRead,
+  StateReadBase,
+  StateReadOk,
+  StateSubscriberBase,
+} from "./types";
 
 /**The `StateDerived` class is used to create a state which is derived from other states. The derived state will update when any of the other states update.
  * @template INPUT - The type allowed for the input of the derive
  * @template OUTPUT - The type outputted by the derive*/
-export class StateDerived<
+export class StateDerivedInternal<
   OUTPUT extends Result<any, StateError>,
   INPUT extends StateReadBase<any, any>[]
 > extends StateBase<OUTPUT, OUTPUT extends ResultOk<any> ? true : false> {
@@ -193,11 +199,37 @@ export class StateDerived<
   }
 }
 
+export interface StateDerived<OUTPUT, INPUT extends StateReadBase<any, any>[]>
+  extends StateDerivedInternal<Result<OUTPUT, StateError>, INPUT> {
+  readonly readable: StateRead<OUTPUT, true>;
+  setStates(...states: INPUT): void;
+  setGetter(
+    getter: (values: {
+      [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
+        ? READ
+        : never;
+    }) => Result<OUTPUT, StateError>
+  ): void;
+}
+
+export interface StateDerivedOk<OUTPUT, INPUT extends StateReadBase<any, any>[]>
+  extends StateDerivedInternal<ResultOk<OUTPUT>, INPUT> {
+  readonly readable: StateReadOk<OUTPUT, true>;
+  setStates(...states: INPUT): void;
+  setGetter(
+    getter: (values: {
+      [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
+        ? READ
+        : never;
+    }) => ResultOk<OUTPUT>
+  ): void;
+}
+
 /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
  * @param transform - Function to translate value of state or states to something else, false means first states values is used.
  * @param states - The other states to be used in the derived state.*/
 export function state_derived_from_states<
-  OUTPUT extends Result<any, StateError>,
+  OUTPUT,
   INPUT extends [StateReadBase<any, any>, ...StateReadBase<any, any>[]]
 >(
   transform:
@@ -205,18 +237,43 @@ export function state_derived_from_states<
         [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
           ? READ
           : never;
-      }) => OUTPUT)
+      }) => Result<OUTPUT, StateError>)
     | false,
   ...states: INPUT
 ) {
-  return new StateDerived<OUTPUT, INPUT>(transform, ...states);
+  return new StateDerivedInternal<Result<OUTPUT, StateError>, INPUT>(
+    transform,
+    ...states
+  ) as StateDerived<OUTPUT, INPUT>;
+}
+
+/**Creates a state which is derived from other states. The derived state will update when any of the other states update.
+ * @param transform - Function to translate value of state or states to something else, false means first states values is used.
+ * @param states - The other states to be used in the derived state.*/
+export function state_derived_ok_from_states<
+  OUTPUT,
+  INPUT extends [StateReadBase<any, any>, ...StateReadBase<any, any>[]]
+>(
+  transform:
+    | ((values: {
+        [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
+          ? READ
+          : never;
+      }) => ResultOk<OUTPUT>)
+    | false,
+  ...states: INPUT
+) {
+  return new StateDerivedInternal<ResultOk<OUTPUT>, INPUT>(
+    transform,
+    ...states
+  ) as StateDerivedOk<OUTPUT, INPUT>;
 }
 
 /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
  * @param transform - Function to translate value of state or states to something else, false means first states values is used.
  * @param states - The other states to be used in the derived state.*/
 export function state_derived_from_state_array<
-  OUTPUT extends Result<any, StateError>,
+  OUTPUT,
   INPUT extends StateReadBase<any, any>[]
 >(
   transform:
@@ -224,9 +281,34 @@ export function state_derived_from_state_array<
         [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
           ? READ
           : never;
-      }) => OUTPUT)
+      }) => Result<OUTPUT, StateError>)
     | false,
   states: INPUT
 ) {
-  return new StateDerived<OUTPUT, INPUT>(transform, ...states);
+  return new StateDerivedInternal<Result<OUTPUT, StateError>, INPUT>(
+    transform,
+    ...states
+  ) as StateDerived<OUTPUT, INPUT>;
+}
+
+/**Creates a state which is derived from other states. The derived state will update when any of the other states update.
+ * @param transform - Function to translate value of state or states to something else, false means first states values is used.
+ * @param states - The other states to be used in the derived state.*/
+export function state_derived_ok_from_state_array<
+  OUTPUT,
+  INPUT extends StateReadBase<any, any>[]
+>(
+  transform:
+    | ((values: {
+        [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
+          ? READ
+          : never;
+      }) => ResultOk<OUTPUT>)
+    | false,
+  states: INPUT
+) {
+  return new StateDerivedInternal<ResultOk<OUTPUT>, INPUT>(
+    transform,
+    ...states
+  ) as StateDerivedOk<OUTPUT, INPUT>;
 }

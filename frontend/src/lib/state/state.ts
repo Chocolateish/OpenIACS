@@ -4,6 +4,7 @@ import {
   Ok,
   type Option,
   type Result,
+  type ResultBase,
   ResultOk,
   Some,
 } from "@libResult";
@@ -154,7 +155,7 @@ export function state_from<TYPE, RELATED extends StateRelated = {}>(
  * @param helper functions to check and limit the value, and to return related states.
  * */
 export function state_ok<TYPE, RELATED extends StateRelated = {}>(
-  init: TYPE,
+  init: TYPE extends ResultBase<any, any> ? never : TYPE,
   setter?: StateSetterOk<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
