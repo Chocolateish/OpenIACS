@@ -1,4 +1,4 @@
-@import "./line.scss";
+@use "./line.scss" as line;
 
 contextmenu-buffer {
   display: table-row;
@@ -10,7 +10,7 @@ contextmenu-buffer {
     height: 3.2rem;
   }
 
-  @include hover;
+  @include line.hover;
 
   > spinner-dots {
     $spinnerPadding: 0.2rem;
@@ -20,7 +20,7 @@ contextmenu-buffer {
     height: 1.8rem;
     z-index: 1;
     padding: $spinnerPadding;
-    min-width: calc(10rem - $padding - $spinnerPadding);
+    min-width: calc(10rem - line.$padding - $spinnerPadding);
 
     .touch & {
       height: 3.2rem;

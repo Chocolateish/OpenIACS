@@ -2,7 +2,7 @@ import { Base } from "../base";
 import "./option.scss";
 import "./shared";
 
-export abstract class Line extends Base {
+export abstract class ContextMenuLine extends Base {
   /**Returns the name used to define the element */
   static elementName() {
     return "@abstract@";

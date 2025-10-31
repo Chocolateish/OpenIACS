@@ -1,7 +1,7 @@
-@import "./line.scss";
+@use "./line.scss" as line;
 
 contextmenu-option {
-  @include line;
+  @include line.line;
 
   .checkmark {
     text-align: center;

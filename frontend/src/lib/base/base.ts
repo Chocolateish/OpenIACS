@@ -285,13 +285,10 @@ export abstract class Base<
       this.attachState(
         state,
         (val) => {
-          if (val.ok) {
-            this[prop] = val.value;
-          } else if (fallbackFunc !== undefined) {
+          if (val.ok) this[prop] = val.value;
+          else if (fallbackFunc !== undefined)
             this[prop] = fallbackFunc(val.error);
-          } else if (fallback !== undefined) {
-            this[prop] = fallback;
-          }
+          else if (fallback !== undefined) this[prop] = fallback;
         },
         visible
       ),

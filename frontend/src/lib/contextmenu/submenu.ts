@@ -1,23 +1,23 @@
 import { defineElement } from "../base";
 import { material_navigation_chevron_right_rounded } from "../icons";
-import { Line } from "./line";
-import { type Lines, Menu } from "./menu";
+import { ContextMenuLine } from "./line";
+import { ContextMenu } from "./menu";
 import "./submenu.scss";
 
-export class Submenu extends Line {
-  private menu: Menu;
-  private isOpen: boolean | undefined;
-  private hoverTime: number | undefined;
-  private blockTime: number | undefined;
+export class ContextMenuSub extends ContextMenuLine {
+  #menu: ContextMenu;
+  #isOpen?: boolean;
+  #hoverTime?: number;
+  #blockTime?: number;
 
   /**Returns the name used to define the element */
   static elementName() {
     return "submenu";
   }
 
-  constructor(text: string, lines: Lines, icon?: SVGSVGElement) {
+  constructor(text: string, menu: ContextMenu, icon?: SVGSVGElement) {
     super();
-    this.menu = new Menu(lines);
+    this.#menu = menu;
     this.tabIndex = 0;
     let iconBox = this.appendChild(document.createElement("div"));
     iconBox.className = "icon";
@@ -35,9 +35,9 @@ export class Submenu extends Line {
 
     this.onclick = (e) => {
       e.stopPropagation();
-      if (!this.blockTime) {
+      if (!this.#blockTime) {
         navigator?.vibrate(25);
-        if (this.isOpen) {
+        if (this.#isOpen) {
           this.closeDown();
         } else {
           this.open();
@@ -46,17 +46,17 @@ export class Submenu extends Line {
     };
 
     this.onpointerenter = (e) => {
-      if (e.pointerType !== "touch" && !this.isOpen) {
-        this.hoverTime = window.setTimeout(() => {
+      if (e.pointerType !== "touch" && !this.#isOpen) {
+        this.#hoverTime = window.setTimeout(() => {
           this.open();
-          this.blockTime = window.setTimeout(() => {
-            this.blockTime = 0;
+          this.#blockTime = window.setTimeout(() => {
+            this.#blockTime = 0;
           }, 500);
         }, 300);
       }
     };
     this.onpointerleave = () => {
-      clearTimeout(this.hoverTime);
+      clearTimeout(this.#hoverTime);
     };
     this.onkeydown = (e) => {
       switch (e.code) {
@@ -69,7 +69,7 @@ export class Submenu extends Line {
         case "Enter":
         case "Space":
           this.open();
-          this.menu.focusNext(false);
+          this.#menu.focusNext(false);
           break;
         case "ArrowLeft":
         case "Escape":
@@ -86,22 +86,22 @@ export class Submenu extends Line {
       (this.parentElement as any).submenu.closeDown();
     }
     (this.parentElement as any).submenu = this;
-    this.appendChild(this.menu);
-    this.menu.setPosition(0, 0, this);
-    this.isOpen = true;
+    this.appendChild(this.#menu);
+    this.#menu.setPosition(0, 0, this);
+    this.#isOpen = true;
   }
 
   /**Closes menu by calling parent*/
   close() {
     this.focus();
     (this.parentElement as any).submenu = undefined;
-    this.removeChild(this.menu);
-    this.isOpen = false;
+    this.removeChild(this.#menu);
+    this.#isOpen = false;
   }
 
   /**Closes the context menu down the tree*/
   closeDown() {
-    this.menu.closeDown();
+    this.#menu.closeDown();
     this.close();
   }
 
@@ -111,4 +111,12 @@ export class Submenu extends Line {
     (this.parentElement as any).closeUp();
   }
 }
-defineElement(Submenu);
+defineElement(ContextMenuSub);
+
+export function contextSub(
+  text: string,
+  menu: ContextMenu,
+  icon?: SVGSVGElement
+) {
+  return new ContextMenuSub(text, menu, icon);
+}

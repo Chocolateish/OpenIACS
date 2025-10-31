@@ -1,6 +1,6 @@
 import { Base, defineElement } from "../base";
 import "./container.scss";
-import { Menu } from "./menu";
+import { ContextMenu } from "./menu";
 
 let containerZIndex = "99999999";
 
@@ -37,7 +37,7 @@ export class Container extends Base {
   }
 
   /**Attaches a menu to the container */
-  attachMenu(menu: Menu) {
+  attachMenu(menu: ContextMenu) {
     this.activeElementBuffer = this.ownerDocument
       .activeElement as HTMLOrSVGElement | null;
     this.replaceChildren(menu);
@@ -45,7 +45,7 @@ export class Container extends Base {
   }
 
   /**Closes open context menu */
-  closeUp(menu: Menu) {
+  closeUp(menu: ContextMenu) {
     if (this.activeElementBuffer) {
       this.activeElementBuffer.focus();
       if (

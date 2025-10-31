@@ -1,4 +1,4 @@
-@import "./line.scss";
+@use "./line.scss" as line;
 
 contextmenu-menu {
   display: block;
@@ -6,13 +6,13 @@ contextmenu-menu {
   overflow: auto;
   background-color: var(--contextmenu-background);
   box-sizing: border-box;
-  min-width: $menuMinWidth;
-  max-width: min($menuMaxWidth, 100%);
+  min-width: line.$menuMinWidth;
+  max-width: min(line.$menuMaxWidth, 100%);
   width: max-content;
   max-height: 100%;
   border-radius: 0.5rem;
-  padding: $padding;
-  border: $borderWidth solid var(--contextmenu-border);
+  padding: line.$padding;
+  border: line.$borderWidth solid var(--contextmenu-border);
   box-shadow: 0px 0px 10px 3px var(--contextmenu-border);
   outline: none;
   overscroll-behavior: contain;

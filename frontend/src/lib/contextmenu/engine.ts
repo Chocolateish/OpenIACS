@@ -1,6 +1,7 @@
 import { documentHandler } from "@libCommon";
+import type { Option } from "@libResult";
 import { Container } from "./container";
-import { type Lines, Menu } from "./menu";
+import { ContextMenu } from "./menu";
 
 declare global {
   interface Document {
@@ -12,7 +13,7 @@ declare global {
 }
 
 /**Reference to document handler*/
-let defaultMenu: Lines | undefined;
+let defaultMenu: (ContextMenu | (() => Option<ContextMenu>)) | undefined;
 
 documentHandler.events.on("added", (e) => {
   applyToDoc(e.data);
@@ -29,31 +30,29 @@ function applyToDoc(doc: Document) {
 }
 
 /**Attaches a context menu to the given element*/
-export function contextMenuAttach(element: Element, lines?: Lines) {
+export function contextMenuAttach(
+  element: Element,
+  lines: ContextMenu | (() => Option<ContextMenu>)
+) {
   if (element["@contextmenu"]) {
     console.warn("Context menu already attached to node", element);
-  } else {
-    if (lines) {
-      var listener = (e: Event) => {
-        e.preventDefault();
-        e.stopPropagation();
-        contextMenuSummon(
-          lines,
-          element,
-          (e as MouseEvent).clientX,
-          (e as MouseEvent).clientY
-        );
-      };
-      element.addEventListener("contextmenu", listener);
-    } else {
-      var listener = (e: Event) => {
-        e.preventDefault();
-        e.stopPropagation();
-      };
-      element.addEventListener("contextmenu", listener);
-    }
-    element["@contextmenu"] = listener;
+    return;
   }
+  var listener = (e: Event) => {
+    e.preventDefault();
+    e.stopPropagation();
+    let lineses =
+      typeof lines === "function" ? lines().unwrapOr(undefined) : lines;
+    if (!lineses) return;
+    contextMenuSummon(
+      lineses,
+      element,
+      (e as MouseEvent).clientX,
+      (e as MouseEvent).clientY
+    );
+  };
+  element.addEventListener("contextmenu", listener);
+  element["@contextmenu"] = listener;
 }
 
 /**Dettaches the context menu from the given element */
@@ -65,13 +64,13 @@ export function contextMenuDettach(element: Element) {
 }
 
 /**Summons a context menu at a given location
- * @param lines the context menu to summon
+ * @param menu the context menu to summon
  * @param element the element the context menu is referenced to, if undefined the context menu will appear in the main document
  * @param x x position for context menu, if undefined, will use element middle, if element undefined, will put context menu in the top left corner of the screen
  * @param y y position for context menu, if undefined, will use element middle, if element undefined, will put context menu in the top left corner of the screen
  * @param dontCover when set true */
 export function contextMenuSummon(
-  lines: Lines,
+  menu: ContextMenu,
   element?: Element,
   x?: number,
   y?: number,
@@ -92,7 +91,7 @@ export function contextMenuSummon(
       }
     }
     container
-      .attachMenu(new Menu(lines))
+      .attachMenu(menu)
       .setPosition(x, y, dontCover ? element : undefined);
   } else console.warn("No context menu container available");
 }
@@ -100,14 +99,17 @@ export function contextMenuSummon(
 /**Sets the default context menu for the page, the one used if no other context menu has been attached to the element
  * If set to a boolean the operating system context menu is disabled and nothing will appear
  * If set undefined the operating systems context menu will be used*/
-export function contextMenuDefault(lines?: Lines | boolean) {
+export function contextMenuDefault(
+  lines: (ContextMenu | (() => Option<ContextMenu>)) | false
+) {
   if (defaultMenu)
     documentHandler.forDocuments((doc) => {
       contextMenuDettach(doc.body);
     });
-  if (lines === false || lines === true) defaultMenu = undefined;
-  else if (lines) defaultMenu = lines;
-  documentHandler.forDocuments((doc) => {
-    contextMenuAttach(doc.body, defaultMenu);
-  });
+  if (lines) {
+    defaultMenu = lines;
+    documentHandler.forDocuments((doc) => {
+      contextMenuAttach(doc.body, lines);
+    });
+  }
 }

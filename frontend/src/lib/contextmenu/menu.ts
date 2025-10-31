@@ -3,21 +3,17 @@ import { material_navigation_close_rounded } from "../icons";
 import { remToPx } from "../theme";
 import { Buffer } from "./buffer";
 import { Container } from "./container";
-import { Line } from "./line";
+import { ContextMenuLine } from "./line";
 import "./menu.scss";
-import { Option } from "./option";
+import { ContextMenuOption } from "./option";
 import "./shared";
-import { Submenu } from "./submenu";
+import { ContextMenuSub } from "./submenu";
 
-export type LineAny = (Line | (() => Line))[];
-export type Lines =
-  | LineAny
-  | (() => LineAny | Promise<LineAny>)
-  | Promise<LineAny>;
+export type ContextMenuLines = ContextMenuLine[];
 
-export class Menu extends Base {
-  private submenu: Menu | undefined;
-  private closer: Option | undefined;
+export class ContextMenu extends Base {
+  private submenu: ContextMenu | undefined;
+  private closer: ContextMenuOption | undefined;
   private x: number | undefined;
   private y: number | undefined;
   private element: Element | undefined;
@@ -31,26 +27,33 @@ export class Menu extends Base {
     return "contextmenu";
   }
 
-  constructor(lines: Lines) {
+  constructor(
+    lines:
+      | (
+          | (ContextMenuLine | undefined)[]
+          | Promise<(ContextMenuLine | undefined)[]>
+        )
+      | (() =>
+          | (ContextMenuLine | undefined)[]
+          | Promise<(ContextMenuLine | undefined)[]>)
+  ) {
     super();
-    let linesOpt = typeof lines === "function" ? lines() : lines;
-    if (linesOpt instanceof Promise) {
+    lines = typeof lines === "function" ? lines() : lines;
+    if (lines instanceof Promise) {
       let buffer = this.appendChild(new Buffer());
-      linesOpt.then((line) => {
+      lines.then((line) => {
         buffer.remove();
         this.lines = line;
         this.setPosition(this.x, this.y, this.element);
       });
     } else {
-      this.lines = linesOpt;
+      this.lines = lines;
     }
     this.tabIndex = 0;
     this.onblur = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (!e.relatedTarget) {
-        this.closeUp();
-      }
+      if (!e.relatedTarget) this.closeUp();
     };
     this.onscroll = () => {
       this.closeDown();
@@ -78,26 +81,20 @@ export class Menu extends Base {
   }
 
   /**Sets the lines of the context menu */
-  set lines(lines: LineAny) {
+  set lines(lines: (ContextMenuLine | undefined)[]) {
     this.replaceChildren();
-    if (this.closer) {
-      this.appendChild(this.closer);
-    }
+    if (this.closer) this.appendChild(this.closer);
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i];
-      let lineInst = typeof line === "function" ? line() : line;
-      this.appendChild(lineInst);
+      if (line) this.appendChild(line);
     }
   }
 
   /**Changes focus to the next line
    * @param direction false is first child, true is last child */
   focusNext(direction: boolean) {
-    if (direction) {
-      (this.lastChild as any)?.focus();
-    } else {
-      (this.firstChild as any)?.focus({});
-    }
+    if (direction) (this.lastChild as any)?.focus();
+    else (this.firstChild as any)?.focus({});
   }
 
   /**Returns wether the menu is in fullscreen mode */
@@ -110,14 +107,14 @@ export class Menu extends Base {
     if (full) {
       this.classList.add("fullscreen");
       if (!this.closer) {
-        this.closer = new Option(
+        this.closer = new ContextMenuOption(
           "Close",
           () => {},
           material_navigation_close_rounded()
         );
         this.closer.onclick = (e) => {
           e.stopPropagation();
-          if (this.parentElement instanceof Submenu) {
+          if (this.parentElement instanceof ContextMenuSub) {
             this.parentElement.closeDown();
           } else {
             this.closeUp();
@@ -165,42 +162,30 @@ export class Menu extends Base {
         var subBox = element.getBoundingClientRect();
         if (subBox.x + subBox.width + box.width > window.innerWidth) {
           x = subBox.x;
-          if (box.width < x) {
-            right = window.innerWidth - x;
-          } else {
-            right = window.innerWidth - (subBox.x + subBox.width);
-          }
+          if (box.width < x) right = window.innerWidth - x;
+          else right = window.innerWidth - (subBox.x + subBox.width);
         } else {
           x = subBox.x + subBox.width;
         }
         y = subBox.y + subBox.height;
         if (y + box.height >= window.innerHeight) {
-          if (y >= box.height) {
-            bottom = window.innerHeight - subBox.y;
-          } else {
-            top = window.innerHeight - box.height;
-          }
+          if (y >= box.height) bottom = window.innerHeight - subBox.y;
+          else top = window.innerHeight - box.height;
         } else {
           top = y;
         }
       } else {
         if (y + box.height >= window.innerHeight) {
-          if (y >= box.height) {
-            bottom = window.innerHeight - y;
-          } else {
-            top = window.innerHeight - box.height;
-          }
+          if (y >= box.height) bottom = window.innerHeight - y;
+          else top = window.innerHeight - box.height;
         } else {
           top = y;
         }
         if (box.width >= window.innerWidth) {
           right = 0;
         } else if (x + box.width >= window.innerWidth) {
-          if (x >= box.width) {
-            right = window.innerWidth - x;
-          } else {
-            left = window.innerWidth - box.width;
-          }
+          if (x >= box.width) right = window.innerWidth - x;
+          else left = window.innerWidth - box.width;
         } else {
           left = x;
         }
@@ -219,4 +204,17 @@ export class Menu extends Base {
     this.focus();
   }
 }
-defineElement(Menu);
+defineElement(ContextMenu);
+
+export function contextMenu(
+  lines:
+    | (
+        | (ContextMenuLine | undefined)[]
+        | Promise<(ContextMenuLine | undefined)[]>
+      )
+    | (() =>
+        | (ContextMenuLine | undefined)[]
+        | Promise<(ContextMenuLine | undefined)[]>)
+): ContextMenu {
+  return new ContextMenu(lines);
+}

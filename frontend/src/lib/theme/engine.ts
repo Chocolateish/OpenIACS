@@ -41,9 +41,9 @@ export let themeEngine = new (class ThemeEngine {
     doc.documentElement.style.setProperty(
       "--scrollbar",
       {
-        [ScrollbarModes.THIN]: "0.4rem",
+        [ScrollbarModes.THIN]: "0.6rem",
         [ScrollbarModes.MEDIUM]: "1rem",
-        [ScrollbarModes.WIDE]: "1.875rem",
+        [ScrollbarModes.WIDE]: "2.6rem",
       }[scroll]
     );
   }

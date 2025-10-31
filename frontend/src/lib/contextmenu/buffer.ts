@@ -1,9 +1,9 @@
 import { defineElement } from "@libBase";
 import { Dots } from "@libSpinners";
 import "./buffer.scss";
-import { Line } from "./line";
+import { ContextMenuLine } from "./line";
 
-export class Buffer extends Line {
+export class Buffer extends ContextMenuLine {
   /**Returns the name used to define the element */
   static elementName() {
     return "buffer";

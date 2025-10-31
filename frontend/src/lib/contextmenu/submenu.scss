@@ -1,7 +1,7 @@
-@import "./line.scss";
+@use "./line.scss" as line;
 
 contextmenu-submenu {
-  @include line;
+  @include line.line;
 
   .chevron {
     padding-block: 0.1rem;

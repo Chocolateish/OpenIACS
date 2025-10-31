@@ -1,0 +1,198 @@
+@use "sass:math";
+@use "../components/common.scss";
+
+lib-component-toggle-switch {
+  $height: 2rem;
+  $touchHeight: 2.5rem;
+
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  -webkit-user-select: none;
+  user-select: none;
+
+  &.READ {
+    filter: var(--libOldCommon-readOpacityFilter);
+    pointer-events: none;
+  }
+
+  &.NONE {
+    display: none;
+  }
+
+  &.horz {
+    min-height: $height;
+    max-height: 100%;
+
+    .touch & {
+      min-height: $touchHeight;
+    }
+
+    > span {
+      text-align: center;
+    }
+  }
+
+  &.vert {
+    min-width: min-content;
+    min-height: $height;
+    flex-shrink: 0;
+  }
+
+  &.left {
+    flex-direction: row;
+
+    > div {
+      margin-left: auto;
+    }
+  }
+
+  &.right {
+    flex-direction: row-reverse;
+
+    > div {
+      margin-right: auto;
+    }
+  }
+
+  &.up {
+    flex-direction: column;
+  }
+
+  &.down {
+    flex-direction: column-reverse;
+  }
+
+  > span {
+    color: var(--libOldComponents-componentLabelTextColor);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0.2rem;
+    min-width: 5rem;
+
+    .anim-all & {
+      transition: color var(--libOldCommon-colorTransitionType)
+        var(--libOldCommon-colorTransitionTime);
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover > div::after {
+      background-color: var(--libOldComponents-componentHoverBackGroundColor);
+    }
+  }
+
+  > div {
+    touch-action: none;
+    flex-shrink: 0;
+    position: relative;
+    background-color: var(--libOldComponents-componentRedColor);
+    width: $height * 2;
+    height: $height;
+    border-radius: math.div($height, 2);
+    box-shadow: var(--componentShadowIn);
+
+    &:focus {
+      outline: none;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:focus {
+        outline: none;
+        box-shadow: var(--componentShadowFocus), var(--componentShadowIn);
+        z-index: 2;
+      }
+    }
+
+    .touch & {
+      width: $touchHeight * 2;
+      height: $touchHeight;
+      border-radius: math.div($touchHeight, 2);
+    }
+
+    .anim-all & {
+      transition: height var(--libOldCommon-sizeTransitionType)
+          var(--libOldCommon-sizeTransitionTime),
+        width var(--libOldCommon-sizeTransitionType)
+          var(--libOldCommon-sizeTransitionTime),
+        border-radius var(--libOldCommon-sizeTransitionType)
+          var(--libOldCommon-sizeTransitionTime),
+        background-color var(--libOldCommon-colorTransitionType)
+          var(--libOldCommon-colorTransitionTime),
+        box-shadow var(--libOldCommon-colorTransitionType)
+          var(--libOldCommon-colorTransitionTime);
+    }
+
+    &::after {
+      touch-action: none;
+      content: "";
+      left: 0rem;
+      position: absolute;
+      background-color: var(--libOldComponents-componentToggleSwitchColor);
+      width: $height;
+      height: $height;
+      border-radius: math.div($height, 2);
+      box-shadow: inset 0 0 0px 2px
+          var(--libOldComponents-componentToggleSwitchBorderColor),
+        var(--componentShadowOut);
+
+      .touch & {
+        width: $touchHeight;
+        height: $touchHeight;
+        border-radius: math.div($touchHeight, 2);
+      }
+
+      .anim-all & {
+        transition: width var(--libOldCommon-sizeTransitionType)
+            var(--libOldCommon-sizeTransitionTime),
+          height var(--libOldCommon-sizeTransitionType)
+            var(--libOldCommon-sizeTransitionTime),
+          left var(--libOldCommon-sizeTransitionType)
+            var(--libOldCommon-sizeTransitionTime),
+          border-radius var(--libOldCommon-sizeTransitionType)
+            var(--libOldCommon-sizeTransitionTime),
+          background-color var(--libOldCommon-colorTransitionType)
+            var(--libOldCommon-colorTransitionTime),
+          box-shadow var(--libOldCommon-colorTransitionType)
+            var(--libOldCommon-colorTransitionTime);
+      }
+    }
+
+    &.on {
+      background-color: var(--libOldComponents-componentGreenColor);
+
+      &::after {
+        left: $height;
+
+        .touch & {
+          left: $touchHeight;
+        }
+      }
+    }
+  }
+
+  > svg {
+    flex-shrink: 0;
+    height: $height;
+    width: auto;
+    max-width: $height;
+    padding: 0.3rem;
+    fill: var(--libOldComponents-componentSymbolColor);
+
+    .touch & {
+      height: $touchHeight;
+      max-width: $touchHeight;
+    }
+
+    .anim-all & {
+      transition: fill var(--libOldCommon-colorTransitionType)
+          var(--libOldCommon-colorTransitionTime),
+        height var(--libOldCommon-sizeTransitionType)
+          var(--libOldCommon-sizeTransitionTime),
+        max-width var(--libOldCommon-sizeTransitionType)
+          var(--libOldCommon-sizeTransitionTime);
+    }
+  }
+}

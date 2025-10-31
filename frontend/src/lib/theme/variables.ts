@@ -55,10 +55,10 @@ export class ThemeVariableGroup {
    * @param name name of group formatted for user reading
    * @param description a description of what the setting group is about formatted for user reading*/
   makeSubGroup(id: string, name: string, description: string) {
-    if (id in this.subGroups)
-      throw new Error("Sub group already registered " + id);
     if (id.includes("-"))
       throw new Error("Dash not permitted in variable id " + id);
+    if (id in this.subGroups)
+      throw new Error("Sub group already registered " + id);
     return (this.subGroups[id] = new ThemeVariableGroup(
       this.pathID + "-" + id,
       name,
@@ -84,11 +84,11 @@ export class ThemeVariableGroup {
     typeParams: VariableType[K],
     example?: () => Element
   ): string {
-    if (id in this.variables)
-      throw new Error("Settings already registered " + id);
     if (id.includes("-"))
       throw new Error("Dash not permitted in variable id " + id);
     let key = "--" + this.pathID + "-" + id;
+    if (key in this.variables)
+      throw new Error("Settings already registered " + id);
     let variable = (this.variables[key] = {
       name,
       desc: description,
@@ -114,10 +114,20 @@ export class ThemeVariableGroup {
 
 /**Defines the parameters for a variable type */
 interface VariableType {
+  /**Font variable,  */
+  Font: undefined;
   /**Text variable,  */
   String: undefined;
   /**Color variable */
   Color: undefined;
+  /**Transition type */
+  Transition: undefined;
+  /**Percent type */
+  Percent: undefined;
+  /**Filter type */
+  Filter: undefined;
+  /**Radius type */
+  Radius: undefined;
   /**Time variable */
   Time: {
     /**Minimum time in milliseconds */

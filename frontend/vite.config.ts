@@ -26,6 +26,7 @@ export default defineConfig({
       "@libString": path.resolve(__dirname, "./src/lib/string/index"),
       "@libSVG": path.resolve(__dirname, "./src/lib/svg/index"),
       "@libTheme": path.resolve(__dirname, "./src/lib/theme/index"),
+      "@libThemeCommon": path.resolve(__dirname, "./src/lib/theme/builtIn"),
     },
   },
 });

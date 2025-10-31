@@ -1,9 +1,9 @@
 import { defineElement } from "../base";
-import { Line } from "./line";
-import { Menu } from "./menu";
+import { ContextMenuLine } from "./line";
+import { ContextMenu } from "./menu";
 import "./option.scss";
 
-export class Option extends Line {
+export class ContextMenuOption extends ContextMenuLine {
   readonly func: () => void;
 
   /**Returns the name used to define the element */
@@ -44,7 +44,7 @@ export class Option extends Line {
       e.stopPropagation();
       this.func();
       navigator?.vibrate(25);
-      (this.parentElement as Menu).closeUp();
+      (this.parentElement as ContextMenu).closeUp();
     };
 
     this.onkeydown = (e) => {
@@ -57,7 +57,7 @@ export class Option extends Line {
         case "Enter":
         case "Space":
           this.func();
-          (this.parentElement as Menu).closeUp();
+          (this.parentElement as ContextMenu).closeUp();
           break;
         case "ArrowLeft":
         case "Escape":
@@ -68,4 +68,14 @@ export class Option extends Line {
     };
   }
 }
-defineElement(Option);
+defineElement(ContextMenuOption);
+
+export function contextLine(
+  text: string,
+  func: () => void,
+  icon?: SVGSVGElement,
+  shortcut?: string,
+  checkmark?: boolean
+) {
+  return new ContextMenuOption(text, func, icon, shortcut, checkmark);
+}

@@ -1,8 +1,8 @@
 import { defineElement } from "../base";
 import "./devider.scss";
-import { Line } from "./line";
+import { ContextMenuLine } from "./line";
 
-export class Devider extends Line {
+export class Devider extends ContextMenuLine {
   /**Returns the name used to define the element */
   static elementName() {
     return "devider";
@@ -13,3 +13,7 @@ export class Devider extends Line {
   }
 }
 defineElement(Devider);
+
+export function contextDevider() {
+  return new Devider();
+}

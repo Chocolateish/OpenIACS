@@ -25,7 +25,8 @@
       "@libState": ["./src/lib/state/index"],
       "@libString": ["./src/lib/string/index"],
       "@libSVG": ["./src/lib/svg/index"],
-      "@libTheme": ["./src/lib/theme/index"]
+      "@libTheme": ["./src/lib/theme/index"],
+      "@libThemeCommon": ["./src/lib/theme/builtIn"]
     },
     /* Bundler mode */
     "moduleResolution": "bundler",
