@@ -1,3 +1,5 @@
+/// <reference types="vitest/config" />
+import { playwright } from "@vitest/browser-playwright";
 import path from "path";
 import { defineConfig } from "vite";
 
@@ -6,6 +8,13 @@ export default defineConfig({
     port: 9999,
   },
   root: path.resolve(__dirname, "src"),
+  test: {
+    browser: {
+      provider: playwright(),
+      enabled: true,
+      instances: [{ browser: "chromium" }],
+    },
+  },
   resolve: {
     alias: {
       "@package": path.resolve(__dirname, "package.json"),

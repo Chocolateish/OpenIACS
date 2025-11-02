@@ -1,7 +1,7 @@
 import { themeInitVariableRoot } from "@libTheme";
 
 export let componentThemeRoot = themeInitVariableRoot(
-  "libOldComponents",
+  "components",
   "UI Components Theme Variables",
   "Theme variables for UI components"
 );

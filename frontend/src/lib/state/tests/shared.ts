@@ -1,25 +1,25 @@
-import { Err, Ok, type Result } from "@libResult";
+import { Err, Ok, type Option, type Result } from "@libResult";
 import {
+  state_from_result as sfr,
+  state_from_result_ok as sfro,
   state_err,
   state_from,
-  state_from_result,
-  state_from_result_ok,
   state_ok,
 } from "../state";
 import type { StateBase } from "../stateBase";
 import {
-  state_delayed_err,
-  state_delayed_from,
-  state_delayed_from_result,
-  state_delayed_from_result_ok,
-  state_delayed_ok,
+  state_delayed_err as sde,
+  state_delayed_from as sdf,
+  state_delayed_from_result as sdfr,
+  state_delayed_from_result_ok as sdfro,
+  state_delayed_ok as sdo,
 } from "../stateDelayed";
 import {
-  state_lazy_err,
-  state_lazy_from,
-  state_lazy_from_result,
-  state_lazy_from_result_ok,
-  state_lazy_ok,
+  state_lazy_err as sle,
+  state_lazy_from as slf,
+  state_lazy_from_result as slfr,
+  state_lazy_from_result_ok as slfro,
+  state_lazy_ok as slo,
 } from "../stateLazy";
 import {
   state_proxy_from,
@@ -33,158 +33,242 @@ import {
   state_proxy_write_ok,
   state_proxy_write_ok_from_ok,
 } from "../stateProxyWrite";
-import type { StateError, StateOwner, StateRead } from "../types";
+import type { StateError, StateOwner, StateRead, StateWrite } from "../types";
 
 export function state_test_gen_error() {
   return { code: "TEST", reason: "Test Error" };
 }
+let eg = state_test_gen_error;
 
 export type StateTestsRead = [
   string,
   StateRead<number, any>,
-  (val: Result<number, StateError>) => void,
-  StateBase<any, any, any>
+  StateOwner<number>,
+  StateBase<any, any, any>,
+  Result<number, StateError>,
+  Result<number, StateError>
+];
+
+export type StateTestsWrite = [
+  string,
+  StateWrite<number, any>,
+  StateOwner<number>,
+  StateBase<any, any, any>,
+  Result<number, StateError>,
+  Result<number, StateError>
 ];
 
 export function norm(
   text: string,
-  state: StateBase<any, any, any> & StateOwner<any>
-): StateTestsRead {
+  state: StateBase<any, any, any> & StateOwner<any> & StateWrite<any, any, any>,
+  init: Result<number, StateError>
+): StateTestsWrite {
+  return [text, state.writeable, state, state, init, init.constructor as any];
+}
+
+//       _____ _______    _______ ______
+//      / ____|__   __|/\|__   __|  ____|
+//     | (___    | |  /  \  | |  | |__
+//      \___ \   | | / /\ \ | |  |  __|
+//      ____) |  | |/ ____ \| |  | |____
+//     |_____/   |_/_/    \_\_|  |______|
+export function state_test_gen_normals(
+  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+): StateTestsWrite[] {
   return [
-    text,
-    state.readable,
-    (val: Result<number, StateError>) => state.owner.set(val),
-    state,
+    norm("state_from", state_from(1, setter), Ok(1)),
+    norm("state_err", state_err<number>(eg(), setter), Err(eg())),
+    norm("state_from_result", sfr<number>(Err(eg()), setter), Err(eg())),
   ];
 }
-export function state_test_gen_normals(): StateTestsRead[] {
+export function state_test_gen_normals_ok(
+  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+): StateTestsWrite[] {
   return [
-    //State
-    norm("state_from", state_from(1)),
-    norm("state_ok", state_ok(1)),
-    norm("state_err", state_err<number>(state_test_gen_error())),
-    norm(
-      "state_from_result",
-      state_from_result<number>(Err(state_test_gen_error()))
-    ),
-    norm("state_from_result_ok", state_from_result_ok<number>(Ok(1))),
-    //State Lazy
+    norm("state_ok", state_ok(1, setter as any), Ok(1)),
+    norm("state_from_result_ok", sfro<number>(Ok(1), setter as any), Ok(1)),
+  ];
+}
+
+//      _                ________     __
+//     | |        /\    |___  /\ \   / /
+//     | |       /  \      / /  \ \_/ /
+//     | |      / /\ \    / /    \   /
+//     | |____ / ____ \  / /__    | |
+//     |______/_/    \_\/_____|   |_|
+export function state_test_gen_lazy(
+  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+): StateTestsWrite[] {
+  return [
     norm(
       "state_lazy_from",
-      state_lazy_from(() => 1)
-    ),
-    norm(
-      "state_lazy_ok",
-      state_lazy_ok(() => 1)
+      slf(() => 1, setter),
+      Ok(1)
     ),
     norm(
       "state_lazy_err",
-      state_lazy_err<number>(() => state_test_gen_error())
+      sle<number>(() => eg(), setter),
+      Err(eg())
     ),
     norm(
       "state_lazy_from_result",
-      state_lazy_from_result<number>(() => Err(state_test_gen_error()))
+      slfr<number>(() => Err(eg()), setter),
+      Err(eg())
+    ),
+  ];
+}
+export function state_test_gen_lazy_ok(
+  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+): StateTestsWrite[] {
+  return [
+    norm(
+      "state_lazy_ok",
+      slo(() => 1, setter as any),
+      Ok(1)
     ),
     norm(
       "state_lazy_from_result_ok",
-      state_lazy_from_result_ok<number>(() => Ok(1))
-    ),
-    //State Delayed
-    norm("state_delayed_from", state_delayed_from((async () => 1)())),
-    norm("state_delayed_ok", state_delayed_ok((async () => 1)())),
-    norm(
-      "state_delayed_err",
-      state_delayed_err<number>((async () => state_test_gen_error())())
-    ),
-    norm(
-      "state_delayed_from_result",
-      state_delayed_from_result<number>(
-        (async () => Err(state_test_gen_error()))()
-      )
-    ),
-    norm(
-      "state_delayed_from_result_ok",
-      state_delayed_from_result_ok<number>((async () => Ok(1))())
-    ),
-    //State Delayed With Delay
-    norm(
-      "state_delayed_from",
-      state_delayed_from(
-        (async () => {
-          await new Promise((a) => setTimeout(a, 4));
-          return 1;
-        })()
-      )
-    ),
-    norm(
-      "state_delayed_ok",
-      state_delayed_ok(
-        (async () => {
-          await new Promise((a) => setTimeout(a, 4));
-          return 1;
-        })()
-      )
-    ),
-    norm(
-      "state_delayed_err",
-      state_delayed_err<number>(
-        (async () => {
-          await new Promise((a) => setTimeout(a, 4));
-          return state_test_gen_error();
-        })()
-      )
-    ),
-    norm(
-      "state_delayed_from_result",
-      state_delayed_from_result<number>(
-        (async () => {
-          await new Promise((a) => setTimeout(a, 4));
-          return Err(state_test_gen_error());
-        })()
-      )
-    ),
-    norm(
-      "state_delayed_from_result_ok",
-      state_delayed_from_result_ok<number>(
-        (async () => {
-          await new Promise((a) => setTimeout(a, 4));
-          return Ok(1);
-        })()
-      )
+      slfro<number>(() => Ok(1), setter as any),
+      Ok(1)
     ),
   ];
 }
 
+//      _____  ______ _           __     ________ _____
+//     |  __ \|  ____| |        /\\ \   / /  ____|  __ \
+//     | |  | | |__  | |       /  \\ \_/ /| |__  | |  | |
+//     | |  | |  __| | |      / /\ \\   / |  __| | |  | |
+//     | |__| | |____| |____ / ____ \| |  | |____| |__| |
+//     |_____/|______|______/_/    \_\_|  |______|_____/
+export function state_test_gen_delayed(
+  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+): StateTestsWrite[] {
+  return [
+    norm("state_delayed_from", sdf((async () => 1)(), setter), Ok(1)),
+    norm(
+      "state_delayed_err",
+      sde<number>((async () => eg())(), setter),
+      Err(eg())
+    ),
+    norm(
+      "state_delayed_from_result",
+      sdfr<number>((async () => Err(eg()))(), setter),
+      Err(eg())
+    ),
+  ];
+}
+export function state_test_gen_delayed_ok(
+  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+): StateTestsWrite[] {
+  return [
+    norm("state_delayed_ok", sdo((async () => 1)(), setter as any), Ok(1)),
+    norm(
+      "state_delayed_from_result_ok",
+      sdfro<number>((async () => Ok(1))(), setter as any),
+      Ok(1)
+    ),
+  ];
+}
+
+//      _____  ______ _           __     ________ _____   __          _______ _______ _    _   _____  ______ _           __     __
+//     |  __ \|  ____| |        /\\ \   / /  ____|  __ \  \ \        / /_   _|__   __| |  | | |  __ \|  ____| |        /\\ \   / /
+//     | |  | | |__  | |       /  \\ \_/ /| |__  | |  | |  \ \  /\  / /  | |    | |  | |__| | | |  | | |__  | |       /  \\ \_/ /
+//     | |  | |  __| | |      / /\ \\   / |  __| | |  | |   \ \/  \/ /   | |    | |  |  __  | | |  | |  __| | |      / /\ \\   /
+//     | |__| | |____| |____ / ____ \| |  | |____| |__| |    \  /\  /   _| |_   | |  | |  | | | |__| | |____| |____ / ____ \| |
+//     |_____/|______|______/_/    \_\_|  |______|_____/      \/  \/   |_____|  |_|  |_|  |_| |_____/|______|______/_/    \_\_|
+let dg = (ret: any) => {
+  return (async () => {
+    await new Promise((a) => setTimeout(a, 4));
+    return ret;
+  })();
+};
+
+export function state_test_gen_delayed_with_delay(
+  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+): StateTestsWrite[] {
+  return [
+    norm("state_delayed_from", sdf(dg(1), setter), Ok(1)),
+    norm("state_delayed_err", sde<number>(dg(eg()), setter), Err(eg())),
+    norm(
+      "state_delayed_from_result",
+      sdfr<number>(dg(Err(eg())), setter),
+      Err(eg())
+    ),
+  ];
+}
+export function state_test_gen_delayed_with_delay_ok(
+  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+): StateTestsWrite[] {
+  return [
+    norm("state_delayed_ok", sdo(dg(1), setter as any), Ok(1)),
+    norm(
+      "state_delayed_from_result_ok",
+      sdfro<number>(dg(Ok(1)), setter as any),
+      Ok(1)
+    ),
+  ];
+}
+
+//      _____  _____   ______   ____     __
+//     |  __ \|  __ \ / __ \ \ / /\ \   / /
+//     | |__) | |__) | |  | \ V /  \ \_/ /
+//     |  ___/|  _  /| |  | |> <    \   /
+//     | |    | | \ \| |__| / . \    | |
+//     |_|    |_|  \_\\____/_/ \_\   |_|
+let pr = Ok(1);
+let prc = pr.constructor as any;
+
 export function state_test_gen_proxies(): StateTestsRead[] {
-  let s1 = state_ok(1);
-  let s2 = state_ok(1);
   let s3 = state_ok(1);
   let s4 = state_ok(1);
-  let s5 = state_ok(1);
-  let s6 = state_ok(1);
-  let s7 = state_ok(1);
-  let s8 = state_ok(1);
-  let sp1 = state_proxy_ok(s1);
-  let sp2 = state_proxy_ok_from_ok(s2);
   let sp3 = state_proxy_from(s3);
   let sp4 = state_proxy_from_ok(s4);
-  let sp5 = state_proxy_write_ok(s5);
-  let sp6 = state_proxy_write_ok_from_ok(s6);
+  return [
+    ["state_proxy_from", sp3.readable, s3, sp3, pr, prc],
+    ["state_proxy_from_ok", sp4.readable, s4, sp4, pr, prc],
+  ];
+}
+
+export function state_test_gen_proxies_ok(): StateTestsRead[] {
+  let s1 = state_ok(1);
+  let s2 = state_ok(1);
+  let sp1 = state_proxy_ok(s1);
+  let sp2 = state_proxy_ok_from_ok(s2);
+  return [
+    ["state_proxy_ok", sp1.readable, s1, sp1, pr, prc],
+    ["state_proxy_ok_from_ok", sp2.readable, s2, sp2, pr, prc],
+  ];
+}
+
+//      _____  _____   ______   ____     __ __          _______  _____ _______ ______
+//     |  __ \|  __ \ / __ \ \ / /\ \   / / \ \        / /  __ \|_   _|__   __|  ____|
+//     | |__) | |__) | |  | \ V /  \ \_/ /   \ \  /\  / /| |__) | | |    | |  | |__
+//     |  ___/|  _  /| |  | |> <    \   /     \ \/  \/ / |  _  /  | |    | |  |  __|
+//     | |    | | \ \| |__| / . \    | |       \  /\  /  | | \ \ _| |_   | |  | |____
+//     |_|    |_|  \_\\____/_/ \_\   |_|        \/  \/   |_|  \_\_____|  |_|  |______|
+export function state_test_gen_proxies_write(
+  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+): StateTestsWrite[] {
+  let s7 = state_ok(1, setter as any);
+  let s8 = state_ok(1, setter as any);
   let sp7 = state_proxy_write_from(s7);
   let sp8 = state_proxy_write_from_ok(s8);
-  let func = (s: StateOwner<number>) => {
-    return (val: Result<number, StateError>) => {
-      s.set(val);
-    };
-  };
+
   return [
-    ["state_proxy_ok", sp1.readable, func(s1), sp1],
-    ["state_proxy_ok_from_ok", sp2.readable, func(s2), sp2],
-    ["state_proxy_from", sp3.readable, func(s3), sp3],
-    ["state_proxy_from_ok", sp4.readable, func(s4), sp4],
-    ["state_proxy_write_ok", sp5.readable, func(s5), sp5],
-    ["state_proxy_write_ok_from_ok", sp6.readable, func(s6), sp6],
-    ["state_proxy_write_from", sp7.readable, func(s7), sp7],
-    ["state_proxy_write_from_ok", sp8.readable, func(s8), sp8],
+    ["state_proxy_write_from", sp7.writeable, s7, sp7, pr, prc],
+    ["state_proxy_write_from_ok", sp8.writeable, s8, sp8, pr, prc],
+  ];
+}
+
+export function state_test_gen_proxies_write_ok(
+  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+): StateTestsWrite[] {
+  let s5 = state_ok(1, setter as any);
+  let s6 = state_ok(1, setter as any);
+  let sp5 = state_proxy_write_ok(s5);
+  let sp6 = state_proxy_write_ok_from_ok(s6);
+  return [
+    ["state_proxy_write_ok", sp5.writeable, s5, sp5, pr, prc],
+    ["state_proxy_write_ok_from_ok", sp6.writeable, s6, sp6, pr, prc],
   ];
 }

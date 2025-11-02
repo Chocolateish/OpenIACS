@@ -1,76 +1,36 @@
-import { Err, Ok, Some } from "@libResult";
+import { Err, Ok, Some, type Option, type Result } from "@libResult";
 import { describe, expect, it } from "vitest";
-import * as all from "../index";
-import type { StateHelper, StateSetter, StateSetterOk } from "../types";
-import { state_test_gen_error } from "./shared";
+import type { StateError } from "../types";
+import {
+  state_test_gen_delayed as delayed,
+  state_test_gen_delayed_ok as delayed_ok,
+  state_test_gen_delayed_with_delay as delayed_with_delay,
+  state_test_gen_delayed_with_delay_ok as delayed_with_delay_ok,
+  state_test_gen_error as errGen,
+  state_test_gen_lazy as lazy,
+  state_test_gen_lazy_ok as lazy_ok,
+  state_test_gen_normals as normals,
+  state_test_gen_normals_ok as normals_ok,
+  state_test_gen_proxies_write as proxwrite,
+  state_test_gen_proxies_write_ok as proxwrite_ok,
+  type StateTestsWrite,
+} from "./shared";
 
 let gen_states = (
-  setter: StateSetter<number> | true,
-  setterOk: StateSetterOk<number> | true,
-  helper?: StateHelper<number>
-) => {
-  return {
-    testsResults: {
-      "state.from": all.state_from(1, setter, helper),
-      "state_lazy.from": all.state_lazy_from(() => 1, setter, helper),
-      "state_delayed.from": all.state_delayed_from(
-        (async () => 1)(),
-        setter,
-        helper
-      ),
-      "state_delayed.from with sleep": all.state_delayed_from(
-        (async () => {
-          await new Promise((a) => {
-            setTimeout(a, 10);
-          });
-          return 1;
-        })(),
-        setter,
-        helper
-      ),
-    },
-    testsOks: {
-      "state.ok": all.state_ok(1, setterOk, helper),
-      "state_lazy.ok": all.state_lazy_ok(() => 1, setterOk, helper),
-      "state_delayed.ok": all.state_delayed_ok(
-        (async () => 1)(),
-        setterOk,
-        helper
-      ),
-      "state_delayed.ok with sleep": all.state_delayed_ok(
-        (async () => {
-          await new Promise((a) => {
-            setTimeout(a, 10);
-          });
-          return 1;
-        })(),
-        setterOk,
-        helper
-      ),
-    },
-    testsErrs: {
-      "state.err": all.state_err<number>(
-        state_test_gen_error(),
-        setter,
-        helper
-      ),
-      "state_lazy.err": all.state_lazy_err<number>(
-        () => state_test_gen_error(),
-        setter,
-        helper
-      ),
-      "state_delayed.err with sleep": all.state_delayed_err<number>(
-        (async () => {
-          await new Promise((a) => {
-            setTimeout(a, 10);
-          });
-          return state_test_gen_error();
-        })(),
-        setter,
-        helper
-      ),
-    },
-  };
+  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+): StateTestsWrite[] => {
+  return [
+    ...normals(setter),
+    ...lazy(setter),
+    ...delayed(setter),
+    ...delayed_with_delay(setter),
+    ...proxwrite(setter),
+    ...normals_ok(setter),
+    ...lazy_ok(setter),
+    ...delayed_ok(setter),
+    ...delayed_with_delay_ok(setter),
+    ...proxwrite_ok(setter),
+  ];
 };
 
 describe(
@@ -79,11 +39,11 @@ describe(
     timeout: 50,
   },
   function () {
-    let { testsResults, testsOks, testsErrs } = gen_states(true, true);
-    let states = { ...testsResults, ...testsOks, ...testsErrs };
-    for (const key in states) {
-      it(key, async function () {
-        let state = states[key as keyof typeof states];
+    let tests = gen_states(true);
+    for (let i = 0; i < tests.length; i++) {
+      const test = tests[i];
+      it(test[0], async function () {
+        let state = test[1];
         expect(state.write(10)).equal(true);
         let awaited = await state;
         expect(awaited).toEqual(Ok(10));
@@ -98,14 +58,11 @@ describe(
     timeout: 50,
   },
   function () {
-    let { testsResults, testsOks, testsErrs } = gen_states(
-      (val) => Some(Ok(val)),
-      (val) => Some(Ok(val))
-    );
-    let states = { ...testsResults, ...testsOks, ...testsErrs };
-    for (const key in states) {
-      it(key, async function () {
-        let state = states[key as keyof typeof states];
+    let tests = gen_states((val) => Some(Ok(val)));
+    for (let i = 0; i < tests.length; i++) {
+      const test = tests[i];
+      it(test[0], async function () {
+        let state = test[1];
         expect(state.write(10)).equal(true);
         let awaited = await state;
         expect(awaited).toEqual(Ok(10));
@@ -120,14 +77,11 @@ describe(
     timeout: 50,
   },
   function () {
-    let { testsResults, testsOks, testsErrs } = gen_states(
-      (val) => Some(Ok(val * 2)),
-      (val) => Some(Ok(val * 2))
-    );
-    let states = { ...testsResults, ...testsOks, ...testsErrs };
-    for (const key in states) {
-      it(key, async function () {
-        let state = states[key as keyof typeof states];
+    let tests = gen_states((val) => Some(Ok(val * 2)));
+    for (let i = 0; i < tests.length; i++) {
+      const test = tests[i];
+      it(test[0], async function () {
+        let state = test[1];
         expect(state.write(10)).equal(true);
         let awaited = await state;
         expect(awaited).toEqual(Ok(20));
@@ -142,48 +96,15 @@ describe(
     timeout: 50,
   },
   function () {
-    let { testsResults, testsErrs } = gen_states(
-      () => Some(Err(state_test_gen_error())),
-      (val) => Some(Ok(val * 2))
-    );
-    let states = { ...testsResults, ...testsErrs };
-    for (const key in states) {
-      it(key, async function () {
-        let state = states[key as keyof typeof states];
+    let tests = gen_states(() => Some(Err(errGen())));
+    for (let i = 0; i < tests.length; i++) {
+      const test = tests[i];
+      it(test[0], async function () {
+        let state = test[1];
         expect(state.write(10)).equal(true);
         let awaited = await state;
-        expect(awaited).toEqual(Err(state_test_gen_error()));
+        expect(awaited).toEqual(Err(errGen()));
       });
     }
   }
 );
-
-// describe(
-//   "Normal states with setter set to function returning none",
-//   {
-//     timeout: 50,
-//   },
-//   function () {
-//     let { testsResults, testsOks, testsErrs } = gen_states(
-//       () => None(),
-//       () => None()
-//     );
-//     let states = { ...testsResults, ...testsOks };
-//     for (const key in states) {
-//       it(key, async function () {
-//         let state = states[key as keyof typeof states];
-//         expect(state.write(10);
-//         let awaited = await state;
-//         expect(awaited).toEqual(Ok(1));
-//       });
-//     }
-//     for (const key in testsErrs) {
-//       it(key, async function () {
-//         let state = testsErrs[key as keyof typeof testsErrs];
-//         expect(state.write(10);
-//         let awaited = await state;
-//         expect(awaited).toEqual(Err(gen_error()));
-//       });
-//     }
-//   }
-// );

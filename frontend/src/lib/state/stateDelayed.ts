@@ -55,8 +55,19 @@ export class StateDelayedInternal<
       delete this.then;
       //@ts-expect-error
       delete this.write;
+      //@ts-expect-error
+      delete this.set;
+      //@ts-expect-error
+      delete this.setOk;
+      //@ts-expect-error
+      delete this.setErr;
     };
-    let getAndClean = new Promise<TYPE>(async (a) => {
+    let getting = false;
+    this.then = async <TResult1 = TYPE>(
+      func: (value: TYPE) => TResult1 | PromiseLike<TResult1>
+    ): Promise<TResult1> => {
+      if (getting) return this.appendPromise(func);
+      getting = true;
       try {
         this.#value = await init;
       } catch (error) {
@@ -66,12 +77,8 @@ export class StateDelayedInternal<
         }) as TYPE;
       }
       clean();
-      a(this.#value);
-    });
-    this.then = async <TResult1 = TYPE>(
-      func: (value: TYPE) => TResult1 | PromiseLike<TResult1>
-    ): Promise<TResult1> => {
-      return func(await getAndClean);
+      this.fulfillPromises(this.#value);
+      return func(this.#value);
     };
     let write = this.write.bind(this);
     this.write = (value) => {
@@ -79,6 +86,18 @@ export class StateDelayedInternal<
       let didWrite = write(value);
       if (didWrite) clean();
       return didWrite;
+    };
+    this.set = (value) => {
+      clean();
+      this.set(value);
+    };
+    this.setOk = (value) => {
+      clean();
+      this.setOk(value);
+    };
+    this.setErr = (value) => {
+      clean();
+      this.setErr(value);
     };
   }
 

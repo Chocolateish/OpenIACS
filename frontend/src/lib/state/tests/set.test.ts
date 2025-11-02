@@ -1,28 +1,38 @@
-import { Ok } from "@libResult";
+import { Err, Ok } from "@libResult";
 import { describe, expect, it } from "vitest";
-import * as all from "../index";
-import { state_test_gen_error } from "./shared";
+import {
+  state_test_gen_delayed as delayed,
+  state_test_gen_delayed_ok as delayed_ok,
+  state_test_gen_delayed_with_delay as delayed_with_delay,
+  state_test_gen_delayed_with_delay_ok as delayed_with_delay_ok,
+  state_test_gen_error as errGen,
+  state_test_gen_lazy as lazy,
+  state_test_gen_lazy_ok as lazy_ok,
+  state_test_gen_normals as normals,
+  state_test_gen_normals_ok as normals_ok,
+  type StateTestsRead,
+} from "./shared";
 
-let gen_states = () => {
-  return {
-    testsOks: {
-      "state.from": all.state_from(1),
-      "state.ok": all.state_ok(1),
-      "state_lazy.from": all.state_lazy_from(() => 1),
-      "state_lazy.ok": all.state_lazy_ok(() => 1),
-      "state_delayed.from": all.state_delayed_from((async () => 1)()),
-      "state_delayed.ok": all.state_delayed_ok((async () => 1)()),
-    },
-    testsErrs: {
-      "state.err": all.state_err<number>(state_test_gen_error()),
-      "state_lazy.err": all.state_lazy_err<number>(() =>
-        state_test_gen_error()
-      ),
-      "state_delayed.err": all.state_delayed_err<number>(
-        (async () => state_test_gen_error())()
-      ),
-    },
-  };
+let gen_states = (): StateTestsRead[] => {
+  return [
+    ...normals(),
+    ...lazy(),
+    ...delayed(),
+    ...delayed_with_delay(),
+    ...normals_ok(),
+    ...lazy_ok(),
+    ...delayed_ok(),
+    ...delayed_with_delay_ok(),
+  ];
+};
+
+let gen_states_ok = (): StateTestsRead[] => {
+  return [
+    ...normals_ok(),
+    ...lazy_ok(),
+    ...delayed_ok(),
+    ...delayed_with_delay_ok(),
+  ];
 };
 
 describe(
@@ -31,12 +41,12 @@ describe(
     timeout: 50,
   },
   function () {
-    let { testsOks, testsErrs } = gen_states();
-    let states = { ...testsOks, ...testsErrs };
-    for (const key in states) {
-      it(key, async function () {
-        let state = states[key as keyof typeof states];
-        state.set(Ok(5));
+    let tests = gen_states();
+    for (let i = 0; i < tests.length; i++) {
+      const test = tests[i];
+      it(test[0], async function () {
+        let state = test[1];
+        test[2].set(Ok(5));
         let awaited = await state;
         expect(awaited).toEqual(Ok(5));
       });
@@ -50,15 +60,93 @@ describe(
     timeout: 50,
   },
   function () {
-    let { testsOks, testsErrs } = gen_states();
-    let states = { ...testsOks, ...testsErrs };
-    for (const key in states) {
-      it(key, async function () {
-        let state = states[key as keyof typeof states];
+    let tests = gen_states();
+    for (let i = 0; i < tests.length; i++) {
+      const test = tests[i];
+      it(test[0], async function () {
+        let state = test[1];
         let awaited = await state;
-        state.set(Ok(5));
+        test[2].set(Ok(5));
         awaited = await state;
         expect(awaited).toEqual(Ok(5));
+      });
+    }
+  }
+);
+
+describe(
+  "SetErr state value right after initialization to err",
+  {
+    timeout: 50,
+  },
+  function () {
+    let tests = gen_states();
+    for (let i = 0; i < tests.length; i++) {
+      const test = tests[i];
+      it(test[0], async function () {
+        let state = test[1];
+        test[2].setErr(errGen());
+        let awaited = await state;
+        expect(awaited).toEqual(Err(errGen()));
+      });
+    }
+  }
+);
+
+describe(
+  "Awaiting state then getting then setting value",
+  {
+    timeout: 50,
+  },
+  function () {
+    let tests = gen_states();
+    for (let i = 0; i < tests.length; i++) {
+      const test = tests[i];
+      it(test[0], async function () {
+        let state = test[1];
+        let awaited = await state;
+        test[2].setErr(errGen());
+        awaited = await state;
+        expect(awaited).toEqual(Err(errGen()));
+      });
+    }
+  }
+);
+
+describe(
+  "SetOk state value right after initialization to value",
+  {
+    timeout: 50,
+  },
+  function () {
+    let tests = gen_states_ok();
+    for (let i = 0; i < tests.length; i++) {
+      const test = tests[i];
+      it(test[0], async function () {
+        let state = test[1];
+        test[2].setOk(6);
+        let awaited = await state;
+        expect(awaited).toEqual(Ok(6));
+      });
+    }
+  }
+);
+
+describe(
+  "Awaiting state then getting then setting value",
+  {
+    timeout: 50,
+  },
+  function () {
+    let tests = gen_states_ok();
+    for (let i = 0; i < tests.length; i++) {
+      const test = tests[i];
+      it(test[0], async function () {
+        let state = test[1];
+        let awaited = await state;
+        test[2].setOk(6);
+        awaited = await state;
+        expect(awaited).toEqual(Ok(6));
       });
     }
   }

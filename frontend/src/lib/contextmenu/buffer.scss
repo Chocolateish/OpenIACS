@@ -12,8 +12,8 @@ contextmenu-buffer {
 
   @include line.hover;
 
-  > spinner-dots {
-    $spinnerPadding: 0.2rem;
+  > * {
+    $spinnerPadding: 0.3rem;
 
     box-sizing: border-box;
     position: absolute;

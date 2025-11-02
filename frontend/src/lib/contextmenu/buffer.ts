@@ -1,5 +1,5 @@
 import { defineElement } from "@libBase";
-import { Dots } from "@libSpinners";
+import { Spinner } from "@libSpinners";
 import "./buffer.scss";
 import { ContextMenuLine } from "./line";
 
@@ -11,7 +11,7 @@ export class Buffer extends ContextMenuLine {
 
   constructor() {
     super();
-    this.appendChild(new Dots());
+    this.appendChild(new Spinner());
   }
 
   focus(dir: FocusOptions) {

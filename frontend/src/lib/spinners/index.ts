@@ -34,14 +34,14 @@ spinnerSVG.appendChild(svg_primitives.circle(6, 32, 0));
 spinnerSVG.appendChild(svg_primitives.circle(9.483, 19, 0));
 spinnerSVG.appendChild(svg_primitives.circle(19, 9.483, 0));
 
-export class Dots extends Base {
+export class Spinner extends Base {
   /**Returns the name used to define the element */
   static elementName() {
-    return "dots";
+    return "spinner";
   }
   /**Returns the namespace override for the element*/
   static elementNameSpace() {
-    return "chocolatelibui-spinner";
+    return "spinner";
   }
 
   constructor() {
@@ -50,4 +50,4 @@ export class Dots extends Base {
   }
 }
 
-defineElement(Dots);
+defineElement(Spinner);

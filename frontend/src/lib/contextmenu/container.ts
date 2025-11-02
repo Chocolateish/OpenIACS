@@ -46,7 +46,6 @@ export class Container extends Base {
 
   /**Closes open context menu */
   closeUp() {
-    console.warn("one");
     if (this.#activeElementBuffer) {
       this.#activeElementBuffer.focus();
       if (

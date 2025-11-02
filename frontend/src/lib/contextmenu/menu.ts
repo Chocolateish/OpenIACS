@@ -11,6 +11,15 @@ import { ContextMenuSub } from "./submenu";
 export type ContextMenuLines = ContextMenuLine[];
 
 export class ContextMenu extends Base {
+  /**Returns the name used to define the element */
+  static elementName() {
+    return "menu";
+  }
+  /**Returns the namespace override for the element*/
+  static elementNameSpace() {
+    return "contextmenu";
+  }
+
   #submenu: ContextMenu | undefined;
   #closer: ContextMenuOption | undefined;
   #x: number | undefined;
@@ -25,15 +34,6 @@ export class ContextMenu extends Base {
   #windowResizeHandler = () => {
     this.setPosition(this.#x, this.#y, this.#element);
   };
-
-  /**Returns the name used to define the element */
-  static elementName() {
-    return "menu";
-  }
-  /**Returns the namespace override for the element*/
-  static elementNameSpace() {
-    return "contextmenu";
-  }
 
   constructor(
     lines:
