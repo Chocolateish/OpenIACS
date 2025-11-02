@@ -1,8 +1,44 @@
-import { contextLine, contextMenu, contextMenuDefault } from "@libContextmenu";
+import {
+  contextDevider,
+  contextLine,
+  contextMenu,
+  contextMenuDefault,
+  contextSub,
+} from "@libContextmenu";
 import "./index.scss";
 
 contextMenuDefault(
   contextMenu([
+    contextLine("Default Option 1", () => {
+      console.log("Option 1 clicked");
+    }),
+    contextDevider(),
+    contextLine("Default Option 1", () => {
+      console.log("Option 1 clicked");
+    }),
+    contextSub(
+      "Submenu",
+      contextMenu([
+        contextLine("Sub Option 1", () => {
+          console.log("Sub Option 1 clicked");
+        }),
+        contextLine("Sub Option 2", () => {
+          console.log("Sub Option 2 clicked");
+        }),
+      ])
+    ),
+    contextLine("Default Option 1", () => {
+      console.log("Option 1 clicked");
+    }),
+    contextLine("Default Option 1", () => {
+      console.log("Option 1 clicked");
+    }),
+    contextLine("Default Option 1", () => {
+      console.log("Option 1 clicked");
+    }),
+    contextLine("Default Option 1", () => {
+      console.log("Option 1 clicked");
+    }),
     contextLine("Default Option 1", () => {
       console.log("Option 1 clicked");
     }),

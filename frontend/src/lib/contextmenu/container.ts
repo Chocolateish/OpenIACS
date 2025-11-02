@@ -5,7 +5,7 @@ import { ContextMenu } from "./menu";
 let containerZIndex = "99999999";
 
 export class Container extends Base {
-  private activeElementBuffer: HTMLOrSVGElement | null | undefined;
+  #activeElementBuffer: HTMLOrSVGElement | null | undefined;
 
   /**Returns the name used to define the element */
   static elementName() {
@@ -38,26 +38,26 @@ export class Container extends Base {
 
   /**Attaches a menu to the container */
   attachMenu(menu: ContextMenu) {
-    this.activeElementBuffer = this.ownerDocument
+    this.#activeElementBuffer = this.ownerDocument
       .activeElement as HTMLOrSVGElement | null;
     this.replaceChildren(menu);
     return menu;
   }
 
   /**Closes open context menu */
-  closeUp(menu: ContextMenu) {
-    if (this.activeElementBuffer) {
-      this.activeElementBuffer.focus();
+  closeUp() {
+    console.warn("one");
+    if (this.#activeElementBuffer) {
+      this.#activeElementBuffer.focus();
       if (
-        (this.ownerDocument.activeElement as any) !== this.activeElementBuffer
+        (this.ownerDocument.activeElement as any) !== this.#activeElementBuffer
       ) {
         this.focus();
       }
-      this.activeElementBuffer = undefined;
+      this.#activeElementBuffer = undefined;
     } else {
       this.focus();
     }
-    this.removeChild(menu);
   }
 }
 defineElement(Container);

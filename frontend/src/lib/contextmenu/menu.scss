@@ -20,10 +20,25 @@ contextmenu-menu {
   touch-action: none;
   pointer-events: all;
 
-  &.fullscreen {
+  &.fullscreen-x {
+    border-radius: 0;
+    border: none;
+    left: 0 !important;
+  }
+
+  &.fullscreen-y {
     touch-action: pan-y;
     border-radius: 0;
     border: none;
+    top: 0 !important;
+  }
+
+  &.closer > :first-child {
+    position: sticky;
+    top: 0;
+    background-color: var(--contextmenu-background);
+    z-index: 1;
+    outline: 1px solid var(--contextmenu-border);
   }
 
   > tr {

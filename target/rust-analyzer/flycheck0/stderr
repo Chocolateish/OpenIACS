@@ -1,4 +1,4 @@
-error: failed to parse manifest at `C:\Git\Chocolateish\OpenIACS\backend\Cargo.toml`
+error: failed to parse manifest at `/home/nick/Git/Chocolateish/OpenIACS/backend/Cargo.toml`
 
 Caused by:
-  can't find `test` bench at `benches\test.rs` or `benches\test\main.rs`. Please specify bench.path if you want to use a non-default path.
+  can't find `test` bench at `benches/test.rs` or `benches/test/main.rs`. Please specify bench.path if you want to use a non-default path.

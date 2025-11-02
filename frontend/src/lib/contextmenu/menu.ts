@@ -1,6 +1,5 @@
 import { Base, defineElement } from "../base";
 import { material_navigation_close_rounded } from "../icons";
-import { remToPx } from "../theme";
 import { Buffer } from "./buffer";
 import { Container } from "./container";
 import { ContextMenuLine } from "./line";
@@ -12,11 +11,20 @@ import { ContextMenuSub } from "./submenu";
 export type ContextMenuLines = ContextMenuLine[];
 
 export class ContextMenu extends Base {
-  private submenu: ContextMenu | undefined;
-  private closer: ContextMenuOption | undefined;
-  private x: number | undefined;
-  private y: number | undefined;
-  private element: Element | undefined;
+  #submenu: ContextMenu | undefined;
+  #closer: ContextMenuOption | undefined;
+  #x: number | undefined;
+  #y: number | undefined;
+  #element: Element | undefined;
+  #focusOutHandler = (e: FocusEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!e.relatedTarget || !this.contains(e.relatedTarget as Node))
+      this.closeUp();
+  };
+  #windowResizeHandler = () => {
+    this.setPosition(this.#x, this.#y, this.#element);
+  };
 
   /**Returns the name used to define the element */
   static elementName() {
@@ -44,17 +52,10 @@ export class ContextMenu extends Base {
       lines.then((line) => {
         buffer.remove();
         this.lines = line;
-        this.setPosition(this.x, this.y, this.element);
+        this.setPosition(this.#x, this.#y, this.#element);
       });
-    } else {
-      this.lines = lines;
-    }
+    } else this.lines = lines;
     this.tabIndex = 0;
-    this.onblur = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!e.relatedTarget) this.closeUp();
-    };
     this.onscroll = () => {
       this.closeDown();
     };
@@ -80,10 +81,28 @@ export class ContextMenu extends Base {
     };
   }
 
+  protected connectedCallback(): void {
+    super.connectedCallback();
+    this.addEventListener("focusout", this.#focusOutHandler, { capture: true });
+    this.ownerDocument.defaultView?.addEventListener(
+      "resize",
+      this.#windowResizeHandler,
+      { passive: true }
+    );
+  }
+
+  protected disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.ownerDocument.defaultView?.removeEventListener(
+      "resize",
+      this.#windowResizeHandler
+    );
+  }
+
   /**Sets the lines of the context menu */
   set lines(lines: (ContextMenuLine | undefined)[]) {
     this.replaceChildren();
-    if (this.closer) this.appendChild(this.closer);
+    if (this.#closer) this.appendChild(this.#closer);
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i];
       if (line) this.appendChild(line);
@@ -97,50 +116,56 @@ export class ContextMenu extends Base {
     else (this.firstChild as any)?.focus({});
   }
 
-  /**Returns wether the menu is in fullscreen mode */
-  get fullscreen() {
-    return Boolean(this.closer);
+  set closer(closer: boolean) {
+    if (closer && !this.#closer) {
+      this.classList.add("closer");
+      this.#closer = new ContextMenuOption(
+        "Close",
+        () => {},
+        material_navigation_close_rounded()
+      );
+      this.#closer.onclick = (e) => {
+        e.stopPropagation();
+        if (this.parentElement instanceof ContextMenuSub) {
+          this.parentElement.closeDown();
+        } else {
+          this.closeUp();
+        }
+      };
+      this.prepend(this.#closer);
+    } else if (!closer && this.#closer) {
+      this.classList.remove("closer");
+      this.#closer.remove();
+      this.#closer = undefined;
+    }
   }
 
-  /**Sets the context menu to fullscreen mode */
-  set fullscreen(full: boolean) {
-    if (full) {
-      this.classList.add("fullscreen");
-      if (!this.closer) {
-        this.closer = new ContextMenuOption(
-          "Close",
-          () => {},
-          material_navigation_close_rounded()
-        );
-        this.closer.onclick = (e) => {
-          e.stopPropagation();
-          if (this.parentElement instanceof ContextMenuSub) {
-            this.parentElement.closeDown();
-          } else {
-            this.closeUp();
-          }
-        };
-        this.prepend(this.closer);
-      }
-    } else {
-      this.classList.remove("fullscreen");
-      if (this.closer) {
-        this.closer.remove();
-        delete this.closer;
-      }
-    }
+  /**Sets the context menu to fullscreen mode in x directino */
+  set fullscreenx(full: boolean) {
+    if (full) this.classList.add("fullscreen-x");
+    else this.classList.remove("fullscreen-x");
+  }
+
+  /**Sets the context menu to fullscreen mode in y direction */
+  set fullscreeny(full: boolean) {
+    if (full) this.classList.add("fullscreen-y");
+    else this.classList.remove("fullscreen-y");
   }
 
   /**Closes the context menu down the tree*/
   closeDown() {
-    if (this.submenu) this.submenu.closeDown();
-    this.submenu = undefined;
+    if (this.#submenu) this.#submenu.closeDown();
+    this.#submenu = undefined;
   }
 
   /**Closes the context menu up the tree to the root*/
   closeUp() {
     this.closeDown();
+    this.removeEventListener("focusout", this.#focusOutHandler, {
+      capture: true,
+    });
     (this.parentElement as any).closeUp(this);
+    this.remove();
   }
 
   /**Updates the position of the menu
@@ -148,11 +173,16 @@ export class ContextMenu extends Base {
    * @param y y coordinate for menu, this will be ignored if needed for contextmenu to fit
    * @param element element to use instead of coordinates, the contextemenu will avoid covering the element if possible*/
   setPosition(x: number = 0, y: number = 0, element?: Element) {
-    this.x = x;
-    this.y = y;
-    this.element = element;
+    this.#x = x;
+    this.#y = y;
+    this.#element = element;
     let box = this.getBoundingClientRect();
+    let boxArea = box.width * box.height;
     let window = this.ownerDocument.defaultView;
+    let html = this.ownerDocument.documentElement;
+    let htmlArea = html.clientWidth * html.clientHeight;
+    this.closer = boxArea > htmlArea * 0.5;
+    box = this.getBoundingClientRect();
     let top = NaN;
     let bottom = NaN;
     let left = NaN;
@@ -160,39 +190,34 @@ export class ContextMenu extends Base {
     if (window) {
       if (element) {
         var subBox = element.getBoundingClientRect();
+
         if (subBox.x + subBox.width + box.width > window.innerWidth) {
           x = subBox.x;
           if (box.width < x) right = window.innerWidth - x;
           else right = window.innerWidth - (subBox.x + subBox.width);
-        } else {
-          x = subBox.x + subBox.width;
-        }
+        } else x = subBox.x + subBox.width;
+
         y = subBox.y + subBox.height;
+
         if (y + box.height >= window.innerHeight) {
           if (y >= box.height) bottom = window.innerHeight - subBox.y;
           else top = window.innerHeight - box.height;
-        } else {
-          top = y;
-        }
+        } else top = y;
       } else {
         if (y + box.height >= window.innerHeight) {
           if (y >= box.height) bottom = window.innerHeight - y;
           else top = window.innerHeight - box.height;
-        } else {
-          top = y;
-        }
+        } else top = y;
+
         if (box.width >= window.innerWidth) {
           right = 0;
         } else if (x + box.width >= window.innerWidth) {
           if (x >= box.width) right = window.innerWidth - x;
           else left = window.innerWidth - box.width;
-        } else {
-          left = x;
-        }
+        } else left = x;
       }
-      this.fullscreen =
-        box.height >= window.innerHeight - remToPx(4) ||
-        box.width === window.innerWidth;
+      this.fullscreenx = box.width === html.clientWidth;
+      this.fullscreeny = box.height >= html.clientHeight;
     } else {
       top = 0;
       left = 0;
