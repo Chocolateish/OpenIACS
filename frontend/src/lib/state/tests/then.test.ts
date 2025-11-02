@@ -5,6 +5,10 @@ import {
   state_test_gen_delayed_ok as delayed_ok,
   state_test_gen_delayed_with_delay as delayed_with_delay,
   state_test_gen_delayed_with_delay_ok as delayed_with_delay_ok,
+  state_test_gen_derived as derived,
+  state_test_gen_derived_ok as derived_ok,
+  state_test_gen_derives_sum as derives_sum,
+  state_test_gen_derives_sum_ok as derives_sum_ok,
   state_test_gen_lazy as lazy,
   state_test_gen_lazy_ok as lazy_ok,
   state_test_gen_normals as normals,
@@ -30,6 +34,10 @@ let gen_states = (): StateTestsRead[] => {
     ...delayed_with_delay_ok(),
     ...proxies_ok(),
     ...proxwrite_ok(),
+    ...derived(),
+    ...derived_ok(),
+    ...derives_sum(),
+    ...derives_sum_ok(),
   ];
 };
 

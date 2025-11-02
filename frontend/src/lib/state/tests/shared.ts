@@ -15,6 +15,17 @@ import {
   state_delayed_ok as sdo,
 } from "../stateDelayed";
 import {
+  state_derived_from_states as sdfs,
+  state_derived_from_state_array as sdfsa,
+  state_derived_ok_from_states as sdofs,
+  state_derived_ok_from_state_array as sdofsa,
+} from "../stateDerived";
+import {
+  state_derives_sum_from,
+  state_derives_sum_from_ok,
+  state_derives_sum_ok_from_ok,
+} from "../stateDerives";
+import {
   state_lazy_err as sle,
   state_lazy_from as slf,
   state_lazy_from_result as slfr,
@@ -271,4 +282,80 @@ export function state_test_gen_proxies_write_ok(
     ["state_proxy_write_ok", sp5.writeable, s5, sp5, pr, prc],
     ["state_proxy_write_ok_from_ok", sp6.writeable, s6, sp6, pr, prc],
   ];
+}
+
+//      _____  ______ _____  _______      ________ _____
+//     |  __ \|  ____|  __ \|_   _\ \    / /  ____|  __ \
+//     | |  | | |__  | |__) | | |  \ \  / /| |__  | |  | |
+//     | |  | |  __| |  _  /  | |   \ \/ / |  __| | |  | |
+//     | |__| | |____| | \ \ _| |_   \  /  | |____| |__| |
+//     |_____/|______|_|  \_\_____|   \/   |______|_____/
+let dr = Ok(1);
+let drc = pr.constructor as any;
+
+export function state_test_gen_derived(
+  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+): StateTestsRead[] {
+  let s1 = state_ok(1, setter as any);
+  let s2 = state_ok(1, setter as any);
+  let d1 = sdfs((val) => {
+    return val[0];
+  }, s1);
+  let d2 = sdfsa(
+    (val) => {
+      return val[0];
+    },
+    [s2]
+  );
+  return [
+    ["state_derived_from_states", d1.readable, s1, d1, dr, drc],
+    ["state_derived_from_state_array", d2.readable, s2, d2, dr, drc],
+  ];
+}
+
+export function state_test_gen_derived_ok(
+  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+): StateTestsRead[] {
+  let s1 = state_ok(1, setter as any);
+  let s2 = state_ok(1, setter as any);
+  let d1 = sdofs((val) => {
+    return val[0];
+  }, s1);
+  let d2 = sdofsa(
+    (val) => {
+      return val[0];
+    },
+    [s2]
+  );
+  return [
+    ["state_derived_ok_from_states", d1.readable, s1, d1, dr, drc],
+    ["state_derived_ok_from_state_array", d2.readable, s2, d2, dr, drc],
+  ];
+}
+
+//      _____  ______ _____  _______      ________  _____
+//     |  __ \|  ____|  __ \|_   _\ \    / /  ____|/ ____|
+//     | |  | | |__  | |__) | | |  \ \  / /| |__  | (___
+//     | |  | |  __| |  _  /  | |   \ \/ / |  __|  \___ \
+//     | |__| | |____| | \ \ _| |_   \  /  | |____ ____) |
+//     |_____/|______|_|  \_\_____|   \/   |______|_____/
+
+export function state_test_gen_derives_sum(
+  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+): StateTestsRead[] {
+  let s1 = state_ok(1, setter as any);
+  let s2 = state_ok(1, setter as any);
+  let d1 = state_derives_sum_from(s1);
+  let d2 = state_derives_sum_from_ok(s2);
+  return [
+    ["state_derives_sum_from", d1.readable, s1, d1, dr, drc],
+    ["state_derives_sum_from_ok", d2.readable, s2, d2, dr, drc],
+  ];
+}
+export function state_test_gen_derives_sum_ok(
+  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+): StateTestsRead[] {
+  let s1 = state_ok(1, setter as any);
+  let d1 = state_derives_sum_ok_from_ok(s1);
+  return [["state_derives_sum_ok_from_ok", d1.readable, s1, d1, dr, drc]];
 }
