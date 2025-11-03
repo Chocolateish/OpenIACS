@@ -1,4 +1,4 @@
-import { Err, None, type Option, type Result, Some } from "@libResult";
+import { None, type Option, type Result, Some } from "@libResult";
 import { StateBase } from "./stateBase";
 import type { StateError, StateRelated, StateWriteBase } from "./types";
 
@@ -26,18 +26,13 @@ export abstract class StateResourceBase<
   extends StateBase<READ, false, RELATED>
   implements StateWriteBase<READ, false, RELATED, WRITE>
 {
-  /**Stores the last time when buffer was valid*/
   #valid: number = 0;
-  /**Is high while once fetching value*/
   #fetching: boolean = false;
-  /**Buffer of last value*/
-  #buffer: READ | undefined;
-  /**Promises for value*/
-  #promises: ((value: READ) => void)[] = [];
-  /**Timeout for retention delay*/
+  #buffer?: READ;
   #retentionTimout: number = 0;
-  /**Timeout for debounce delay*/
   #debounceTimout: number = 0;
+  #writeBuffer?: WRITE;
+  #writeDebounceTimout: number = 0;
 
   /**Debounce delaying one time value retrival*/
   abstract get debounce(): number;
@@ -48,8 +43,8 @@ export abstract class StateResourceBase<
   /**Retention delay before resource performs teardown of connection is performed*/
   abstract get retention(): number;
 
-  /**Called if the state is awaited, returns the value once*/
-  protected abstract singleGet(): Promise<READ>;
+  /**How long to debounce write calls, before the last write call is used*/
+  abstract get writebounce(): number;
 
   /**Called when subscriber is added*/
   protected subOnSubscribe(_first: boolean) {
@@ -62,10 +57,10 @@ export abstract class StateResourceBase<
           this.#fetching = true;
           if (this.debounce > 0)
             this.#debounceTimout = setTimeout(() => {
-              this.setupConnection(this.updateResource.bind(this));
+              this.setupConnection(this);
               this.#debounceTimout = 0;
             }, this.debounce) as any;
-          else this.setupConnection(this.updateResource.bind(this));
+          else this.setupConnection(this);
         }
       }
     }
@@ -90,18 +85,25 @@ export abstract class StateResourceBase<
     }
   }
 
+  /**Called if the state is awaited, returns the value once*/
+  protected abstract singleGet(state: this): void;
+
   /**Called when state is subscribed to to setup connection to remote resource*/
-  protected abstract setupConnection(update: (value: READ) => void): void;
+  protected abstract setupConnection(state: this): void;
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
   protected abstract teardownConnection(): void;
 
-  protected updateResource(value: READ) {
+  /**Called every time write is called to check if value is valid*/
+  protected abstract writeCheck(value: WRITE): boolean;
+
+  /**Called after write debounce finished with the last written value*/
+  protected abstract writeAction(value: WRITE, state: this): void;
+
+  updateResource(value: READ) {
     this.#buffer = value;
     this.#valid = Date.now() + this.timeout;
-    for (let i = 0; i < this.#promises.length; i++)
-      this.#promises[i](this.#buffer);
-    this.#promises = [];
+    this.fulfillPromises(value);
     this.#fetching = false;
     this.updateSubscribers(value);
   }
@@ -112,26 +114,15 @@ export abstract class StateResourceBase<
   ): Promise<TResult1> {
     if (this.#valid >= Date.now()) {
       return func(this.#buffer!);
-    } else if (this.#fetching)
-      return func(
-        await new Promise((a) => {
-          this.#promises.push(a);
-          console.log(this.#promises);
-        })
-      );
+    } else if (this.#fetching) return this.appendPromise(func);
     else {
       this.#fetching = true;
       if (this.debounce > 0)
         await new Promise((a) => {
           setTimeout(a, this.debounce);
         });
-      this.#buffer = await this.singleGet();
-      this.#valid = Date.now() + this.timeout;
-      for (let i = 0; i < this.#promises.length; i++)
-        this.#promises[i](this.#buffer);
-      this.#promises = [];
-      this.#fetching = false;
-      return func(this.#buffer);
+      this.singleGet(this);
+      return this.appendPromise(func);
     }
   }
 
@@ -144,7 +135,21 @@ export abstract class StateResourceBase<
   }
 
   //Writer Context
-  abstract write(value: WRITE): boolean;
+  write(value: WRITE): boolean {
+    if (this.writeCheck(value)) {
+      this.#writeBuffer = value;
+      if (this.writebounce === 0) this.writeAction(value, this);
+      else if (this.#writeDebounceTimout === 0)
+        this.#writeDebounceTimout = window.setTimeout(() => {
+          this.writeAction(this.#writeBuffer!, this);
+          this.#writeDebounceTimout = 0;
+          this.#writeBuffer = undefined;
+        }, this.writebounce);
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   check(_value: WRITE): Option<string> {
     return None();
@@ -168,24 +173,19 @@ class StateResourceFunc<
   RELATED extends StateRelated = {},
   WRITE = READ extends Result<infer T, StateError> ? T : never
 > extends StateResourceBase<READ, RELATED, WRITE> {
-  /**Creates a state which connects to an async source and keeps updated with any changes to the source
-   * @param once function called when state value is requested once, the function should throw if it fails to get data
-   * @param setup function called when state is being used to setup live update of value
-   * @param teardown function called when state is no longer being used to teardown/cleanup communication
-   * @param setter function called when state value is set via setter, set true let state set it's own value
-   * @param checker function to allow state users to check if a given value is valid for the state
-   * @param limiter function to allow state users to limit a given value to state limit */
   constructor(
-    once: () => Promise<READ>,
-    setup: (update: (value: READ) => void) => void,
+    once: (state: StateResourceFunc<READ, RELATED, WRITE>) => void,
+    setup: (state: StateResourceFunc<READ, RELATED, WRITE>) => void,
     teardown: () => void,
     debounce: number,
     timeout: number,
     retention: number,
-    setter?: (
+    writeBounce?: number,
+    writeCheck?: (value: WRITE) => boolean,
+    writeAction?: (
       value: WRITE,
       state: StateResourceFunc<READ, RELATED, WRITE>
-    ) => boolean,
+    ) => void,
     helper?: {
       limit?: (value: WRITE) => Option<WRITE>;
       check?: (value: WRITE) => Option<string>;
@@ -196,10 +196,12 @@ class StateResourceFunc<
     this.singleGet = once;
     this.setupConnection = setup;
     this.teardownConnection = teardown;
-    this.#debounce = debounce;
-    this.#timeout = timeout;
-    this.#retention = retention;
-    if (setter) this.#setter = setter;
+    if (writeCheck) this.writeCheck = writeCheck;
+    if (writeAction) this.writeAction = writeAction;
+    this.debounce = debounce;
+    this.timeout = timeout;
+    this.retention = retention;
+    this.writebounce = writeBounce || 0;
     if (helper) this.#helper = helper;
   }
 
@@ -209,9 +211,10 @@ class StateResourceFunc<
         state: StateResourceFunc<READ, RELATED, WRITE>
       ) => boolean)
     | undefined;
-  #debounce: number;
-  #timeout: number;
-  #retention: number;
+  readonly debounce: number;
+  readonly timeout: number;
+  readonly retention: number;
+  readonly writebounce: number;
   #helper:
     | {
         limit?: (value: WRITE) => Option<WRITE>;
@@ -220,31 +223,22 @@ class StateResourceFunc<
       }
     | undefined;
 
-  /**Debounce delaying one time value retrival*/
-  get debounce(): number {
-    return this.#debounce;
-  }
-
-  /**Timeout for validity of last buffered value*/
-  get timeout(): number {
-    return this.#timeout;
-  }
-
-  /**Retention delay before resource performs teardown of connection is performed*/
-  get retention(): number {
-    return this.#retention;
-  }
-
   /**Called if the state is awaited, returns the value once*/
-  protected async singleGet(): Promise<READ> {
-    return Err({ reason: "", code: "INV" }) as any;
-  }
+  protected singleGet(_state: this): void {}
 
   /**Called when state is subscribed to to setup connection to remote resource*/
-  protected setupConnection(_update: (value: READ) => void): void {}
+  protected setupConnection(_state: this): void {}
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
   protected teardownConnection(): void {}
+
+  /**Called every time write is called to check if value is valid*/
+  protected writeCheck(_value: WRITE): boolean {
+    return false;
+  }
+
+  /**Called after write debounce finished with the last written value*/
+  protected writeAction(_value: WRITE, _state: this): void {}
 
   write(value: WRITE): boolean {
     if (this.#setter) return this.#setter(value, this);
@@ -273,22 +267,38 @@ export type StateResource<
 /**Alternative state resource which can be initialized with functions
  * @template READ - The type of the state’s value when read.
  * @template WRITE - The type which can be written to the state.
- * @template RELATED - The type of related states, defaults to an empty object.*/
-export function stateResource<
+ * @template RELATED - The type of related states, defaults to an empty object.
+ * @param once function called when state value is requested once, returns a Err(StateError) on failure
+ * @param setup function called when state has been subscribed to
+ * @param teardown function called when state has been unsubscribed from completely
+ * @param debounce delay added to once value retrival, which will collect multiple once requests into a single one
+ * @param timeout how long the last retrived value is considered valid
+ * @param retention delay after last subscriber unsubscribes before teardown is called, to allow quick resubscribe without teardown
+ * @param writeBounce debounce delay for write calls, only the last write within the delay is used
+ * @param writeCheck function called every time write is called to check if value is valid
+ * @param writeAction function called after write debounce finished with the last written value
+ * */
+export function state_resource<
   TYPE,
   RELATED extends StateRelated = {},
   WRITE = TYPE
 >(
-  once: () => Promise<Result<TYPE, StateError>>,
-  setup: (update: (value: Result<TYPE, StateError>) => void) => void,
+  once: (
+    state: StateResourceFunc<Result<TYPE, StateError>, RELATED, WRITE>
+  ) => void,
+  setup: (
+    state: StateResourceFunc<Result<TYPE, StateError>, RELATED, WRITE>
+  ) => void,
   teardown: () => void,
   debounce: number,
   timeout: number,
   retention: number,
-  setter?: (
+  writeBounce?: number,
+  writeCheck?: (value: WRITE) => boolean,
+  writeAction?: (
     value: WRITE,
     state: StateResourceFunc<Result<TYPE, StateError>, RELATED, WRITE>
-  ) => boolean,
+  ) => void,
   helper?: {
     limit?: (value: WRITE) => Option<WRITE>;
     check?: (value: WRITE) => Option<string>;
@@ -302,7 +312,9 @@ export function stateResource<
     debounce,
     timeout,
     retention,
-    setter,
+    writeBounce,
+    writeCheck,
+    writeAction,
     helper
   ) as StateResource<TYPE, RELATED, WRITE>;
 }

@@ -35,7 +35,7 @@ export class StateDelayedInternal<
   implements StateWriteBase<TYPE, false, RELATED, WRITE>, StateOwnerBase<TYPE>
 {
   constructor(
-    init: PromiseLike<TYPE>,
+    init?: Promise<TYPE>,
     setter?: StateSetterBase<TYPE, WRITE> | true,
     helper?: StateHelper<WRITE, RELATED>
   ) {
@@ -62,23 +62,24 @@ export class StateDelayedInternal<
       //@ts-expect-error
       delete this.setErr;
     };
-    let getting = false;
     this.then = async <TResult1 = TYPE>(
       func: (value: TYPE) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
-      if (getting) return this.appendPromise(func);
-      getting = true;
-      try {
-        this.#value = await init;
-      } catch (error) {
-        this.#value = Err({
-          reason: (error as Error).message,
-          code: "INIT",
-        }) as TYPE;
-      }
-      clean();
-      this.fulfillPromises(this.#value);
-      return func(this.#value);
+      let prom = this.appendPromise(func);
+      if (init)
+        init
+          .then((val) => {
+            this.set(val);
+          })
+          .catch((error) => {
+            this.set(
+              Err({
+                reason: (error as Error).message,
+                code: "INIT",
+              }) as TYPE
+            );
+          });
+      return prom;
     };
     let write = this.write.bind(this);
     this.write = (value) => {
@@ -89,14 +90,17 @@ export class StateDelayedInternal<
     };
     this.set = (value) => {
       clean();
+      this.fulfillPromises(value);
       this.set(value);
     };
     this.setOk = (value) => {
       clean();
+      this.fulfillPromises(Ok(value) as TYPE);
       this.setOk(value);
     };
     this.setErr = (value) => {
       clean();
+      this.fulfillPromises(Err(value) as TYPE);
       this.setErr(value);
     };
   }
@@ -186,12 +190,12 @@ export interface StateDelayedOk<TYPE, RELATED extends StateRelated = {}>
  * @param helper functions to check and limit the value, and to return related states.
  * */
 export function state_delayed_from<TYPE, RELATED extends StateRelated = {}>(
-  init: PromiseLike<TYPE>,
+  init?: Promise<TYPE>,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
   return new StateDelayedInternal<Result<TYPE, StateError>, RELATED, TYPE>(
-    init.then((v) => Ok(v)),
+    init?.then((v) => Ok(v)),
     setter,
     helper
   ) as StateDelayed<TYPE, RELATED>;
@@ -203,12 +207,12 @@ export function state_delayed_from<TYPE, RELATED extends StateRelated = {}>(
  * @param helper functions to check and limit the value, and to return related states.
  * */
 export function state_delayed_ok<TYPE, RELATED extends StateRelated = {}>(
-  init: PromiseLike<TYPE>,
+  init?: Promise<TYPE>,
   setter?: StateSetterOk<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
   return new StateDelayedInternal<ResultOk<TYPE>, RELATED, TYPE>(
-    init.then((v) => Ok(v)),
+    init?.then((v) => Ok(v)),
     setter,
     helper
   ) as StateDelayedOk<TYPE, RELATED>;
@@ -220,12 +224,12 @@ export function state_delayed_ok<TYPE, RELATED extends StateRelated = {}>(
  * @param helper functions to check and limit the value, and to return related states.
  * */
 export function state_delayed_err<TYPE, RELATED extends StateRelated = {}>(
-  err: PromiseLike<StateError>,
+  err?: Promise<StateError>,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
   return new StateDelayedInternal<Result<TYPE, StateError>, RELATED, TYPE>(
-    err.then((e) => Err(e)),
+    err?.then((e) => Err(e)),
     setter,
     helper
   ) as StateDelayed<TYPE, RELATED>;
@@ -240,7 +244,7 @@ export function state_delayed_from_result<
   TYPE,
   RELATED extends StateRelated = {}
 >(
-  init: PromiseLike<Result<TYPE, StateError>>,
+  init?: Promise<Result<TYPE, StateError>>,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
@@ -260,7 +264,7 @@ export function state_delayed_from_result_ok<
   TYPE,
   RELATED extends StateRelated = {}
 >(
-  init: PromiseLike<ResultOk<TYPE>>,
+  init?: Promise<ResultOk<TYPE>>,
   setter?: StateSetterOk<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {

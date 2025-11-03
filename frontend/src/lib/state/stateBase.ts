@@ -64,13 +64,13 @@ export abstract class StateBase<
   protected onUnsubscribe(_last: boolean) {}
 
   /**Returns if the state is being used */
-  inUse(): boolean {
-    return Boolean(this.#subscribers.size);
+  inUse(): this | undefined {
+    return this.#subscribers.size ? this : undefined;
   }
 
   /**Returns if the state has a subscriber */
-  hasSubscriber(subscriber: StateSubscriberBase<READ>): boolean {
-    return this.#subscribers.has(subscriber);
+  hasSubscriber(subscriber: StateSubscriberBase<READ>): this | undefined {
+    return this.#subscribers.has(subscriber) ? this : undefined;
   }
 
   /**Returns if the state has a subscriber */

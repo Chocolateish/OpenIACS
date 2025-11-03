@@ -1,6 +1,6 @@
 import { Err, Ok } from "@libResult";
 import { describe, expect, it } from "vitest";
-import { stateResource } from "../stateResource";
+import { state_resource } from "../stateResource";
 
 const generatePromises = (amount: number) => {
   let promises: Promise<any>[] = [];
@@ -20,10 +20,10 @@ const generatePromises = (amount: number) => {
   };
 };
 
-describe("Getting state value", async () => {
+describe("Getting state value", { timeout: 50 }, async () => {
   it("Async once fulfillment", async () => {
     let { promise, calls } = generatePromises(2);
-    let state = stateResource<number>(
+    let state = state_resource<number>(
       async () => {
         calls[0](0);
         return Ok(0);
@@ -47,7 +47,7 @@ describe("Getting state value", async () => {
   });
   it("Async once rejection", async () => {
     let { promise, calls } = generatePromises(2);
-    let state = stateResource<number>(
+    let state = state_resource<number>(
       async () => {
         calls[0](0);
         return Err({ code: "CL", reason: "Conn Lost" });
@@ -70,7 +70,7 @@ describe("Getting state value", async () => {
     await promise;
   });
   it("Using then with chaining return", async () => {
-    let state = stateResource<number>(
+    let state = state_resource<number>(
       async () => {
         return Ok(2);
       },
@@ -97,7 +97,7 @@ describe("Getting state value", async () => {
     ).eq(12);
   });
   it("Using then with chaining throw", async () => {
-    let state = stateResource<number>(
+    let state = state_resource<number>(
       async () => {
         return Ok(2);
       },
@@ -127,7 +127,7 @@ describe("Getting state value", async () => {
     ).eq(12);
   });
   it("Using then with async chaining return", async () => {
-    let state = stateResource<number>(
+    let state = state_resource<number>(
       async () => {
         return Ok(2);
       },
@@ -157,7 +157,7 @@ describe("Getting state value", async () => {
     ).eq(12);
   });
   it("Using then with async chaining throw", async () => {
-    let state = stateResource<number>(
+    let state = state_resource<number>(
       async () => {
         return Ok(2);
       },
@@ -190,7 +190,7 @@ describe("Getting state value", async () => {
     ).eq(12);
   });
   it("Awaiting async value", async () => {
-    let state = stateResource<number>(
+    let state = state_resource<number>(
       async () => {
         return Ok(2);
       },
@@ -208,10 +208,10 @@ describe("Getting state value", async () => {
   });
 });
 
-describe("Async Setting value", function () {
+describe("Async Setting value", { timeout: 50 }, function () {
   it("From user context with no setter function", async () => {
     await new Promise((done) => {
-      let state = stateResource<number>(
+      let state = state_resource<number>(
         async () => {
           return Ok(2);
         },
@@ -224,9 +224,12 @@ describe("Async Setting value", function () {
         50,
         50,
         50,
-        () => {
-          done(0);
+        50,
+        (_val) => {
           return true;
+        },
+        (_val) => {
+          done(0);
         }
       );
       state.write(4);
@@ -234,16 +237,16 @@ describe("Async Setting value", function () {
   });
 });
 
-describe("Async subscribe", function () {
+describe("Async subscribe", { timeout: 50 }, function () {
   it("Async subscribe", async () => {
     let { promise, calls } = generatePromises(3);
-    let state = stateResource<number>(
+    let state = state_resource<number>(
       async () => {
         throw new Error("This should not be called");
       },
-      (update) => {
+      (state) => {
         calls[0](0);
-        update(Ok(2));
+        state.updateResource(Ok(2));
       },
       () => {
         throw new Error("This should not be called");
@@ -262,13 +265,13 @@ describe("Async subscribe", function () {
   });
   it("Async unsubscribe", async () => {
     let { promise, calls } = generatePromises(3);
-    let state = stateResource<number>(
+    let state = state_resource<number>(
       async () => {
         throw new Error("This should not be called");
       },
-      (update) => {
+      (state) => {
         calls[0](0);
-        update(Ok(2));
+        state.updateResource(Ok(2));
       },
       () => {
         calls[2](0);

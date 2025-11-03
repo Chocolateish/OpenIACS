@@ -86,9 +86,7 @@ export class StateProxyInternal<
     func: (value: OUTPUT) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
     if (this.#buffer) return func(this.#buffer);
-    let prom = this.appendPromise(func);
-    if (!this.#subscriber) this.#connect();
-    return prom;
+    return func(this.transform(await this.#state));
   }
 
   get(): SYNC extends true ? OUTPUT : unknown {
@@ -170,7 +168,7 @@ export interface StateProxyFromOK<
 }
 export interface StateProxyOk<
   OUTPUT,
-  SYNC extends boolean,
+  SYNC extends boolean = any,
   RELATED extends StateRelated = {},
   INPUT = OUTPUT
 > extends StateProxyInternal<
@@ -186,7 +184,7 @@ export interface StateProxyOk<
 
 export interface StateProxyOkFromOk<
   OUTPUT,
-  SYNC extends boolean,
+  SYNC extends boolean = any,
   RELATED extends StateRelated = {},
   INPUT = OUTPUT
 > extends StateProxyInternal<ResultOk<OUTPUT>, SYNC, RELATED, ResultOk<INPUT>> {
