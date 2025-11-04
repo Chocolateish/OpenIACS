@@ -1,31 +1,31 @@
 import { ResultOk, type Option, type Result } from "@libResult";
 import { StateBase } from "./stateBase";
 import type {
-  StateError,
   StateRead,
   StateReadBase,
+  StateReadError,
   StateReadOk,
   StateRelated,
   StateSubscriberBase,
 } from "./types";
 
 export type StateProxyTransformBase<
-  INPUT extends Result<any, StateError>,
-  OUTPUT extends Result<any, StateError>
+  INPUT extends Result<any, StateReadError>,
+  OUTPUT extends Result<any, StateReadError>
 > = (value: INPUT) => OUTPUT;
 
 export type StateProxyTransform<INPUT, OUTPUT> = StateProxyTransformBase<
-  Result<INPUT, StateError>,
-  Result<OUTPUT, StateError>
+  Result<INPUT, StateReadError>,
+  Result<OUTPUT, StateReadError>
 >;
 
 export type StateProxyTransformFromOk<INPUT, OUTPUT> = StateProxyTransformBase<
   ResultOk<INPUT>,
-  Result<OUTPUT, StateError>
+  Result<OUTPUT, StateReadError>
 >;
 
 export type StateProxyTransformOk<INPUT, OUTPUT> = StateProxyTransformBase<
-  Result<INPUT, StateError>,
+  Result<INPUT, StateReadError>,
   ResultOk<OUTPUT>
 >;
 
@@ -33,10 +33,10 @@ export type StateProxyTransformOkFromOk<INPUT, OUTPUT> =
   StateProxyTransformBase<ResultOk<INPUT>, ResultOk<OUTPUT>>;
 
 export class StateProxyInternal<
-  OUTPUT extends Result<any, StateError>,
+  OUTPUT extends Result<any, StateReadError>,
   SYNC extends boolean,
   RELATED extends StateRelated,
-  INPUT extends Result<any, StateError>
+  INPUT extends Result<any, StateReadError>
 > extends StateBase<OUTPUT, SYNC, RELATED> {
   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
    * @param transform - Function to translate value of state or states to something else, false means first states values is used.
@@ -69,7 +69,7 @@ export class StateProxyInternal<
   #connect() {
     this.#subscriber = this.#state.subscribe((value) => {
       this.#buffer = this.transform(value);
-      this.fulfillPromises(this.#buffer);
+      this.fulfillReadPromises(this.#buffer);
       this.updateSubscribers(this.#buffer);
     }, !Boolean(this.#buffer));
   }
@@ -129,7 +129,7 @@ export class StateProxyInternal<
       this.#buffer = undefined;
       this.#buffer = this.transform(await this.#state);
       this.updateSubscribers(this.#buffer);
-      this.fulfillPromises(this.#buffer);
+      this.fulfillReadPromises(this.#buffer);
     }
   }
 }
@@ -140,10 +140,10 @@ export interface StateProxy<
   RELATED extends StateRelated = {},
   INPUT = OUTPUT
 > extends StateProxyInternal<
-    Result<OUTPUT, StateError>,
+    Result<OUTPUT, StateReadError>,
     SYNC,
     RELATED,
-    Result<INPUT, StateError>
+    Result<INPUT, StateReadError>
   > {
   readonly readable: StateRead<OUTPUT, SYNC, RELATED>;
   setState(state: StateRead<INPUT, SYNC, RELATED>): void;
@@ -155,7 +155,7 @@ export interface StateProxyFromOK<
   RELATED extends StateRelated = {},
   INPUT = OUTPUT
 > extends StateProxyInternal<
-    Result<OUTPUT, StateError>,
+    Result<OUTPUT, StateReadError>,
     SYNC,
     RELATED,
     ResultOk<INPUT>
@@ -175,7 +175,7 @@ export interface StateProxyOk<
     ResultOk<OUTPUT>,
     SYNC,
     RELATED,
-    Result<INPUT, StateError>
+    Result<INPUT, StateReadError>
   > {
   readonly readable: StateReadOk<OUTPUT, SYNC, RELATED>;
   setState(state: StateRead<INPUT, SYNC, RELATED>): void;
@@ -208,10 +208,10 @@ export function state_proxy_from<
   transform?: StateProxyTransform<INPUT, OUTPUT>
 ) {
   return new StateProxyInternal<
-    Result<OUTPUT, StateError>,
+    Result<OUTPUT, StateReadError>,
     SYNC,
     RELATED,
-    Result<INPUT, StateError>
+    Result<INPUT, StateReadError>
   >(state, transform) as StateProxy<OUTPUT, SYNC, RELATED, INPUT>;
 }
 
@@ -228,10 +228,10 @@ export function state_proxy_from_ok<
   transform?: StateProxyTransformFromOk<INPUT, OUTPUT>
 ) {
   return new StateProxyInternal<
-    Result<OUTPUT, StateError>,
+    Result<OUTPUT, StateReadError>,
     SYNC,
     RELATED,
-    Result<INPUT, StateError>
+    Result<INPUT, StateReadError>
   >(state, transform as any) as StateProxyFromOK<OUTPUT, SYNC, RELATED, INPUT>;
 }
 
@@ -266,10 +266,10 @@ export function state_proxy_ok<
   transform?: StateProxyTransformOk<INPUT, OUTPUT>
 ) {
   return new StateProxyInternal<
-    Result<OUTPUT, StateError>,
+    Result<OUTPUT, StateReadError>,
     SYNC,
     RELATED,
-    Result<INPUT, StateError>
+    Result<INPUT, StateReadError>
   >(state, transform) as StateProxyOk<OUTPUT, SYNC, RELATED, INPUT>;
 }
 
@@ -286,10 +286,10 @@ export function state_proxy_ok_from_ok<
   transform?: StateProxyTransformOkFromOk<INPUT, OUTPUT>
 ) {
   return new StateProxyInternal<
-    Result<OUTPUT, StateError>,
+    Result<OUTPUT, StateReadError>,
     SYNC,
     RELATED,
-    Result<INPUT, StateError>
+    Result<INPUT, StateReadError>
   >(state, transform as any) as StateProxyOkFromOk<
     OUTPUT,
     SYNC,

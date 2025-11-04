@@ -1,5 +1,30 @@
-import { None, Some, type Option } from "@libResult";
-import type { StateHelper, StateRead, StateRelated } from "./types";
+import { None, Ok, Some, type Option, type Result } from "@libResult";
+import type {
+  StateHelper,
+  StateRead,
+  StateRelated,
+  StateSubscriber,
+  StateWriteError,
+} from "./types";
+
+export async function state_await_value<T>(
+  value: T,
+  state: StateRead<T, true>,
+  timeout: number = 500
+): Promise<boolean> {
+  let func: StateSubscriber<T>;
+  let res = await Promise.race([
+    new Promise<false>((a) => setTimeout(a, timeout, false)),
+    new Promise<true>((a) => {
+      func = state.subscribe((res) => {
+        if (res.ok && res.value === value) a(true);
+      });
+    }),
+  ]);
+  //@ts-expect-error
+  state.unsubscribe(func);
+  return res;
+}
 
 export interface StateNumberHelperType {
   min?: number;
@@ -64,15 +89,7 @@ export class StateNumberHelper
     }
   }
 
-  check(value: number): Option<string> {
-    if ("max" in this && value > (this.max as number))
-      return Some(value + " is bigger than the limit of " + this.max);
-    if ("min" in this && value < (this.min as number))
-      return Some(value + " is smaller than the limit of " + this.max);
-    return None();
-  }
-
-  limit(value: number): Option<number> {
+  limit(value: number): Result<number, StateWriteError> {
     if (this.step)
       if (this.start)
         value = parseFloat(
@@ -88,9 +105,17 @@ export class StateNumberHelper
             Math.round((value + Number.EPSILON) / this.step) * this.step
           ).toFixed(this.decimals)
         );
-    return Some(
+    return Ok(
       Math.min(this.max ?? Infinity, Math.max(this.min ?? -Infinity, value))
     );
+  }
+
+  check(value: number): Option<string> {
+    if ("max" in this && value > (this.max as number))
+      return Some(value + " is bigger than the limit of " + this.max);
+    if ("min" in this && value < (this.min as number))
+      return Some(value + " is smaller than the limit of " + this.max);
+    return None();
   }
 
   related(): Option<StateNumberHelperType> {
@@ -115,6 +140,17 @@ export class StateStringHelper
     if (maxLength !== undefined) this.maxLength = maxLength;
     if (maxLengthBytes !== undefined) this.maxLengthBytes = maxLengthBytes;
   }
+  limit(value: string): Result<string, StateWriteError> {
+    if (this.maxLength && value.length > this.maxLength)
+      value = value.slice(0, this.maxLength);
+    if (this.maxLengthBytes) {
+      value = new TextDecoder().decode(
+        new TextEncoder().encode(value).slice(0, this.maxLengthBytes)
+      );
+      if (value.at(-1)?.charCodeAt(0) === 65533) value = value.slice(0, -1);
+    }
+    return Ok(value);
+  }
   check(value: string): Option<string> {
     if ("maxLength" in this && value.length > this.maxLength!)
       return Some(
@@ -128,17 +164,6 @@ export class StateStringHelper
         "the text is longer than the limit of " + this.maxLengthBytes + " bytes"
       );
     return None();
-  }
-  limit(value: string): Option<string> {
-    if (this.maxLength && value.length > this.maxLength)
-      value = value.slice(0, this.maxLength);
-    if (this.maxLengthBytes) {
-      value = new TextDecoder().decode(
-        new TextEncoder().encode(value).slice(0, this.maxLengthBytes)
-      );
-      if (value.at(-1)?.charCodeAt(0) === 65533) value = value.slice(0, -1);
-    }
-    return Some(value);
   }
   related(): Option<StateStringHelperType> {
     return Some(this as StateStringHelperType);
@@ -173,13 +198,12 @@ export class StateEnumHelper<
     this.list = list;
   }
 
+  limit(value: K): Result<K, StateWriteError> {
+    return Ok(value);
+  }
   check(value: K): Option<string> {
     if (value in this.list) return None();
     return Some(String(value) + " is not in list");
-  }
-
-  limit(value: K): Option<K> {
-    return Some(value);
   }
 
   related(): Option<R> {

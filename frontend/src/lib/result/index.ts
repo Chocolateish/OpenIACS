@@ -332,9 +332,7 @@ export class ResultErr<E> implements ResultBase<never, E> {
 //###########################################################################################################################################################
 
 export type Result<T, E> = ResultOk<T> | ResultErr<E>;
-export type ResultAsync<T, E> = Promise<Result<T, E>>;
 export type Option<T> = OptionSome<T> | OptionNone;
-export type OptionAsync<T> = Promise<Option<T>>;
 
 export function Ok<T>(value: T) {
   return new ResultOk<T>(value);

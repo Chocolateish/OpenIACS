@@ -1,6 +1,6 @@
-import { Err, Ok, Some, type Option, type Result } from "@libResult";
+import { Err, Ok } from "@libResult";
 import { describe, expect, it } from "vitest";
-import type { StateError } from "../types";
+import type { StateSetter } from "../types";
 import {
   state_test_gen_delayed as delayed,
   state_test_gen_delayed_ok as delayed_ok,
@@ -16,9 +16,7 @@ import {
   type StateTestsWrite,
 } from "./shared";
 
-let gen_states = (
-  setter?: ((val: number) => Option<Result<number, StateError>>) | true
-): StateTestsWrite[] => {
+let gen_states = (setter?: StateSetter<number> | true): StateTestsWrite[] => {
   return [
     ...normals(setter),
     ...lazy(setter),
@@ -58,7 +56,7 @@ describe(
     timeout: 50,
   },
   function () {
-    let tests = gen_states((val) => Some(Ok(val)));
+    let tests = gen_states((val) => Ok(Ok(val)));
     for (let i = 0; i < tests.length; i++) {
       const test = tests[i];
       it(test[0], async function () {
@@ -77,7 +75,7 @@ describe(
     timeout: 50,
   },
   function () {
-    let tests = gen_states((val) => Some(Ok(val * 2)));
+    let tests = gen_states((val) => Ok(Ok(val * 2)));
     for (let i = 0; i < tests.length; i++) {
       const test = tests[i];
       it(test[0], async function () {
@@ -96,7 +94,7 @@ describe(
     timeout: 50,
   },
   function () {
-    let tests = gen_states(() => Some(Err(errGen())));
+    let tests = gen_states(() => Ok(Err(errGen())));
     for (let i = 0; i < tests.length; i++) {
       const test = tests[i];
       it(test[0], async function () {

@@ -1,21 +1,13 @@
-import {
-  Err,
-  None,
-  Ok,
-  type Option,
-  type Result,
-  ResultOk,
-  Some,
-} from "@libResult";
+import { Err, None, Ok, type Option, type Result, ResultOk } from "@libResult";
 import { StateBaseSync } from "./stateBase";
 import {
-  type StateError,
   type StateHelper,
   type StateOwner,
   type StateOwnerBase,
   type StateOwnerOk,
   type StateRead,
   type StateReadBase,
+  type StateReadError,
   type StateReadOk,
   type StateRelated,
   type StateSetter,
@@ -23,10 +15,11 @@ import {
   type StateSetterOk,
   type StateWrite,
   type StateWriteBase,
+  type StateWriteError,
   type StateWriteOk,
 } from "./types";
 export class StateInternal<
-    TYPE extends Result<any, StateError>,
+    TYPE extends Result<any, StateReadError>,
     RELATED extends StateRelated,
     WRITE
   >
@@ -40,14 +33,13 @@ export class StateInternal<
   ) {
     super();
     if (setter)
-      this.#setter =
-        setter === true
-          ? (value) => {
-              return this.#helper?.limit
-                ? this.#helper?.limit(value).map((v) => Ok(v as any) as TYPE)
-                : Some(Ok(value as any) as TYPE);
-            }
-          : setter;
+      if (setter === true)
+        this.#setter = (value) => {
+          return this.#helper?.limit
+            ? (this.#helper?.limit(value) as Result<TYPE, StateWriteError>)
+            : Ok(value as unknown as TYPE);
+        };
+      else this.#setter = setter;
     if (helper) this.#helper = helper;
     this.#value = init;
   }
@@ -78,18 +70,19 @@ export class StateInternal<
 
   //##################################################################################################################################################
   //Writer Context
-  write(value: WRITE): boolean {
+  async write(value: WRITE): Promise<Result<void, StateWriteError>> {
+    return this.writeSync(value);
+  }
+  writeSync(value: WRITE): Result<void, StateWriteError> {
     if (this.#setter && (!this.#value!.ok || this.#value?.value !== value))
-      return (
-        this.#setter(value).map(this.set.bind(this)).unwrapOr(false) !== false
-      );
-    return false;
+      return this.#setter(value).map(this.set.bind(this));
+    return Err({ code: "LRO", reason: "State not writable" });
+  }
+  limit(value: WRITE): Result<WRITE, StateWriteError> {
+    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
   }
   check(value: WRITE): Option<string> {
     return this.#helper?.check ? this.#helper.check(value) : None();
-  }
-  limit(value: WRITE): Option<WRITE> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Some(value);
   }
   get writeable(): StateWriteBase<TYPE, true, RELATED, WRITE> {
     return this;
@@ -101,11 +94,11 @@ export class StateInternal<
     this.#value = value;
     this.updateSubscribers(value);
   }
-  setOk(value: TYPE extends Result<infer T, StateError> ? T : never): void {
+  setOk(value: TYPE extends Result<infer T, StateReadError> ? T : never): void {
     this.#value = Ok(value) as TYPE;
     this.updateSubscribers(this.#value);
   }
-  setErr(err: StateError): void {
+  setErr(err: StateReadError): void {
     this.#value = Err(err) as TYPE;
     this.updateSubscribers(this.#value);
   }
@@ -115,12 +108,12 @@ export class StateInternal<
 }
 
 export interface State<TYPE, RELATED extends StateRelated = {}>
-  extends StateInternal<Result<TYPE, StateError>, RELATED, TYPE> {
+  extends StateInternal<Result<TYPE, StateReadError>, RELATED, TYPE> {
   readonly readable: StateRead<TYPE, true, RELATED>;
   readonly writeable: StateWrite<TYPE, true, RELATED>;
   readonly owner: StateOwner<TYPE>;
   setOk(value: TYPE): void;
-  setErr(err: StateError): void;
+  setErr(err: StateReadError): void;
 }
 export interface StateOk<TYPE, RELATED extends StateRelated = {}>
   extends StateInternal<ResultOk<TYPE>, RELATED, TYPE> {
@@ -141,7 +134,7 @@ export function state_from<TYPE, RELATED extends StateRelated = {}>(
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateInternal<Result<TYPE, StateError>, RELATED, TYPE>(
+  return new StateInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
     Ok(init),
     setter,
     helper
@@ -171,11 +164,11 @@ export function state_ok<TYPE, RELATED extends StateRelated = {}>(
  * @param helper functions to check and limit the value, and to return related states.
  * */
 export function state_err<TYPE, RELATED extends StateRelated = {}>(
-  err: StateError,
+  err: StateReadError,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateInternal<Result<TYPE, StateError>, RELATED, TYPE>(
+  return new StateInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
     Err(err),
     setter,
     helper
@@ -188,11 +181,11 @@ export function state_err<TYPE, RELATED extends StateRelated = {}>(
  * @param helper functions to check and limit the value, and to return related states
  * */
 export function state_from_result<TYPE, RELATED extends StateRelated = {}>(
-  init: Result<TYPE, StateError>,
+  init: Result<TYPE, StateReadError>,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateInternal<Result<TYPE, StateError>, RELATED, TYPE>(
+  return new StateInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
     init,
     setter,
     helper

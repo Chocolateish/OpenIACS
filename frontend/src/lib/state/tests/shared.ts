@@ -44,7 +44,13 @@ import {
   state_proxy_write_ok,
   state_proxy_write_ok_from_ok,
 } from "../stateProxyWrite";
-import type { StateError, StateOwner, StateRead, StateWrite } from "../types";
+import type {
+  StateOwner,
+  StateRead,
+  StateReadError,
+  StateSetter,
+  StateWrite,
+} from "../types";
 
 export function state_test_gen_error() {
   return { code: "TEST", reason: "Test Error" };
@@ -56,8 +62,8 @@ export type StateTestsRead = [
   StateRead<number, any>,
   StateOwner<number>,
   StateBase<any, any, any>,
-  Result<number, StateError>,
-  Result<number, StateError>
+  Result<number, StateReadError>,
+  Result<number, StateReadError>
 ];
 
 export type StateTestsWrite = [
@@ -65,14 +71,14 @@ export type StateTestsWrite = [
   StateWrite<number, any>,
   StateOwner<number>,
   StateBase<any, any, any>,
-  Result<number, StateError>,
-  Result<number, StateError>
+  Result<number, StateReadError>,
+  Result<number, StateReadError>
 ];
 
 export function norm(
   text: string,
   state: StateBase<any, any, any> & StateOwner<any> & StateWrite<any, any, any>,
-  init: Result<number, StateError>
+  init: Result<number, StateReadError>
 ): StateTestsWrite {
   return [text, state.writeable, state, state, init, init.constructor as any];
 }
@@ -84,7 +90,7 @@ export function norm(
 //      ____) |  | |/ ____ \| |  | |____
 //     |_____/   |_/_/    \_\_|  |______|
 export function state_test_gen_normals(
-  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+  setter?: StateSetter<number> | true
 ): StateTestsWrite[] {
   return [
     norm("state_from", state_from(1, setter), Ok(1)),
@@ -93,7 +99,7 @@ export function state_test_gen_normals(
   ];
 }
 export function state_test_gen_normals_ok(
-  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+  setter?: StateSetter<number> | true
 ): StateTestsWrite[] {
   return [
     norm("state_ok", state_ok(1, setter as any), Ok(1)),
@@ -108,7 +114,7 @@ export function state_test_gen_normals_ok(
 //     | |____ / ____ \  / /__    | |
 //     |______/_/    \_\/_____|   |_|
 export function state_test_gen_lazy(
-  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+  setter?: StateSetter<number> | true
 ): StateTestsWrite[] {
   return [
     norm(
@@ -129,7 +135,7 @@ export function state_test_gen_lazy(
   ];
 }
 export function state_test_gen_lazy_ok(
-  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+  setter?: StateSetter<number> | true
 ): StateTestsWrite[] {
   return [
     norm(
@@ -152,7 +158,7 @@ export function state_test_gen_lazy_ok(
 //     | |__| | |____| |____ / ____ \| |  | |____| |__| |
 //     |_____/|______|______/_/    \_\_|  |______|_____/
 export function state_test_gen_delayed(
-  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+  setter?: StateSetter<number> | true
 ): StateTestsWrite[] {
   return [
     norm("state_delayed_from", sdf((async () => 1)(), setter), Ok(1)),
@@ -169,7 +175,7 @@ export function state_test_gen_delayed(
   ];
 }
 export function state_test_gen_delayed_ok(
-  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+  setter?: StateSetter<number> | true
 ): StateTestsWrite[] {
   return [
     norm("state_delayed_ok", sdo((async () => 1)(), setter as any), Ok(1)),
@@ -195,7 +201,7 @@ let dg = (ret: any) => {
 };
 
 export function state_test_gen_delayed_with_delay(
-  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+  setter?: StateSetter<number> | true
 ): StateTestsWrite[] {
   return [
     norm("state_delayed_from", sdf(dg(1), setter), Ok(1)),
@@ -208,7 +214,7 @@ export function state_test_gen_delayed_with_delay(
   ];
 }
 export function state_test_gen_delayed_with_delay_ok(
-  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+  setter?: StateSetter<number> | true
 ): StateTestsWrite[] {
   return [
     norm("state_delayed_ok", sdo(dg(1), setter as any), Ok(1)),
@@ -258,7 +264,7 @@ export function state_test_gen_proxies_ok(): StateTestsRead[] {
 //     | |    | | \ \| |__| / . \    | |       \  /\  /  | | \ \ _| |_   | |  | |____
 //     |_|    |_|  \_\\____/_/ \_\   |_|        \/  \/   |_|  \_\_____|  |_|  |______|
 export function state_test_gen_proxies_write(
-  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+  setter?: StateSetter<number> | true
 ): StateTestsWrite[] {
   let s7 = state_ok(1, setter as any);
   let s8 = state_ok(1, setter as any);
@@ -272,7 +278,7 @@ export function state_test_gen_proxies_write(
 }
 
 export function state_test_gen_proxies_write_ok(
-  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+  setter?: StateSetter<number> | true
 ): StateTestsWrite[] {
   let s5 = state_ok(1, setter as any);
   let s6 = state_ok(1, setter as any);
@@ -294,7 +300,7 @@ let dr = Ok(1);
 let drc = pr.constructor as any;
 
 export function state_test_gen_derived(
-  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+  setter?: ((val: number) => Option<Result<number, StateReadError>>) | true
 ): StateTestsRead[] {
   let s1 = state_ok(1, setter as any);
   let s2 = state_ok(1, setter as any);
@@ -314,7 +320,7 @@ export function state_test_gen_derived(
 }
 
 export function state_test_gen_derived_ok(
-  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+  setter?: ((val: number) => Option<Result<number, StateReadError>>) | true
 ): StateTestsRead[] {
   let s1 = state_ok(1, setter as any);
   let s2 = state_ok(1, setter as any);
@@ -341,7 +347,7 @@ export function state_test_gen_derived_ok(
 //     |_____/|______|_|  \_\_____|   \/   |______|_____/
 
 export function state_test_gen_derives_sum(
-  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+  setter?: ((val: number) => Option<Result<number, StateReadError>>) | true
 ): StateTestsRead[] {
   let s1 = state_ok(1, setter as any);
   let s2 = state_ok(1, setter as any);
@@ -353,7 +359,7 @@ export function state_test_gen_derives_sum(
   ];
 }
 export function state_test_gen_derives_sum_ok(
-  setter?: ((val: number) => Option<Result<number, StateError>>) | true
+  setter?: ((val: number) => Option<Result<number, StateReadError>>) | true
 ): StateTestsRead[] {
   let s1 = state_ok(1, setter as any);
   let d1 = state_derives_sum_ok_from_ok(s1);

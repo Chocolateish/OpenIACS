@@ -135,6 +135,7 @@ export { state_resource, type StateResource } from "./stateResource";
 //     | |  | | |____| |____| |    | |____| | \ \ ____) |
 //     |_|  |_|______|______|_|    |______|_|  \_\_____/
 export {
+  state_await_value,
   state_compare,
   state_compare_sync,
   state_enum_iterate,
@@ -192,4 +193,8 @@ export let extenstion = {
 //     |  __|   > <    | |  |  __| | . ` |\___ \  | || |  | | . ` |    | |    \   / |  ___/|  __|  \___ \
 //     | |____ / . \   | |  | |____| |\  |____) |_| || |__| | |\  |    | |     | |  | |    | |____ ____) |
 //     |______/_/ \_\  |_|  |______|_| \_|_____/|_____\____/|_| \_|    |_|     |_|  |_|    |______|_____/
-export type { StateError, StateReadBase, StateWriteBase } from "./types";
+export type {
+  StateReadError as StateError,
+  StateReadBase,
+  StateWriteBase,
+} from "./types";

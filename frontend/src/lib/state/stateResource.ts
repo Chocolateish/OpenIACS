@@ -1,6 +1,12 @@
-import { None, type Option, type Result, Some } from "@libResult";
+import { Err, None, Ok, type Option, type Result } from "@libResult";
 import { StateBase } from "./stateBase";
-import type { StateError, StateRelated, StateWriteBase } from "./types";
+import type {
+  StateHelper,
+  StateReadError,
+  StateRelated,
+  StateWriteBase,
+  StateWriteError,
+} from "./types";
 
 /**State Resource
  * state for representing a remote resource
@@ -19,9 +25,9 @@ import type { StateError, StateRelated, StateWriteBase } from "./types";
  * @template WRITE - The type which can be written to the state.
  * @template RELATED - The type of related states, defaults to an empty object.*/
 export abstract class StateResourceBase<
-    READ extends Result<any, StateError>,
+    READ extends Result<any, StateReadError>,
     RELATED extends StateRelated = {},
-    WRITE = READ extends Result<infer T, StateError> ? T : never
+    WRITE = READ extends Result<infer T, StateReadError> ? T : never
   >
   extends StateBase<READ, false, RELATED>
   implements StateWriteBase<READ, false, RELATED, WRITE>
@@ -33,6 +39,7 @@ export abstract class StateResourceBase<
   #debounceTimout: number = 0;
   #writeBuffer?: WRITE;
   #writeDebounceTimout: number = 0;
+  #writePromise?: (val: Result<void, StateWriteError>) => void;
 
   /**Debounce delaying one time value retrival*/
   abstract get debounce(): number;
@@ -94,16 +101,16 @@ export abstract class StateResourceBase<
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
   protected abstract teardownConnection(): void;
 
-  /**Called every time write is called to check if value is valid*/
-  protected abstract writeCheck(value: WRITE): boolean;
-
   /**Called after write debounce finished with the last written value*/
-  protected abstract writeAction(value: WRITE, state: this): void;
+  protected abstract writeAction(
+    value: WRITE,
+    state: this
+  ): Promise<Result<void, StateWriteError>>;
 
   updateResource(value: READ) {
     this.#buffer = value;
     this.#valid = Date.now() + this.timeout;
-    this.fulfillPromises(value);
+    this.fulfillReadPromises(value);
     this.#fetching = false;
     this.updateSubscribers(value);
   }
@@ -114,7 +121,7 @@ export abstract class StateResourceBase<
   ): Promise<TResult1> {
     if (this.#valid >= Date.now()) {
       return func(this.#buffer!);
-    } else if (this.#fetching) return this.appendPromise(func);
+    } else if (this.#fetching) return this.appendReadPromise(func);
     else {
       this.#fetching = true;
       if (this.debounce > 0)
@@ -122,7 +129,7 @@ export abstract class StateResourceBase<
           setTimeout(a, this.debounce);
         });
       this.singleGet(this);
-      return this.appendPromise(func);
+      return this.appendReadPromise(func);
     }
   }
 
@@ -135,32 +142,43 @@ export abstract class StateResourceBase<
   }
 
   //Writer Context
-  write(value: WRITE): boolean {
-    if (this.writeCheck(value)) {
-      this.#writeBuffer = value;
-      if (this.writebounce === 0) this.writeAction(value, this);
-      else if (this.#writeDebounceTimout === 0)
-        this.#writeDebounceTimout = window.setTimeout(() => {
-          this.writeAction(this.#writeBuffer!, this);
-          this.#writeDebounceTimout = 0;
-          this.#writeBuffer = undefined;
-        }, this.writebounce);
-      return true;
-    } else {
-      return false;
-    }
+  write(value: WRITE): Promise<Result<void, StateWriteError>> {
+    this.#writeBuffer = value;
+    if (this.writebounce === 0) return this.writeAction(value, this);
+    else if (this.#writeDebounceTimout === 0)
+      this.#writeDebounceTimout = window.setTimeout(async () => {
+        let writeRes = this.writeAction(this.#writeBuffer!, this);
+        this.#writeDebounceTimout = 0;
+        this.#writeBuffer = undefined;
+        this.fulfillWritePromises(await writeRes);
+      }, this.writebounce);
+    return this.appendWritePromise();
   }
 
-  check(_value: WRITE): Option<string> {
-    return None();
+  writeSync(_value: unknown): unknown {
+    return undefined;
   }
 
-  limit(value: WRITE): Option<WRITE> {
-    return Some(value);
-  }
+  abstract check(_value: WRITE): Option<string>;
+
+  abstract limit(value: WRITE): Result<WRITE, StateWriteError>;
 
   get writeable(): StateWriteBase<READ, false, RELATED, WRITE> {
     return this;
+  }
+
+  //Promises
+  writePromise(): Promise<Result<void, StateWriteError>> {
+    return new Promise<Result<void, StateWriteError>>((a) => {
+      if (this.#writePromise)
+        console.warn("Overwriting existing write promise");
+      this.#writePromise = a;
+    });
+  }
+  fulfillWrite(res: Result<void, StateWriteError>) {
+    if (this.#writePromise) this.#writePromise(res);
+    else console.warn("No write promise to fulfill");
+    this.#writePromise = undefined;
   }
 }
 
@@ -169,9 +187,9 @@ export abstract class StateResourceBase<
  * @template WRITE - The type which can be written to the state.
  * @template RELATED - The type of related states, defaults to an empty object.*/
 class StateResourceFunc<
-  READ extends Result<any, StateError>,
+  READ extends Result<any, StateReadError>,
   RELATED extends StateRelated = {},
-  WRITE = READ extends Result<infer T, StateError> ? T : never
+  WRITE = READ extends Result<infer T, StateReadError> ? T : never
 > extends StateResourceBase<READ, RELATED, WRITE> {
   constructor(
     once: (state: StateResourceFunc<READ, RELATED, WRITE>) => void,
@@ -181,22 +199,16 @@ class StateResourceFunc<
     timeout: number,
     retention: number,
     writeBounce?: number,
-    writeCheck?: (value: WRITE) => boolean,
     writeAction?: (
       value: WRITE,
       state: StateResourceFunc<READ, RELATED, WRITE>
-    ) => void,
-    helper?: {
-      limit?: (value: WRITE) => Option<WRITE>;
-      check?: (value: WRITE) => Option<string>;
-      related?: () => Option<any>;
-    }
+    ) => Promise<Result<void, StateWriteError>>,
+    helper?: StateHelper<WRITE, RELATED>
   ) {
     super();
     this.singleGet = once;
     this.setupConnection = setup;
     this.teardownConnection = teardown;
-    if (writeCheck) this.writeCheck = writeCheck;
     if (writeAction) this.writeAction = writeAction;
     this.debounce = debounce;
     this.timeout = timeout;
@@ -205,23 +217,11 @@ class StateResourceFunc<
     if (helper) this.#helper = helper;
   }
 
-  #setter:
-    | ((
-        value: WRITE,
-        state: StateResourceFunc<READ, RELATED, WRITE>
-      ) => boolean)
-    | undefined;
   readonly debounce: number;
   readonly timeout: number;
   readonly retention: number;
   readonly writebounce: number;
-  #helper:
-    | {
-        limit?: (value: WRITE) => Option<WRITE>;
-        check?: (value: WRITE) => Option<string>;
-        related?: () => Option<any>;
-      }
-    | undefined;
+  #helper?: StateHelper<WRITE, RELATED>;
 
   /**Called if the state is awaited, returns the value once*/
   protected singleGet(_state: this): void {}
@@ -232,25 +232,19 @@ class StateResourceFunc<
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
   protected teardownConnection(): void {}
 
-  /**Called every time write is called to check if value is valid*/
-  protected writeCheck(_value: WRITE): boolean {
-    return false;
-  }
-
   /**Called after write debounce finished with the last written value*/
-  protected writeAction(_value: WRITE, _state: this): void {}
-
-  write(value: WRITE): boolean {
-    if (this.#setter) return this.#setter(value, this);
-    return false;
+  protected async writeAction(
+    _value: WRITE,
+    _state: this
+  ): Promise<Result<void, StateWriteError>> {
+    return Err({ code: "LRO", reason: "State not writable" });
   }
 
+  limit(value: WRITE): Result<WRITE, StateWriteError> {
+    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
+  }
   check(value: WRITE): Option<string> {
     return this.#helper?.check ? this.#helper.check(value) : None();
-  }
-
-  limit(value: WRITE): Option<WRITE> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Some(value);
   }
 }
 
@@ -262,7 +256,7 @@ export type StateResource<
   TYPE,
   RELATED extends StateRelated = {},
   WRITE = TYPE
-> = StateResourceFunc<Result<TYPE, StateError>, RELATED, WRITE>;
+> = StateResourceFunc<Result<TYPE, StateReadError>, RELATED, WRITE>;
 
 /**Alternative state resource which can be initialized with functions
  * @template READ - The type of the state’s value when read.
@@ -284,28 +278,23 @@ export function state_resource<
   WRITE = TYPE
 >(
   once: (
-    state: StateResourceFunc<Result<TYPE, StateError>, RELATED, WRITE>
+    state: StateResourceFunc<Result<TYPE, StateReadError>, RELATED, WRITE>
   ) => void,
   setup: (
-    state: StateResourceFunc<Result<TYPE, StateError>, RELATED, WRITE>
+    state: StateResourceFunc<Result<TYPE, StateReadError>, RELATED, WRITE>
   ) => void,
   teardown: () => void,
   debounce: number,
   timeout: number,
   retention: number,
   writeBounce?: number,
-  writeCheck?: (value: WRITE) => boolean,
   writeAction?: (
     value: WRITE,
-    state: StateResourceFunc<Result<TYPE, StateError>, RELATED, WRITE>
-  ) => void,
-  helper?: {
-    limit?: (value: WRITE) => Option<WRITE>;
-    check?: (value: WRITE) => Option<string>;
-    related?: () => Option<any>;
-  }
+    state: StateResourceFunc<Result<TYPE, StateReadError>, RELATED, WRITE>
+  ) => Promise<Result<void, StateWriteError>>,
+  helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new StateResourceFunc<Result<TYPE, StateError>, RELATED, WRITE>(
+  return new StateResourceFunc<Result<TYPE, StateReadError>, RELATED, WRITE>(
     once,
     setup,
     teardown,
@@ -313,7 +302,6 @@ export function state_resource<
     timeout,
     retention,
     writeBounce,
-    writeCheck,
     writeAction,
     helper
   ) as StateResource<TYPE, RELATED, WRITE>;

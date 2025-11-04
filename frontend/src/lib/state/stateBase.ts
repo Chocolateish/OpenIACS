@@ -1,19 +1,21 @@
 import { None, ResultOk, type Option, type Result } from "@libResult";
 import {
-  type StateError,
   type StateReadBase,
+  type StateReadError,
   type StateRelated,
   type StateSubscriberBase,
+  type StateWriteError,
 } from "./types";
 
 export abstract class StateBase<
-  READ extends Result<any, StateError>,
+  READ extends Result<any, StateReadError>,
   SYNC extends boolean,
   RELATED extends StateRelated = {}
 > implements StateReadBase<READ, SYNC, RELATED>
 {
   #subscribers: Set<StateSubscriberBase<READ>> = new Set();
-  #promises?: ((val: READ) => void)[];
+  #readPromises?: ((val: READ) => void)[];
+  #writePromises?: ((val: Result<void, StateWriteError>) => void)[];
 
   //Reader Context
   abstract then<TResult1 = READ>(
@@ -95,20 +97,32 @@ export abstract class StateBase<
   }
 
   //Promises
-  protected async appendPromise<TResult1 = READ>(
+  protected async appendReadPromise<TResult1 = READ>(
     func: (value: READ) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
     return func(
       await new Promise<READ>((a) => {
-        if (!this.#promises) this.#promises = [];
-        this.#promises.push(a);
+        (this.#readPromises ??= []).push(a);
       })
     );
   }
-  protected fulfillPromises(value: READ) {
-    if (this.#promises)
-      for (let i = 0; i < this.#promises.length; i++) this.#promises[i](value);
-    this.#promises = [];
+  protected fulfillReadPromises(value: READ) {
+    if (this.#readPromises)
+      for (let i = 0; i < this.#readPromises.length; i++)
+        this.#readPromises[i](value);
+    this.#readPromises = [];
+  }
+
+  protected async appendWritePromise(): Promise<Result<void, StateWriteError>> {
+    return new Promise<Result<void, StateWriteError>>((a) => {
+      (this.#writePromises ??= []).push(a);
+    });
+  }
+  protected fulfillWritePromises(res: Result<void, StateWriteError>) {
+    if (this.#writePromises)
+      for (let i = 0; i < this.#writePromises.length; i++)
+        this.#writePromises[i](res);
+    this.#writePromises = [];
   }
 }
 
@@ -119,7 +133,7 @@ export abstract class StateBaseOk<
 > extends StateBase<READ, SYNC, RELATED> {}
 
 export abstract class StateBaseSync<
-  READ extends Result<any, StateError>,
+  READ extends Result<any, StateReadError>,
   RELATED extends StateRelated = {}
 > extends StateBase<READ, true, RELATED> {}
 

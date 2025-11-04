@@ -1,6 +1,11 @@
-import { Err, None, Ok, type Option, type Result, Some } from "@libResult";
+import { Err, None, Ok, type Option, type Result } from "@libResult";
 import { StateBase } from "./stateBase";
-import type { StateError, StateHelper, StateWriteBase } from "./types";
+import type {
+  StateHelper,
+  StateReadError,
+  StateWriteBase,
+  StateWriteError,
+} from "./types";
 
 /**Enum of possible access types for base element*/
 const StateArrayReadType = {
@@ -89,10 +94,10 @@ export class StateArray<
     SYNC extends boolean = false,
     RELATED extends {} = {}
   >
-  extends StateBase<Result<StateArrayRead<TYPE>, StateError>, SYNC, RELATED>
+  extends StateBase<Result<StateArrayRead<TYPE>, StateReadError>, SYNC, RELATED>
   implements
     StateWriteBase<
-      Result<StateArrayRead<TYPE>, StateError>,
+      Result<StateArrayRead<TYPE>, StateReadError>,
       SYNC,
       RELATED,
       StateArrayWrite<TYPE>
@@ -103,7 +108,7 @@ export class StateArray<
    * @param setter function called when state value is set via setter, set true let write set it's value
    * @param helper functions to check and limit*/
   constructor(
-    init?: Result<TYPE[], StateError>,
+    init?: Result<TYPE[], StateReadError>,
     setter?: (value: StateArrayWrite<TYPE>) => Option<StateArrayWrite<TYPE>>,
     helper?: StateHelper<StateArrayWrite<TYPE>, RELATED>
   ) {
@@ -115,15 +120,15 @@ export class StateArray<
   }
 
   //Internal Context
-  #error?: StateError;
+  #error?: StateReadError;
   #array: TYPE[] = [];
   #helper?: StateHelper<StateArrayWrite<TYPE>, RELATED>;
   #setter?: (value: StateArrayWrite<TYPE>) => Option<StateArrayWrite<TYPE>>;
 
   //Reader Context
-  async then<TResult1 = Result<StateArrayRead<TYPE>, StateError>>(
+  async then<TResult1 = Result<StateArrayRead<TYPE>, StateReadError>>(
     func: (
-      value: Result<StateArrayRead<TYPE>, StateError>
+      value: Result<StateArrayRead<TYPE>, StateReadError>
     ) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
     if (this.#error) return func(Err(this.#error));
@@ -134,7 +139,7 @@ export class StateArray<
   }
 
   get(): SYNC extends true
-    ? Result<StateArrayRead<TYPE>, StateError>
+    ? Result<StateArrayRead<TYPE>, StateReadError>
     : unknown {
     if (this.#error) return Err(this.#error) as any;
     return Ok({
@@ -155,10 +160,17 @@ export class StateArray<
 
   //Writer Context
   /**Requests a change of value from the state */
-  write(value: StateArrayWrite<TYPE>): boolean {
+  async write(
+    value: StateArrayWrite<TYPE>
+  ): Promise<Result<void, StateWriteError>> {
+    return this.writeSync(value);
+  }
+
+  writeSync(value: StateArrayWrite<TYPE>): Result<void, StateWriteError> {
     if (this.#setter) {
       let setValue = this.#setter(value);
-      if (setValue.none) return false;
+      if (setValue.none)
+        return Err({ code: "LRO", reason: "State not writable" });
       value = setValue.value;
     }
     let change = false;
@@ -179,21 +191,20 @@ export class StateArray<
       (value as StateArrayRead<TYPE>).array = this.#array;
       this.updateSubscribers(Ok(value as StateArrayRead<TYPE>));
     }
-    return true;
+    return Ok(undefined);
   }
 
-  /**Checks the value against the limit set by the limiter, if no limiter is set, undefined is returned*/
+  limit(
+    value: StateArrayWrite<TYPE>
+  ): Result<StateArrayWrite<TYPE>, StateWriteError> {
+    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
+  }
   check(value: StateArrayWrite<TYPE>): Option<string> {
     return this.#helper?.check ? this.#helper.check(value) : None();
   }
 
-  /**Limits the value to the limit set by the limiter, if no limiter is set, the value is returned as is*/
-  limit(value: StateArrayWrite<TYPE>): Option<StateArrayWrite<TYPE>> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Some(value);
-  }
-
   get writeable(): StateWriteBase<
-    Result<StateArrayRead<TYPE>, StateError>,
+    Result<StateArrayRead<TYPE>, StateReadError>,
     SYNC,
     RELATED,
     StateArrayWrite<TYPE>
@@ -202,7 +213,7 @@ export class StateArray<
   }
 
   //Array/Owner Context
-  set(value: Result<TYPE[], StateError>) {
+  set(value: Result<TYPE[], StateReadError>) {
     if (value.ok) {
       this.#array = value.value;
       this.#error = undefined;
@@ -304,7 +315,7 @@ export class StateArray<
 
   ///Helps apply the changes from one state array to another
   applyStateArrayRead<B>(
-    result: Result<StateArrayRead<B>, StateError>,
+    result: Result<StateArrayRead<B>, StateReadError>,
     transform: (val: readonly B[], type: StateArrayReadType) => TYPE[]
   ) {
     if (result.err) return this.set(result as any);

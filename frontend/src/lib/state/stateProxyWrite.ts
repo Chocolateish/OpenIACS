@@ -8,14 +8,15 @@ import type {
   StateProxyTransformOkFromOk,
 } from "./stateProxy";
 import type {
-  StateError,
   StateRead,
   StateReadBase,
+  StateReadError,
   StateReadOk,
   StateRelated,
   StateSubscriberBase,
   StateWrite,
   StateWriteBase,
+  StateWriteError,
   StateWriteOk,
 } from "./types";
 
@@ -24,11 +25,11 @@ export type StateProxyWriteTransform<WRITEOUTPUT, WRITEINPUT> = (
 ) => WRITEINPUT;
 
 export class StateProxyWriteInternal<
-    OUTPUT extends Result<any, StateError>,
+    OUTPUT extends Result<any, StateReadError>,
     SYNC extends boolean,
     RELATED extends StateRelated,
     WRITEOUTPUT,
-    INPUT extends Result<any, StateError>,
+    INPUT extends Result<any, StateReadError>,
     WRITEINPUT
   >
   extends StateBase<OUTPUT, SYNC, RELATED>
@@ -70,7 +71,7 @@ export class StateProxyWriteInternal<
   #connect() {
     this.#subscriber = this.#state.subscribe((value) => {
       this.#buffer = this.transformRead(value);
-      this.fulfillPromises(this.#buffer);
+      this.fulfillReadPromises(this.#buffer);
       this.updateSubscribers(this.#buffer);
     }, !Boolean(this.#buffer));
   }
@@ -114,16 +115,21 @@ export class StateProxyWriteInternal<
 
   //##################################################################################################################################################
   //Writer Context
-  write(value: WRITEOUTPUT): boolean {
+  write(value: WRITEOUTPUT): Promise<Result<void, StateWriteError>> {
     return this.#state.write(this.transformWrite(value));
   }
-  check(value: WRITEOUTPUT): Option<string> {
-    return this.#state.check(this.transformWrite(value));
+  writeSync(
+    value: SYNC extends true ? WRITEOUTPUT : unknown
+  ): SYNC extends true ? Result<void, StateWriteError> : unknown {
+    return this.#state.writeSync(this.transformWrite(value as WRITEOUTPUT));
   }
-  limit(value: WRITEOUTPUT): Option<WRITEOUTPUT> {
+  limit(value: WRITEOUTPUT): Result<WRITEOUTPUT, StateWriteError> {
     return this.#state
       .limit(this.transformWrite(value))
       .map((e) => this.transformRead(Ok(e) as INPUT).unwrap);
+  }
+  check(value: WRITEOUTPUT): Option<string> {
+    return this.#state.check(this.transformWrite(value));
   }
   get writeable(): StateWriteBase<OUTPUT, SYNC, RELATED, WRITEOUTPUT> {
     return this;
@@ -147,7 +153,7 @@ export class StateProxyWriteInternal<
       this.#buffer = undefined;
       this.#buffer = this.transformRead(await this.#state);
       this.updateSubscribers(this.#buffer);
-      this.fulfillPromises(this.#buffer);
+      this.fulfillReadPromises(this.#buffer);
     }
   }
 
@@ -165,11 +171,11 @@ export interface StateProxyWrite<
   RELATED extends StateRelated = {},
   INPUT = OUTPUT
 > extends StateProxyWriteInternal<
-    Result<OUTPUT, StateError>,
+    Result<OUTPUT, StateReadError>,
     SYNC,
     RELATED,
     OUTPUT,
-    Result<INPUT, StateError>,
+    Result<INPUT, StateReadError>,
     INPUT
   > {
   readonly readable: StateRead<OUTPUT, SYNC, RELATED>;
@@ -189,11 +195,11 @@ export interface StateProxyWriteFromOK<
   RELATED extends StateRelated = {},
   INPUT = OUTPUT
 > extends StateProxyWriteInternal<
-    Result<OUTPUT, StateError>,
+    Result<OUTPUT, StateReadError>,
     SYNC,
     RELATED,
     OUTPUT,
-    Result<INPUT, StateError>,
+    Result<INPUT, StateReadError>,
     INPUT
   > {
   readonly readable: StateRead<OUTPUT, SYNC, RELATED>;
@@ -217,7 +223,7 @@ export interface StateProxyWriteOk<
     SYNC,
     RELATED,
     OUTPUT,
-    Result<INPUT, StateError>,
+    Result<INPUT, StateReadError>,
     INPUT
   > {
   readonly readable: StateReadOk<OUTPUT, SYNC, RELATED>;
@@ -241,7 +247,7 @@ export interface StateProxyWriteOkFromOk<
     SYNC,
     RELATED,
     OUTPUT,
-    Result<INPUT, StateError>,
+    Result<INPUT, StateReadError>,
     INPUT
   > {
   readonly readable: StateReadOk<OUTPUT, SYNC, RELATED>;
@@ -269,11 +275,11 @@ export function state_proxy_write_from<
   transformWrite?: StateProxyWriteTransform<OUTPUT, INPUT>
 ) {
   return new StateProxyWriteInternal<
-    Result<OUTPUT, StateError>,
+    Result<OUTPUT, StateReadError>,
     SYNC,
     RELATED,
     OUTPUT,
-    Result<INPUT, StateError>,
+    Result<INPUT, StateReadError>,
     INPUT
   >(state, transformRead, transformWrite) as StateProxyWrite<
     OUTPUT,
@@ -297,11 +303,11 @@ export function state_proxy_write_from_ok<
   transformWrite?: StateProxyWriteTransform<OUTPUT, INPUT>
 ) {
   return new StateProxyWriteInternal<
-    Result<OUTPUT, StateError>,
+    Result<OUTPUT, StateReadError>,
     SYNC,
     RELATED,
     OUTPUT,
-    Result<INPUT, StateError>,
+    Result<INPUT, StateReadError>,
     INPUT
   >(state, transformRead as any, transformWrite) as StateProxyWriteFromOK<
     OUTPUT,
@@ -345,11 +351,11 @@ export function state_proxy_write_ok<
   transformWrite?: StateProxyWriteTransform<OUTPUT, INPUT>
 ) {
   return new StateProxyWriteInternal<
-    Result<OUTPUT, StateError>,
+    Result<OUTPUT, StateReadError>,
     SYNC,
     RELATED,
     OUTPUT,
-    Result<INPUT, StateError>,
+    Result<INPUT, StateReadError>,
     INPUT
   >(state, transformRead, transformWrite) as StateProxyWriteOk<
     OUTPUT,
@@ -373,11 +379,11 @@ export function state_proxy_write_ok_from_ok<
   transformWrite?: StateProxyWriteTransform<OUTPUT, INPUT>
 ) {
   return new StateProxyWriteInternal<
-    Result<OUTPUT, StateError>,
+    Result<OUTPUT, StateReadError>,
     SYNC,
     RELATED,
     OUTPUT,
-    Result<INPUT, StateError>,
+    Result<INPUT, StateReadError>,
     INPUT
   >(state, transformRead as any, transformWrite) as StateProxyWriteOkFromOk<
     OUTPUT,

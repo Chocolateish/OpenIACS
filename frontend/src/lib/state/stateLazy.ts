@@ -1,21 +1,13 @@
-import {
-  Err,
-  None,
-  Ok,
-  type Option,
-  type Result,
-  ResultOk,
-  Some,
-} from "@libResult";
+import { Err, None, Ok, type Option, type Result, ResultOk } from "@libResult";
 import { StateBaseSync } from "./stateBase";
 import {
-  type StateError,
   type StateHelper,
   type StateOwner,
   type StateOwnerBase,
   type StateOwnerOk,
   type StateRead,
   type StateReadBase,
+  type StateReadError,
   type StateReadOk,
   type StateRelated,
   type StateSetter,
@@ -23,11 +15,12 @@ import {
   type StateSetterOk,
   type StateWrite,
   type StateWriteBase,
+  type StateWriteError,
   type StateWriteOk,
 } from "./types";
 
 export class StateLazyInternal<
-    TYPE extends Result<any, StateError>,
+    TYPE extends Result<any, StateReadError>,
     RELATED extends StateRelated,
     WRITE
   >
@@ -41,14 +34,13 @@ export class StateLazyInternal<
   ) {
     super();
     if (setter)
-      this.#setter =
-        setter === true
-          ? (value) => {
-              return this.#helper?.limit
-                ? this.#helper?.limit(value).map((v) => Ok(v as any) as TYPE)
-                : Some(Ok(value as any) as TYPE);
-            }
-          : setter;
+      if (setter === true)
+        this.#setter = (value) => {
+          return this.#helper?.limit
+            ? (this.#helper?.limit(value) as Result<TYPE, StateWriteError>)
+            : Ok(value as unknown as TYPE);
+        };
+      else this.#setter = setter;
     if (helper) this.#helper = helper;
     let clean = () => {
       //@ts-expect-error
@@ -59,6 +51,8 @@ export class StateLazyInternal<
       delete this.getOk;
       //@ts-expect-error
       delete this.write;
+      //@ts-expect-error
+      delete this.writeSync;
       //@ts-expect-error
       delete this.set;
       //@ts-expect-error
@@ -81,11 +75,17 @@ export class StateLazyInternal<
     this.getOk = () => {
       return getAndClean().unwrap;
     };
-    let write = this.write.bind(this);
-    this.write = (value) => {
+    let writeSync = this.writeSync.bind(this);
+    this.write = async (value) => {
       this.#value = {} as any;
-      let didWrite = write(value);
-      if (didWrite) clean();
+      let didWrite = writeSync(value);
+      if (didWrite.ok) clean();
+      return didWrite;
+    };
+    this.writeSync = (value) => {
+      this.#value = {} as any;
+      let didWrite = writeSync(value);
+      if (didWrite.ok) clean();
       return didWrite;
     };
     this.set = (value) => {
@@ -128,18 +128,19 @@ export class StateLazyInternal<
 
   //##################################################################################################################################################
   //Writer Context
-  write(value: WRITE): boolean {
+  async write(value: WRITE): Promise<Result<void, StateWriteError>> {
+    return this.writeSync(value);
+  }
+  writeSync(value: WRITE): Result<void, StateWriteError> {
     if (this.#setter && (!this.#value!.ok || this.#value?.value !== value))
-      return (
-        this.#setter(value).map(this.set.bind(this)).unwrapOr(false) !== false
-      );
-    return false;
+      return this.#setter(value).map(this.set.bind(this));
+    return Err({ code: "LRO", reason: "State not writable" });
+  }
+  limit(value: WRITE): Result<WRITE, StateWriteError> {
+    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
   }
   check(value: WRITE): Option<string> {
     return this.#helper?.check ? this.#helper.check(value) : None();
-  }
-  limit(value: WRITE): Option<WRITE> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Some(value);
   }
   get writeable(): StateWriteBase<TYPE, true, RELATED, WRITE> {
     return this;
@@ -151,11 +152,11 @@ export class StateLazyInternal<
     this.#value = value;
     this.updateSubscribers(value);
   }
-  setOk(value: TYPE extends Result<infer T, StateError> ? T : never): void {
+  setOk(value: TYPE extends Result<infer T, StateReadError> ? T : never): void {
     this.#value = Ok(value) as TYPE;
     this.updateSubscribers(this.#value);
   }
-  setErr(err: StateError): void {
+  setErr(err: StateReadError): void {
     this.#value = Err(err) as TYPE;
     this.updateSubscribers(this.#value);
   }
@@ -165,12 +166,12 @@ export class StateLazyInternal<
 }
 
 export interface StateLazy<TYPE, RELATED extends StateRelated = {}>
-  extends StateLazyInternal<Result<TYPE, StateError>, RELATED, TYPE> {
+  extends StateLazyInternal<Result<TYPE, StateReadError>, RELATED, TYPE> {
   readonly readable: StateRead<TYPE, true, RELATED>;
   readonly writeable: StateWrite<TYPE, true, RELATED>;
   readonly owner: StateOwner<TYPE>;
   setOk(value: TYPE): void;
-  setErr(err: StateError): void;
+  setErr(err: StateReadError): void;
 }
 export interface StateLazyOk<TYPE, RELATED extends StateRelated = {}>
   extends StateLazyInternal<ResultOk<TYPE>, RELATED, TYPE> {
@@ -191,7 +192,7 @@ export function state_lazy_from<TYPE, RELATED extends StateRelated = {}>(
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateLazyInternal<Result<TYPE, StateError>, RELATED, TYPE>(
+  return new StateLazyInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
     () => Ok(init()),
     setter,
     helper
@@ -221,11 +222,11 @@ export function state_lazy_ok<TYPE, RELATED extends StateRelated = {}>(
  * @param helper functions to check and limit the value, and to return related states.
  * */
 export function state_lazy_err<TYPE, RELATED extends StateRelated = {}>(
-  err: () => StateError,
+  err: () => StateReadError,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateLazyInternal<Result<TYPE, StateError>, RELATED, TYPE>(
+  return new StateLazyInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
     () => Err(err()),
     setter,
     helper
@@ -238,11 +239,11 @@ export function state_lazy_err<TYPE, RELATED extends StateRelated = {}>(
  * @param helper functions to check and limit the value, and to return related states
  * */
 export function state_lazy_from_result<TYPE, RELATED extends StateRelated = {}>(
-  init: () => Result<TYPE, StateError>,
+  init: () => Result<TYPE, StateReadError>,
   setter?: StateSetter<TYPE> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateLazyInternal<Result<TYPE, StateError>, RELATED, TYPE>(
+  return new StateLazyInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
     init,
     setter,
     helper

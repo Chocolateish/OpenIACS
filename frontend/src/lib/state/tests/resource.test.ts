@@ -225,11 +225,9 @@ describe("Async Setting value", { timeout: 50 }, function () {
         50,
         50,
         50,
-        (_val) => {
-          return true;
-        },
-        (_val) => {
+        async (_val) => {
           done(0);
+          return Ok(undefined);
         }
       );
       state.write(4);

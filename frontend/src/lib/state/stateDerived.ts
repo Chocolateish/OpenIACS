@@ -1,9 +1,9 @@
 import { Err, ResultOk, type Result } from "@libResult";
 import { StateBase } from "./stateBase";
 import type {
-  StateError,
   StateRead,
   StateReadBase,
+  StateReadError,
   StateReadOk,
   StateSubscriberBase,
 } from "./types";
@@ -12,7 +12,7 @@ import type {
  * @template INPUT - The type allowed for the input of the derive
  * @template OUTPUT - The type outputted by the derive*/
 export class StateDerivedInternal<
-  OUTPUT extends Result<any, StateError>,
+  OUTPUT extends Result<any, StateReadError>,
   INPUT extends StateReadBase<any, any>[]
 > extends StateBase<OUTPUT, OUTPUT extends ResultOk<any> ? true : false> {
   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
@@ -200,7 +200,7 @@ export class StateDerivedInternal<
 }
 
 export interface StateDerived<OUTPUT, INPUT extends StateReadBase<any, any>[]>
-  extends StateDerivedInternal<Result<OUTPUT, StateError>, INPUT> {
+  extends StateDerivedInternal<Result<OUTPUT, StateReadError>, INPUT> {
   readonly readable: StateRead<OUTPUT, true>;
   setStates(...states: INPUT): void;
   setGetter(
@@ -208,7 +208,7 @@ export interface StateDerived<OUTPUT, INPUT extends StateReadBase<any, any>[]>
       [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
         ? READ
         : never;
-    }) => Result<OUTPUT, StateError>
+    }) => Result<OUTPUT, StateReadError>
   ): void;
 }
 
@@ -237,11 +237,11 @@ export function state_derived_from_states<
         [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
           ? READ
           : never;
-      }) => Result<OUTPUT, StateError>)
+      }) => Result<OUTPUT, StateReadError>)
     | false,
   ...states: INPUT
 ) {
-  return new StateDerivedInternal<Result<OUTPUT, StateError>, INPUT>(
+  return new StateDerivedInternal<Result<OUTPUT, StateReadError>, INPUT>(
     transform,
     ...states
   ) as StateDerived<OUTPUT, INPUT>;
@@ -281,11 +281,11 @@ export function state_derived_from_state_array<
         [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
           ? READ
           : never;
-      }) => Result<OUTPUT, StateError>)
+      }) => Result<OUTPUT, StateReadError>)
     | false,
   states: INPUT
 ) {
-  return new StateDerivedInternal<Result<OUTPUT, StateError>, INPUT>(
+  return new StateDerivedInternal<Result<OUTPUT, StateReadError>, INPUT>(
     transform,
     ...states
   ) as StateDerived<OUTPUT, INPUT>;
