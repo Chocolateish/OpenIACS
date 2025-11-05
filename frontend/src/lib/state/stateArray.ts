@@ -100,7 +100,8 @@ export class StateArray<
       Result<StateArrayRead<TYPE>, StateReadError>,
       SYNC,
       RELATED,
-      StateArrayWrite<TYPE>
+      StateArrayWrite<TYPE>,
+      SYNC
     >
 {
   /**Creates a state which holds a value
@@ -207,7 +208,8 @@ export class StateArray<
     Result<StateArrayRead<TYPE>, StateReadError>,
     SYNC,
     RELATED,
-    StateArrayWrite<TYPE>
+    StateArrayWrite<TYPE>,
+    SYNC
   > {
     return this;
   }

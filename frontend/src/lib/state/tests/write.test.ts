@@ -16,7 +16,9 @@ import {
   type StateTestsWrite,
 } from "./shared";
 
-let gen_states = (setter?: StateSetter<number> | true): StateTestsWrite[] => {
+let gen_states = (
+  setter?: StateSetter<number, any> | true
+): StateTestsWrite[] => {
   return [
     ...normals(setter),
     ...lazy(setter),

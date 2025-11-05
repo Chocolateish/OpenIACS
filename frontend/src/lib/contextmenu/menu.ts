@@ -164,7 +164,7 @@ export class ContextMenu extends Base {
     this.removeEventListener("focusout", this.#focusOutHandler, {
       capture: true,
     });
-    (this.parentElement as any).closeUp(this);
+    (this.parentElement as any)?.closeUp(this);
     this.remove();
   }
 

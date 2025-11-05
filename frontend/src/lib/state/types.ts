@@ -43,16 +43,23 @@ export type StateHelper<TYPE, L extends StateRelated = {}> = {
   related?: () => Option<L>;
 };
 
-export type StateSetterBase<TYPE extends Result<any, StateReadError>, WRITE> = (
-  value: WRITE
-) => Result<TYPE, StateWriteError>;
+export type StateSetterBase<
+  TYPE extends Result<any, StateReadError>,
+  STATE,
+  WRITE
+> = (value: WRITE, state: STATE, old?: TYPE) => Result<TYPE, StateWriteError>;
 
-export type StateSetter<TYPE> = StateSetterBase<
+export type StateSetter<TYPE, STATE, WRITE = TYPE> = StateSetterBase<
   Result<TYPE, StateReadError>,
-  TYPE
+  STATE,
+  WRITE
 >;
 
-export type StateSetterOk<TYPE> = StateSetterBase<ResultOk<TYPE>, TYPE>;
+export type StateSetterOk<TYPE, STATE, WRITE = TYPE> = StateSetterBase<
+  ResultOk<TYPE>,
+  STATE,
+  WRITE
+>;
 
 //###########################################################################################################################################################
 //      _____  ______          _____  ______ _____     _____ ____  _   _ _______ ________   _________
@@ -130,8 +137,9 @@ export type StateReadOk<
 export interface StateWriteBase<
   TYPE extends Result<any, StateReadError>,
   SYNC extends boolean,
-  RELATED extends StateRelated = {},
-  WRITE = TYPE extends Result<infer T, StateReadError> ? T : never
+  RELATED extends StateRelated,
+  WRITE,
+  WSYNC extends boolean
 > extends StateReadBase<TYPE, SYNC, RELATED> {
   /** This attempts a write to the state, write is not guaranteed to succeed
    * @returns promise of result with error for the write*/
@@ -139,14 +147,14 @@ export interface StateWriteBase<
   /** This attempts a write to the state, write is not guaranteed to succeed, this sync method is available on sync states
    * @returns result with error for the write*/
   writeSync(
-    value: SYNC extends true ? WRITE : unknown
-  ): SYNC extends true ? Result<void, StateWriteError> : unknown;
+    value: WSYNC extends true ? WRITE : never
+  ): WSYNC extends true ? Result<void, StateWriteError> : unknown;
   /**Limits given value to valid range if possible returns None if not possible */
   limit: (value: WRITE) => Result<WRITE, StateWriteError>;
   /**Checks if the value is valid and returns reason for invalidity */
   check: (value: WRITE) => Option<string>;
   /**Returns the same state as just a writable, for access management*/
-  readonly writeable: StateWriteBase<TYPE, SYNC, RELATED, WRITE>;
+  readonly writeable: StateWriteBase<TYPE, SYNC, RELATED, WRITE, WSYNC>;
 }
 
 /** Represents a writable state object with subscription and related utilities.
@@ -156,8 +164,10 @@ export interface StateWriteBase<
 export type StateWrite<
   TYPE,
   SYNC extends boolean = any,
-  RELATED extends StateRelated = {}
-> = StateWriteBase<Result<TYPE, StateReadError>, SYNC, RELATED, TYPE>;
+  RELATED extends StateRelated = {},
+  WRITE = TYPE,
+  WSYNC extends boolean = SYNC
+> = StateWriteBase<Result<TYPE, StateReadError>, SYNC, RELATED, WRITE, WSYNC>;
 
 /** Represents a writable state object with guarenteed Ok value and subscription and related utilities.
  * @template TYPE - The type of the state’s value when read.
@@ -166,8 +176,10 @@ export type StateWrite<
 export type StateWriteOk<
   TYPE,
   SYNC extends boolean = any,
-  RELATED extends StateRelated = {}
-> = StateWriteBase<ResultOk<TYPE>, SYNC, RELATED, TYPE>;
+  RELATED extends StateRelated = {},
+  WRITE = TYPE,
+  WSYNC extends boolean = SYNC
+> = StateWriteBase<ResultOk<TYPE>, SYNC, RELATED, WRITE, WSYNC>;
 
 //###########################################################################################################################################################
 //       ____                              _____            _            _

@@ -79,6 +79,7 @@ export abstract class Base<
   /**Events for element*/
   readonly baseEvents = this.#baseEvents.consumer;
 
+  #isConnected: boolean = false;
   #connectStates?: StateRead<any>[];
   #connectSubscribers?: StateSubscriberBase<any>[];
 
@@ -103,11 +104,9 @@ export abstract class Base<
     if (this.#connectStates && this.#connectSubscribers)
       for (let i = 0; i < this.#connectStates.length; i++)
         this.#connectStates[i].subscribe(this.#connectSubscribers[i], true);
-    if (this.#attachedObserver) {
-      this.#attachedObserver.observe(this);
-    } else {
-      this._setVisible(true);
-    }
+    if (this.#attachedObserver) this.#attachedObserver.observe(this);
+    else this._setVisible(true);
+    this.#isConnected = true;
   }
 
   /**Runs when element is dettached from document*/
@@ -120,6 +119,7 @@ export abstract class Base<
       this.#attachedObserver.unobserve(this);
       this._setVisible(false);
     }
+    this.#isConnected = false;
   }
 
   /**Runs when element is attached to different document*/
@@ -180,13 +180,13 @@ export abstract class Base<
   /**Attaches the component to an observer, which is needed for the isVisible state and event to work and for the state system to work on visible*/
   attachToObserver(observer?: BaseObserver): this {
     if (observer) {
-      if (this.isConnected) {
+      if (this.#isConnected) {
         if (this.#attachedObserver) this.#attachedObserver.unobserve(this);
         observer.observe(this);
       }
       this.#attachedObserver = observer;
     } else if (this.#attachedObserver) {
-      if (this.isConnected) this.#attachedObserver.unobserve(this);
+      if (this.#isConnected) this.#attachedObserver.unobserve(this);
       if (!this.isVisible) this._setVisible(true);
       this.#attachedObserver = undefined;
     }
@@ -196,13 +196,13 @@ export abstract class Base<
   /**Attaches the component to an observer, which is needed for the isVisible state and event to work and for the state system to work on visible*/
   attachToBaseObserver(baseElement?: Base): this {
     if (baseElement) {
-      if (this.isConnected) {
+      if (this.#isConnected) {
         if (this.#attachedObserver) this.#attachedObserver.unobserve(this);
         baseElement.observer.observe(this);
       }
       this.#attachedObserver = baseElement.observer;
     } else if (this.#attachedObserver) {
-      if (this.isConnected) this.#attachedObserver.unobserve(this);
+      if (this.#isConnected) this.#attachedObserver.unobserve(this);
       if (!this.isVisible) this._setVisible(true);
       this.#attachedObserver = undefined;
     }
@@ -232,7 +232,7 @@ export abstract class Base<
     }
     this.#connectStates.push(state);
     this.#connectSubscribers!.push(func);
-    if (this.isConnected) state.subscribe(func, true);
+    if (this.#isConnected) state.subscribe(func, true);
     return func;
   }
 
@@ -280,7 +280,7 @@ export abstract class Base<
       this.#propStates = {} as {
         [k in keyof this]: [StateSubscriber<any>, boolean];
       };
-    this.dettachStateFromProp(prop);
+    else this.dettachStateFromProp(prop);
     this.#propStates[prop] = [
       this.attachState(
         state,

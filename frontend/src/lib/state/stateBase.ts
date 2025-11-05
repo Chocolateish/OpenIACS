@@ -8,23 +8,23 @@ import {
 } from "./types";
 
 export abstract class StateBase<
-  READ extends Result<any, StateReadError>,
+  TYPE extends Result<any, StateReadError>,
   SYNC extends boolean,
   RELATED extends StateRelated = {}
-> implements StateReadBase<READ, SYNC, RELATED>
+> implements StateReadBase<TYPE, SYNC, RELATED>
 {
-  #subscribers: Set<StateSubscriberBase<READ>> = new Set();
-  #readPromises?: ((val: READ) => void)[];
+  #subscribers: Set<StateSubscriberBase<TYPE>> = new Set();
+  #readPromises?: ((val: TYPE) => void)[];
   #writePromises?: ((val: Result<void, StateWriteError>) => void)[];
 
   //Reader Context
-  abstract then<TResult1 = READ>(
-    func: (value: READ) => TResult1 | PromiseLike<TResult1>
+  abstract then<TResult1 = TYPE>(
+    func: (value: TYPE) => TResult1 | PromiseLike<TResult1>
   ): PromiseLike<TResult1>;
 
-  subscribe<B extends StateSubscriberBase<READ>>(func: B, update?: boolean): B {
+  subscribe<B extends StateSubscriberBase<TYPE>>(func: B, update?: boolean): B {
     if (this.#subscribers.has(func)) {
-      console.warn("Function already registered as subscriber");
+      console.warn("Function already registered as subscriber", this, func);
       return func;
     }
     this.onSubscribe(this.#subscribers.size == 0);
@@ -34,7 +34,7 @@ export abstract class StateBase<
     return func;
   }
 
-  unsubscribe<B extends StateSubscriberBase<READ>>(func: B): B {
+  unsubscribe<B extends StateSubscriberBase<TYPE>>(func: B): B {
     if (this.#subscribers.delete(func)) {
       this.onUnsubscribe(this.#subscribers.size == 0);
       this.subOnUnsubscribe(this.#subscribers.size == 0);
@@ -42,10 +42,10 @@ export abstract class StateBase<
     return func;
   }
 
-  abstract get(): SYNC extends true ? READ : unknown;
+  abstract get(): SYNC extends true ? TYPE : unknown;
 
   abstract getOk(): SYNC extends true
-    ? READ extends ResultOk<infer T>
+    ? TYPE extends ResultOk<infer T>
       ? T
       : unknown
     : unknown;
@@ -71,7 +71,7 @@ export abstract class StateBase<
   }
 
   /**Returns if the state has a subscriber */
-  hasSubscriber(subscriber: StateSubscriberBase<READ>): this | undefined {
+  hasSubscriber(subscriber: StateSubscriberBase<TYPE>): this | undefined {
     return this.#subscribers.has(subscriber) ? this : undefined;
   }
 
@@ -81,7 +81,7 @@ export abstract class StateBase<
   }
 
   /**Updates all subscribers with a value */
-  protected updateSubscribers(value: READ): void {
+  protected updateSubscribers(value: TYPE): void {
     for (const subscriber of this.#subscribers) {
       try {
         subscriber(value);
@@ -92,33 +92,33 @@ export abstract class StateBase<
   }
 
   //Type
-  get readable(): StateReadBase<READ, SYNC, RELATED> {
+  get readable(): StateReadBase<TYPE, SYNC, RELATED> {
     return this;
   }
 
   //Promises
-  protected async appendReadPromise<TResult1 = READ>(
-    func: (value: READ) => TResult1 | PromiseLike<TResult1>
+  async appendReadPromise<TResult1 = TYPE>(
+    func: (value: TYPE) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
     return func(
-      await new Promise<READ>((a) => {
+      await new Promise<TYPE>((a) => {
         (this.#readPromises ??= []).push(a);
       })
     );
   }
-  protected fulfillReadPromises(value: READ) {
+  fulfillReadPromises(value: TYPE) {
     if (this.#readPromises)
       for (let i = 0; i < this.#readPromises.length; i++)
         this.#readPromises[i](value);
     this.#readPromises = [];
   }
 
-  protected async appendWritePromise(): Promise<Result<void, StateWriteError>> {
+  async appendWritePromise(): Promise<Result<void, StateWriteError>> {
     return new Promise<Result<void, StateWriteError>>((a) => {
       (this.#writePromises ??= []).push(a);
     });
   }
-  protected fulfillWritePromises(res: Result<void, StateWriteError>) {
+  fulfillWritePromises(res: Result<void, StateWriteError>) {
     if (this.#writePromises)
       for (let i = 0; i < this.#writePromises.length; i++)
         this.#writePromises[i](res);

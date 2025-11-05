@@ -156,7 +156,12 @@ const inputModesInternal = {
 } satisfies StateEnumHelperList;
 
 const inputModeInternal = state_ok(
-  settings.get(InputModeID, InputModes.TOUCH as InputModes),
+  settings.get(
+    InputModeID,
+    matchMedia("(pointer: coarse)").matches
+      ? InputModes.TOUCH
+      : InputModes.MOUSE
+  ),
   true,
   new StateEnumHelper(inputModesInternal)
 );

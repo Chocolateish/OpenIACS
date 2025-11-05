@@ -90,7 +90,7 @@ export function norm(
 //      ____) |  | |/ ____ \| |  | |____
 //     |_____/   |_/_/    \_\_|  |______|
 export function state_test_gen_normals(
-  setter?: StateSetter<number> | true
+  setter?: StateSetter<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm("state_from", state_from(1, setter), Ok(1)),
@@ -99,7 +99,7 @@ export function state_test_gen_normals(
   ];
 }
 export function state_test_gen_normals_ok(
-  setter?: StateSetter<number> | true
+  setter?: StateSetter<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm("state_ok", state_ok(1, setter as any), Ok(1)),
@@ -114,7 +114,7 @@ export function state_test_gen_normals_ok(
 //     | |____ / ____ \  / /__    | |
 //     |______/_/    \_\/_____|   |_|
 export function state_test_gen_lazy(
-  setter?: StateSetter<number> | true
+  setter?: StateSetter<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm(
@@ -135,7 +135,7 @@ export function state_test_gen_lazy(
   ];
 }
 export function state_test_gen_lazy_ok(
-  setter?: StateSetter<number> | true
+  setter?: StateSetter<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm(
@@ -158,7 +158,7 @@ export function state_test_gen_lazy_ok(
 //     | |__| | |____| |____ / ____ \| |  | |____| |__| |
 //     |_____/|______|______/_/    \_\_|  |______|_____/
 export function state_test_gen_delayed(
-  setter?: StateSetter<number> | true
+  setter?: StateSetter<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm("state_delayed_from", sdf((async () => 1)(), setter), Ok(1)),
@@ -175,7 +175,7 @@ export function state_test_gen_delayed(
   ];
 }
 export function state_test_gen_delayed_ok(
-  setter?: StateSetter<number> | true
+  setter?: StateSetter<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm("state_delayed_ok", sdo((async () => 1)(), setter as any), Ok(1)),
@@ -201,7 +201,7 @@ let dg = (ret: any) => {
 };
 
 export function state_test_gen_delayed_with_delay(
-  setter?: StateSetter<number> | true
+  setter?: StateSetter<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm("state_delayed_from", sdf(dg(1), setter), Ok(1)),
@@ -214,7 +214,7 @@ export function state_test_gen_delayed_with_delay(
   ];
 }
 export function state_test_gen_delayed_with_delay_ok(
-  setter?: StateSetter<number> | true
+  setter?: StateSetter<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm("state_delayed_ok", sdo(dg(1), setter as any), Ok(1)),
@@ -264,7 +264,7 @@ export function state_test_gen_proxies_ok(): StateTestsRead[] {
 //     | |    | | \ \| |__| / . \    | |       \  /\  /  | | \ \ _| |_   | |  | |____
 //     |_|    |_|  \_\\____/_/ \_\   |_|        \/  \/   |_|  \_\_____|  |_|  |______|
 export function state_test_gen_proxies_write(
-  setter?: StateSetter<number> | true
+  setter?: StateSetter<number, any> | true
 ): StateTestsWrite[] {
   let s7 = state_ok(1, setter as any);
   let s8 = state_ok(1, setter as any);
@@ -278,7 +278,7 @@ export function state_test_gen_proxies_write(
 }
 
 export function state_test_gen_proxies_write_ok(
-  setter?: StateSetter<number> | true
+  setter?: StateSetter<number, any> | true
 ): StateTestsWrite[] {
   let s5 = state_ok(1, setter as any);
   let s6 = state_ok(1, setter as any);

@@ -24,11 +24,15 @@ export class StateInternal<
     WRITE
   >
   extends StateBaseSync<TYPE, RELATED>
-  implements StateWriteBase<TYPE, true, RELATED, WRITE>, StateOwnerBase<TYPE>
+  implements
+    StateWriteBase<TYPE, true, RELATED, WRITE, true>,
+    StateOwnerBase<TYPE>
 {
   constructor(
     init: TYPE,
-    setter?: StateSetterBase<TYPE, WRITE> | true,
+    setter?:
+      | StateSetterBase<TYPE, StateInternal<TYPE, RELATED, WRITE>, WRITE>
+      | true,
     helper?: StateHelper<WRITE, RELATED>
   ) {
     super();
@@ -36,8 +40,8 @@ export class StateInternal<
       if (setter === true)
         this.#setter = (value) => {
           return this.#helper?.limit
-            ? (this.#helper?.limit(value) as Result<TYPE, StateWriteError>)
-            : Ok(value as unknown as TYPE);
+            ? this.#helper?.limit(value).map((e) => Ok(e) as TYPE)
+            : Ok(Ok(value) as TYPE);
         };
       else this.#setter = setter;
     if (helper) this.#helper = helper;
@@ -45,7 +49,7 @@ export class StateInternal<
   }
 
   #value?: TYPE;
-  #setter?: StateSetterBase<TYPE, WRITE>;
+  #setter?: StateSetterBase<TYPE, StateInternal<TYPE, RELATED, WRITE>, WRITE>;
   #helper?: StateHelper<WRITE, RELATED>;
 
   //##################################################################################################################################################
@@ -75,7 +79,7 @@ export class StateInternal<
   }
   writeSync(value: WRITE): Result<void, StateWriteError> {
     if (this.#setter && (!this.#value!.ok || this.#value?.value !== value))
-      return this.#setter(value).map(this.set.bind(this));
+      return this.#setter(value, this, this.#value).map(this.set.bind(this));
     return Err({ code: "LRO", reason: "State not writable" });
   }
   limit(value: WRITE): Result<WRITE, StateWriteError> {
@@ -84,7 +88,7 @@ export class StateInternal<
   check(value: WRITE): Option<string> {
     return this.#helper?.check ? this.#helper.check(value) : None();
   }
-  get writeable(): StateWriteBase<TYPE, true, RELATED, WRITE> {
+  get writeable(): StateWriteBase<TYPE, true, RELATED, WRITE, true> {
     return this;
   }
 
@@ -131,7 +135,7 @@ export interface StateOk<TYPE, RELATED extends StateRelated = {}>
  * */
 export function state_from<TYPE, RELATED extends StateRelated = {}>(
   init: TYPE,
-  setter?: StateSetter<TYPE> | true,
+  setter?: StateSetter<TYPE, State<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
   return new StateInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
@@ -148,7 +152,7 @@ export function state_from<TYPE, RELATED extends StateRelated = {}>(
  * */
 export function state_ok<TYPE, RELATED extends StateRelated = {}>(
   init: TYPE,
-  setter?: StateSetterOk<TYPE> | true,
+  setter?: StateSetterOk<TYPE, StateOk<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
   return new StateInternal<ResultOk<TYPE>, RELATED, TYPE>(
@@ -165,7 +169,7 @@ export function state_ok<TYPE, RELATED extends StateRelated = {}>(
  * */
 export function state_err<TYPE, RELATED extends StateRelated = {}>(
   err: StateReadError,
-  setter?: StateSetter<TYPE> | true,
+  setter?: StateSetter<TYPE, State<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
   return new StateInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
@@ -182,7 +186,7 @@ export function state_err<TYPE, RELATED extends StateRelated = {}>(
  * */
 export function state_from_result<TYPE, RELATED extends StateRelated = {}>(
   init: Result<TYPE, StateReadError>,
-  setter?: StateSetter<TYPE> | true,
+  setter?: StateSetter<TYPE, State<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
   return new StateInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
@@ -199,7 +203,7 @@ export function state_from_result<TYPE, RELATED extends StateRelated = {}>(
  * */
 export function state_from_result_ok<TYPE, RELATED extends StateRelated = {}>(
   init: ResultOk<TYPE>,
-  setter?: StateSetterOk<TYPE> | true,
+  setter?: StateSetterOk<TYPE, StateOk<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
   return new StateInternal<ResultOk<TYPE>, RELATED, TYPE>(

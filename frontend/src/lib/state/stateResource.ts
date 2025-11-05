@@ -1,11 +1,15 @@
-import { Err, None, Ok, type Option, type Result } from "@libResult";
+import { Err, None, Ok, ResultOk, type Option, type Result } from "@libResult";
 import { StateBase } from "./stateBase";
 import type {
   StateHelper,
+  StateRead,
   StateReadError,
+  StateReadOk,
   StateRelated,
+  StateWrite,
   StateWriteBase,
   StateWriteError,
+  StateWriteOk,
 } from "./types";
 
 /**State Resource
@@ -30,7 +34,7 @@ export abstract class StateResourceBase<
     WRITE = READ extends Result<infer T, StateReadError> ? T : never
   >
   extends StateBase<READ, false, RELATED>
-  implements StateWriteBase<READ, false, RELATED, WRITE>
+  implements StateWriteBase<READ, false, RELATED, WRITE, false>
 {
   #valid: number = 0;
   #fetching: boolean = false;
@@ -163,7 +167,7 @@ export abstract class StateResourceBase<
 
   abstract limit(value: WRITE): Result<WRITE, StateWriteError>;
 
-  get writeable(): StateWriteBase<READ, false, RELATED, WRITE> {
+  get writeable(): StateWriteBase<READ, false, RELATED, WRITE, false> {
     return this;
   }
 
@@ -248,15 +252,24 @@ class StateResourceFunc<
   }
 }
 
-/**Alternative state resource which can be initialized with functions
- * @template READ - The type of the state’s value when read.
- * @template WRITE - The type which can be written to the state.
- * @template RELATED - The type of related states, defaults to an empty object.*/
-export type StateResource<
+export interface StateResource<
   TYPE,
   RELATED extends StateRelated = {},
   WRITE = TYPE
-> = StateResourceFunc<Result<TYPE, StateReadError>, RELATED, WRITE>;
+> extends StateResourceFunc<Result<TYPE, StateReadError>, RELATED, WRITE> {
+  readonly readable: StateRead<TYPE, false, RELATED>;
+  readonly writeable: StateWrite<TYPE, false, RELATED, WRITE>;
+  updateResource(value: Result<TYPE, StateReadError>): void;
+}
+export interface StateResourceOk<
+  TYPE,
+  RELATED extends StateRelated = {},
+  WRITE = TYPE
+> extends StateResourceFunc<Result<TYPE, StateReadError>, RELATED, WRITE> {
+  readonly readable: StateReadOk<TYPE, false, RELATED>;
+  readonly writeable: StateWriteOk<TYPE, false, RELATED, WRITE>;
+  updateResource(value: ResultOk<TYPE>): void;
+}
 
 /**Alternative state resource which can be initialized with functions
  * @template READ - The type of the state’s value when read.
@@ -284,9 +297,9 @@ export function state_resource<
     state: StateResourceFunc<Result<TYPE, StateReadError>, RELATED, WRITE>
   ) => void,
   teardown: () => void,
-  debounce: number,
-  timeout: number,
-  retention: number,
+  debounce: number = 0,
+  timeout: number = 0,
+  retention: number = 0,
   writeBounce?: number,
   writeAction?: (
     value: WRITE,
@@ -305,4 +318,49 @@ export function state_resource<
     writeAction,
     helper
   ) as StateResource<TYPE, RELATED, WRITE>;
+}
+
+/**Alternative state resource which can be initialized with functions
+ * @template READ - The type of the state’s value when read.
+ * @template WRITE - The type which can be written to the state.
+ * @template RELATED - The type of related states, defaults to an empty object.
+ * @param once function called when state value is requested once, returns a Err(StateError) on failure
+ * @param setup function called when state has been subscribed to
+ * @param teardown function called when state has been unsubscribed from completely
+ * @param debounce delay added to once value retrival, which will collect multiple once requests into a single one
+ * @param timeout how long the last retrived value is considered valid
+ * @param retention delay after last subscriber unsubscribes before teardown is called, to allow quick resubscribe without teardown
+ * @param writeBounce debounce delay for write calls, only the last write within the delay is used
+ * @param writeCheck function called every time write is called to check if value is valid
+ * @param writeAction function called after write debounce finished with the last written value
+ * */
+export function state_resource_ok<
+  TYPE,
+  RELATED extends StateRelated = {},
+  WRITE = TYPE
+>(
+  once: (state: StateResourceFunc<ResultOk<TYPE>, RELATED, WRITE>) => void,
+  setup: (state: StateResourceFunc<ResultOk<TYPE>, RELATED, WRITE>) => void,
+  teardown: () => void,
+  debounce: number = 0,
+  timeout: number = 0,
+  retention: number = 0,
+  writeBounce?: number,
+  writeAction?: (
+    value: WRITE,
+    state: StateResourceFunc<ResultOk<TYPE>, RELATED, WRITE>
+  ) => Promise<ResultOk<void>>,
+  helper?: StateHelper<WRITE, RELATED>
+) {
+  return new StateResourceFunc<ResultOk<TYPE>, RELATED, WRITE>(
+    once,
+    setup,
+    teardown,
+    debounce,
+    timeout,
+    retention,
+    writeBounce,
+    writeAction,
+    helper
+  ) as StateResourceOk<TYPE, RELATED, WRITE>;
 }
