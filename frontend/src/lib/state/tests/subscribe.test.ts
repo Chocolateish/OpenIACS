@@ -58,8 +58,8 @@ describe(
         let sub1 = test[1].subscribe(() => {
           count++;
         }, true);
-        expect(test[3].inUse()).equal(true);
-        expect(test[3].hasSubscriber(sub1)).equal(true);
+        expect(test[3].inUse()).equal(test[3]);
+        expect(test[3].hasSubscriber(sub1)).equal(test[3]);
         expect(test[3].amountSubscriber()).equal(1);
         await new Promise((a) => {
           setTimeout(a, 8);
@@ -68,8 +68,8 @@ describe(
         let sub2 = test[1].subscribe(() => {
           count += 10;
         });
-        expect(test[3].inUse()).equal(true);
-        expect(test[3].hasSubscriber(sub2)).equal(true);
+        expect(test[3].inUse()).equal(test[3]);
+        expect(test[3].hasSubscriber(sub2)).equal(test[3]);
         expect(test[3].amountSubscriber()).equal(2);
         expect(count).equal(1);
         test[2].set(Ok(8));
@@ -78,20 +78,20 @@ describe(
           count += 100;
           throw new Error("Gaurded against crash");
         });
-        expect(test[3].inUse()).equal(true);
-        expect(test[3].hasSubscriber(sub3)).equal(true);
+        expect(test[3].inUse()).equal(test[3]);
+        expect(test[3].hasSubscriber(sub3)).equal(test[3]);
         expect(test[3].amountSubscriber()).equal(3);
         test[2].set(Ok(12));
         expect(count).equal(100000123);
         test[1].unsubscribe(sub1);
         test[1].unsubscribe(sub2);
-        expect(test[3].inUse()).equal(true);
-        expect(test[3].hasSubscriber(sub3)).equal(true);
+        expect(test[3].inUse()).equal(test[3]);
+        expect(test[3].hasSubscriber(sub3)).equal(test[3]);
         expect(test[3].amountSubscriber()).equal(1);
         test[2].set(Ok(12));
         expect(count).equal(200000223);
         test[1].unsubscribe(sub3);
-        expect(test[3].inUse()).equal(false);
+        expect(test[3].inUse()).equal(undefined);
         expect(test[3].amountSubscriber()).equal(0);
         let [sub4, val] = await new Promise<
           [(val: any) => void, Result<number, StateReadError>]

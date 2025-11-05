@@ -1,6 +1,11 @@
-import { Err, Ok } from "@libResult";
+import { Err, Ok, type Result } from "@libResult";
 import { describe, expect, it } from "vitest";
-import type { StateSetter } from "../types";
+import type {
+  StateOwnerBase,
+  StateReadError,
+  StateSetter,
+  StateSetterSync,
+} from "../types";
 import {
   state_test_gen_delayed as delayed,
   state_test_gen_delayed_ok as delayed_ok,
@@ -16,25 +21,61 @@ import {
   type StateTestsWrite,
 } from "./shared";
 
-let gen_states = (
-  setter?: StateSetter<number, any> | true
+let gen_sync_states = (
+  setter?:
+    | StateSetterSync<
+        number,
+        StateOwnerBase<Result<number, StateReadError>>,
+        any
+      >
+    | true
 ): StateTestsWrite[] => {
   return [
     ...normals(setter),
+    ...normals_ok(setter),
     ...lazy(setter),
+    ...lazy_ok(setter),
+    ...proxwrite(setter),
+    ...proxwrite_ok(setter),
+  ];
+};
+let gen_states = (
+  setter?:
+    | StateSetter<number, StateOwnerBase<Result<number, StateReadError>>, any>
+    | true
+): StateTestsWrite[] => {
+  return [
     ...delayed(setter),
     ...delayed_with_delay(setter),
-    ...proxwrite(setter),
-    ...normals_ok(setter),
-    ...lazy_ok(setter),
     ...delayed_ok(setter),
     ...delayed_with_delay_ok(setter),
-    ...proxwrite_ok(setter),
   ];
 };
 
 describe(
-  "Normal states with setter set to true",
+  "Writing to states with sync writers",
+  {
+    timeout: 50,
+  },
+  function () {
+    let tests = gen_sync_states(true);
+    for (let i = 0; i < tests.length; i++) {
+      const test = tests[i];
+      it(test[0], async function () {
+        let state = test[1];
+        expect(state.writeSync(10)).toEqual(Ok(undefined));
+        let awaited = await state;
+        expect(awaited).toEqual(Ok(10));
+        expect(await state.write(15)).toEqual(Ok(undefined));
+        awaited = await state;
+        expect(awaited).toEqual(Ok(15));
+      });
+    }
+  }
+);
+
+describe(
+  "Writing to states with async writers",
   {
     timeout: 50,
   },
@@ -44,8 +85,30 @@ describe(
       const test = tests[i];
       it(test[0], async function () {
         let state = test[1];
-        expect(state.write(10)).equal(true);
+        expect(await state.write(15)).toEqual(Ok(undefined));
         let awaited = await state;
+        expect(awaited).toEqual(Ok(15));
+      });
+    }
+  }
+);
+
+describe(
+  "Normal sync states with setter set to simple function",
+  {
+    timeout: 50,
+  },
+  function () {
+    let tests = gen_sync_states((val, state) => Ok(state.setOk(val)));
+    for (let i = 0; i < tests.length; i++) {
+      const test = tests[i];
+      it(test[0], async function () {
+        let state = test[1];
+        expect(state.writeSync(10)).toEqual(Ok(undefined));
+        let awaited = await state;
+        expect(awaited).toEqual(Ok(10));
+        expect(await state.write(10)).toEqual(Ok(undefined));
+        awaited = await state;
         expect(awaited).toEqual(Ok(10));
       });
     }
@@ -53,17 +116,17 @@ describe(
 );
 
 describe(
-  "Normal states with setter set to simple function",
+  "Normal async states with setter set to simple function",
   {
     timeout: 50,
   },
   function () {
-    let tests = gen_states((val) => Ok(Ok(val)));
+    let tests = gen_sync_states((val, state) => Ok(state.setOk(val)));
     for (let i = 0; i < tests.length; i++) {
       const test = tests[i];
       it(test[0], async function () {
         let state = test[1];
-        expect(state.write(10)).equal(true);
+        expect(state.write(10)).toEqual(Ok(undefined));
         let awaited = await state;
         expect(awaited).toEqual(Ok(10));
       });

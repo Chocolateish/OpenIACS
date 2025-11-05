@@ -97,7 +97,7 @@ export abstract class StateBase<
   }
 
   //Promises
-  async appendReadPromise<TResult1 = TYPE>(
+  protected async appendReadPromise<TResult1 = TYPE>(
     func: (value: TYPE) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
     return func(
@@ -106,19 +106,19 @@ export abstract class StateBase<
       })
     );
   }
-  fulfillReadPromises(value: TYPE) {
+  protected fulfillReadPromises(value: TYPE) {
     if (this.#readPromises)
       for (let i = 0; i < this.#readPromises.length; i++)
         this.#readPromises[i](value);
     this.#readPromises = [];
   }
 
-  async appendWritePromise(): Promise<Result<void, StateWriteError>> {
+  protected async appendWritePromise(): Promise<Result<void, StateWriteError>> {
     return new Promise<Result<void, StateWriteError>>((a) => {
       (this.#writePromises ??= []).push(a);
     });
   }
-  fulfillWritePromises(res: Result<void, StateWriteError>) {
+  protected fulfillWritePromises(res: Result<void, StateWriteError>) {
     if (this.#writePromises)
       for (let i = 0; i < this.#writePromises.length; i++)
         this.#writePromises[i](res);

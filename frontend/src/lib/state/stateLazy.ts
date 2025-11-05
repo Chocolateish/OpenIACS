@@ -10,9 +10,9 @@ import {
   type StateReadError,
   type StateReadOk,
   type StateRelated,
-  type StateSetter,
-  type StateSetterBase,
-  type StateSetterOk,
+  type StateSetterSync,
+  type StateSetterSyncBase,
+  type StateSetterSyncOk,
   type StateWrite,
   type StateWriteBase,
   type StateWriteError,
@@ -32,17 +32,21 @@ export class StateLazyInternal<
   constructor(
     init: () => TYPE,
     setter?:
-      | StateSetterBase<TYPE, StateLazyInternal<TYPE, RELATED, WRITE>, WRITE>
+      | StateSetterSyncBase<
+          TYPE,
+          StateLazyInternal<TYPE, RELATED, WRITE>,
+          WRITE
+        >
       | true,
     helper?: StateHelper<WRITE, RELATED>
   ) {
     super();
     if (setter)
       if (setter === true)
-        this.#setter = (value) => {
+        this.#setter = (value, state) => {
           return this.#helper?.limit
-            ? this.#helper?.limit(value).map((e) => Ok(e) as TYPE)
-            : Ok(Ok(value) as TYPE);
+            ? this.#helper?.limit(value).map((e) => state.setOk(e as any))
+            : Ok(state.setOk(value as any));
         };
       else this.#setter = setter;
     if (helper) this.#helper = helper;
@@ -107,7 +111,7 @@ export class StateLazyInternal<
   }
 
   #value?: TYPE;
-  #setter?: StateSetterBase<
+  #setter?: StateSetterSyncBase<
     TYPE,
     StateLazyInternal<TYPE, RELATED, WRITE>,
     WRITE
@@ -141,7 +145,7 @@ export class StateLazyInternal<
   }
   writeSync(value: WRITE): Result<void, StateWriteError> {
     if (this.#setter && (!this.#value!.ok || this.#value?.value !== value))
-      return this.#setter(value, this, this.#value).map(this.set.bind(this));
+      return this.#setter(value, this, this.#value);
     return Err({ code: "LRO", reason: "State not writable" });
   }
   limit(value: WRITE): Result<WRITE, StateWriteError> {
@@ -197,7 +201,7 @@ export interface StateLazyOk<TYPE, RELATED extends StateRelated = {}>
  * */
 export function state_lazy_from<TYPE, RELATED extends StateRelated = {}>(
   init: () => TYPE,
-  setter?: StateSetter<TYPE, StateLazy<TYPE, RELATED>> | true,
+  setter?: StateSetterSync<TYPE, StateLazy<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
   return new StateLazyInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
@@ -214,7 +218,7 @@ export function state_lazy_from<TYPE, RELATED extends StateRelated = {}>(
  * */
 export function state_lazy_ok<TYPE, RELATED extends StateRelated = {}>(
   init: () => TYPE,
-  setter?: StateSetterOk<TYPE, StateLazyOk<TYPE, RELATED>> | true,
+  setter?: StateSetterSyncOk<TYPE, StateLazyOk<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
   return new StateLazyInternal<ResultOk<TYPE>, RELATED, TYPE>(
@@ -231,7 +235,7 @@ export function state_lazy_ok<TYPE, RELATED extends StateRelated = {}>(
  * */
 export function state_lazy_err<TYPE, RELATED extends StateRelated = {}>(
   err: () => StateReadError,
-  setter?: StateSetter<TYPE, StateLazy<TYPE, RELATED>> | true,
+  setter?: StateSetterSync<TYPE, StateLazy<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
   return new StateLazyInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
@@ -248,7 +252,7 @@ export function state_lazy_err<TYPE, RELATED extends StateRelated = {}>(
  * */
 export function state_lazy_from_result<TYPE, RELATED extends StateRelated = {}>(
   init: () => Result<TYPE, StateReadError>,
-  setter?: StateSetter<TYPE, StateLazy<TYPE, RELATED>> | true,
+  setter?: StateSetterSync<TYPE, StateLazy<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
   return new StateLazyInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
@@ -268,7 +272,7 @@ export function state_lazy_from_result_ok<
   RELATED extends StateRelated = {}
 >(
   init: () => ResultOk<TYPE>,
-  setter?: StateSetterOk<TYPE, StateLazyOk<TYPE, RELATED>> | true,
+  setter?: StateSetterSyncOk<TYPE, StateLazyOk<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
   return new StateLazyInternal<ResultOk<TYPE>, RELATED, TYPE>(

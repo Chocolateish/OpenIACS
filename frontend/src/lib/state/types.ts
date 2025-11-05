@@ -47,7 +47,11 @@ export type StateSetterBase<
   TYPE extends Result<any, StateReadError>,
   STATE,
   WRITE
-> = (value: WRITE, state: STATE, old?: TYPE) => Result<TYPE, StateWriteError>;
+> = (
+  value: WRITE,
+  state: STATE,
+  old?: TYPE
+) => Promise<Result<void, StateWriteError>>;
 
 export type StateSetter<TYPE, STATE, WRITE = TYPE> = StateSetterBase<
   Result<TYPE, StateReadError>,
@@ -56,6 +60,24 @@ export type StateSetter<TYPE, STATE, WRITE = TYPE> = StateSetterBase<
 >;
 
 export type StateSetterOk<TYPE, STATE, WRITE = TYPE> = StateSetterBase<
+  ResultOk<TYPE>,
+  STATE,
+  WRITE
+>;
+
+export type StateSetterSyncBase<
+  TYPE extends Result<any, StateReadError>,
+  STATE,
+  WRITE
+> = (value: WRITE, state: STATE, old?: TYPE) => Result<void, StateWriteError>;
+
+export type StateSetterSync<TYPE, STATE, WRITE = TYPE> = StateSetterSyncBase<
+  Result<TYPE, StateReadError>,
+  STATE,
+  WRITE
+>;
+
+export type StateSetterSyncOk<TYPE, STATE, WRITE = TYPE> = StateSetterSyncBase<
   ResultOk<TYPE>,
   STATE,
   WRITE

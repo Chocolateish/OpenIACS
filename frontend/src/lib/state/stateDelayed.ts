@@ -39,10 +39,10 @@ export class StateDelayedInternal<
     super();
     if (setter)
       if (setter === true)
-        this.#setter = (value) => {
+        this.#setter = async (value, state) => {
           return this.#helper?.limit
-            ? this.#helper?.limit(value).map((e) => Ok(e) as TYPE)
-            : Ok(Ok(value) as TYPE);
+            ? this.#helper?.limit(value).map((e) => state.setOk(e as any))
+            : Ok(state.setOk(value as any));
         };
       else this.#setter = setter;
     if (helper) this.#helper = helper;
@@ -108,6 +108,7 @@ export class StateDelayedInternal<
     WRITE
   >;
   #helper?: StateHelper<WRITE, RELATED>;
+  #writePromise?: (val: Result<void, StateWriteError>) => void;
 
   //##################################################################################################################################################
   //Reader Context
@@ -133,7 +134,7 @@ export class StateDelayedInternal<
   //Writer Context
   async write(value: WRITE): Promise<Result<void, StateWriteError>> {
     if (this.#setter && (!this.#value!.ok || this.#value?.value !== value))
-      return this.#setter(value, this, this.#value).map(this.set.bind(this));
+      return this.#setter(value, this, this.#value);
     return Err({ code: "LRO", reason: "State not writable" });
   }
   writeSync(_value: unknown): unknown {
@@ -165,6 +166,20 @@ export class StateDelayedInternal<
   }
   get owner(): StateOwnerBase<TYPE> {
     return this;
+  }
+
+  //Promises
+  writePromise(): Promise<Result<void, StateWriteError>> {
+    return new Promise<Result<void, StateWriteError>>((a) => {
+      if (this.#writePromise)
+        console.warn("Overwriting existing write promise");
+      this.#writePromise = a;
+    });
+  }
+  fulfillWrite(res: Result<void, StateWriteError>) {
+    if (this.#writePromise) this.#writePromise(res);
+    else console.warn("No write promise to fulfill");
+    this.#writePromise = undefined;
   }
 }
 
