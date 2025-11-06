@@ -235,13 +235,21 @@ describe("Initialize derived state", function () {
         expectTypeOf(values[2]).toEqualTypeOf<ResultOk<number>>();
         return Ok(values[0].value + values[1].unwrapOr(1) + values[2].value);
       },
-      all.state_ok(1),
-      all.state_from(1),
-      all.state_ok(1)
+      all.state_ok(1).readable,
+      all.state_from(1).readable,
+      all.state_ok(1).readable
     );
     expect(init).instanceOf(StateDerivedInternal);
     expectTypeOf(init).toEqualTypeOf<
-      StateDerived<number, [StateOk<number>, State<number>, StateOk<number>]>
+      StateDerived<
+        number,
+        [
+          all.StateReadOk<number, true, {}>,
+          all.StateRead<number, true, {}>,
+          all.StateReadOk<number, true, {}>
+        ],
+        any
+      >
     >();
   });
   it("by state_derived_from_states", async function () {
@@ -258,7 +266,11 @@ describe("Initialize derived state", function () {
     );
     expect(init).instanceOf(StateDerivedInternal);
     expectTypeOf(init).toEqualTypeOf<
-      StateDerivedOk<number, [StateOk<number>, State<number>, StateOk<number>]>
+      StateDerivedOk<
+        number,
+        [StateOk<number, {}>, State<number, {}>, StateOk<number, {}>],
+        any
+      >
     >();
   });
   it("by state_derived_from_state", async function () {
@@ -272,7 +284,9 @@ describe("Initialize derived state", function () {
       [all.state_ok(1), all.state_ok(1), all.state_ok(1)]
     );
     expect(init).instanceOf(StateDerivedInternal);
-    expectTypeOf(init).toEqualTypeOf<StateDerived<number, StateOk<number>[]>>();
+    expectTypeOf(init).toEqualTypeOf<
+      StateDerived<number, all.StateOk<number, {}>[], any>
+    >();
   });
   it("by state_derived_from_states", async function () {
     let init = all.state_derived_ok_from_state_array(
@@ -286,7 +300,7 @@ describe("Initialize derived state", function () {
     );
     expect(init).instanceOf(StateDerivedInternal);
     expectTypeOf(init).toEqualTypeOf<
-      StateDerivedOk<number, StateOk<number>[]>
+      StateDerivedOk<number, StateOk<number>[], any>
     >();
   });
 });
@@ -303,7 +317,7 @@ describe("Initialize derived state", function () {
     let init = all.state_derives_sum_from(all.state_ok(1), all.state_from(1));
     expect(init).instanceOf(StateDerivedInternal);
     expectTypeOf(init).toEqualTypeOf<
-      StateDerived<number, all.StateRead<number>[]>
+      StateDerived<number, all.StateRead<number>[], any>
     >();
   });
   it("by state_derives_sum_from_ok", async function () {
@@ -313,7 +327,7 @@ describe("Initialize derived state", function () {
     );
     expect(init).instanceOf(StateDerivedInternal);
     expectTypeOf(init).toEqualTypeOf<
-      StateDerived<number, [all.StateOk<number>, all.State<number>]>
+      StateDerived<number, [all.StateOk<number>, all.State<number>], any>
     >();
   });
   it("by state_derives_sum_from_ok", async function () {
@@ -323,7 +337,7 @@ describe("Initialize derived state", function () {
     );
     expect(init).instanceOf(StateDerivedInternal);
     expectTypeOf(init).toEqualTypeOf<
-      StateDerivedOk<number, [all.StateOk<number>, all.StateOk<number>]>
+      StateDerivedOk<number, [all.StateOk<number>, all.StateOk<number>], any>
     >();
   });
 });

@@ -140,7 +140,7 @@ describe(
     timeout: 50,
   },
   function () {
-    let tests = gen_states((val) => Ok(Ok(val * 2)));
+    let tests = gen_states(async (val, state) => Ok(state.setOk(val * 2)));
     for (let i = 0; i < tests.length; i++) {
       const test = tests[i];
       it(test[0], async function () {
@@ -159,7 +159,7 @@ describe(
     timeout: 50,
   },
   function () {
-    let tests = gen_states(() => Ok(Err(errGen())));
+    let tests = gen_states(async (_val, state) => Ok(state.setErr(errGen())));
     for (let i = 0; i < tests.length; i++) {
       const test = tests[i];
       it(test[0], async function () {

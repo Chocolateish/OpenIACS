@@ -106,7 +106,7 @@ export abstract class StateBase<
       })
     );
   }
-  protected fulfillReadPromises(value: TYPE) {
+  fulfillReadPromises(value: TYPE) {
     if (this.#readPromises)
       for (let i = 0; i < this.#readPromises.length; i++)
         this.#readPromises[i](value);
@@ -118,7 +118,7 @@ export abstract class StateBase<
       (this.#writePromises ??= []).push(a);
     });
   }
-  protected fulfillWritePromises(res: Result<void, StateWriteError>) {
+  fulfillWritePromises(res: Result<void, StateWriteError>) {
     if (this.#writePromises)
       for (let i = 0; i < this.#writePromises.length; i++)
         this.#writePromises[i](res);

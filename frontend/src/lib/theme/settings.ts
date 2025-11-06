@@ -203,7 +203,7 @@ const animationLevelsInternal = {
 } satisfies StateEnumHelperList;
 
 const animationLevelInternal = state_ok(
-  settings.get(AnimationLevelID, AnimationLevels.ALL as AnimationLevels),
+  settings.get(AnimationLevelID, AnimationLevels.NONE as AnimationLevels),
   true,
   new StateEnumHelper(animationLevelsInternal)
 );

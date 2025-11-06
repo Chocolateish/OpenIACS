@@ -43,7 +43,6 @@ export abstract class StateResourceBase<
   #debounceTimout: number = 0;
   #writeBuffer?: WRITE;
   #writeDebounceTimout: number = 0;
-  #writePromise?: (val: Result<void, StateWriteError>) => void;
 
   /**Debounce delaying one time value retrival*/
   abstract get debounce(): number;
@@ -112,11 +111,16 @@ export abstract class StateResourceBase<
   ): Promise<Result<void, StateWriteError>>;
 
   updateResource(value: READ) {
-    this.#buffer = value;
     this.#valid = Date.now() + this.timeout;
     this.fulfillReadPromises(value);
     this.#fetching = false;
-    this.updateSubscribers(value);
+    if (value.ok && this.#buffer?.ok && value.value !== this.#buffer.value)
+      this.updateSubscribers(value);
+    this.#buffer = value;
+  }
+
+  get buffer(): READ | undefined {
+    return this.#buffer;
   }
 
   //Reader Context
@@ -151,10 +155,9 @@ export abstract class StateResourceBase<
     if (this.writebounce === 0) return this.writeAction(value, this);
     else if (this.#writeDebounceTimout === 0)
       this.#writeDebounceTimout = window.setTimeout(async () => {
-        let writeRes = this.writeAction(this.#writeBuffer!, this);
+        this.writeAction(this.#writeBuffer!, this);
         this.#writeDebounceTimout = 0;
         this.#writeBuffer = undefined;
-        this.fulfillWritePromises(await writeRes);
       }, this.writebounce);
     return this.appendWritePromise();
   }
@@ -169,20 +172,6 @@ export abstract class StateResourceBase<
 
   get writeable(): StateWriteBase<READ, false, RELATED, WRITE, false> {
     return this;
-  }
-
-  //Promises
-  writePromise(): Promise<Result<void, StateWriteError>> {
-    return new Promise<Result<void, StateWriteError>>((a) => {
-      if (this.#writePromise)
-        console.warn("Overwriting existing write promise");
-      this.#writePromise = a;
-    });
-  }
-  fulfillWrite(res: Result<void, StateWriteError>) {
-    if (this.#writePromise) this.#writePromise(res);
-    else console.warn("No write promise to fulfill");
-    this.#writePromise = undefined;
   }
 }
 

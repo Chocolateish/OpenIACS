@@ -90,6 +90,10 @@ export {
   state_derived_from_states,
   state_derived_ok_from_state_array,
   state_derived_ok_from_states,
+  state_derived_sync_from_state_array,
+  state_derived_sync_from_states,
+  state_derived_sync_ok_from_state_array,
+  state_derived_sync_ok_from_states,
   type StateDerived,
   type StateDerivedOk,
 } from "./stateDerived";
