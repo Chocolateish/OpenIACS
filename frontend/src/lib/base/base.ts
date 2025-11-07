@@ -8,7 +8,6 @@ import {
   type StateSubscriber,
   type StateSubscriberBase,
 } from "@libState";
-import type { StateReadError } from "../state/types";
 import { AccessTypes } from "./access";
 import "./base.scss";
 import { BaseObserver, type BaseObserverOptions } from "./observer";
@@ -211,7 +210,7 @@ export abstract class Base<
 
   /**Attaches a state to a function, so that the function is subscribed to the state when the component is connected
    * @param visible when set true the function is only subscribed when the element is visible, this requires an observer to be attached to the element*/
-  attachState<READ extends Result<any, StateReadError>>(
+  attachState<READ extends Result<any, string>>(
     state: StateReadBase<READ, any, any>,
     func: StateSubscriberBase<READ>,
     visible?: boolean
@@ -274,7 +273,7 @@ export abstract class Base<
     state: StateRead<(typeof this)[T]>,
     visible?: boolean,
     fallback?: (typeof this)[T],
-    fallbackFunc?: (error: StateReadError) => (typeof this)[T]
+    fallbackFunc?: (error: string) => (typeof this)[T]
   ): this {
     if (!this.#propStates)
       this.#propStates = {} as {
@@ -305,14 +304,14 @@ export abstract class Base<
    * */
   attachStateToPropTransform<
     T extends keyof this,
-    U extends Result<any, StateReadError>
+    U extends Result<any, string>
   >(
     prop: T,
     state: StateReadBase<U, any, any>,
-    transform: (val: U) => Result<(typeof this)[T], StateReadError>,
+    transform: (val: U) => Result<(typeof this)[T], string>,
     visible?: boolean,
     fallback?: (typeof this)[T],
-    fallbackFunc?: (error: StateReadError) => (typeof this)[T]
+    fallbackFunc?: (error: string) => (typeof this)[T]
   ): this {
     if (!this.#propStates)
       this.#propStates = {} as {
@@ -360,7 +359,7 @@ export abstract class Base<
     state: StateRead<string>,
     visible?: boolean,
     fallback?: string,
-    fallbackFunc?: (error: StateReadError) => string
+    fallbackFunc?: (error: string) => string
   ): this {
     if (!this.#attributeStates)
       this.#attributeStates = {} as {
@@ -390,13 +389,13 @@ export abstract class Base<
    * @param state the state to attach to the property
    * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok
    * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element*/
-  attachStateToAttributeTransform<U extends Result<any, StateReadError>>(
+  attachStateToAttributeTransform<U extends Result<any, string>>(
     qualifiedName: string,
     state: StateReadBase<U, any, any>,
-    transform: (val: U) => Result<string, StateReadError>,
+    transform: (val: U) => Result<string, string>,
     visible?: boolean,
     fallback?: string,
-    fallbackFunc?: (error: StateReadError) => string
+    fallbackFunc?: (error: string) => string
   ): this {
     if (!this.#attributeStates)
       this.#attributeStates = {} as {
@@ -463,7 +462,7 @@ export abstract class Base<
     access: StateRead<AccessTypes> | AccessTypes | undefined,
     visible?: boolean,
     fallback?: AccessTypes,
-    fallbackFunc?: (error: StateReadError) => AccessTypes
+    fallbackFunc?: (error: string) => AccessTypes
   ): this {
     if (typeof access === "object")
       this.attachStateToProp("access", access, visible, fallback, fallbackFunc);

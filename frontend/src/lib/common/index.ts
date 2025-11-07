@@ -15,6 +15,20 @@ export let objectEmpty = (obj: {}): boolean => {
   return true;
 };
 
+//                _______     ___   _  _____
+//         /\    / ____\ \   / / \ | |/ ____|
+//        /  \  | (___  \ \_/ /|  \| | |
+//       / /\ \  \___ \  \   / | . ` | |
+//      / ____ \ ____) |  | |  | |\  | |____
+//     /_/    \_\_____/   |_|  |_| \_|\_____|
+
+export function sleep<T = void>(ms: number, arg?: T): Promise<T> {
+  return new Promise((a) => setTimeout(a, ms, arg));
+}
+export function sleepLazy<T = void>(ms: number, arg?: () => T): Promise<T> {
+  return new Promise((a) => setTimeout((arg: () => T) => a(arg()), ms, arg));
+}
+
 //               _   ___     __  ______ ____  _    _         _       _____
 //         /\   | \ | \ \   / / |  ____/ __ \| |  | |  /\   | |     / ____|
 //        /  \  |  \| |\ \_/ /  | |__ | |  | | |  | | /  \  | |    | (___

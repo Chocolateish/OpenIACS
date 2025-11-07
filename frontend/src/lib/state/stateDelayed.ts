@@ -7,7 +7,6 @@ import {
   type StateOwnerOk,
   type StateRead,
   type StateReadBase,
-  type StateReadError,
   type StateReadOk,
   type StateRelated,
   type StateSetter,
@@ -15,12 +14,11 @@ import {
   type StateSetterOk,
   type StateWrite,
   type StateWriteBase,
-  type StateWriteError,
   type StateWriteOk,
 } from "./types";
 
 export class StateDelayedInternal<
-    TYPE extends Result<any, StateReadError>,
+    TYPE extends Result<any, string>,
     RELATED extends StateRelated,
     WRITE = TYPE
   >
@@ -68,12 +66,7 @@ export class StateDelayedInternal<
             this.set(val);
           })
           .catch((error) => {
-            this.set(
-              Err({
-                reason: (error as Error).message,
-                code: "INIT",
-              }) as TYPE
-            );
+            this.set(Err((error as Error).message) as TYPE);
           });
       return prom;
     };
@@ -108,7 +101,7 @@ export class StateDelayedInternal<
     WRITE
   >;
   #helper?: StateHelper<WRITE, RELATED>;
-  #writePromise?: (val: Result<void, StateWriteError>) => void;
+  #writePromise?: (val: Result<void, string>) => void;
 
   //##################################################################################################################################################
   //Reader Context
@@ -132,15 +125,15 @@ export class StateDelayedInternal<
 
   //##################################################################################################################################################
   //Writer Context
-  async write(value: WRITE): Promise<Result<void, StateWriteError>> {
+  async write(value: WRITE): Promise<Result<void, string>> {
     if (this.#setter && (!this.#value!.ok || this.#value?.value !== value))
       return this.#setter(value, this, this.#value);
-    return Err({ code: "LRO", reason: "State not writable" });
+    return Err("State not writable");
   }
   writeSync(_value: unknown): unknown {
     return undefined;
   }
-  limit(value: WRITE): Result<WRITE, StateWriteError> {
+  limit(value: WRITE): Result<WRITE, string> {
     return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
   }
   check(value: WRITE): Option<string> {
@@ -156,11 +149,11 @@ export class StateDelayedInternal<
     this.#value = value;
     this.updateSubscribers(value);
   }
-  setOk(value: TYPE extends Result<infer T, StateReadError> ? T : never): void {
+  setOk(value: TYPE extends Result<infer T, string> ? T : never): void {
     this.#value = Ok(value) as TYPE;
     this.updateSubscribers(this.#value);
   }
-  setErr(err: StateReadError): void {
+  setErr(err: string): void {
     this.#value = Err(err) as TYPE;
     this.updateSubscribers(this.#value);
   }
@@ -169,14 +162,14 @@ export class StateDelayedInternal<
   }
 
   //Promises
-  writePromise(): Promise<Result<void, StateWriteError>> {
-    return new Promise<Result<void, StateWriteError>>((a) => {
+  writePromise(): Promise<Result<void, string>> {
+    return new Promise<Result<void, string>>((a) => {
       if (this.#writePromise)
         console.warn("Overwriting existing write promise");
       this.#writePromise = a;
     });
   }
-  fulfillWrite(res: Result<void, StateWriteError>) {
+  fulfillWrite(res: Result<void, string>) {
     if (this.#writePromise) this.#writePromise(res);
     else console.warn("No write promise to fulfill");
     this.#writePromise = undefined;
@@ -187,12 +180,12 @@ export interface StateDelayed<
   TYPE,
   RELATED extends StateRelated = {},
   WRITE = TYPE
-> extends StateDelayedInternal<Result<TYPE, StateReadError>, RELATED, WRITE> {
+> extends StateDelayedInternal<Result<TYPE, string>, RELATED, WRITE> {
   readonly readable: StateRead<TYPE, false, RELATED>;
   readonly writeable: StateWrite<TYPE, false, RELATED, WRITE>;
   readonly owner: StateOwner<TYPE>;
   setOk(value: TYPE): void;
-  setErr(err: StateReadError): void;
+  setErr(err: string): void;
 }
 export interface StateDelayedOk<
   TYPE,
@@ -216,7 +209,7 @@ export function state_delayed_from<TYPE, RELATED extends StateRelated = {}>(
   setter?: StateSetter<TYPE, StateDelayed<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateDelayedInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
+  return new StateDelayedInternal<Result<TYPE, string>, RELATED, TYPE>(
     init?.then((v) => Ok(v)),
     setter,
     helper
@@ -252,11 +245,11 @@ export function state_delayed_ok<
  * @param helper functions to check and limit the value, and to return related states.
  * */
 export function state_delayed_err<TYPE, RELATED extends StateRelated = {}>(
-  err?: Promise<StateReadError>,
+  err?: Promise<string>,
   setter?: StateSetter<TYPE, StateDelayed<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateDelayedInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
+  return new StateDelayedInternal<Result<TYPE, string>, RELATED, TYPE>(
     err?.then((e) => Err(e)),
     setter,
     helper
@@ -272,11 +265,11 @@ export function state_delayed_from_result<
   TYPE,
   RELATED extends StateRelated = {}
 >(
-  init?: Promise<Result<TYPE, StateReadError>>,
+  init?: Promise<Result<TYPE, string>>,
   setter?: StateSetter<TYPE, StateDelayed<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateDelayedInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
+  return new StateDelayedInternal<Result<TYPE, string>, RELATED, TYPE>(
     init,
     setter,
     helper

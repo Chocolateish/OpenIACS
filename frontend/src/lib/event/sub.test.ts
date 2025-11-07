@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { EventHandlerSub } from "./sub";
+import { ESub, EventHandlerSub } from "./sub";
 
-describe("Init", function () {
+describe("Init", { timeout: 50 }, function () {
   it("Create Simple Event Handler", function () {
     let handler = new EventHandlerSub(undefined);
     expect(handler).toBeDefined();
@@ -17,7 +17,7 @@ describe("Init", function () {
   });
 });
 
-describe("Adding and removing listeners", function () {
+describe("Adding and removing listeners", { timeout: 50 }, function () {
   it("Checking if listener is added to handler with single type", function () {
     let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
     expect(handler.producer.inUse("test")).equal(false);
@@ -98,7 +98,7 @@ describe("Adding and removing listeners", function () {
   });
 });
 
-describe("Dispatching event", function () {
+describe("Dispatching event", { timeout: 50 }, function () {
   it("Checking if values are correct when dispatching event", async function () {
     return new Promise<void>((done) => {
       let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
@@ -121,7 +121,7 @@ describe("Dispatching event", function () {
   });
 });
 
-describe("Adding and removing sub listeners", function () {
+describe("Adding and removing sub listeners", { timeout: 50 }, function () {
   it("Checking if listener is added to handler with single type", function () {
     let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
     expect(handler.producer.inUse("test", ["a", "b", "c"])).equal(false);
@@ -222,7 +222,7 @@ describe("Adding and removing sub listeners", function () {
   });
 });
 
-describe("Dispatching sub event", function () {
+describe("Dispatching sub event", { timeout: 50 }, function () {
   it("Checking if values are correct when dispatching event", async function () {
     return new Promise<void>((done) => {
       let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
@@ -252,7 +252,7 @@ describe("Dispatching sub event", function () {
   });
 });
 
-describe("Target override", function () {
+describe("Target override", { timeout: 50 }, function () {
   it("Target override event", async function () {
     return new Promise<void>((done) => {
       let target = {
@@ -277,5 +277,66 @@ describe("Target override", function () {
       });
       handler.emit("test", 10);
     });
+  });
+});
+
+describe("Proxy Event Handler", { timeout: 50 }, function () {
+  it("Attaching Proxy Event Handler Then emitting event", async function () {
+    let target = {};
+    let handler = new EventHandlerSub<{ test: number }, {}>(target);
+    let proxyHandler = new EventHandlerSub<{ test: number }, {}>(target);
+    let proxFunc = handler.proxyOn(proxyHandler.proxyFunc());
+    expect("").equal("This test does not work ");
+    let e = await new Promise<ESub<"test", {}, number>>((done) => {
+      proxyHandler.on("test", (e) => {
+        //This part here
+        done(e);
+      });
+      handler.emit("test", 10);
+    });
+    expect(e.type).equal("test");
+    expect(e.target).equal(target);
+    expect(e.data).equal(10);
+    handler.proxyOff(proxFunc);
+    let f = await Promise.race([
+      new Promise<ESub<"test", {}, number>>((done) => {
+        proxyHandler.on("test", (e) => {
+          done(e);
+        });
+        handler.emit("test", 10);
+      }),
+      await new Promise<999>((a) => setTimeout(a, 20, 999)),
+    ]);
+    expect(f).equal(999);
+  });
+  it("Attaching Proxy Event Handler Then emitting sub event", async function () {
+    let target = {};
+    let handler = new EventHandlerSub<{ test: number }, {}>(target);
+    let proxyHandler = new EventHandlerSub<{ test: number }, {}>(target);
+    let proxFunc = handler.proxyOn(proxyHandler.proxyFunc());
+    let e = await new Promise<ESub<"test", {}, number>>((done) => {
+      proxyHandler.on(
+        "test",
+        (e) => {
+          done(e);
+        },
+        ["a", "b", "c"]
+      );
+      handler.emit("test", 10, ["a", "b", "c"]);
+    });
+    expect(e.type).equal("test");
+    expect(e.target).equal(target);
+    expect(e.data).equal(10);
+    handler.proxyOff(proxFunc);
+    let f = await Promise.race([
+      new Promise<ESub<"test", {}, number>>((done) => {
+        proxyHandler.on("test", (e) => {
+          done(e);
+        });
+        handler.emit("test", 10);
+      }),
+      await new Promise<999>((a) => setTimeout(a, 20, 999)),
+    ]);
+    expect(f).equal(999);
   });
 });

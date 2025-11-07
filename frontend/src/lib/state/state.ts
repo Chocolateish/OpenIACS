@@ -7,7 +7,6 @@ import {
   type StateOwnerOk,
   type StateRead,
   type StateReadBase,
-  type StateReadError,
   type StateReadOk,
   type StateRelated,
   type StateSetterSync,
@@ -15,11 +14,10 @@ import {
   type StateSetterSyncOk,
   type StateWrite,
   type StateWriteBase,
-  type StateWriteError,
   type StateWriteOk,
 } from "./types";
 export class StateInternal<
-    TYPE extends Result<any, StateReadError>,
+    TYPE extends Result<any, string>,
     RELATED extends StateRelated,
     WRITE
   >
@@ -78,15 +76,15 @@ export class StateInternal<
 
   //##################################################################################################################################################
   //Writer Context
-  async write(value: WRITE): Promise<Result<void, StateWriteError>> {
+  async write(value: WRITE): Promise<Result<void, string>> {
     return this.writeSync(value);
   }
-  writeSync(value: WRITE): Result<void, StateWriteError> {
+  writeSync(value: WRITE): Result<void, string> {
     if (this.#setter && (!this.#value!.ok || this.#value?.value !== value))
       return this.#setter(value, this, this.#value);
-    return Err({ code: "LRO", reason: "State not writable" });
+    return Err("State not writable");
   }
-  limit(value: WRITE): Result<WRITE, StateWriteError> {
+  limit(value: WRITE): Result<WRITE, string> {
     return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
   }
   check(value: WRITE): Option<string> {
@@ -102,11 +100,11 @@ export class StateInternal<
     this.#value = value;
     this.updateSubscribers(value);
   }
-  setOk(value: TYPE extends Result<infer T, StateReadError> ? T : never): void {
+  setOk(value: TYPE extends Result<infer T, string> ? T : never): void {
     this.#value = Ok(value) as TYPE;
     this.updateSubscribers(this.#value);
   }
-  setErr(err: StateReadError): void {
+  setErr(err: string): void {
     this.#value = Err(err) as TYPE;
     this.updateSubscribers(this.#value);
   }
@@ -116,12 +114,12 @@ export class StateInternal<
 }
 
 export interface State<TYPE, RELATED extends StateRelated = {}>
-  extends StateInternal<Result<TYPE, StateReadError>, RELATED, TYPE> {
+  extends StateInternal<Result<TYPE, string>, RELATED, TYPE> {
   readonly readable: StateRead<TYPE, true, RELATED>;
   readonly writeable: StateWrite<TYPE, true, RELATED>;
   readonly owner: StateOwner<TYPE>;
   setOk(value: TYPE): void;
-  setErr(err: StateReadError): void;
+  setErr(err: string): void;
 }
 export interface StateOk<TYPE, RELATED extends StateRelated = {}>
   extends StateInternal<ResultOk<TYPE>, RELATED, TYPE> {
@@ -142,7 +140,7 @@ export function state_from<TYPE, RELATED extends StateRelated = {}>(
   setter?: StateSetterSync<TYPE, State<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
+  return new StateInternal<Result<TYPE, string>, RELATED, TYPE>(
     Ok(init),
     setter,
     helper
@@ -172,11 +170,11 @@ export function state_ok<TYPE, RELATED extends StateRelated = {}>(
  * @param helper functions to check and limit the value, and to return related states.
  * */
 export function state_err<TYPE, RELATED extends StateRelated = {}>(
-  err: StateReadError,
+  err: string,
   setter?: StateSetterSync<TYPE, State<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
+  return new StateInternal<Result<TYPE, string>, RELATED, TYPE>(
     Err(err),
     setter,
     helper
@@ -189,11 +187,11 @@ export function state_err<TYPE, RELATED extends StateRelated = {}>(
  * @param helper functions to check and limit the value, and to return related states
  * */
 export function state_from_result<TYPE, RELATED extends StateRelated = {}>(
-  init: Result<TYPE, StateReadError>,
+  init: Result<TYPE, string>,
   setter?: StateSetterSync<TYPE, State<TYPE, RELATED>> | true,
   helper?: StateHelper<TYPE, RELATED>
 ) {
-  return new StateInternal<Result<TYPE, StateReadError>, RELATED, TYPE>(
+  return new StateInternal<Result<TYPE, string>, RELATED, TYPE>(
     init,
     setter,
     helper

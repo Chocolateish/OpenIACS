@@ -1,6 +1,5 @@
 import { Err, Ok, type Result } from "@libResult";
 import { describe, expect, it } from "vitest";
-import type { StateReadError } from "../types";
 import {
   state_test_gen_delayed as delayed,
   state_test_gen_delayed_ok as delayed_ok,
@@ -94,7 +93,7 @@ describe(
         expect(test[3].inUse()).equal(undefined);
         expect(test[3].amountSubscriber()).equal(0);
         let [sub4, val] = await new Promise<
-          [(val: any) => void, Result<number, StateReadError>]
+          [(val: any) => void, Result<number, string>]
         >((a) => {
           let sub4 = test[1].subscribe((val) => {
             count += 1000;
@@ -106,7 +105,7 @@ describe(
         expect(count).equal(200001223);
         test[1].unsubscribe(sub4);
         let [sub5, val2] = await new Promise<
-          [(val: any) => void, Result<number, StateReadError>]
+          [(val: any) => void, Result<number, string>]
         >((a) => {
           let sub5 = test[1].subscribe((val) => {
             count += 10000;

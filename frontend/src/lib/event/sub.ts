@@ -40,6 +40,14 @@ export interface EventSubConsumer<Events extends {}, Target> {
     subscriber: ESubSubscriber<K, Target, Events[K]>,
     sub?: SubPath
   ): typeof subscriber;
+  /**Registers a proxy event handler that recieves all events from this event handler */
+  proxyOn(
+    subscriber: ESubSubscriber<keyof Events, Target, Events[keyof Events]>
+  ): typeof subscriber;
+  /**Deregisters a proxy event handler that recieves all events from this event handler */
+  proxyOff(
+    subscriber: ESubSubscriber<keyof Events, Target, Events[keyof Events]>
+  ): typeof subscriber;
 }
 
 export interface EventSubProducer<Events extends {}, Target>
@@ -68,234 +76,246 @@ export interface EventSubProducer<Events extends {}, Target>
   ): boolean;
   /**Returns the amount of listeners on that event*/
   amount<K extends keyof Events>(eventName: K, sub?: SubPath): number;
+  /**Generates a proxy function which can be registered with another handlers */
+  proxyFunc(): ESubSubscriber<keyof Events, Target, Events[keyof Events]>;
 }
 
 /**Type for storage of listeners in event handler */
 interface ListenerStorage<K, Handler, Type> {
   subs: { [key: string]: ListenerStorage<K, Handler, Type> };
-  funcs: ESubSubscriber<K, Handler, Type>[];
+  funcs: Set<ESubSubscriber<K, Handler, Type>>;
 }
 
 /**Extension to event handler with support for sub events*/
 export class EventHandlerSub<Events extends {}, Target>
   implements EventSubProducer<Events, Target>
 {
-  private _running: string | number | symbol = "";
   target: Target;
-  private eventHandler_ListenerStorage: {
+  #subStorage: {
     [K in keyof Events]?: ListenerStorage<K, Target, Events[K]>;
   } = {};
+  #proxies?: Set<ESubSubscriber<keyof Events, Target, Events[keyof Events]>>;
+
   constructor(target: Target) {
     this.target = target;
   }
+
+  //# Consumer
+
   on<K extends keyof Events>(
     eventName: K,
     subscriber: ESubSubscriber<K, Target, Events[K]>,
     sub?: SubPath
   ): typeof subscriber {
-    let subLevel = this.eventHandler_ListenerStorage[eventName];
-    if (!subLevel) {
-      subLevel = this.eventHandler_ListenerStorage[eventName] = {
+    let subLevel = this.#subStorage[eventName];
+    if (!subLevel)
+      subLevel = this.#subStorage[eventName] = {
         subs: {},
-        funcs: [],
+        funcs: new Set(),
       };
-    }
-    if (sub) {
+    if (sub)
       for (let i = 0; i < sub.length; i++) {
         let subLevelBuffer = subLevel!.subs[sub[i]];
-        if (subLevelBuffer) {
-          subLevel = subLevelBuffer;
-        } else {
-          subLevel = subLevel!.subs[sub[i]] = { subs: {}, funcs: [] };
-        }
+        if (subLevelBuffer) subLevel = subLevelBuffer;
+        else subLevel = subLevel!.subs[sub[i]] = { subs: {}, funcs: new Set() };
       }
-    }
     var typeListeners = subLevel!.funcs;
-    let index = typeListeners.indexOf(subscriber);
-    if (index == -1) {
-      typeListeners.push(subscriber);
-    } else {
+    if (typeListeners.has(subscriber))
       console.warn("Subscriber already in handler");
-    }
+    else typeListeners.add(subscriber);
     return subscriber;
   }
+
   off<K extends keyof Events>(
     eventName: K,
     subscriber: ESubSubscriber<K, Target, Events[K]>,
     sub?: SubPath
   ): typeof subscriber {
-    if (eventName === this._running) {
-      console.warn(
-        "Cannot remove subscriber for event while it is being dispatched"
-      );
-      return subscriber;
-    }
-    var subLevel = this.eventHandler_ListenerStorage[eventName];
+    var subLevel = this.#subStorage[eventName];
     if (subLevel) {
-      if (sub) {
+      if (sub)
         for (let i = 0; i < sub.length; i++) {
           let subLevelBuffer = subLevel!.subs[sub[i]];
-          if (subLevelBuffer) {
-            subLevel = subLevelBuffer;
-          } else {
+          if (subLevelBuffer) subLevel = subLevelBuffer;
+          else {
             console.warn("Subscriber not in handler");
             return subscriber;
           }
         }
-      }
-      var typeListeners = subLevel!.funcs;
-      let index = typeListeners.indexOf(subscriber);
-      if (index != -1) {
-        typeListeners.splice(index, 1);
-      } else {
+      if (subLevel!.funcs.delete(subscriber) === false)
         console.warn("Subscriber not in handler");
-      }
     }
     return subscriber;
   }
+
+  proxyOn(
+    subscriber: ESubSubscriber<keyof Events, Target, Events[keyof Events]>
+  ): typeof subscriber {
+    if (!this.#proxies) this.#proxies = new Set([subscriber]);
+    else if (!this.#proxies.has(subscriber)) this.#proxies.add(subscriber);
+    else console.warn("Proxy subscriber already registered");
+    return subscriber;
+  }
+  proxyOff(
+    subscriber: ESubSubscriber<keyof Events, Target, Events[keyof Events]>
+  ): typeof subscriber {
+    if (this.#proxies?.delete(subscriber) === false)
+      console.warn("Proxy subscriber not registered");
+    return subscriber;
+  }
+
+  get consumer(): EventSubConsumer<Events, Target> {
+    return this;
+  }
+
+  //#Producer
 
   emit<K extends keyof Events>(
     eventName: K,
     data: Events[K],
     sub?: SubPath
   ): void {
-    this._running = eventName;
     if (sub) {
-      var subLevel = this.eventHandler_ListenerStorage[eventName];
-      if (subLevel) {
+      var subLevel = this.#subStorage[eventName];
+      if (subLevel)
         for (let i = 0; i < sub.length; i++) {
           let subLevelBuffer = subLevel!.subs[sub[i]];
-          if (subLevelBuffer) {
-            subLevel = subLevelBuffer;
-          } else {
-            return;
-          }
+          if (subLevelBuffer) subLevel = subLevelBuffer;
+          else if (this.#proxies?.size)
+            return this.#emitE(
+              Object.freeze(
+                new ESub<K, Target, Events[K]>(
+                  eventName,
+                  this.target,
+                  data,
+                  sub
+                )
+              ),
+              funcs as Set<
+                ESubSubscriber<keyof Events, Target, Events[keyof Events]>
+              >
+            );
+          else return;
         }
-      }
       var funcs = subLevel?.funcs;
-    } else {
-      var funcs = this.eventHandler_ListenerStorage[eventName]?.funcs;
-    }
-    if (funcs && funcs.length > 0) {
-      let event = Object.freeze(
-        new ESub<K, Target, Events[K]>(eventName, this.target, data, sub)
+    } else var funcs = this.#subStorage[eventName]?.funcs;
+    if (funcs?.size || this.#proxies?.size)
+      this.#emitE(
+        Object.freeze(
+          new ESub<K, Target, Events[K]>(eventName, this.target, data, sub)
+        ),
+        funcs as Set<ESubSubscriber<keyof Events, Target, Events[keyof Events]>>
       );
-      for (let i = 0, n = funcs.length; i < n; i++) {
-        try {
-          if (funcs[i](event) === true) {
-            funcs.splice(i, 1);
-            n--;
-            i--;
-          }
-        } catch (e) {
-          console.warn("Failed while dispatching event", e);
-        }
-      }
-    }
-    this._running = "";
   }
+
+  #emitE(
+    e: ESub<keyof Events, Target, Events[keyof Events]>,
+    funcs?: Set<ESubSubscriber<keyof Events, Target, Events[keyof Events]>>
+  ) {
+    this.#proxies?.forEach((proxy) => {
+      proxy(e);
+    });
+    funcs?.forEach((func) => {
+      try {
+        if (func(e)) funcs.delete(func);
+      } catch (e) {
+        console.warn("Failed while dispatching event", e);
+      }
+    });
+  }
+
   clear<K extends keyof Events>(
     eventName: K,
     sub?: SubPath,
     anyLevel?: boolean
   ): void {
-    let typeBuff = this.eventHandler_ListenerStorage[eventName];
+    let typeBuff = this.#subStorage[eventName];
     if (typeBuff) {
       if (anyLevel) {
         if (sub) {
           let subLevel = typeBuff;
           for (var i = 0; i < sub.length - 1; i++) {
             let subLevelBuffer = subLevel!.subs[sub[i]];
-            if (subLevelBuffer) {
-              subLevel = subLevelBuffer;
-            } else {
-              return;
-            }
+            if (subLevelBuffer) subLevel = subLevelBuffer;
+            else return;
           }
-          subLevel!.subs[sub[i]] = { subs: {}, funcs: [] };
-        } else {
-          this.eventHandler_ListenerStorage[eventName] = {
+          subLevel!.subs[sub[i]] = { subs: {}, funcs: new Set() };
+        } else
+          this.#subStorage[eventName] = {
             subs: {},
-            funcs: [],
+            funcs: new Set(),
           };
-        }
       } else {
-        if (sub) {
+        if (sub)
           for (let i = 0; i < sub.length; i++) {
             let subLevelBuffer = typeBuff!.subs[sub[i]];
-            if (subLevelBuffer) {
-              typeBuff = subLevelBuffer;
-            } else {
-              return;
-            }
+            if (subLevelBuffer) typeBuff = subLevelBuffer;
+            else return;
           }
-        }
-        typeBuff.funcs = [];
+        typeBuff.funcs.clear();
       }
     }
   }
+
   inUse<K extends keyof Events>(eventName: K, sub?: SubPath): boolean {
-    let typeBuff = this.eventHandler_ListenerStorage[eventName];
+    let typeBuff = this.#subStorage[eventName];
     if (typeBuff) {
-      if (sub) {
+      if (sub)
         for (let i = 0; i < sub.length; i++) {
           let subLevelBuffer = typeBuff!.subs[sub[i]];
-          if (subLevelBuffer) {
-            typeBuff = subLevelBuffer;
-          } else {
-            return false;
-          }
+          if (subLevelBuffer) typeBuff = subLevelBuffer;
+          else return false;
         }
-      }
-      return Boolean(typeBuff.funcs.length);
-    } else {
-      return false;
-    }
+      return Boolean(typeBuff.funcs.size);
+    } else return false;
   }
+
   has<K extends keyof Events>(
     eventName: K,
     subscriber: ESubSubscriber<K, Target, Events[K]>,
     sub?: SubPath
   ): boolean {
-    let typeBuff = this.eventHandler_ListenerStorage[eventName];
+    let typeBuff = this.#subStorage[eventName];
     if (typeBuff) {
-      if (sub) {
+      if (sub)
         for (let i = 0; i < sub.length; i++) {
           let subLevelBuffer = typeBuff!.subs[sub[i]];
-          if (subLevelBuffer) {
-            typeBuff = subLevelBuffer;
-          } else {
-            return false;
-          }
+          if (subLevelBuffer) typeBuff = subLevelBuffer;
+          else return false;
         }
-      }
-      return Boolean(typeBuff.funcs.indexOf(subscriber) !== -1);
-    } else {
-      return false;
-    }
-  }
-  amount<K extends keyof Events>(eventName: K, sub?: SubPath): number {
-    let typeBuff = this.eventHandler_ListenerStorage[eventName];
-    if (typeBuff) {
-      if (sub) {
-        for (let i = 0; i < sub.length; i++) {
-          let subLevelBuffer = typeBuff!.subs[sub[i]];
-          if (subLevelBuffer) {
-            typeBuff = subLevelBuffer;
-          } else {
-            return 0;
-          }
-        }
-      }
-      return typeBuff.funcs.length;
-    } else {
-      return 0;
-    }
+      return typeBuff.funcs.has(subscriber);
+    } else return false;
   }
 
-  get consumer(): EventSubConsumer<Events, Target> {
-    return this;
+  amount<K extends keyof Events>(eventName: K, sub?: SubPath): number {
+    let typeBuff = this.#subStorage[eventName];
+    if (typeBuff) {
+      if (sub)
+        for (let i = 0; i < sub.length; i++) {
+          let subLevelBuffer = typeBuff!.subs[sub[i]];
+          if (subLevelBuffer) typeBuff = subLevelBuffer;
+          else return 0;
+        }
+      return typeBuff.funcs.size;
+    } else return 0;
   }
+
+  proxyFunc(): ESubSubscriber<keyof Events, Target, Events[keyof Events]> {
+    return (e: ESub<keyof Events, Target, Events[keyof Events]>) => {
+      if (e.sub) {
+        var subLevel = this.#subStorage[e.type];
+        if (subLevel)
+          for (let i = 0; i < e.sub.length; i++) {
+            let subLevelBuffer = subLevel!.subs[e.sub[i]];
+            if (subLevelBuffer) subLevel = subLevelBuffer;
+            else return;
+          }
+        var funcs = subLevel?.funcs;
+      } else var funcs = this.#subStorage[e.type]?.funcs;
+      if (funcs && funcs.size) this.#emitE(e, funcs);
+    };
+  }
+
   get producer(): EventSubProducer<Events, Target> {
     return this;
   }

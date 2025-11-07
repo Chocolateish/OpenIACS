@@ -1,32 +1,14 @@
 import { type Option, type Result, type ResultOk } from "@libResult";
 
-/**Struct returned when a state errors*/
-export type StateReadError = {
-  /**Description of the reason for the error*/
-  reason: string;
-  /**Max 4 letter code representing the type of error*/
-  code: string;
-};
-
-/**Struct returned when a state errors*/
-export type StateWriteError = {
-  /**Description of the reason for the error*/
-  reason: string;
-  /**Max 4 letter code representing the type of error*/
-  code: string;
-};
-
 /**Function used to subscribe to state changes
  * @template TYPE - The type of the state’s value when read.*/
-export type StateSubscriberBase<TYPE extends Result<any, StateReadError>> = (
+export type StateSubscriberBase<TYPE extends Result<any, string>> = (
   value: TYPE
 ) => void;
 
 /**Function used to subscribe to state changes
  * @template TYPE - The type of the state’s value when read.*/
-export type StateSubscriber<TYPE> = (
-  value: Result<TYPE, StateReadError>
-) => void;
+export type StateSubscriber<TYPE> = (value: Result<TYPE, string>) => void;
 
 /**Function used to subscribe to state changes with guarenteed Ok value
  * @template TYPE - The type of the state’s value when read.*/
@@ -38,23 +20,19 @@ export type StateRelated = {
 };
 
 export type StateHelper<TYPE, L extends StateRelated = {}> = {
-  limit?: (value: TYPE) => Result<TYPE, StateWriteError>;
+  limit?: (value: TYPE) => Result<TYPE, string>;
   check?: (value: TYPE) => Option<string>;
   related?: () => Option<L>;
 };
 
-export type StateSetterBase<
-  TYPE extends Result<any, StateReadError>,
-  STATE,
-  WRITE
-> = (
+export type StateSetterBase<TYPE extends Result<any, string>, STATE, WRITE> = (
   value: WRITE,
   state: STATE,
   old?: TYPE
-) => Promise<Result<void, StateWriteError>>;
+) => Promise<Result<void, string>>;
 
 export type StateSetter<TYPE, STATE, WRITE = TYPE> = StateSetterBase<
-  Result<TYPE, StateReadError>,
+  Result<TYPE, string>,
   STATE,
   WRITE
 >;
@@ -66,13 +44,13 @@ export type StateSetterOk<TYPE, STATE, WRITE = TYPE> = StateSetterBase<
 >;
 
 export type StateSetterSyncBase<
-  TYPE extends Result<any, StateReadError>,
+  TYPE extends Result<any, string>,
   STATE,
   WRITE
-> = (value: WRITE, state: STATE, old?: TYPE) => Result<void, StateWriteError>;
+> = (value: WRITE, state: STATE, old?: TYPE) => Result<void, string>;
 
 export type StateSetterSync<TYPE, STATE, WRITE = TYPE> = StateSetterSyncBase<
-  Result<TYPE, StateReadError>,
+  Result<TYPE, string>,
   STATE,
   WRITE
 >;
@@ -96,7 +74,7 @@ export type StateSetterSyncOk<TYPE, STATE, WRITE = TYPE> = StateSetterSyncBase<
  * @template SYNC - Whether `get()` is available synchronously (true = available).
  * @template RELATED - The type of related states, defaults to an empty object.*/
 export interface StateReadBase<
-  TYPE extends Result<any, StateReadError>,
+  TYPE extends Result<any, string>,
   SYNC extends boolean,
   RELATED extends StateRelated = {}
 > {
@@ -131,7 +109,7 @@ export type StateRead<
   TYPE,
   SYNC extends boolean = any,
   RELATED extends StateRelated = {}
-> = StateReadBase<Result<TYPE, StateReadError>, SYNC, RELATED>;
+> = StateReadBase<Result<TYPE, string>, SYNC, RELATED>;
 
 /** Represents a readable state object with guarenteed Ok value and subscription and related utilities.
  * @template TYPE - The type of the state’s value when read.
@@ -157,7 +135,7 @@ export type StateReadOk<
  * @template SYNC - Whether `get()` is available synchronously (true = available).
  * @template RELATED - The type of related states, defaults to an empty object.*/
 export interface StateWriteBase<
-  TYPE extends Result<any, StateReadError>,
+  TYPE extends Result<any, string>,
   SYNC extends boolean,
   RELATED extends StateRelated,
   WRITE,
@@ -165,14 +143,14 @@ export interface StateWriteBase<
 > extends StateReadBase<TYPE, SYNC, RELATED> {
   /** This attempts a write to the state, write is not guaranteed to succeed
    * @returns promise of result with error for the write*/
-  write(value: WRITE): Promise<Result<void, StateWriteError>>;
+  write(value: WRITE): Promise<Result<void, string>>;
   /** This attempts a write to the state, write is not guaranteed to succeed, this sync method is available on sync states
    * @returns result with error for the write*/
   writeSync(
     value: WSYNC extends true ? WRITE : never
-  ): WSYNC extends true ? Result<void, StateWriteError> : unknown;
+  ): WSYNC extends true ? Result<void, string> : unknown;
   /**Limits given value to valid range if possible returns None if not possible */
-  limit: (value: WRITE) => Result<WRITE, StateWriteError>;
+  limit: (value: WRITE) => Result<WRITE, string>;
   /**Checks if the value is valid and returns reason for invalidity */
   check: (value: WRITE) => Option<string>;
   /**Returns the same state as just a writable, for access management*/
@@ -189,7 +167,7 @@ export type StateWrite<
   RELATED extends StateRelated = {},
   WRITE = TYPE,
   WSYNC extends boolean = SYNC
-> = StateWriteBase<Result<TYPE, StateReadError>, SYNC, RELATED, WRITE, WSYNC>;
+> = StateWriteBase<Result<TYPE, string>, SYNC, RELATED, WRITE, WSYNC>;
 
 /** Represents a writable state object with guarenteed Ok value and subscription and related utilities.
  * @template TYPE - The type of the state’s value when read.
@@ -213,20 +191,20 @@ export type StateWriteOk<
 //###########################################################################################################################################################
 /** Represents the standard owner interface for a state object.
  * @template TYPE - The type of the state’s value when read.*/
-export interface StateOwnerBase<TYPE extends Result<any, StateReadError>> {
+export interface StateOwnerBase<TYPE extends Result<any, string>> {
   /** This sets the value of the state to a result and updates all subscribers */
-  set(value: Result<any, StateReadError>): void;
+  set(value: Result<any, string>): void;
   /** This sets the value of the state to a ok result and updates all subscribers */
-  setOk(value: TYPE extends Result<infer T, StateReadError> ? T : never): void;
+  setOk(value: TYPE extends Result<infer T, string> ? T : never): void;
   /** This sets the value of the state to an err result and updates all subscribers */
-  setErr(err: TYPE extends ResultOk<any> ? unknown : StateReadError): void;
+  setErr(err: TYPE extends ResultOk<any> ? unknown : string): void;
   /**Returns the same state as just a owner, for access management*/
   readonly owner: StateOwnerBase<TYPE>;
 }
 
 /** Represents the standard owner interface for a state object.
  * @template TYPE - The type of the state’s value when read.*/
-export type StateOwner<TYPE> = StateOwnerBase<Result<TYPE, StateReadError>>;
+export type StateOwner<TYPE> = StateOwnerBase<Result<TYPE, string>>;
 
 /** Represents the standard owner interface for a state object, that is guarenteed to be Ok.
  * @template TYPE - The type of the state’s value when read.*/

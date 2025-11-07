@@ -3,7 +3,6 @@ import { StateBase } from "./stateBase";
 import type {
   StateRead,
   StateReadBase,
-  StateReadError,
   StateReadOk,
   StateSubscriberBase,
 } from "./types";
@@ -12,7 +11,7 @@ import type {
  * @template INPUT - The type allowed for the input of the derive
  * @template OUTPUT - The type outputted by the derive*/
 export class StateDerivedInternal<
-  OUTPUT extends Result<any, StateReadError>,
+  OUTPUT extends Result<any, string>,
   INPUT extends StateReadBase<any, SYNC>[],
   SYNC extends boolean
 > extends StateBase<OUTPUT, SYNC> {
@@ -194,7 +193,7 @@ export interface StateDerived<
   OUTPUT,
   INPUT extends StateReadBase<any, any>[],
   SYNC extends boolean
-> extends StateDerivedInternal<Result<OUTPUT, StateReadError>, INPUT, SYNC> {
+> extends StateDerivedInternal<Result<OUTPUT, string>, INPUT, SYNC> {
   readonly readable: StateRead<OUTPUT, SYNC>;
   setStates(...states: INPUT): void;
   setGetter(
@@ -202,7 +201,7 @@ export interface StateDerived<
       [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, SYNC>
         ? READ
         : never;
-    }) => Result<OUTPUT, StateReadError>
+    }) => Result<OUTPUT, string>
   ): void;
 }
 
@@ -234,11 +233,11 @@ export function state_derived_from_states<
         [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
           ? READ
           : never;
-      }) => Result<OUTPUT, StateReadError>)
+      }) => Result<OUTPUT, string>)
     | false,
   ...states: INPUT
 ) {
-  return new StateDerivedInternal<Result<OUTPUT, StateReadError>, INPUT, any>(
+  return new StateDerivedInternal<Result<OUTPUT, string>, INPUT, any>(
     transform,
     ...states
   ) as StateDerived<OUTPUT, INPUT, any>;
@@ -278,11 +277,11 @@ export function state_derived_from_state_array<
         [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, any>
           ? READ
           : never;
-      }) => Result<OUTPUT, StateReadError>)
+      }) => Result<OUTPUT, string>)
     | false,
   states: INPUT
 ) {
-  return new StateDerivedInternal<Result<OUTPUT, StateReadError>, INPUT, any>(
+  return new StateDerivedInternal<Result<OUTPUT, string>, INPUT, any>(
     transform,
     ...states
   ) as StateDerived<OUTPUT, INPUT, any>;
@@ -322,11 +321,11 @@ export function state_derived_sync_from_states<
         [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, true>
           ? READ
           : never;
-      }) => Result<OUTPUT, StateReadError>)
+      }) => Result<OUTPUT, string>)
     | false,
   ...states: INPUT
 ) {
-  return new StateDerivedInternal<Result<OUTPUT, StateReadError>, INPUT, true>(
+  return new StateDerivedInternal<Result<OUTPUT, string>, INPUT, true>(
     transform,
     ...states
   ) as StateDerived<OUTPUT, INPUT, true>;
@@ -366,11 +365,11 @@ export function state_derived_sync_from_state_array<
         [I in keyof INPUT]: INPUT[I] extends StateReadBase<infer READ, true>
           ? READ
           : never;
-      }) => Result<OUTPUT, StateReadError>)
+      }) => Result<OUTPUT, string>)
     | false,
   states: INPUT
 ) {
-  return new StateDerivedInternal<Result<OUTPUT, StateReadError>, INPUT, true>(
+  return new StateDerivedInternal<Result<OUTPUT, string>, INPUT, true>(
     transform,
     ...states
   ) as StateDerived<OUTPUT, INPUT, true>;

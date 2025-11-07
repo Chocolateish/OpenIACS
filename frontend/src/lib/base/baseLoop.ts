@@ -3,14 +3,13 @@ import {
   state_array_apply_read_to_array_transform,
   type StateArray,
   type StateArrayRead,
-  type StateError,
   type StateSubscriber,
 } from "@libState";
 import { Base } from "./base";
 
 interface A<T, E extends Node> {
   generator(val: T): E;
-  error(err: StateError): Node;
+  error(err: string): Node;
   destructor?(val: T, element: E): void;
   array?: T[];
   state?: StateArray<T>;
@@ -29,7 +28,7 @@ export type LoopOptions<T, E extends Node> = B<T, E> | C<T, E>;
 
 export class Loop<T, E extends Node> extends Base {
   #generator: (val: T) => E;
-  //#error: (err: StateError) => Node = () => document.createTextNode("");
+  //#error: (err: string) => Node = () => document.createTextNode("");
   #destructor?: (val: T, element: E) => void;
   #stateArray?: StateArray<T>;
   #subSubscriber?: StateSubscriber<StateArrayRead<T>>;

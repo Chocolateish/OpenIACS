@@ -3,29 +3,28 @@ import { StateBase } from "./stateBase";
 import type {
   StateRead,
   StateReadBase,
-  StateReadError,
   StateReadOk,
   StateRelated,
   StateSubscriberBase,
 } from "./types";
 
 export type StateProxyTransformBase<
-  INPUT extends Result<any, StateReadError>,
-  OUTPUT extends Result<any, StateReadError>
+  INPUT extends Result<any, string>,
+  OUTPUT extends Result<any, string>
 > = (value: INPUT) => OUTPUT;
 
 export type StateProxyTransform<INPUT, OUTPUT> = StateProxyTransformBase<
-  Result<INPUT, StateReadError>,
-  Result<OUTPUT, StateReadError>
+  Result<INPUT, string>,
+  Result<OUTPUT, string>
 >;
 
 export type StateProxyTransformFromOk<INPUT, OUTPUT> = StateProxyTransformBase<
   ResultOk<INPUT>,
-  Result<OUTPUT, StateReadError>
+  Result<OUTPUT, string>
 >;
 
 export type StateProxyTransformOk<INPUT, OUTPUT> = StateProxyTransformBase<
-  Result<INPUT, StateReadError>,
+  Result<INPUT, string>,
   ResultOk<OUTPUT>
 >;
 
@@ -33,10 +32,10 @@ export type StateProxyTransformOkFromOk<INPUT, OUTPUT> =
   StateProxyTransformBase<ResultOk<INPUT>, ResultOk<OUTPUT>>;
 
 export class StateProxyInternal<
-  OUTPUT extends Result<any, StateReadError>,
+  OUTPUT extends Result<any, string>,
   SYNC extends boolean,
   RELATED extends StateRelated,
-  INPUT extends Result<any, StateReadError>
+  INPUT extends Result<any, string>
 > extends StateBase<OUTPUT, SYNC, RELATED> {
   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
    * @param transform - Function to translate value of state or states to something else, false means first states values is used.
@@ -140,10 +139,10 @@ export interface StateProxy<
   RELATED extends StateRelated = {},
   INPUT = OUTPUT
 > extends StateProxyInternal<
-    Result<OUTPUT, StateReadError>,
+    Result<OUTPUT, string>,
     SYNC,
     RELATED,
-    Result<INPUT, StateReadError>
+    Result<INPUT, string>
   > {
   readonly readable: StateRead<OUTPUT, SYNC, RELATED>;
   setState(state: StateRead<INPUT, SYNC, RELATED>): void;
@@ -155,7 +154,7 @@ export interface StateProxyFromOK<
   RELATED extends StateRelated = {},
   INPUT = OUTPUT
 > extends StateProxyInternal<
-    Result<OUTPUT, StateReadError>,
+    Result<OUTPUT, string>,
     SYNC,
     RELATED,
     ResultOk<INPUT>
@@ -175,7 +174,7 @@ export interface StateProxyOk<
     ResultOk<OUTPUT>,
     SYNC,
     RELATED,
-    Result<INPUT, StateReadError>
+    Result<INPUT, string>
   > {
   readonly readable: StateReadOk<OUTPUT, SYNC, RELATED>;
   setState(state: StateRead<INPUT, SYNC, RELATED>): void;
@@ -208,10 +207,10 @@ export function state_proxy_from<
   transform?: StateProxyTransform<INPUT, OUTPUT>
 ) {
   return new StateProxyInternal<
-    Result<OUTPUT, StateReadError>,
+    Result<OUTPUT, string>,
     SYNC,
     RELATED,
-    Result<INPUT, StateReadError>
+    Result<INPUT, string>
   >(state, transform) as StateProxy<OUTPUT, SYNC, RELATED, INPUT>;
 }
 
@@ -228,10 +227,10 @@ export function state_proxy_from_ok<
   transform?: StateProxyTransformFromOk<INPUT, OUTPUT>
 ) {
   return new StateProxyInternal<
-    Result<OUTPUT, StateReadError>,
+    Result<OUTPUT, string>,
     SYNC,
     RELATED,
-    Result<INPUT, StateReadError>
+    Result<INPUT, string>
   >(state, transform as any) as StateProxyFromOK<OUTPUT, SYNC, RELATED, INPUT>;
 }
 
@@ -266,10 +265,10 @@ export function state_proxy_ok<
   transform?: StateProxyTransformOk<INPUT, OUTPUT>
 ) {
   return new StateProxyInternal<
-    Result<OUTPUT, StateReadError>,
+    Result<OUTPUT, string>,
     SYNC,
     RELATED,
-    Result<INPUT, StateReadError>
+    Result<INPUT, string>
   >(state, transform) as StateProxyOk<OUTPUT, SYNC, RELATED, INPUT>;
 }
 
@@ -286,10 +285,10 @@ export function state_proxy_ok_from_ok<
   transform?: StateProxyTransformOkFromOk<INPUT, OUTPUT>
 ) {
   return new StateProxyInternal<
-    Result<OUTPUT, StateReadError>,
+    Result<OUTPUT, string>,
     SYNC,
     RELATED,
-    Result<INPUT, StateReadError>
+    Result<INPUT, string>
   >(state, transform as any) as StateProxyOkFromOk<
     OUTPUT,
     SYNC,

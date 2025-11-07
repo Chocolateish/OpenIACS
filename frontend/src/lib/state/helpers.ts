@@ -4,7 +4,6 @@ import type {
   StateRead,
   StateRelated,
   StateSubscriber,
-  StateWriteError,
 } from "./types";
 
 export async function state_await_value<T>(
@@ -89,7 +88,7 @@ export class StateNumberHelper
     }
   }
 
-  limit(value: number): Result<number, StateWriteError> {
+  limit(value: number): Result<number, string> {
     if (this.step)
       if (this.start)
         value = parseFloat(
@@ -140,7 +139,7 @@ export class StateStringHelper
     if (maxLength !== undefined) this.maxLength = maxLength;
     if (maxLengthBytes !== undefined) this.maxLengthBytes = maxLengthBytes;
   }
-  limit(value: string): Result<string, StateWriteError> {
+  limit(value: string): Result<string, string> {
     if (this.maxLength && value.length > this.maxLength)
       value = value.slice(0, this.maxLength);
     if (this.maxLengthBytes) {
@@ -198,7 +197,7 @@ export class StateEnumHelper<
     this.list = list;
   }
 
-  limit(value: K): Result<K, StateWriteError> {
+  limit(value: K): Result<K, string> {
     return Ok(value);
   }
   check(value: K): Option<string> {

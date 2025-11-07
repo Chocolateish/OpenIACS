@@ -47,14 +47,13 @@ import {
 import type {
   StateOwner,
   StateRead,
-  StateReadError,
   StateSetter,
   StateSetterSync,
   StateWrite,
 } from "../types";
 
 export function state_test_gen_error() {
-  return { code: "TEST", reason: "Test Error" };
+  return "Test Error";
 }
 let eg = state_test_gen_error;
 
@@ -63,8 +62,8 @@ export type StateTestsRead = [
   StateRead<number, any>,
   StateOwner<number>,
   StateBase<any, any, any>,
-  Result<number, StateReadError>,
-  Result<number, StateReadError>
+  Result<number, string>,
+  Result<number, string>
 ];
 
 export type StateTestsWrite = [
@@ -72,14 +71,14 @@ export type StateTestsWrite = [
   StateWrite<number, any>,
   StateOwner<number>,
   StateBase<any, any, any>,
-  Result<number, StateReadError>,
-  Result<number, StateReadError>
+  Result<number, string>,
+  Result<number, string>
 ];
 
 export function norm(
   text: string,
   state: StateBase<any, any, any> & StateOwner<any> & StateWrite<any, any, any>,
-  init: Result<number, StateReadError>
+  init: Result<number, string>
 ): StateTestsWrite {
   return [text, state.writeable, state, state, init, init.constructor as any];
 }
@@ -301,7 +300,7 @@ let dr = Ok(1);
 let drc = pr.constructor as any;
 
 export function state_test_gen_derived(
-  setter?: ((val: number) => Option<Result<number, StateReadError>>) | true
+  setter?: ((val: number) => Option<Result<number, string>>) | true
 ): StateTestsRead[] {
   let s1 = state_ok(1, setter as any);
   let s2 = state_ok(1, setter as any);
@@ -321,7 +320,7 @@ export function state_test_gen_derived(
 }
 
 export function state_test_gen_derived_ok(
-  setter?: ((val: number) => Option<Result<number, StateReadError>>) | true
+  setter?: ((val: number) => Option<Result<number, string>>) | true
 ): StateTestsRead[] {
   let s1 = state_ok(1, setter as any);
   let s2 = state_ok(1, setter as any);
@@ -348,7 +347,7 @@ export function state_test_gen_derived_ok(
 //     |_____/|______|_|  \_\_____|   \/   |______|_____/
 
 export function state_test_gen_derives_sum(
-  setter?: ((val: number) => Option<Result<number, StateReadError>>) | true
+  setter?: ((val: number) => Option<Result<number, string>>) | true
 ): StateTestsRead[] {
   let s1 = state_ok(1, setter as any);
   let s2 = state_ok(1, setter as any);
@@ -360,7 +359,7 @@ export function state_test_gen_derives_sum(
   ];
 }
 export function state_test_gen_derives_sum_ok(
-  setter?: ((val: number) => Option<Result<number, StateReadError>>) | true
+  setter?: ((val: number) => Option<Result<number, string>>) | true
 ): StateTestsRead[] {
   let s1 = state_ok(1, setter as any);
   let d1 = state_derives_sum_ok_from_ok(s1);

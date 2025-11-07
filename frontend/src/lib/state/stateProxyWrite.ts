@@ -10,13 +10,11 @@ import type {
 import type {
   StateRead,
   StateReadBase,
-  StateReadError,
   StateReadOk,
   StateRelated,
   StateSubscriberBase,
   StateWrite,
   StateWriteBase,
-  StateWriteError,
   StateWriteOk,
 } from "./types";
 
@@ -25,12 +23,12 @@ export type StateProxyWriteTransform<WRITEOUTPUT, WRITEINPUT> = (
 ) => WRITEINPUT;
 
 export class StateProxyWriteInternal<
-    OUTPUT extends Result<any, StateReadError>,
+    OUTPUT extends Result<any, string>,
     SYNC extends boolean,
     RELATED extends StateRelated,
     WRITEOUTPUT,
     WSYNC extends boolean,
-    INPUT extends Result<any, StateReadError>,
+    INPUT extends Result<any, string>,
     WRITEINPUT
   >
   extends StateBase<OUTPUT, SYNC, RELATED>
@@ -116,17 +114,17 @@ export class StateProxyWriteInternal<
 
   //##################################################################################################################################################
   //Writer Context
-  write(value: WRITEOUTPUT): Promise<Result<void, StateWriteError>> {
+  write(value: WRITEOUTPUT): Promise<Result<void, string>> {
     return this.#state.write(this.transformWrite(value));
   }
   writeSync(
     value: WSYNC extends true ? WRITEOUTPUT : never
-  ): WSYNC extends true ? Result<void, StateWriteError> : unknown {
+  ): WSYNC extends true ? Result<void, string> : unknown {
     return this.#state.writeSync(
       this.transformWrite(value as WRITEOUTPUT) as never
     );
   }
-  limit(value: WRITEOUTPUT): Result<WRITEOUTPUT, StateWriteError> {
+  limit(value: WRITEOUTPUT): Result<WRITEOUTPUT, string> {
     return this.#state
       .limit(this.transformWrite(value))
       .map((e) => this.transformRead(Ok(e) as INPUT).unwrap);
@@ -175,12 +173,12 @@ export interface StateProxyWrite<
   INPUT = OUTPUT,
   WSYNC extends boolean = SYNC
 > extends StateProxyWriteInternal<
-    Result<OUTPUT, StateReadError>,
+    Result<OUTPUT, string>,
     SYNC,
     RELATED,
     OUTPUT,
     WSYNC,
-    Result<INPUT, StateReadError>,
+    Result<INPUT, string>,
     INPUT
   > {
   readonly readable: StateRead<OUTPUT, SYNC, RELATED>;
@@ -201,12 +199,12 @@ export interface StateProxyWriteFromOK<
   INPUT = OUTPUT,
   WSYNC extends boolean = SYNC
 > extends StateProxyWriteInternal<
-    Result<OUTPUT, StateReadError>,
+    Result<OUTPUT, string>,
     SYNC,
     RELATED,
     OUTPUT,
     WSYNC,
-    Result<INPUT, StateReadError>,
+    Result<INPUT, string>,
     INPUT
   > {
   readonly readable: StateRead<OUTPUT, SYNC, RELATED>;
@@ -232,7 +230,7 @@ export interface StateProxyWriteOk<
     RELATED,
     OUTPUT,
     WSYNC,
-    Result<INPUT, StateReadError>,
+    Result<INPUT, string>,
     INPUT
   > {
   readonly readable: StateReadOk<OUTPUT, SYNC, RELATED>;
@@ -258,7 +256,7 @@ export interface StateProxyWriteOkFromOk<
     RELATED,
     OUTPUT,
     WSYNC,
-    Result<INPUT, StateReadError>,
+    Result<INPUT, string>,
     INPUT
   > {
   readonly readable: StateReadOk<OUTPUT, SYNC, RELATED>;
@@ -287,12 +285,12 @@ export function state_proxy_write_from<
   transformWrite?: StateProxyWriteTransform<OUTPUT, INPUT>
 ) {
   return new StateProxyWriteInternal<
-    Result<OUTPUT, StateReadError>,
+    Result<OUTPUT, string>,
     SYNC,
     RELATED,
     OUTPUT,
     WSYNC,
-    Result<INPUT, StateReadError>,
+    Result<INPUT, string>,
     INPUT
   >(state, transformRead, transformWrite) as StateProxyWrite<
     OUTPUT,
@@ -318,12 +316,12 @@ export function state_proxy_write_from_ok<
   transformWrite?: StateProxyWriteTransform<OUTPUT, INPUT>
 ) {
   return new StateProxyWriteInternal<
-    Result<OUTPUT, StateReadError>,
+    Result<OUTPUT, string>,
     SYNC,
     RELATED,
     OUTPUT,
     WSYNC,
-    Result<INPUT, StateReadError>,
+    Result<INPUT, string>,
     INPUT
   >(state, transformRead as any, transformWrite) as StateProxyWriteFromOK<
     OUTPUT,
@@ -371,12 +369,12 @@ export function state_proxy_write_ok<
   transformWrite?: StateProxyWriteTransform<OUTPUT, INPUT>
 ) {
   return new StateProxyWriteInternal<
-    Result<OUTPUT, StateReadError>,
+    Result<OUTPUT, string>,
     SYNC,
     RELATED,
     OUTPUT,
     WSYNC,
-    Result<INPUT, StateReadError>,
+    Result<INPUT, string>,
     INPUT
   >(state, transformRead, transformWrite) as StateProxyWriteOk<
     OUTPUT,
@@ -402,12 +400,12 @@ export function state_proxy_write_ok_from_ok<
   transformWrite?: StateProxyWriteTransform<OUTPUT, INPUT>
 ) {
   return new StateProxyWriteInternal<
-    Result<OUTPUT, StateReadError>,
+    Result<OUTPUT, string>,
     SYNC,
     RELATED,
     OUTPUT,
     WSYNC,
-    Result<INPUT, StateReadError>,
+    Result<INPUT, string>,
     INPUT
   >(state, transformRead as any, transformWrite) as StateProxyWriteOkFromOk<
     OUTPUT,

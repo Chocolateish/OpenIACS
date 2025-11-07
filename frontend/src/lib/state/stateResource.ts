@@ -3,12 +3,10 @@ import { StateBase } from "./stateBase";
 import type {
   StateHelper,
   StateRead,
-  StateReadError,
   StateReadOk,
   StateRelated,
   StateWrite,
   StateWriteBase,
-  StateWriteError,
   StateWriteOk,
 } from "./types";
 
@@ -29,9 +27,9 @@ import type {
  * @template WRITE - The type which can be written to the state.
  * @template RELATED - The type of related states, defaults to an empty object.*/
 export abstract class StateResourceBase<
-    READ extends Result<any, StateReadError>,
+    READ extends Result<any, string>,
     RELATED extends StateRelated = {},
-    WRITE = READ extends Result<infer T, StateReadError> ? T : never
+    WRITE = READ extends Result<infer T, string> ? T : never
   >
   extends StateBase<READ, false, RELATED>
   implements StateWriteBase<READ, false, RELATED, WRITE, false>
@@ -108,7 +106,7 @@ export abstract class StateResourceBase<
   protected abstract writeAction(
     value: WRITE,
     state: this
-  ): Promise<Result<void, StateWriteError>>;
+  ): Promise<Result<void, string>>;
 
   updateResource(value: READ) {
     this.#valid = Date.now() + this.timeout;
@@ -150,7 +148,7 @@ export abstract class StateResourceBase<
   }
 
   //Writer Context
-  write(value: WRITE): Promise<Result<void, StateWriteError>> {
+  write(value: WRITE): Promise<Result<void, string>> {
     this.#writeBuffer = value;
     if (this.writebounce === 0) return this.writeAction(value, this);
     else if (this.#writeDebounceTimout === 0)
@@ -168,7 +166,7 @@ export abstract class StateResourceBase<
 
   abstract check(_value: WRITE): Option<string>;
 
-  abstract limit(value: WRITE): Result<WRITE, StateWriteError>;
+  abstract limit(value: WRITE): Result<WRITE, string>;
 
   get writeable(): StateWriteBase<READ, false, RELATED, WRITE, false> {
     return this;
@@ -180,9 +178,9 @@ export abstract class StateResourceBase<
  * @template WRITE - The type which can be written to the state.
  * @template RELATED - The type of related states, defaults to an empty object.*/
 class StateResourceFunc<
-  READ extends Result<any, StateReadError>,
+  READ extends Result<any, string>,
   RELATED extends StateRelated = {},
-  WRITE = READ extends Result<infer T, StateReadError> ? T : never
+  WRITE = READ extends Result<infer T, string> ? T : never
 > extends StateResourceBase<READ, RELATED, WRITE> {
   constructor(
     once: (state: StateResourceFunc<READ, RELATED, WRITE>) => void,
@@ -195,7 +193,7 @@ class StateResourceFunc<
     writeAction?: (
       value: WRITE,
       state: StateResourceFunc<READ, RELATED, WRITE>
-    ) => Promise<Result<void, StateWriteError>>,
+    ) => Promise<Result<void, string>>,
     helper?: StateHelper<WRITE, RELATED>
   ) {
     super();
@@ -229,11 +227,11 @@ class StateResourceFunc<
   protected async writeAction(
     _value: WRITE,
     _state: this
-  ): Promise<Result<void, StateWriteError>> {
-    return Err({ code: "LRO", reason: "State not writable" });
+  ): Promise<Result<void, string>> {
+    return Err("State not writable");
   }
 
-  limit(value: WRITE): Result<WRITE, StateWriteError> {
+  limit(value: WRITE): Result<WRITE, string> {
     return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
   }
   check(value: WRITE): Option<string> {
@@ -245,16 +243,16 @@ export interface StateResource<
   TYPE,
   RELATED extends StateRelated = {},
   WRITE = TYPE
-> extends StateResourceFunc<Result<TYPE, StateReadError>, RELATED, WRITE> {
+> extends StateResourceFunc<Result<TYPE, string>, RELATED, WRITE> {
   readonly readable: StateRead<TYPE, false, RELATED>;
   readonly writeable: StateWrite<TYPE, false, RELATED, WRITE>;
-  updateResource(value: Result<TYPE, StateReadError>): void;
+  updateResource(value: Result<TYPE, string>): void;
 }
 export interface StateResourceOk<
   TYPE,
   RELATED extends StateRelated = {},
   WRITE = TYPE
-> extends StateResourceFunc<Result<TYPE, StateReadError>, RELATED, WRITE> {
+> extends StateResourceFunc<Result<TYPE, string>, RELATED, WRITE> {
   readonly readable: StateReadOk<TYPE, false, RELATED>;
   readonly writeable: StateWriteOk<TYPE, false, RELATED, WRITE>;
   updateResource(value: ResultOk<TYPE>): void;
@@ -264,7 +262,7 @@ export interface StateResourceOk<
  * @template READ - The type of the state’s value when read.
  * @template WRITE - The type which can be written to the state.
  * @template RELATED - The type of related states, defaults to an empty object.
- * @param once function called when state value is requested once, returns a Err(StateError) on failure
+ * @param once function called when state value is requested once, returns a Err(string) on failure
  * @param setup function called when state has been subscribed to
  * @param teardown function called when state has been unsubscribed from completely
  * @param debounce delay added to once value retrival, which will collect multiple once requests into a single one
@@ -280,10 +278,10 @@ export function state_resource<
   WRITE = TYPE
 >(
   once: (
-    state: StateResourceFunc<Result<TYPE, StateReadError>, RELATED, WRITE>
+    state: StateResourceFunc<Result<TYPE, string>, RELATED, WRITE>
   ) => void,
   setup: (
-    state: StateResourceFunc<Result<TYPE, StateReadError>, RELATED, WRITE>
+    state: StateResourceFunc<Result<TYPE, string>, RELATED, WRITE>
   ) => void,
   teardown: () => void,
   debounce: number = 0,
@@ -292,11 +290,11 @@ export function state_resource<
   writeBounce?: number,
   writeAction?: (
     value: WRITE,
-    state: StateResourceFunc<Result<TYPE, StateReadError>, RELATED, WRITE>
-  ) => Promise<Result<void, StateWriteError>>,
+    state: StateResourceFunc<Result<TYPE, string>, RELATED, WRITE>
+  ) => Promise<Result<void, string>>,
   helper?: StateHelper<WRITE, RELATED>
 ) {
-  return new StateResourceFunc<Result<TYPE, StateReadError>, RELATED, WRITE>(
+  return new StateResourceFunc<Result<TYPE, string>, RELATED, WRITE>(
     once,
     setup,
     teardown,
@@ -313,7 +311,7 @@ export function state_resource<
  * @template READ - The type of the state’s value when read.
  * @template WRITE - The type which can be written to the state.
  * @template RELATED - The type of related states, defaults to an empty object.
- * @param once function called when state value is requested once, returns a Err(StateError) on failure
+ * @param once function called when state value is requested once, returns a Err(string) on failure
  * @param setup function called when state has been subscribed to
  * @param teardown function called when state has been unsubscribed from completely
  * @param debounce delay added to once value retrival, which will collect multiple once requests into a single one

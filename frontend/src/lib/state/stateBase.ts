@@ -1,21 +1,19 @@
 import { None, ResultOk, type Option, type Result } from "@libResult";
 import {
   type StateReadBase,
-  type StateReadError,
   type StateRelated,
   type StateSubscriberBase,
-  type StateWriteError,
 } from "./types";
 
 export abstract class StateBase<
-  TYPE extends Result<any, StateReadError>,
+  TYPE extends Result<any, string>,
   SYNC extends boolean,
   RELATED extends StateRelated = {}
 > implements StateReadBase<TYPE, SYNC, RELATED>
 {
   #subscribers: Set<StateSubscriberBase<TYPE>> = new Set();
   #readPromises?: ((val: TYPE) => void)[];
-  #writePromises?: ((val: Result<void, StateWriteError>) => void)[];
+  #writePromises?: ((val: Result<void, string>) => void)[];
 
   //Reader Context
   abstract then<TResult1 = TYPE>(
@@ -113,12 +111,12 @@ export abstract class StateBase<
     this.#readPromises = [];
   }
 
-  protected async appendWritePromise(): Promise<Result<void, StateWriteError>> {
-    return new Promise<Result<void, StateWriteError>>((a) => {
+  protected async appendWritePromise(): Promise<Result<void, string>> {
+    return new Promise<Result<void, string>>((a) => {
       (this.#writePromises ??= []).push(a);
     });
   }
-  fulfillWritePromises(res: Result<void, StateWriteError>) {
+  fulfillWritePromises(res: Result<void, string>) {
     if (this.#writePromises)
       for (let i = 0; i < this.#writePromises.length; i++)
         this.#writePromises[i](res);
@@ -133,7 +131,7 @@ export abstract class StateBaseOk<
 > extends StateBase<READ, SYNC, RELATED> {}
 
 export abstract class StateBaseSync<
-  READ extends Result<any, StateReadError>,
+  READ extends Result<any, string>,
   RELATED extends StateRelated = {}
 > extends StateBase<READ, true, RELATED> {}
 
