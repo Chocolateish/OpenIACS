@@ -235,6 +235,6 @@ export function state_compare_sync(
 ): boolean {
   let res1 = state1.get();
   let res2 = state2.get();
-  if (res1.err || res2.err) return false;
-  return res1.value === res2.value;
+  if (res1.err || res2.err) return true;
+  return res1.value !== res2.value;
 }
