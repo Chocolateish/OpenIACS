@@ -1,13 +1,13 @@
 import { Err, ResultOk, type Result } from "@libResult";
 import { StateBaseRead } from "./stateBase";
-import type { StateRead, StateReadOk, StateSubscriberBase } from "./types";
+import type { State, StateReadOk, StateSubscriberBase } from "./types";
 
 /**The `StateDerived` class is used to create a state which is derived from other states. The derived state will update when any of the other states update.
  * @template INPUT - The type allowed for the input of the derive
  * @template OUTPUT - The type outputted by the derive*/
 export class StateDerivedInternal<
   OUTPUT extends Result<any, string>,
-  INPUT extends StateRead<any, SYNC>[],
+  INPUT extends State<any, SYNC>[],
   SYNC extends boolean
 > extends StateBaseRead<OUTPUT, SYNC> {
   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
@@ -16,7 +16,7 @@ export class StateDerivedInternal<
   constructor(
     transform:
       | ((values: {
-          [I in keyof INPUT]: INPUT[I] extends StateRead<infer READ, SYNC>
+          [I in keyof INPUT]: INPUT[I] extends State<infer READ, SYNC>
             ? READ
             : never;
         }) => OUTPUT)
@@ -34,16 +34,12 @@ export class StateDerivedInternal<
 
   #states: INPUT;
   #stateBuffers: {
-    [I in keyof INPUT]: INPUT[I] extends StateRead<infer READ, SYNC>
-      ? READ
-      : never;
+    [I in keyof INPUT]: INPUT[I] extends State<infer READ, SYNC> ? READ : never;
   } = [] as any;
   #stateSubscribers: StateSubscriberBase<any>[] = [];
 
   protected getter(values: {
-    [I in keyof INPUT]: INPUT[I] extends StateRead<infer READ, SYNC>
-      ? READ
-      : never;
+    [I in keyof INPUT]: INPUT[I] extends State<infer READ, SYNC> ? READ : never;
   }): OUTPUT {
     return values[0] as any;
   }
@@ -149,8 +145,8 @@ export class StateDerivedInternal<
     return this.getter(this.#states.map((s) => s.get()) as any).unwrap;
   }
 
-  get readable(): StateRead<OUTPUT, SYNC, {}> {
-    return this as StateRead<OUTPUT, SYNC, {}>;
+  get readable(): State<OUTPUT, SYNC, {}> {
+    return this as State<OUTPUT, SYNC, {}>;
   }
 
   //Owner
@@ -170,7 +166,7 @@ export class StateDerivedInternal<
    * @param getter - The new getter function. This function should accept an array of states and return the derived state.*/
   setGetter(
     getter: (values: {
-      [I in keyof INPUT]: INPUT[I] extends StateRead<infer READ, SYNC>
+      [I in keyof INPUT]: INPUT[I] extends State<infer READ, SYNC>
         ? READ
         : never;
     }) => OUTPUT
@@ -186,14 +182,14 @@ export class StateDerivedInternal<
 
 export interface StateDerived<
   OUTPUT,
-  INPUT extends StateRead<any, any>[],
+  INPUT extends State<any, any>[],
   SYNC extends boolean
 > extends StateDerivedInternal<Result<OUTPUT, string>, INPUT, SYNC> {
-  readonly readable: StateRead<OUTPUT, SYNC>;
+  readonly readable: State<OUTPUT, SYNC>;
   setStates(...states: INPUT): void;
   setGetter(
     getter: (values: {
-      [I in keyof INPUT]: INPUT[I] extends StateRead<infer READ, SYNC>
+      [I in keyof INPUT]: INPUT[I] extends State<infer READ, SYNC>
         ? READ
         : never;
     }) => Result<OUTPUT, string>
@@ -202,14 +198,14 @@ export interface StateDerived<
 
 export interface StateDerivedOk<
   OUTPUT,
-  INPUT extends StateRead<any, any>[],
+  INPUT extends State<any, any>[],
   SYNC extends boolean
 > extends StateDerivedInternal<ResultOk<OUTPUT>, INPUT, SYNC> {
   readonly readable: StateReadOk<OUTPUT, SYNC>;
   setStates(...states: INPUT): void;
   setGetter(
     getter: (values: {
-      [I in keyof INPUT]: INPUT[I] extends StateRead<infer READ, SYNC>
+      [I in keyof INPUT]: INPUT[I] extends State<infer READ, SYNC>
         ? READ
         : never;
     }) => ResultOk<OUTPUT>
@@ -221,11 +217,11 @@ export interface StateDerivedOk<
  * @param states - The other states to be used in the derived state.*/
 export function state_derived_from_states<
   OUTPUT,
-  INPUT extends [StateRead<any, any>, ...StateRead<any, any>[]]
+  INPUT extends [State<any, any>, ...State<any, any>[]]
 >(
   transform:
     | ((values: {
-        [I in keyof INPUT]: INPUT[I] extends StateRead<infer READ, any>
+        [I in keyof INPUT]: INPUT[I] extends State<infer READ, any>
           ? READ
           : never;
       }) => Result<OUTPUT, string>)
@@ -243,11 +239,11 @@ export function state_derived_from_states<
  * @param states - The other states to be used in the derived state.*/
 export function state_derived_ok_from_states<
   OUTPUT,
-  INPUT extends [StateRead<any, any>, ...StateRead<any, any>[]]
+  INPUT extends [State<any, any>, ...State<any, any>[]]
 >(
   transform:
     | ((values: {
-        [I in keyof INPUT]: INPUT[I] extends StateRead<infer READ, any>
+        [I in keyof INPUT]: INPUT[I] extends State<infer READ, any>
           ? READ
           : never;
       }) => ResultOk<OUTPUT>)
@@ -265,11 +261,11 @@ export function state_derived_ok_from_states<
  * @param states - The other states to be used in the derived state.*/
 export function state_derived_from_state_array<
   OUTPUT,
-  INPUT extends StateRead<any, any>[]
+  INPUT extends State<any, any>[]
 >(
   transform:
     | ((values: {
-        [I in keyof INPUT]: INPUT[I] extends StateRead<infer READ, any>
+        [I in keyof INPUT]: INPUT[I] extends State<infer READ, any>
           ? READ
           : never;
       }) => Result<OUTPUT, string>)
@@ -287,11 +283,11 @@ export function state_derived_from_state_array<
  * @param states - The other states to be used in the derived state.*/
 export function state_derived_ok_from_state_array<
   OUTPUT,
-  INPUT extends StateRead<any, any>[]
+  INPUT extends State<any, any>[]
 >(
   transform:
     | ((values: {
-        [I in keyof INPUT]: INPUT[I] extends StateRead<infer READ, any>
+        [I in keyof INPUT]: INPUT[I] extends State<infer READ, any>
           ? READ
           : never;
       }) => ResultOk<OUTPUT>)
@@ -309,11 +305,11 @@ export function state_derived_ok_from_state_array<
  * @param states - The other states to be used in the derived state.*/
 export function state_derived_sync_from_states<
   OUTPUT,
-  INPUT extends [StateRead<any, true>, ...StateRead<any, true>[]]
+  INPUT extends [State<any, true>, ...State<any, true>[]]
 >(
   transform:
     | ((values: {
-        [I in keyof INPUT]: INPUT[I] extends StateRead<infer READ, true>
+        [I in keyof INPUT]: INPUT[I] extends State<infer READ, true>
           ? READ
           : never;
       }) => Result<OUTPUT, string>)
@@ -331,11 +327,11 @@ export function state_derived_sync_from_states<
  * @param states - The other states to be used in the derived state.*/
 export function state_derived_sync_ok_from_states<
   OUTPUT,
-  INPUT extends [StateRead<any, true>, ...StateRead<any, true>[]]
+  INPUT extends [State<any, true>, ...State<any, true>[]]
 >(
   transform:
     | ((values: {
-        [I in keyof INPUT]: INPUT[I] extends StateRead<infer READ, true>
+        [I in keyof INPUT]: INPUT[I] extends State<infer READ, true>
           ? READ
           : never;
       }) => ResultOk<OUTPUT>)
@@ -353,11 +349,11 @@ export function state_derived_sync_ok_from_states<
  * @param states - The other states to be used in the derived state.*/
 export function state_derived_sync_from_state_array<
   OUTPUT,
-  INPUT extends StateRead<any, true>[]
+  INPUT extends State<any, true>[]
 >(
   transform:
     | ((values: {
-        [I in keyof INPUT]: INPUT[I] extends StateRead<infer READ, true>
+        [I in keyof INPUT]: INPUT[I] extends State<infer READ, true>
           ? READ
           : never;
       }) => Result<OUTPUT, string>)
@@ -375,11 +371,11 @@ export function state_derived_sync_from_state_array<
  * @param states - The other states to be used in the derived state.*/
 export function state_derived_sync_ok_from_state_array<
   OUTPUT,
-  INPUT extends StateRead<any, any>[]
+  INPUT extends State<any, any>[]
 >(
   transform:
     | ((values: {
-        [I in keyof INPUT]: INPUT[I] extends StateRead<infer READ, true>
+        [I in keyof INPUT]: INPUT[I] extends State<infer READ, true>
           ? READ
           : never;
       }) => ResultOk<OUTPUT>)

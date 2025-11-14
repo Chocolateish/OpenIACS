@@ -4,9 +4,9 @@ import {
   state_derived_from_states,
   state_derived_ok_from_states,
 } from "./stateDerived";
-import type { StateRead, StateReadOk } from "./types";
+import type { State, StateReadOk } from "./types";
 
-export function state_derives_sum_from(...states: StateRead<number, any>[]) {
+export function state_derives_sum_from(...states: State<number, any>[]) {
   return state_derived_from_state_array((values) => {
     let sum = 0;
     for (let val of values) {
@@ -18,7 +18,7 @@ export function state_derives_sum_from(...states: StateRead<number, any>[]) {
 }
 
 export function state_derives_sum_from_ok<
-  INPUT extends [StateRead<number, any>, ...StateRead<number, any>[]]
+  INPUT extends [State<number, any>, ...State<number, any>[]]
 >(...states: INPUT) {
   return state_derived_from_states((values) => {
     let sum = 0;

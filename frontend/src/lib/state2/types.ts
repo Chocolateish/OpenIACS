@@ -19,41 +19,29 @@ export type StateHelper<RT, L extends StateRelated = {}> = {
   related?: () => Option<L>;
 };
 
-export type StateSetterBase<TYPE extends Result<any, string>, STATE, WRITE> = (
-  value: WRITE,
+export type StateSetter<RT, WT = RT, STATE = State<any>> = (
+  value: WT,
   state: STATE,
-  old?: TYPE
+  old?: Result<RT, string>
 ) => Promise<Result<void, string>>;
 
-export type StateSetter<TYPE, STATE, WRITE = TYPE> = StateSetterBase<
-  Result<TYPE, string>,
-  STATE,
-  WRITE
->;
+export type StateSetterOk<RT, WT = RT, STATE = State<any>> = (
+  value: WT,
+  state: STATE,
+  old?: ResultOk<RT>
+) => Promise<Result<void, string>>;
 
-export type StateSetterOk<TYPE, STATE, WRITE = TYPE> = StateSetterBase<
-  ResultOk<TYPE>,
-  STATE,
-  WRITE
->;
+export type StateSetterSync<RT, WT = RT, STATE = State<any>> = (
+  value: WT,
+  state: STATE,
+  old?: Result<RT, string>
+) => Result<void, string>;
 
-export type StateSetterSyncBase<
-  TYPE extends Result<any, string>,
-  STATE,
-  WRITE
-> = (value: WRITE, state: STATE, old?: TYPE) => Result<void, string>;
-
-export type StateSetterSync<TYPE, STATE, WRITE = TYPE> = StateSetterSyncBase<
-  Result<TYPE, string>,
-  STATE,
-  WRITE
->;
-
-export type StateSetterSyncOk<TYPE, STATE, WRITE = TYPE> = StateSetterSyncBase<
-  ResultOk<TYPE>,
-  STATE,
-  WRITE
->;
+export type StateSetterOkSync<RT, WT = RT, STATE = State<any>> = (
+  value: WT,
+  state: STATE,
+  old?: ResultOk<RT>
+) => Result<void, string>;
 
 //###########################################################################################################################################################
 //      _____  ______          _____  ______ _____     _____ ____  _   _ _______ ________   _________
@@ -62,74 +50,192 @@ export type StateSetterSyncOk<TYPE, STATE, WRITE = TYPE> = StateSetterSyncBase<
 //     |  _  /|  __|   / /\ \ | |  | |  __| |  _  /  | |   | |  | | . ` |  | |  |  __|   > <    | |
 //     | | \ \| |____ / ____ \| |__| | |____| | \ \  | |___| |__| | |\  |  | |  | |____ / . \   | |
 //     |_|  \_\______/_/    \_\_____/|______|_|  \_\  \_____\____/|_| \_|  |_|  |______/_/ \_\  |_|
-//###########################################################################################################################################################
-/** Represents a readable state object with subscription and related utilities.
- * @template RT - The type of the state’s value when read.
- * @template RELATED - The type of related states, defaults to an empty object.*/
-export interface StateRead<RT, RELATED extends StateRelated = {}> {
+
+export abstract class StateAll<RT, REL extends StateRelated = {}> {
+  #subscribers: Set<StateSubscriber<RT>> = new Set();
+  #readPromises?: ((val: Result<RT, string>) => void)[];
+
+  //#Reader Context
+  /**Can state value be retrieved syncronously*/
+  abstract readonly rsync: boolean;
+  /**Is state guarenteed to be Ok */
+  abstract readonly rok: boolean;
   /**Allows getting value of state*/
-  then<TResult1 = Result<RT, string>>(
-    func: (value: Result<RT, string>) => TResult1 | PromiseLike<TResult1>
-  ): PromiseLike<TResult1>;
+  abstract then<T = Result<RT, string>>(
+    func: (value: Result<RT, string>) => T | PromiseLike<T>
+  ): PromiseLike<T>;
   /**Gets the current value of the state if state is sync*/
-  get?(): Result<RT, string>;
+  abstract get?(): Result<RT, string>;
   /**Gets the value of the state without result, only works when state is OK */
   getOk?(): RT;
   /**This adds a function as a subscriber to changes to the state
    * @param update set true to update subscriber immediatly*/
-  subscribe<B extends StateSubscriber<RT>>(func: B, update?: boolean): B;
+  subscribe<B extends StateSubscriber<RT>>(func: B, update?: boolean): B {
+    if (this.#subscribers.has(func)) {
+      console.warn("Function already registered as subscriber", this, func);
+      return func;
+    }
+    this.onSubscribe(this.#subscribers.size == 0);
+    this.#subscribers.add(func);
+    if (update) this.then(func);
+    return func;
+  }
   /**This removes a function as a subscriber to the state*/
-  unsubscribe<B extends StateSubscriber<RT>>(func: B): B;
+  unsubscribe<B extends StateSubscriber<RT>>(func: B): B {
+    if (this.#subscribers.delete(func))
+      this.onUnsubscribe(this.#subscribers.size == 0);
+    else console.warn("Subscriber not found with state", this, func);
+    return func;
+  }
   /**This returns related states if any*/
-  related(): Option<RELATED>;
+  abstract related(): Option<REL>;
+
+  /**Returns if the state is being used */
+  inUse(): this | undefined {
+    return this.#subscribers.size > 0 ? this : undefined;
+  }
+  /**Returns if the state has a subscriber */
+  hasSubscriber(subscriber: StateSubscriber<RT>): this | undefined {
+    return this.#subscribers.has(subscriber) ? this : undefined;
+  }
+  /**Returns if the state has a subscriber */
+  amountSubscriber(): number {
+    return this.#subscribers.size;
+  }
+
+  /**Called when subscriber is added*/
+  protected onSubscribe(_first: boolean): void {}
+  /**Called when subscriber is removed*/
+  protected onUnsubscribe(_last: boolean): void {}
+
+  /**Updates all subscribers with a value */
+  protected updateSubscribers(value: Result<RT, string>): void {
+    for (const subscriber of this.#subscribers) {
+      try {
+        subscriber(value);
+      } catch (e) {
+        console.warn("Failed while calling subscribers ", e, this, subscriber);
+      }
+    }
+  }
+
   /**Returns state as a readable state type*/
-  readonly readable: StateRead<RT, RELATED>;
+  abstract get readonly(): StateAll<RT, REL>;
+
+  //Promises
+  protected async appendReadPromise<TResult1 = Result<RT, string>>(
+    func: (value: Result<RT, string>) => TResult1 | PromiseLike<TResult1>
+  ): Promise<TResult1> {
+    return func(
+      await new Promise<Result<RT, string>>((a) => {
+        (this.#readPromises ??= []).push(a);
+      })
+    );
+  }
+  protected fulfillReadPromises(value: Result<RT, string>) {
+    if (this.#readPromises)
+      for (let i = 0; i < this.#readPromises.length; i++)
+        this.#readPromises[i](value);
+    this.#readPromises = [];
+  }
 }
 
-/** Represents a readable state object with guarenteed Ok value and subscription and related utilities.
- * @template RT - The type of the state’s value when read.
- * @template RELATED - The type of related states, defaults to an empty object.*/
-export interface StateReadOk<RT, RELATED extends StateRelated = {}>
-  extends StateRead<RT, RELATED> {
-  then<TResult1 = ResultOk<RT>>(
-    func: (value: ResultOk<RT>) => TResult1 | PromiseLike<TResult1>
-  ): PromiseLike<TResult1>;
-  subscribe<B extends StateSubscriberOk<RT>>(func: B, update?: boolean): B;
-  unsubscribe<B extends StateSubscriberOk<RT>>(func: B): B;
-  readonly readable: StateReadOk<RT, RELATED>;
-}
-
-/** Represents a readable state object with subscription and related utilities.
- * @template RT - The type of the state’s value when read.
- * @template RELATED - The type of related states, defaults to an empty object.*/
-export interface StateReadSync<RT, RELATED extends StateRelated = {}>
-  extends StateRead<RT, RELATED> {
-  /**Gets the current value of the state if state is sync*/
-  get(): Result<RT, string>;
-  /**Returns state as a readable state type*/
-  readonly readable: StateReadSync<RT, RELATED>;
-}
-
-/** Represents a readable state object with subscription and related utilities.
- * @template RT - The type of the state’s value when read.
- * @template RELATED - The type of related states, defaults to an empty object.*/
-export interface StateReadOkSync<RT, RELATED extends StateRelated = {}>
-  extends StateReadOk<RT, RELATED> {
-  /**Gets the current value of the state if state is sync*/
-  get(): Result<RT, string>;
-  /**Gets the value of the state without result, only works when state is OK */
-  getOk(): RT;
-  /**Returns state as a readable state type*/
-  readonly readable: StateReadOkSync<RT, RELATED>;
-}
-
-/** Represents a readable state object with subscription and related utilities.
- * @template RT - The type of the state’s value when read.
- * @template RELATED - The type of related states, defaults to an empty object.*/
-export type StateReadSyncOk<
+export abstract class State_R<
   RT,
-  RELATED extends StateRelated = {}
-> = StateReadOkSync<RT, RELATED>;
+  REL extends StateRelated = {}
+> extends StateAll<RT, REL> {
+  get rsync(): false {
+    return false;
+  }
+  get rok(): false {
+    return false;
+  }
+  get readonly(): State_R<RT, REL> {
+    return this;
+  }
+}
+
+export abstract class State_RO<
+  RT,
+  REL extends StateRelated = {}
+> extends StateAll<RT, REL> {
+  get rsync(): false {
+    return false;
+  }
+  get rok(): true {
+    return true;
+  }
+  abstract then<T = ResultOk<RT>>(
+    func: (value: ResultOk<RT>) => T | PromiseLike<T>
+  ): PromiseLike<T>;
+  subscribe<B extends StateSubscriberOk<RT>>(func: B, update?: boolean): B {
+    return super.subscribe(func as StateSubscriber<RT>, update) as B;
+  }
+  unsubscribe<B extends StateSubscriberOk<RT>>(func: B): B {
+    return super.unsubscribe(func as StateSubscriber<RT>) as B;
+  }
+  hasSubscriber(subscriber: StateSubscriberOk<RT>): this | undefined {
+    return super.hasSubscriber(subscriber as StateSubscriber<RT>);
+  }
+
+  get readonly(): State_RO<RT, REL> {
+    return this;
+  }
+}
+
+export abstract class State_RS<
+  RT,
+  REL extends StateRelated = {}
+> extends StateAll<RT, REL> {
+  get rsync(): true {
+    return true;
+  }
+  get rok(): false {
+    return false;
+  }
+  abstract get(): Result<RT, string>;
+
+  get readonly(): State_RS<RT, REL> {
+    return this;
+  }
+}
+
+export abstract class State_ROS<
+  RT,
+  REL extends StateRelated = {}
+> extends StateAll<RT, REL> {
+  get rsync(): true {
+    return true;
+  }
+  get rok(): true {
+    return true;
+  }
+  abstract then<T = ResultOk<RT>>(
+    func: (value: ResultOk<RT>) => T | PromiseLike<T>
+  ): PromiseLike<T>;
+  subscribe<B extends StateSubscriberOk<RT>>(func: B, update?: boolean): B {
+    return super.subscribe(func as StateSubscriber<RT>, update) as B;
+  }
+  unsubscribe<B extends StateSubscriberOk<RT>>(func: B): B {
+    return super.unsubscribe(func as StateSubscriber<RT>) as B;
+  }
+  hasSubscriber(subscriber: StateSubscriberOk<RT>): this | undefined {
+    return super.hasSubscriber(subscriber as StateSubscriber<RT>);
+  }
+  abstract get(): ResultOk<RT>;
+  abstract getOk(): RT;
+  get readonly(): State_ROS<RT, REL> {
+    return this;
+  }
+}
+
+export let State_RSO = State_ROS;
+
+export type State<RT, REL extends StateRelated = {}> =
+  | State_R<RT, REL>
+  | State_RO<RT, REL>
+  | State_RS<RT, REL>
+  | State_ROS<RT, REL>;
 
 //###########################################################################################################################################################
 //     __          _______  _____ _______ ______ _____     _____ ____  _   _ _______ ________   _________
@@ -138,33 +244,362 @@ export type StateReadSyncOk<
 //       \ \/  \/ / |  _  /  | |    | |  |  __| |  _  /  | |   | |  | | . ` |  | |  |  __|   > <    | |
 //        \  /\  /  | | \ \ _| |_   | |  | |____| | \ \  | |___| |__| | |\  |  | |  | |____ / . \   | |
 //         \/  \/   |_|  \_\_____|  |_|  |______|_|  \_\  \_____\____/|_| \_|  |_|  |______/_/ \_\  |_|
-//###########################################################################################################################################################
-/** Represents a writable state object with subscription and related utilities.
- * @template WT - The type which can be written to the state.*/
-export interface StateWrite<WT> {
+
+export abstract class StateAllWrite<
+  RT,
+  WT = RT,
+  REL extends StateRelated = {}
+> extends StateAll<RT, REL> {
+  #writePromises?: ((val: Result<void, string>) => void)[];
+
+  //#Writer Context
+  /**Can state be written syncronously*/
+  abstract readonly wsync: boolean;
+  /**Is state writable*/
+  abstract readonly writable: boolean;
   /** This attempts a write to the state, write is not guaranteed to succeed
    * @returns promise of result with error for the write*/
-  write(value: WT): Promise<Result<void, string>>;
+  abstract write?(value: WT): Promise<Result<void, string>>;
+  /**Limits given value to valid range if possible returns None if not possible */
+  abstract limit?(value: WT): Result<WT, string>;
+  /**Checks if the value is valid and returns reason for invalidity */
+  abstract check?(value: WT): Result<WT, string>;
   /** This attempts a write to the state, write is not guaranteed to succeed, this sync method is available on sync states
    * @returns result with error for the write*/
-  writeSync?(value: WT): Result<void, string>;
-  /**Limits given value to valid range if possible returns None if not possible */
-  limit: (value: WT) => Result<WT, string>;
-  /**Checks if the value is valid and returns reason for invalidity */
-  check: (value: WT) => Result<WT, string>;
+  abstract writeSync?(value: WT): Result<void, string>;
   /**Returns the same state as just a writable, for access management*/
-  readonly writeable: StateWrite<WT>;
+  abstract readonly readwrite?: StateAllWrite<RT, WT, REL>;
+
+  //Promises
+  protected async appendWritePromise<TResult1 = Result<void, string>>(
+    func: (value: Result<void, string>) => TResult1 | PromiseLike<TResult1>
+  ): Promise<TResult1> {
+    return func(
+      await new Promise<Result<void, string>>((a) => {
+        (this.#writePromises ??= []).push(a);
+      })
+    );
+  }
+  protected fulfillWritePromises(value: Result<void, string>) {
+    if (this.#writePromises)
+      for (let i = 0; i < this.#writePromises.length; i++)
+        this.#writePromises[i](value);
+    this.#writePromises = [];
+  }
 }
 
-/** Represents a writable state object with guarenteed Ok value and subscription and related utilities.
- * @template TYPE - The type of the state’s value when read.*/
-export interface StateWriteSync<WT> extends StateWrite<WT> {
-  /** This attempts a write to the state, write is not guaranteed to succeed, this sync method is available on sync states
-   * @returns result with error for the write*/
-  writeSync(value: WT): Result<void, string>;
-  /**Returns the same state as just a writable, for access management*/
-  readonly writeable: StateWriteSync<WT>;
+//#Read Write
+export abstract class State_R_W<
+  RT,
+  WT = RT,
+  REL extends StateRelated = {}
+> extends StateAllWrite<RT, WT, REL> {
+  get rsync(): false {
+    return false;
+  }
+  get rok(): false {
+    return false;
+  }
+  get readonly(): State_R<RT, REL> {
+    return this as State_R<RT, REL>;
+  }
+  get wsync(): false {
+    return false;
+  }
+  get writable(): true {
+    return true;
+  }
+  abstract write(value: WT): Promise<Result<void, string>>;
+  abstract limit(value: WT): Result<WT, string>;
+  abstract check(value: WT): Result<WT, string>;
+  get readwrite(): State_R_W<RT, WT, REL> {
+    return this;
+  }
 }
+
+export abstract class State_R_WS<
+  RT,
+  WT = RT,
+  REL extends StateRelated = {}
+> extends StateAllWrite<RT, WT, REL> {
+  get rsync(): false {
+    return false;
+  }
+  get rok(): false {
+    return false;
+  }
+  get readonly(): State_R<RT, REL> {
+    return this as State_R<RT, REL>;
+  }
+  get wsync(): true {
+    return true;
+  }
+  get writable(): true {
+    return true;
+  }
+  abstract write(value: WT): Promise<Result<void, string>>;
+  abstract limit(value: WT): Result<WT, string>;
+  abstract check(value: WT): Result<WT, string>;
+  abstract writeSync(value: WT): Result<void, string>;
+  get readwrite(): State_R_WS<RT, WT, REL> {
+    return this;
+  }
+}
+
+//#Read Ok Write
+export abstract class State_RO_W<
+  RT,
+  WT = RT,
+  REL extends StateRelated = {}
+> extends StateAllWrite<RT, WT, REL> {
+  get rsync(): false {
+    return false;
+  }
+  get rok(): true {
+    return true;
+  }
+  abstract then<T = ResultOk<RT>>(
+    func: (value: ResultOk<RT>) => T | PromiseLike<T>
+  ): PromiseLike<T>;
+  subscribe<B extends StateSubscriberOk<RT>>(func: B, update?: boolean): B {
+    return super.subscribe(func as StateSubscriber<RT>, update) as B;
+  }
+  unsubscribe<B extends StateSubscriberOk<RT>>(func: B): B {
+    return super.unsubscribe(func as StateSubscriber<RT>) as B;
+  }
+  hasSubscriber(subscriber: StateSubscriberOk<RT>): this | undefined {
+    return super.hasSubscriber(subscriber as StateSubscriber<RT>);
+  }
+  get readonly(): State_RO<RT, REL> {
+    return this as State_RO<RT, REL>;
+  }
+  get wsync(): false {
+    return false;
+  }
+  get writable(): true {
+    return true;
+  }
+  abstract write(value: WT): Promise<Result<void, string>>;
+  abstract limit(value: WT): Result<WT, string>;
+  abstract check(value: WT): Result<WT, string>;
+  get readwrite(): State_RO_W<RT, WT, REL> {
+    return this;
+  }
+}
+
+export abstract class State_RO_WS<
+  RT,
+  WT = RT,
+  REL extends StateRelated = {}
+> extends StateAllWrite<RT, WT, REL> {
+  get rsync(): false {
+    return false;
+  }
+  get rok(): true {
+    return true;
+  }
+  abstract then<T = ResultOk<RT>>(
+    func: (value: ResultOk<RT>) => T | PromiseLike<T>
+  ): PromiseLike<T>;
+  subscribe<B extends StateSubscriberOk<RT>>(func: B, update?: boolean): B {
+    return super.subscribe(func as StateSubscriber<RT>, update) as B;
+  }
+  unsubscribe<B extends StateSubscriberOk<RT>>(func: B): B {
+    return super.unsubscribe(func as StateSubscriber<RT>) as B;
+  }
+  hasSubscriber(subscriber: StateSubscriberOk<RT>): this | undefined {
+    return super.hasSubscriber(subscriber as StateSubscriber<RT>);
+  }
+  get readonly(): State_RO<RT, REL> {
+    return this as State_RO<RT, REL>;
+  }
+
+  get wsync(): true {
+    return true;
+  }
+  get writable(): true {
+    return true;
+  }
+  abstract write(value: WT): Promise<Result<void, string>>;
+  abstract limit(value: WT): Result<WT, string>;
+  abstract check(value: WT): Result<WT, string>;
+  abstract writeSync(value: WT): Result<void, string>;
+  get readwrite(): State_RO_WS<RT, WT, REL> {
+    return this;
+  }
+}
+
+//#Read Sync Write
+export abstract class State_RS_W<
+  RT,
+  WT = RT,
+  REL extends StateRelated = {}
+> extends StateAllWrite<RT, WT, REL> {
+  get rsync(): true {
+    return true;
+  }
+  get rok(): false {
+    return false;
+  }
+  abstract get(): Result<RT, string>;
+
+  get readonly(): State_RS<RT, REL> {
+    return this as State_RS<RT, REL>;
+  }
+  get wsync(): false {
+    return false;
+  }
+  get writable(): true {
+    return true;
+  }
+  abstract write(value: WT): Promise<Result<void, string>>;
+  abstract limit(value: WT): Result<WT, string>;
+  abstract check(value: WT): Result<WT, string>;
+  get readwrite(): State_RS_W<RT, WT, REL> {
+    return this;
+  }
+}
+
+export abstract class State_RS_WS<
+  RT,
+  WT = RT,
+  REL extends StateRelated = {}
+> extends StateAllWrite<RT, WT, REL> {
+  get rsync(): true {
+    return true;
+  }
+  get rok(): false {
+    return false;
+  }
+  abstract get(): Result<RT, string>;
+
+  get readonly(): State_RS<RT, REL> {
+    return this as State_RS<RT, REL>;
+  }
+
+  get wsync(): true {
+    return true;
+  }
+  get writable(): true {
+    return true;
+  }
+  abstract write(value: WT): Promise<Result<void, string>>;
+  abstract limit(value: WT): Result<WT, string>;
+  abstract check(value: WT): Result<WT, string>;
+
+  abstract writeSync(value: WT): Result<void, string>;
+  get readwrite(): State_RS_WS<RT, WT, REL> {
+    return this;
+  }
+}
+
+//#Read Sync Write
+export abstract class State_ROS_W<
+  RT,
+  WT = RT,
+  REL extends StateRelated = {}
+> extends StateAllWrite<RT, WT, REL> {
+  get rsync(): true {
+    return true;
+  }
+  get rok(): true {
+    return true;
+  }
+  abstract get(): Result<RT, string>;
+  abstract getOk(): RT;
+  subscribe<B extends StateSubscriberOk<RT>>(func: B, update?: boolean): B {
+    return super.subscribe(func as StateSubscriber<RT>, update) as B;
+  }
+  unsubscribe<B extends StateSubscriberOk<RT>>(func: B): B {
+    return super.unsubscribe(func as StateSubscriber<RT>) as B;
+  }
+  hasSubscriber(subscriber: StateSubscriberOk<RT>): this | undefined {
+    return super.hasSubscriber(subscriber as StateSubscriber<RT>);
+  }
+  get readonly(): State_ROS<RT, REL> {
+    return this as State_ROS<RT, REL>;
+  }
+  get wsync(): false {
+    return false;
+  }
+  get writable(): true {
+    return true;
+  }
+  abstract write(value: WT): Promise<Result<void, string>>;
+  abstract limit(value: WT): Result<WT, string>;
+  abstract check(value: WT): Result<WT, string>;
+
+  get readwrite(): State_ROS_W<RT, WT, REL> {
+    return this;
+  }
+}
+export type State_RSO_W<
+  RT,
+  WT = RT,
+  REL extends StateRelated = {}
+> = State_ROS_W<RT, WT, REL>;
+
+export abstract class State_ROS_WS<
+  RT,
+  WT = RT,
+  REL extends StateRelated = {}
+> extends StateAllWrite<RT, WT, REL> {
+  get rsync(): true {
+    return true;
+  }
+  get rok(): true {
+    return true;
+  }
+  abstract get(): Result<RT, string>;
+  abstract getOk(): RT;
+  subscribe<B extends StateSubscriberOk<RT>>(func: B, update?: boolean): B {
+    return super.subscribe(func as StateSubscriber<RT>, update) as B;
+  }
+  unsubscribe<B extends StateSubscriberOk<RT>>(func: B): B {
+    return super.unsubscribe(func as StateSubscriber<RT>) as B;
+  }
+  hasSubscriber(subscriber: StateSubscriberOk<RT>): this | undefined {
+    return super.hasSubscriber(subscriber as StateSubscriber<RT>);
+  }
+  get readonly(): State_ROS<RT, REL> {
+    return this as State_ROS<RT, REL>;
+  }
+
+  get wsync(): true {
+    return true;
+  }
+  get writable(): true {
+    return true;
+  }
+  abstract write(value: WT): Promise<Result<void, string>>;
+  abstract limit(value: WT): Result<WT, string>;
+  abstract check(value: WT): Result<WT, string>;
+
+  abstract writeSync(value: WT): Result<void, string>;
+  get readwrite(): State_ROS_WS<RT, WT, REL> {
+    return this;
+  }
+}
+
+export type State_RSO_WS<
+  RT,
+  WT = RT,
+  REL extends StateRelated = {}
+> = State_ROS_WS<RT, WT, REL>;
+
+export type StateWrite<RT, WT = RT, REL extends StateRelated = {}> =
+  | State_R<RT, REL>
+  | State_RO<RT, REL>
+  | State_RS<RT, REL>
+  | State_ROS<RT, REL>
+  | State_R_W<RT, WT, REL>
+  | State_R_WS<RT, WT, REL>
+  | State_RO_W<RT, WT, REL>
+  | State_RO_WS<RT, WT, REL>
+  | State_RS_W<RT, WT, REL>
+  | State_RS_WS<RT, WT, REL>
+  | State_ROS_W<RT, WT, REL>
+  | State_ROS_WS<RT, WT, REL>;
 
 //###########################################################################################################################################################
 //       ______          ___   _ ______ _____     _____ ____  _   _ _______ ________   _________
@@ -173,34 +608,20 @@ export interface StateWriteSync<WT> extends StateWrite<WT> {
 //     | |  | |\ \/  \/ / | . ` |  __| |  _  /  | |   | |  | | . ` |  | |  |  __|   > <    | |
 //     | |__| | \  /\  /  | |\  | |____| | \ \  | |___| |__| | |\  |  | |  | |____ / . \   | |
 //      \____/   \/  \/   |_| \_|______|_|  \_\  \_____\____/|_| \_|  |_|  |______/_/ \_\  |_|
-//###########################################################################################################################################################
 /** Represents the standard owner interface for a state object.
- * @template OT - The type of the state’s value when read.*/
-export interface StateOwnerBase<OT> {
+ * @template OT - The type of the state’s value.*/
+export interface StateOwnerAll<OT> {
   /** This sets the value of the state to a result and updates all subscribers */
   set(value: Result<OT, string>): void;
   /** This sets the value of the state to a ok result and updates all subscribers */
-  setOk?(value: OT): void;
+  setOk(value: OT): void;
   /** This sets the value of the state to an err result and updates all subscribers */
   setErr?(err: OT): void;
-  /**Returns the same state as just a owner, for access management*/
-  readonly owner: StateOwnerBase<OT>;
 }
 
 /** Represents the standard owner interface for a state object.
- * @template OT - The type of the state’s value when read.*/
-export interface StateOwner<OT> extends StateOwnerBase<OT> {
+ * @template OT - The type of the state’s value.*/
+export interface StateOwnerOk<OT> extends StateOwnerAll<OT> {
   /** This sets the value of the state to an err result and updates all subscribers */
   setErr(err: OT): void;
-  /**Returns the same state as just a owner, for access management*/
-  readonly owner: StateOwner<OT>;
-}
-
-/** Represents the standard owner interface for a state object, that is guarenteed to be Ok.
- * @template OT - The type of the state’s value when read.*/
-export interface StateOwnerOk<OT> extends StateOwnerBase<OT> {
-  /** This sets the value of the state to a ok result and updates all subscribers */
-  setOk(value: OT): void;
-  /**Returns the same state as just a owner, for access management*/
-  readonly owner: StateOwnerOk<OT>;
 }

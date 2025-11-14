@@ -1,10 +1,10 @@
 import { Err, None, Ok, type Option, type Result, ResultOk } from "@libResult";
 import { StateBaseRead } from "./stateBase";
 import {
+  type State,
   type StateHelper,
-  type StateOwner,
+  type StateOwnerAll,
   type StateOwnerOk,
-  type StateRead,
   type StateReadOk,
   type StateRelated,
   type StateSetter,
@@ -20,7 +20,7 @@ export class StateDelayedInternal<
     WRITE = TYPE
   >
   extends StateBaseRead<TYPE, false, RELATED>
-  implements StateWrite<TYPE, false, RELATED, WRITE, false>, StateOwner<TYPE>
+  implements StateWrite<TYPE, false, RELATED, WRITE, false>, StateOwnerOk<TYPE>
 {
   constructor(
     init?: Promise<TYPE>,
@@ -114,7 +114,7 @@ export class StateDelayedInternal<
   related(): Option<RELATED> {
     return this.#helper?.related ? this.#helper.related() : None();
   }
-  get readable(): StateRead<TYPE, false, RELATED> {
+  get readable(): State<TYPE, false, RELATED> {
     return this;
   }
 
@@ -152,7 +152,7 @@ export class StateDelayedInternal<
     this.#value = Err(err) as TYPE;
     this.updateSubscribers(this.#value);
   }
-  get owner(): StateOwner<TYPE> {
+  get owner(): StateOwnerOk<TYPE> {
     return this;
   }
 
@@ -176,9 +176,9 @@ export interface StateDelayed<
   RELATED extends StateRelated = {},
   WRITE = TYPE
 > extends StateDelayedInternal<Result<TYPE, string>, RELATED, WRITE> {
-  readonly readable: StateRead<TYPE, false, RELATED>;
+  readonly readable: State<TYPE, false, RELATED>;
   readonly writeable: StateWrite<TYPE, false, RELATED, WRITE>;
-  readonly owner: StateOwner<TYPE>;
+  readonly owner: StateOwnerOk<TYPE>;
   setOk(value: TYPE): void;
   setErr(err: string): void;
 }
@@ -189,7 +189,7 @@ export interface StateDelayedOk<
 > extends StateDelayedInternal<ResultOk<TYPE>, RELATED, WRITE> {
   readonly readable: StateReadOk<TYPE, false, RELATED>;
   readonly writeable: StateWriteSync<TYPE, false, RELATED, WRITE>;
-  readonly owner: StateOwnerOk<TYPE>;
+  readonly owner: StateOwnerAll<TYPE>;
   setOk(value: TYPE): void;
   setErr(err: never): void;
 }

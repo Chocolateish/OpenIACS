@@ -1,14 +1,14 @@
 import { None, Ok, Some, type Option, type Result } from "@libResult";
 import type {
+  State,
   StateHelper,
-  StateRead,
   StateRelated,
   StateSubscriber,
 } from "./types";
 
 export async function state_await_value<T>(
   value: T,
-  state: StateRead<T, true>,
+  state: State<T, true>,
   timeout: number = 500
 ): Promise<boolean> {
   let func: StateSubscriber<T>;
@@ -220,8 +220,8 @@ export function state_enum_iterate<T, R extends StateEnumHelperType<any>>(
 }
 
 export async function state_compare(
-  state1: StateRead<any, true>,
-  state2: StateRead<any, true>
+  state1: State<any, true>,
+  state2: State<any, true>
 ): Promise<boolean> {
   let res1 = await state1;
   let res2 = await state2;
@@ -230,8 +230,8 @@ export async function state_compare(
 }
 
 export function state_compare_sync(
-  state1: StateRead<any, true>,
-  state2: StateRead<any, true>
+  state1: State<any, true>,
+  state2: State<any, true>
 ): boolean {
   let res1 = state1.get();
   let res2 = state2.get();

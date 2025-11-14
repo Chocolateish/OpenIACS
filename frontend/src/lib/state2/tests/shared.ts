@@ -1,11 +1,4 @@
 import { Err, Ok, type Option, type Result } from "@libResult";
-import {
-  state_from_result as sfr,
-  state_from_result_ok as sfro,
-  state_err,
-  state_from,
-  state_ok,
-} from "../state";
 import type { StateBaseRead } from "../stateBase";
 import {
   state_delayed_err as sde,
@@ -26,6 +19,13 @@ import {
   state_derives_sum_ok_from_ok,
 } from "../stateDerives";
 import {
+  state_from_result as sfr,
+  state_from_result_ok as sfro,
+  state_err,
+  state_from,
+  state_ok,
+} from "../stateDirect";
+import {
   state_lazy_err as sle,
   state_lazy_from as slf,
   state_lazy_from_result as slfr,
@@ -45,8 +45,8 @@ import {
   state_proxy_write_ok_from_ok,
 } from "../stateProxyWrite";
 import type {
-  StateOwner,
-  StateRead,
+  State,
+  StateOwnerOk,
   StateSetter,
   StateSetterSync,
   StateWrite,
@@ -59,8 +59,8 @@ let eg = state_test_gen_error;
 
 export type StateTestsRead = [
   string,
-  StateRead<number, any>,
-  StateOwner<number>,
+  State<number, any>,
+  StateOwnerOk<number>,
   StateBaseRead<any, any, any>,
   Result<number, string>,
   Result<number, string>
@@ -69,7 +69,7 @@ export type StateTestsRead = [
 export type StateTestsWrite = [
   string,
   StateWrite<number, any>,
-  StateOwner<number>,
+  StateOwnerOk<number>,
   StateBaseRead<any, any, any>,
   Result<number, string>,
   Result<number, string>
@@ -78,7 +78,7 @@ export type StateTestsWrite = [
 export function norm(
   text: string,
   state: StateBaseRead<any, any, any> &
-    StateOwner<any> &
+    StateOwnerOk<any> &
     StateWrite<any, any, any>,
   init: Result<number, string>
 ): StateTestsWrite {

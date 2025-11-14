@@ -8,7 +8,7 @@ import type {
   StateProxyTransformOkFromOk,
 } from "./stateProxy";
 import type {
-  StateRead,
+  State,
   StateReadOk,
   StateRelated,
   StateSubscriberBase,
@@ -106,7 +106,7 @@ export class StateProxyWriteInternal<
     return this.#state.related();
   }
 
-  get readable(): StateRead<OUTPUT, SYNC, RELATED> {
+  get readable(): State<OUTPUT, SYNC, RELATED> {
     return this;
   }
 
@@ -179,7 +179,7 @@ export interface StateProxyWrite<
     Result<INPUT, string>,
     INPUT
   > {
-  readonly readable: StateRead<OUTPUT, SYNC, RELATED>;
+  readonly readable: State<OUTPUT, SYNC, RELATED>;
   readonly writeable: StateWrite<OUTPUT, SYNC, RELATED, OUTPUT, WSYNC>;
 
   setState(state: StateWrite<INPUT, SYNC, RELATED, INPUT, WSYNC>): void;
@@ -205,7 +205,7 @@ export interface StateProxyWriteFromOK<
     Result<INPUT, string>,
     INPUT
   > {
-  readonly readable: StateRead<OUTPUT, SYNC, RELATED>;
+  readonly readable: State<OUTPUT, SYNC, RELATED>;
   readonly writeable: StateWrite<OUTPUT, SYNC, RELATED, OUTPUT, WSYNC>;
 
   setState(state: StateWriteSync<INPUT, SYNC, RELATED, INPUT, WSYNC>): void;

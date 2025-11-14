@@ -1,10 +1,10 @@
 import { Err, None, Ok, type Option, type Result, ResultOk } from "@libResult";
 import { StateBaseReadSync } from "./stateBase";
 import {
+  type State,
   type StateHelper,
-  type StateOwner,
+  type StateOwnerAll,
   type StateOwnerOk,
-  type StateRead,
   type StateReadOk,
   type StateRelated,
   type StateSetterSync,
@@ -20,7 +20,7 @@ export class StateLazyInternal<
     WRITE
   >
   extends StateBaseReadSync<TYPE, RELATED>
-  implements StateWrite<TYPE, true, RELATED, WRITE, true>, StateOwner<TYPE>
+  implements StateWrite<TYPE, true, RELATED, WRITE, true>, StateOwnerOk<TYPE>
 {
   constructor(
     init: () => TYPE,
@@ -127,7 +127,7 @@ export class StateLazyInternal<
   related(): Option<RELATED> {
     return this.#helper?.related ? this.#helper.related() : None();
   }
-  get readable(): StateRead<TYPE, true, RELATED> {
+  get readable(): State<TYPE, true, RELATED> {
     return this;
   }
 
@@ -165,16 +165,16 @@ export class StateLazyInternal<
     this.#value = Err(err) as TYPE;
     this.updateSubscribers(this.#value);
   }
-  get owner(): StateOwner<TYPE> {
+  get owner(): StateOwnerOk<TYPE> {
     return this;
   }
 }
 
 export interface StateLazy<TYPE, RELATED extends StateRelated = {}>
   extends StateLazyInternal<Result<TYPE, string>, RELATED, TYPE> {
-  readonly readable: StateRead<TYPE, true, RELATED>;
+  readonly readable: State<TYPE, true, RELATED>;
   readonly writeable: StateWrite<TYPE, true, RELATED>;
-  readonly owner: StateOwner<TYPE>;
+  readonly owner: StateOwnerOk<TYPE>;
   setOk(value: TYPE): void;
   setErr(err: string): void;
 }
@@ -182,7 +182,7 @@ export interface StateLazyOk<TYPE, RELATED extends StateRelated = {}>
   extends StateLazyInternal<ResultOk<TYPE>, RELATED, TYPE> {
   readonly readable: StateReadOk<TYPE, true, RELATED>;
   readonly writeable: StateWriteSync<TYPE, true, RELATED>;
-  readonly owner: StateOwnerOk<TYPE>;
+  readonly owner: StateOwnerAll<TYPE>;
   setOk(value: TYPE): void;
   setErr(err: never): void;
 }

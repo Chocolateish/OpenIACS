@@ -1,8 +1,8 @@
 import { Err, None, Ok, ResultOk, type Option, type Result } from "@libResult";
 import { StateBaseRead } from "./stateBase";
 import type {
+  State,
   StateHelper,
-  StateRead,
   StateReadOk,
   StateRelated,
   StateWrite,
@@ -243,7 +243,7 @@ export interface StateResource<
   RELATED extends StateRelated = {},
   WRITE = TYPE
 > extends StateResourceFunc<Result<TYPE, string>, RELATED, WRITE> {
-  readonly readable: StateRead<TYPE, false, RELATED>;
+  readonly readable: State<TYPE, false, RELATED>;
   readonly writeable: StateWrite<TYPE, false, RELATED, WRITE>;
   updateResource(value: Result<TYPE, string>): void;
 }

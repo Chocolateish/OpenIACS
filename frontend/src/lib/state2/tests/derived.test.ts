@@ -1,10 +1,10 @@
 import { Ok } from "@libResult";
 import { describe, expect, it } from "vitest";
-import { state_ok } from "../state";
 import {
   state_derived_from_state_array,
   state_derived_from_states,
 } from "../stateDerived";
+import { state_ok } from "../stateDirect";
 
 describe("Change function and states", async () => {
   it("Changing getter function with no subscribers", async () => {

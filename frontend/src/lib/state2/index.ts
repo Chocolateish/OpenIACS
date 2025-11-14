@@ -12,7 +12,7 @@ export {
   state_ok,
   type State,
   type StateOk,
-} from "./state";
+} from "./stateDirect";
 
 //      _                ________     __  _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
 //     | |        /\    |___  /\ \   / / |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
@@ -114,9 +114,9 @@ export {
 //      / ____ \| | \ \| | \ \  / ____ \| |     _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
 //     /_/    \_\_|  \_\_|  \_\/_/    \_\_|    |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
 export {
-  StateArray,
   state_array_apply_read_to_array,
   state_array_apply_read_to_array_transform,
+  StateArray,
   type StateArrayRead,
   type StateArrayWrite,
 } from "./stateArray";
@@ -141,13 +141,13 @@ export {
 //     | |  | | |____| |____| |    | |____| | \ \ ____) |
 //     |_|  |_|______|______|_|    |______|_|  \_\_____/
 export {
-  StateEnumHelper,
-  StateNumberHelper,
-  StateStringHelper,
   state_await_value,
   state_compare,
   state_compare_sync,
   state_enum_iterate,
+  StateEnumHelper,
+  StateNumberHelper,
+  StateStringHelper,
   type StateEnumHelperAnyType,
   type StateEnumHelperList,
   type StateEnumHelperType,
@@ -169,9 +169,9 @@ export {
 //      ____) |  | |/ ____ \| |  | |____     | |     | |  | |    | |____ ____) |
 //     |_____/   |_/_/    \_\_|  |______|    |_|     |_|  |_|    |______|_____/
 export type {
-  StateOwner,
-  StateOwnerOk,
-  StateRead,
+  StateOwnerOk as StateOwner,
+  StateOwnerAll as StateOwnerOk,
+  State as StateRead,
   StateReadOk,
   StateSetter,
   StateSetterOk,
@@ -198,6 +198,6 @@ export { StateResourceBase } from "./stateResource";
 //     | |____ / . \   | |  | |____| |\  |____) |_| || |__| | |\  |    | |     | |  | |    | |____ ____) |
 //     |______/_/ \_\  |_|  |______|_| \_|_____/|_____\____/|_| \_|    |_|     |_|  |_|    |______|_____/
 export type {
-  StateRead as StateReadBase,
+  State as StateReadBase,
   StateWrite as StateWriteBase,
 } from "./types";
