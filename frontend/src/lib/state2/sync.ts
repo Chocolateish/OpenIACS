@@ -1,27 +1,35 @@
 import { Err, None, Ok, ResultOk, type Option, type Result } from "@libResult";
 import {
+  State_RES,
+  State_RES_WS,
   State_ROS,
   State_ROS_WS,
-  State_RS,
-  State_RS_WS,
-  type StateHelper,
-  type StateRelated,
-  type StateSetterOkSync,
-  type StateSetterSync,
+  type StateHelper as Helper,
+  type StateHelperWrite as HelperWrite,
+  type StateRelated as Related,
+  type StateSetOkSync,
+  type StateSetSync,
 } from "./types";
 
-export class State_Sync_R<RT, REL extends StateRelated> extends State_RS<
+//##################################################################################################################################################
+//       _____ _                _____ _____ ______  _____
+//      / ____| |        /\    / ____/ ____|  ____|/ ____|
+//     | |    | |       /  \  | (___| (___ | |__  | (___
+//     | |    | |      / /\ \  \___ \\___ \|  __|  \___ \
+//     | |____| |____ / ____ \ ____) |___) | |____ ____) |
+//      \_____|______/_/    \_\_____/_____/|______|_____/
+export class State_Sync_RES<RT, REL extends Related> extends State_RES<
   RT,
   REL
 > {
-  constructor(init: Result<RT, string>, helper?: StateHelper<never, REL>) {
+  constructor(init: Result<RT, string>, helper?: Helper<REL>) {
     super();
     if (helper) this.#helper = helper;
     this.#value = init;
   }
 
   #value: Result<RT, string>;
-  #helper?: StateHelper<never, REL>;
+  #helper?: Helper<REL>;
 
   //##################################################################################################################################################
   //Reader Context
@@ -40,8 +48,7 @@ export class State_Sync_R<RT, REL extends StateRelated> extends State_RS<
   //##################################################################################################################################################
   //Owner Context
   set(value: Result<RT, string>) {
-    this.#value = value;
-    this.updateSubscribers(value);
+    this.updateSubscribers((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -51,18 +58,18 @@ export class State_Sync_R<RT, REL extends StateRelated> extends State_RS<
   }
 }
 
-export class State_Sync_RO<RT, REL extends StateRelated> extends State_ROS<
+export class State_Sync_ROS<RT, REL extends Related> extends State_ROS<
   RT,
   REL
 > {
-  constructor(init: ResultOk<RT>, helper?: StateHelper<never, REL>) {
+  constructor(init: ResultOk<RT>, helper?: Helper<REL>) {
     super();
     if (helper) this.#helper = helper;
     this.#value = init;
   }
 
   #value: ResultOk<RT>;
-  #helper?: StateHelper<never, REL>;
+  #helper?: Helper<REL>;
 
   //##################################################################################################################################################
   //Reader Context
@@ -84,23 +91,22 @@ export class State_Sync_RO<RT, REL extends StateRelated> extends State_ROS<
   //##################################################################################################################################################
   //Owner Context
   set(value: ResultOk<RT>) {
-    this.#value = value;
-    this.updateSubscribers(value);
+    this.updateSubscribers((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
   }
 }
 
-export class State_Sync_R_W<
+export class State_Sync_RES_WS<
   RT,
   WT,
-  REL extends StateRelated
-> extends State_RS_WS<RT, WT, REL> {
+  REL extends Related
+> extends State_RES_WS<RT, WT, REL> {
   constructor(
     init: Result<RT, string>,
-    setter?: StateSetterSync<RT, WT, State_Sync_R_W<RT, WT, REL>> | true,
-    helper?: StateHelper<WT, REL>
+    setter?: StateSetSync<RT, WT, State_Sync_RES_WS<RT, WT, REL>> | true,
+    helper?: HelperWrite<WT, REL>
   ) {
     super();
     if (setter)
@@ -120,8 +126,8 @@ export class State_Sync_R_W<
   }
 
   #value: Result<RT, string>;
-  #setter?: StateSetterSync<RT, WT, State_Sync_R_W<RT, WT, REL>>;
-  #helper?: StateHelper<WT, REL>;
+  #setter?: StateSetSync<RT, WT, State_Sync_RES_WS<RT, WT, REL>>;
+  #helper?: HelperWrite<WT, REL>;
 
   //##################################################################################################################################################
   //Reader Context
@@ -156,8 +162,7 @@ export class State_Sync_R_W<
   //##################################################################################################################################################
   //Owner Context
   set(value: Result<RT, string>) {
-    this.#value = value;
-    this.updateSubscribers(value);
+    this.updateSubscribers((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -167,15 +172,15 @@ export class State_Sync_R_W<
   }
 }
 
-export class State_Sync_RO_W<
+export class State_Sync_ROS_WS<
   RT,
   WT,
-  REL extends StateRelated
+  REL extends Related
 > extends State_ROS_WS<RT, WT, REL> {
   constructor(
     init: ResultOk<RT>,
-    setter?: StateSetterOkSync<RT, WT, State_Sync_RO_W<RT, WT, REL>> | true,
-    helper?: StateHelper<WT, REL>
+    setter?: StateSetOkSync<RT, WT, State_Sync_ROS_WS<RT, WT, REL>> | true,
+    helper?: HelperWrite<WT, REL>
   ) {
     super();
     if (setter)
@@ -195,8 +200,8 @@ export class State_Sync_RO_W<
   }
 
   #value: ResultOk<RT>;
-  #setter?: StateSetterOkSync<RT, WT, State_Sync_RO_W<RT, WT, REL>>;
-  #helper?: StateHelper<WT, REL>;
+  #setter?: StateSetOkSync<RT, WT, State_Sync_ROS_WS<RT, WT, REL>>;
+  #helper?: HelperWrite<WT, REL>;
 
   //##################################################################################################################################################
   //Reader Context
@@ -234,128 +239,153 @@ export class State_Sync_RO_W<
   //##################################################################################################################################################
   //Owner Context
   set(value: ResultOk<RT>) {
-    this.#value = value;
-    this.updateSubscribers(value);
+    this.updateSubscribers((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
   }
 }
 
+//##################################################################################################################################################
+//      _____ _   _ _____ _______ _____          _      _____ ____________ _____
+//     |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \
+//       | | |  \| | | |    | |    | |    /  \  | |      | |    / /| |__  | |__) |
+//       | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  /
+//      _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \
+//     |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\
 let read = {
   /**Creates a sync state from an initial value.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, REL extends StateRelated = {}>(
-    init: RT,
-    helper?: StateHelper<never, REL>
-  ) {
-    return new State_Sync_R<RT, REL>(Ok(init), helper);
+  ok<RT, REL extends Related = {}>(init: RT, helper?: Helper<REL>) {
+    return new State_Sync_RES<RT, REL>(Ok(init), helper);
   },
   /**Creates a sync state from an initial error.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  err<RT, REL extends StateRelated = {}>(
-    init: string,
-    helper?: StateHelper<never, REL>
-  ) {
-    return new State_Sync_R<RT, REL>(Err(init), helper);
+  err<RT, REL extends Related = {}>(init: string, helper?: Helper<REL>) {
+    return new State_Sync_RES<RT, REL>(Err(init), helper);
   },
   /**Creates a sync state from an initial result.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, REL extends StateRelated = {}>(
+  result<RT, REL extends Related = {}>(
     init: Result<RT, string>,
-    helper?: StateHelper<never, REL>
+    helper?: Helper<REL>
   ) {
-    return new State_Sync_R<RT, REL>(init, helper);
+    return new State_Sync_RES<RT, REL>(init, helper);
   },
+  /**Checks if a state is a State_Sync_R*/
+  is(state: any): state is State_Sync_RES<any, any> {
+    return state instanceof State_Sync_RES;
+  },
+  class: State_Sync_RES,
 };
 
 let readOk = {
   /**Creates a sync ok state from an initial value.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, REL extends StateRelated = {}>(
-    init: RT,
-    helper?: StateHelper<never, REL>
-  ) {
-    return new State_Sync_RO<RT, REL>(Ok(init), helper);
+  ok<RT, REL extends Related = {}>(init: RT, helper?: Helper<REL>) {
+    return new State_Sync_ROS<RT, REL>(Ok(init), helper);
   },
   /**Creates a sync ok state from an initial result.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, REL extends StateRelated = {}>(
+  result<RT, REL extends Related = {}>(
     init: ResultOk<RT>,
-    helper?: StateHelper<never, REL>
+    helper?: Helper<REL>
   ) {
-    return new State_Sync_RO<RT, REL>(init, helper);
+    return new State_Sync_ROS<RT, REL>(init, helper);
   },
+  /**Checks if a state is a State_Sync_RO*/
+  is(state: any): state is State_Sync_ROS<any, any> {
+    return state instanceof State_Sync_ROS;
+  },
+  class: State_Sync_ROS,
 };
 
 let write = {
   /**Creates a writable sync state from an initial value.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, WT = RT, REL extends StateRelated = {}>(
+  ok<RT, WT = RT, REL extends Related = {}>(
     init: RT,
-    setter?: StateSetterSync<RT, WT, State_Sync_R_W<RT, WT, REL>> | true,
-    helper?: StateHelper<WT, REL>
+    setter?: StateSetSync<RT, WT, State_Sync_RES_WS<RT, WT, REL>> | true,
+    helper?: HelperWrite<WT, REL>
   ) {
-    return new State_Sync_R_W<RT, WT, REL>(Ok(init), setter, helper);
+    return new State_Sync_RES_WS<RT, WT, REL>(Ok(init), setter, helper);
   },
   /**Creates a writable sync state from an initial error.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  err<RT, WT = RT, REL extends StateRelated = {}>(
+  err<RT, WT = RT, REL extends Related = {}>(
     init: string,
-    setter?: StateSetterSync<RT, WT, State_Sync_R_W<RT, WT, REL>> | true,
-    helper?: StateHelper<WT, REL>
+    setter?: StateSetSync<RT, WT, State_Sync_RES_WS<RT, WT, REL>> | true,
+    helper?: HelperWrite<WT, REL>
   ) {
-    return new State_Sync_R_W<RT, WT, REL>(Err(init), setter, helper);
+    return new State_Sync_RES_WS<RT, WT, REL>(Err(init), setter, helper);
   },
   /**Creates a writable sync state from an initial result.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, WT = RT, REL extends StateRelated = {}>(
+  result<RT, WT = RT, REL extends Related = {}>(
     init: Result<RT, string>,
-    setter?: StateSetterSync<RT, WT, State_Sync_R_W<RT, WT, REL>> | true,
-    helper?: StateHelper<WT, REL>
+    setter?: StateSetSync<RT, WT, State_Sync_RES_WS<RT, WT, REL>> | true,
+    helper?: HelperWrite<WT, REL>
   ) {
-    return new State_Sync_R_W<RT, WT, REL>(init, setter, helper);
+    return new State_Sync_RES_WS<RT, WT, REL>(init, setter, helper);
   },
+  /**Checks if a state is a State_Sync_R_W*/
+  is(state: any): state is State_Sync_RES_WS<any, any, any> {
+    return state instanceof State_Sync_RES_WS;
+  },
+  class: State_Sync_RES_WS,
 };
 
 let writeOk = {
   /**Creates a sync ok state from an initial value.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, WT = RT, REL extends StateRelated = {}>(
+  ok<RT, WT = RT, REL extends Related = {}>(
     init: RT,
-    setter?: StateSetterOkSync<RT, WT, State_Sync_RO_W<RT, WT, REL>> | true,
-    helper?: StateHelper<WT, REL>
+    setter?: StateSetOkSync<RT, WT, State_Sync_ROS_WS<RT, WT, REL>> | true,
+    helper?: HelperWrite<WT, REL>
   ) {
-    return new State_Sync_RO_W<RT, WT, REL>(Ok(init), setter, helper);
+    return new State_Sync_ROS_WS<RT, WT, REL>(Ok(init), setter, helper);
   },
   /**Creates a sync ok state from an initial result.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, WT = RT, REL extends StateRelated = {}>(
+  result<RT, WT = RT, REL extends Related = {}>(
     init: ResultOk<RT>,
-    setter?: StateSetterOkSync<RT, WT, State_Sync_RO_W<RT, WT, REL>> | true,
-    helper?: StateHelper<WT, REL>
+    setter?: StateSetOkSync<RT, WT, State_Sync_ROS_WS<RT, WT, REL>> | true,
+    helper?: HelperWrite<WT, REL>
   ) {
-    return new State_Sync_RO_W<RT, WT, REL>(init, setter, helper);
+    return new State_Sync_ROS_WS<RT, WT, REL>(init, setter, helper);
   },
+  /**Checks if a state is a State_Sync_RO_W*/
+  is(state: any): state is State_Sync_ROS_WS<any, any, any> {
+    return state instanceof State_Sync_ROS_WS;
+  },
+  class: State_Sync_ROS_WS,
 };
 
+//##################################################################################################################################################
+//      ________   _______   ____  _____ _______ _____
+//     |  ____\ \ / /  __ \ / __ \|  __ \__   __/ ____|
+//     | |__   \ V /| |__) | |  | | |__) | | | | (___
+//     |  __|   > < |  ___/| |  | |  _  /  | |  \___ \
+//     | |____ / . \| |    | |__| | | \ \  | |  ____) |
+//     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 export let sync = {
-  r: {
-    e: read,
-    o: readOk,
-  },
-  w: {
-    e: write,
-    o: writeOk,
-  },
+  /**Sync read only states with error */
+  res: read,
+  /**Sync read only states with guarenteed ok*/
+  ros: readOk,
+
+  /**Sync read and sync write with error */
+  res_ws: write,
+  /**Sync read and sync write with guarenteed ok*/
+  ros_ws: writeOk,
 };

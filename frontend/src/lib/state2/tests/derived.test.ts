@@ -4,7 +4,7 @@ import {
   state_derived_from_state_array,
   state_derived_from_states,
 } from "../stateDerived";
-import { state_ok } from "../stateDirect";
+import { state_ok } from "../sync";
 
 describe("Change function and states", async () => {
   it("Changing getter function with no subscribers", async () => {

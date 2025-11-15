@@ -1,6 +1,6 @@
 import { Err, Ok, type Result } from "@libResult";
 import { describe, expect, it } from "vitest";
-import type { StateOwnerOk, StateSetter, StateSetterSync } from "../types";
+import type { StateOwnerOk, StateSet, StateSetSync } from "../types";
 import {
   state_test_gen_delayed as delayed,
   state_test_gen_delayed_ok as delayed_ok,
@@ -18,7 +18,7 @@ import {
 
 let gen_sync_states = (
   setter?:
-    | StateSetterSync<number, StateOwnerOk<Result<number, string>>, any>
+    | StateSetSync<number, StateOwnerOk<Result<number, string>>, any>
     | true
 ): StateTestsWrite[] => {
   return [
@@ -31,7 +31,7 @@ let gen_sync_states = (
   ];
 };
 let gen_states = (
-  setter?: StateSetter<number, StateOwnerOk<Result<number, string>>, any> | true
+  setter?: StateSet<number, StateOwnerOk<Result<number, string>>, any> | true
 ): StateTestsWrite[] => {
   return [
     ...delayed(setter),

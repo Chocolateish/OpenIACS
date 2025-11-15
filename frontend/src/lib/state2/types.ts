@@ -2,47 +2,52 @@ import { type Option, type Result, type ResultOk } from "@libResult";
 
 /**Function used to subscribe to state changes
  * @template RT - The type of the state’s value when read.*/
-export type StateSubscriber<RT> = (value: Result<RT, string>) => void;
+export type StateSub<RT> = (value: Result<RT, string>) => void;
 
 /**Function used to subscribe to state changes with guarenteed Ok value
  * @template RT - The type of the state’s value when read.*/
-export type StateSubscriberOk<RT> = (value: ResultOk<RT>) => void;
+export type StateSubOk<RT> = (value: ResultOk<RT>) => void;
 
 /**Map of values or states related to a state */
 export type StateRelated = {
   [key: string | symbol | number]: any;
 };
 
-export type StateHelper<RT, L extends StateRelated = {}> = {
-  limit?: (value: RT) => Result<RT, string>;
-  check?: (value: RT) => Result<RT, string>;
-  related?: () => Option<L>;
-};
+export interface StateHelper<REL extends StateRelated = {}> {
+  related?: () => Option<REL>;
+}
+export interface StateHelperWrite<WT, REL extends StateRelated = {}>
+  extends StateHelper<REL> {
+  limit?: (value: WT) => Result<WT, string>;
+  check?: (value: WT) => Result<WT, string>;
+  related?: () => Option<REL>;
+}
 
-export type StateSetter<RT, WT = RT, STATE = State<any>> = (
+export type StateSet<RT, WT = RT, STATE = State<any>> = (
   value: WT,
   state: STATE,
   old?: Result<RT, string>
 ) => Promise<Result<void, string>>;
 
-export type StateSetterOk<RT, WT = RT, STATE = State<any>> = (
+export type StateSetOk<RT, WT = RT, STATE = State<any>> = (
   value: WT,
   state: STATE,
   old?: ResultOk<RT>
 ) => Promise<Result<void, string>>;
 
-export type StateSetterSync<RT, WT = RT, STATE = State<any>> = (
+export type StateSetSync<RT, WT = RT, STATE = State<any>> = (
   value: WT,
   state: STATE,
   old?: Result<RT, string>
 ) => Result<void, string>;
 
-export type StateSetterOkSync<RT, WT = RT, STATE = State<any>> = (
+export type StateSetOkSync<RT, WT = RT, STATE = State<any>> = (
   value: WT,
   state: STATE,
   old?: ResultOk<RT>
 ) => Result<void, string>;
 
+//###########################################################################################################################################################
 //###########################################################################################################################################################
 //      _____  ______          _____  ______ _____     _____ ____  _   _ _______ ________   _________
 //     |  __ \|  ____|   /\   |  __ \|  ____|  __ \   / ____/ __ \| \ | |__   __|  ____\ \ / /__   __|
@@ -51,8 +56,8 @@ export type StateSetterOkSync<RT, WT = RT, STATE = State<any>> = (
 //     | | \ \| |____ / ____ \| |__| | |____| | \ \  | |___| |__| | |\  |  | |  | |____ / . \   | |
 //     |_|  \_\______/_/    \_\_____/|______|_|  \_\  \_____\____/|_| \_|  |_|  |______/_/ \_\  |_|
 
-export abstract class StateAll<RT, REL extends StateRelated = {}> {
-  #subscribers: Set<StateSubscriber<RT>> = new Set();
+export abstract class StateReadAll<RT, REL extends StateRelated = {}> {
+  #subscribers: Set<StateSub<any>> = new Set();
   #readPromises?: ((val: Result<RT, string>) => void)[];
 
   //#Reader Context
@@ -65,27 +70,27 @@ export abstract class StateAll<RT, REL extends StateRelated = {}> {
     func: (value: Result<RT, string>) => T | PromiseLike<T>
   ): PromiseLike<T>;
   /**Gets the current value of the state if state is sync*/
-  abstract get?(): Result<RT, string>;
+  get?(): Result<RT, string>;
   /**Gets the value of the state without result, only works when state is OK */
   getOk?(): RT;
   /**This adds a function as a subscriber to changes to the state
    * @param update set true to update subscriber immediatly*/
-  subscribe<B extends StateSubscriber<RT>>(func: B, update?: boolean): B {
+  subscribe<T = StateSub<RT>>(func: StateSub<RT>, update?: boolean): T {
     if (this.#subscribers.has(func)) {
       console.warn("Function already registered as subscriber", this, func);
-      return func;
+      return func as T;
     }
     this.onSubscribe(this.#subscribers.size == 0);
     this.#subscribers.add(func);
-    if (update) this.then(func);
-    return func;
+    if (update) this.then(func as (value: Result<RT, string>) => void);
+    return func as T;
   }
   /**This removes a function as a subscriber to the state*/
-  unsubscribe<B extends StateSubscriber<RT>>(func: B): B {
+  unsubscribe<T = StateSub<RT>>(func: StateSub<RT>): T {
     if (this.#subscribers.delete(func))
       this.onUnsubscribe(this.#subscribers.size == 0);
     else console.warn("Subscriber not found with state", this, func);
-    return func;
+    return func as T;
   }
   /**This returns related states if any*/
   abstract related(): Option<REL>;
@@ -95,7 +100,7 @@ export abstract class StateAll<RT, REL extends StateRelated = {}> {
     return this.#subscribers.size > 0 ? this : undefined;
   }
   /**Returns if the state has a subscriber */
-  hasSubscriber(subscriber: StateSubscriber<RT>): this | undefined {
+  hasSubscriber(subscriber: StateSub<RT>): this | undefined {
     return this.#subscribers.has(subscriber) ? this : undefined;
   }
   /**Returns if the state has a subscriber */
@@ -120,45 +125,51 @@ export abstract class StateAll<RT, REL extends StateRelated = {}> {
   }
 
   /**Returns state as a readable state type*/
-  abstract get readonly(): StateAll<RT, REL>;
+  abstract get readonly(): StateReadAll<RT, REL>;
 
   //Promises
-  protected async appendReadPromise<TResult1 = Result<RT, string>>(
-    func: (value: Result<RT, string>) => TResult1 | PromiseLike<TResult1>
-  ): Promise<TResult1> {
+  /**Creates a promise which can be fulfilled later with fulRProm */
+  protected async appendRProm<
+    T = Result<RT, string>,
+    TResult1 = Result<RT, string>
+  >(func: (value: T) => TResult1 | PromiseLike<TResult1>): Promise<TResult1> {
     return func(
-      await new Promise<Result<RT, string>>((a) => {
-        (this.#readPromises ??= []).push(a);
+      await new Promise<T>((a) => {
+        (this.#readPromises ??= []).push(
+          a as (val: Result<RT, string>) => void
+        );
       })
     );
   }
-  protected fulfillReadPromises(value: Result<RT, string>) {
+  /**Fulfills all read promises with given value */
+  protected fulRProm<T = Result<RT, string>>(value: Result<RT, string>): T {
     if (this.#readPromises)
       for (let i = 0; i < this.#readPromises.length; i++)
         this.#readPromises[i](value);
     this.#readPromises = [];
+    return value as T;
   }
 }
 
-export abstract class State_R<
+export abstract class State_REA<
   RT,
   REL extends StateRelated = {}
-> extends StateAll<RT, REL> {
+> extends StateReadAll<RT, REL> {
   get rsync(): false {
     return false;
   }
   get rok(): false {
     return false;
   }
-  get readonly(): State_R<RT, REL> {
+  get readonly(): State_REA<RT, REL> {
     return this;
   }
 }
 
-export abstract class State_RO<
+export abstract class State_ROA<
   RT,
   REL extends StateRelated = {}
-> extends StateAll<RT, REL> {
+> extends StateReadAll<RT, REL> {
   get rsync(): false {
     return false;
   }
@@ -168,25 +179,25 @@ export abstract class State_RO<
   abstract then<T = ResultOk<RT>>(
     func: (value: ResultOk<RT>) => T | PromiseLike<T>
   ): PromiseLike<T>;
-  subscribe<B extends StateSubscriberOk<RT>>(func: B, update?: boolean): B {
-    return super.subscribe(func as StateSubscriber<RT>, update) as B;
+  subscribe<T = StateSubOk<RT>>(func: StateSubOk<RT>, update?: boolean): T {
+    return super.subscribe(func as StateSub<RT>, update) as T;
   }
-  unsubscribe<B extends StateSubscriberOk<RT>>(func: B): B {
-    return super.unsubscribe(func as StateSubscriber<RT>) as B;
+  unsubscribe<T = StateSub<RT>>(func: StateSubOk<RT>): T {
+    return super.unsubscribe(func as StateSub<RT>);
   }
-  hasSubscriber(subscriber: StateSubscriberOk<RT>): this | undefined {
-    return super.hasSubscriber(subscriber as StateSubscriber<RT>);
+  hasSubscriber(subscriber: StateSubOk<RT>): this | undefined {
+    return super.hasSubscriber(subscriber as StateSub<RT>);
   }
 
-  get readonly(): State_RO<RT, REL> {
+  get readonly(): State_ROA<RT, REL> {
     return this;
   }
 }
 
-export abstract class State_RS<
+export abstract class State_RES<
   RT,
   REL extends StateRelated = {}
-> extends StateAll<RT, REL> {
+> extends StateReadAll<RT, REL> {
   get rsync(): true {
     return true;
   }
@@ -195,7 +206,7 @@ export abstract class State_RS<
   }
   abstract get(): Result<RT, string>;
 
-  get readonly(): State_RS<RT, REL> {
+  get readonly(): State_RES<RT, REL> {
     return this;
   }
 }
@@ -203,7 +214,7 @@ export abstract class State_RS<
 export abstract class State_ROS<
   RT,
   REL extends StateRelated = {}
-> extends StateAll<RT, REL> {
+> extends StateReadAll<RT, REL> {
   get rsync(): true {
     return true;
   }
@@ -213,14 +224,14 @@ export abstract class State_ROS<
   abstract then<T = ResultOk<RT>>(
     func: (value: ResultOk<RT>) => T | PromiseLike<T>
   ): PromiseLike<T>;
-  subscribe<B extends StateSubscriberOk<RT>>(func: B, update?: boolean): B {
-    return super.subscribe(func as StateSubscriber<RT>, update) as B;
+  subscribe<T = StateSubOk<RT>>(func: StateSubOk<RT>, update?: boolean): T {
+    return super.subscribe(func as StateSub<RT>, update) as T;
   }
-  unsubscribe<B extends StateSubscriberOk<RT>>(func: B): B {
-    return super.unsubscribe(func as StateSubscriber<RT>) as B;
+  unsubscribe<T = StateSub<RT>>(func: StateSubOk<RT>): T {
+    return super.unsubscribe(func as StateSub<RT>);
   }
-  hasSubscriber(subscriber: StateSubscriberOk<RT>): this | undefined {
-    return super.hasSubscriber(subscriber as StateSubscriber<RT>);
+  hasSubscriber(subscriber: StateSubOk<RT>): this | undefined {
+    return super.hasSubscriber(subscriber as StateSub<RT>);
   }
   abstract get(): ResultOk<RT>;
   abstract getOk(): RT;
@@ -229,14 +240,21 @@ export abstract class State_ROS<
   }
 }
 
-export let State_RSO = State_ROS;
-
 export type State<RT, REL extends StateRelated = {}> =
-  | State_R<RT, REL>
-  | State_RO<RT, REL>
-  | State_RS<RT, REL>
+  | State_REA<RT, REL>
+  | State_ROA<RT, REL>
+  | State_RES<RT, REL>
   | State_ROS<RT, REL>;
 
+export type StateOk<RT, REL extends StateRelated = {}> =
+  | State_ROA<RT, REL>
+  | State_ROS<RT, REL>;
+
+export type StateSync<RT, REL extends StateRelated = {}> =
+  | State_RES<RT, REL>
+  | State_ROS<RT, REL>;
+
+//###########################################################################################################################################################
 //###########################################################################################################################################################
 //     __          _______  _____ _______ ______ _____     _____ ____  _   _ _______ ________   _________
 //     \ \        / /  __ \|_   _|__   __|  ____|  __ \   / ____/ __ \| \ | |__   __|  ____\ \ / /__   __|
@@ -249,7 +267,7 @@ export abstract class StateAllWrite<
   RT,
   WT = RT,
   REL extends StateRelated = {}
-> extends StateAll<RT, REL> {
+> extends StateReadAll<RT, REL> {
   #writePromises?: ((val: Result<void, string>) => void)[];
 
   //#Writer Context
@@ -271,7 +289,8 @@ export abstract class StateAllWrite<
   abstract readonly readwrite?: StateAllWrite<RT, WT, REL>;
 
   //Promises
-  protected async appendWritePromise<TResult1 = Result<void, string>>(
+  /**Creates a promise which can be fulfilled later with fulRProm */
+  protected async appendWProm<TResult1 = Result<void, string>>(
     func: (value: Result<void, string>) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
     return func(
@@ -280,16 +299,23 @@ export abstract class StateAllWrite<
       })
     );
   }
-  protected fulfillWritePromises(value: Result<void, string>) {
+  /**Fulfills all write promises with given value */
+  protected fulWProm(value: Result<void, string>): typeof value {
     if (this.#writePromises)
       for (let i = 0; i < this.#writePromises.length; i++)
         this.#writePromises[i](value);
     this.#writePromises = [];
+    return value;
   }
 }
 
-//#Read Write
-export abstract class State_R_W<
+//      _____  ______          _____   __          _______ _______ _____ _______ ______
+//     |  __ \|  ____|   /\   |  __ \  \ \        / /  __ \__   __|_   _|__   __|  ____|
+//     | |__) | |__     /  \  | |  | |  \ \  /\  / /| |__) | | |    | |    | |  | |__
+//     |  _  /|  __|   / /\ \ | |  | |   \ \/  \/ / |  _  /  | |    | |    | |  |  __|
+//     | | \ \| |____ / ____ \| |__| |    \  /\  /  | | \ \  | |   _| |_   | |  | |____
+//     |_|  \_\______/_/    \_\_____/      \/  \/   |_|  \_\ |_|  |_____|  |_|  |______|
+export abstract class State_REA_WA<
   RT,
   WT = RT,
   REL extends StateRelated = {}
@@ -300,8 +326,8 @@ export abstract class State_R_W<
   get rok(): false {
     return false;
   }
-  get readonly(): State_R<RT, REL> {
-    return this as State_R<RT, REL>;
+  get readonly(): State_REA<RT, REL> {
+    return this as State_REA<RT, REL>;
   }
   get wsync(): false {
     return false;
@@ -312,12 +338,12 @@ export abstract class State_R_W<
   abstract write(value: WT): Promise<Result<void, string>>;
   abstract limit(value: WT): Result<WT, string>;
   abstract check(value: WT): Result<WT, string>;
-  get readwrite(): State_R_W<RT, WT, REL> {
+  get readwrite(): State_REA_WA<RT, WT, REL> {
     return this;
   }
 }
 
-export abstract class State_R_WS<
+export abstract class State_REA_WS<
   RT,
   WT = RT,
   REL extends StateRelated = {}
@@ -328,8 +354,8 @@ export abstract class State_R_WS<
   get rok(): false {
     return false;
   }
-  get readonly(): State_R<RT, REL> {
-    return this as State_R<RT, REL>;
+  get readonly(): State_REA<RT, REL> {
+    return this as State_REA<RT, REL>;
   }
   get wsync(): true {
     return true;
@@ -341,13 +367,18 @@ export abstract class State_R_WS<
   abstract limit(value: WT): Result<WT, string>;
   abstract check(value: WT): Result<WT, string>;
   abstract writeSync(value: WT): Result<void, string>;
-  get readwrite(): State_R_WS<RT, WT, REL> {
+  get readwrite(): State_REA_WS<RT, WT, REL> {
     return this;
   }
 }
 
-//#Read Ok Write
-export abstract class State_RO_W<
+//      _____  ______          _____     ____  _  __ __          _______ _______ _____ _______ ______
+//     |  __ \|  ____|   /\   |  __ \   / __ \| |/ / \ \        / /  __ \__   __|_   _|__   __|  ____|
+//     | |__) | |__     /  \  | |  | | | |  | | ' /   \ \  /\  / /| |__) | | |    | |    | |  | |__
+//     |  _  /|  __|   / /\ \ | |  | | | |  | |  <     \ \/  \/ / |  _  /  | |    | |    | |  |  __|
+//     | | \ \| |____ / ____ \| |__| | | |__| | . \     \  /\  /  | | \ \  | |   _| |_   | |  | |____
+//     |_|  \_\______/_/    \_\_____/   \____/|_|\_\     \/  \/   |_|  \_\ |_|  |_____|  |_|  |______|
+export abstract class State_ROA_WA<
   RT,
   WT = RT,
   REL extends StateRelated = {}
@@ -361,17 +392,17 @@ export abstract class State_RO_W<
   abstract then<T = ResultOk<RT>>(
     func: (value: ResultOk<RT>) => T | PromiseLike<T>
   ): PromiseLike<T>;
-  subscribe<B extends StateSubscriberOk<RT>>(func: B, update?: boolean): B {
-    return super.subscribe(func as StateSubscriber<RT>, update) as B;
+  subscribe<T = StateSubOk<RT>>(func: StateSubOk<RT>, update?: boolean): T {
+    return super.subscribe(func as StateSub<RT>, update) as T;
   }
-  unsubscribe<B extends StateSubscriberOk<RT>>(func: B): B {
-    return super.unsubscribe(func as StateSubscriber<RT>) as B;
+  unsubscribe<T = StateSub<RT>>(func: StateSubOk<RT>): T {
+    return super.unsubscribe(func as StateSub<RT>);
   }
-  hasSubscriber(subscriber: StateSubscriberOk<RT>): this | undefined {
-    return super.hasSubscriber(subscriber as StateSubscriber<RT>);
+  hasSubscriber(subscriber: StateSubOk<RT>): this | undefined {
+    return super.hasSubscriber(subscriber as StateSub<RT>);
   }
-  get readonly(): State_RO<RT, REL> {
-    return this as State_RO<RT, REL>;
+  get readonly(): State_ROA<RT, REL> {
+    return this as State_ROA<RT, REL>;
   }
   get wsync(): false {
     return false;
@@ -382,12 +413,12 @@ export abstract class State_RO_W<
   abstract write(value: WT): Promise<Result<void, string>>;
   abstract limit(value: WT): Result<WT, string>;
   abstract check(value: WT): Result<WT, string>;
-  get readwrite(): State_RO_W<RT, WT, REL> {
+  get readwrite(): State_ROA_WA<RT, WT, REL> {
     return this;
   }
 }
 
-export abstract class State_RO_WS<
+export abstract class State_ROA_WS<
   RT,
   WT = RT,
   REL extends StateRelated = {}
@@ -401,17 +432,17 @@ export abstract class State_RO_WS<
   abstract then<T = ResultOk<RT>>(
     func: (value: ResultOk<RT>) => T | PromiseLike<T>
   ): PromiseLike<T>;
-  subscribe<B extends StateSubscriberOk<RT>>(func: B, update?: boolean): B {
-    return super.subscribe(func as StateSubscriber<RT>, update) as B;
+  subscribe<T = StateSubOk<RT>>(func: StateSubOk<RT>, update?: boolean): T {
+    return super.subscribe(func as StateSub<RT>, update) as T;
   }
-  unsubscribe<B extends StateSubscriberOk<RT>>(func: B): B {
-    return super.unsubscribe(func as StateSubscriber<RT>) as B;
+  unsubscribe<T = StateSub<RT>>(func: StateSubOk<RT>): T {
+    return super.unsubscribe(func as StateSub<RT>);
   }
-  hasSubscriber(subscriber: StateSubscriberOk<RT>): this | undefined {
-    return super.hasSubscriber(subscriber as StateSubscriber<RT>);
+  hasSubscriber(subscriber: StateSubOk<RT>): this | undefined {
+    return super.hasSubscriber(subscriber as StateSub<RT>);
   }
-  get readonly(): State_RO<RT, REL> {
-    return this as State_RO<RT, REL>;
+  get readonly(): State_ROA<RT, REL> {
+    return this as State_ROA<RT, REL>;
   }
 
   get wsync(): true {
@@ -424,13 +455,18 @@ export abstract class State_RO_WS<
   abstract limit(value: WT): Result<WT, string>;
   abstract check(value: WT): Result<WT, string>;
   abstract writeSync(value: WT): Result<void, string>;
-  get readwrite(): State_RO_WS<RT, WT, REL> {
+  get readwrite(): State_ROA_WS<RT, WT, REL> {
     return this;
   }
 }
 
-//#Read Sync Write
-export abstract class State_RS_W<
+//      _____  ______          _____     _______     ___   _  _____  __          _______ _______ _____ _______ ______
+//     |  __ \|  ____|   /\   |  __ \   / ____\ \   / / \ | |/ ____| \ \        / /  __ \__   __|_   _|__   __|  ____|
+//     | |__) | |__     /  \  | |  | | | (___  \ \_/ /|  \| | |       \ \  /\  / /| |__) | | |    | |    | |  | |__
+//     |  _  /|  __|   / /\ \ | |  | |  \___ \  \   / | . ` | |        \ \/  \/ / |  _  /  | |    | |    | |  |  __|
+//     | | \ \| |____ / ____ \| |__| |  ____) |  | |  | |\  | |____     \  /\  /  | | \ \  | |   _| |_   | |  | |____
+//     |_|  \_\______/_/    \_\_____/  |_____/   |_|  |_| \_|\_____|     \/  \/   |_|  \_\ |_|  |_____|  |_|  |______|
+export abstract class State_RES_WA<
   RT,
   WT = RT,
   REL extends StateRelated = {}
@@ -443,8 +479,8 @@ export abstract class State_RS_W<
   }
   abstract get(): Result<RT, string>;
 
-  get readonly(): State_RS<RT, REL> {
-    return this as State_RS<RT, REL>;
+  get readonly(): State_RES<RT, REL> {
+    return this as State_RES<RT, REL>;
   }
   get wsync(): false {
     return false;
@@ -455,12 +491,12 @@ export abstract class State_RS_W<
   abstract write(value: WT): Promise<Result<void, string>>;
   abstract limit(value: WT): Result<WT, string>;
   abstract check(value: WT): Result<WT, string>;
-  get readwrite(): State_RS_W<RT, WT, REL> {
+  get readwrite(): State_RES_WA<RT, WT, REL> {
     return this;
   }
 }
 
-export abstract class State_RS_WS<
+export abstract class State_RES_WS<
   RT,
   WT = RT,
   REL extends StateRelated = {}
@@ -473,8 +509,8 @@ export abstract class State_RS_WS<
   }
   abstract get(): Result<RT, string>;
 
-  get readonly(): State_RS<RT, REL> {
-    return this as State_RS<RT, REL>;
+  get readonly(): State_RES<RT, REL> {
+    return this as State_RES<RT, REL>;
   }
 
   get wsync(): true {
@@ -488,13 +524,18 @@ export abstract class State_RS_WS<
   abstract check(value: WT): Result<WT, string>;
 
   abstract writeSync(value: WT): Result<void, string>;
-  get readwrite(): State_RS_WS<RT, WT, REL> {
+  get readwrite(): State_RES_WS<RT, WT, REL> {
     return this;
   }
 }
 
-//#Read Sync Write
-export abstract class State_ROS_W<
+//      _____  ______          _____     ____  _  __   _______     ___   _  _____  __          _______ _______ _____ _______ ______
+//     |  __ \|  ____|   /\   |  __ \   / __ \| |/ /  / ____\ \   / / \ | |/ ____| \ \        / /  __ \__   __|_   _|__   __|  ____|
+//     | |__) | |__     /  \  | |  | | | |  | | ' /  | (___  \ \_/ /|  \| | |       \ \  /\  / /| |__) | | |    | |    | |  | |__
+//     |  _  /|  __|   / /\ \ | |  | | | |  | |  <    \___ \  \   / | . ` | |        \ \/  \/ / |  _  /  | |    | |    | |  |  __|
+//     | | \ \| |____ / ____ \| |__| | | |__| | . \   ____) |  | |  | |\  | |____     \  /\  /  | | \ \  | |   _| |_   | |  | |____
+//     |_|  \_\______/_/    \_\_____/   \____/|_|\_\ |_____/   |_|  |_| \_|\_____|     \/  \/   |_|  \_\ |_|  |_____|  |_|  |______|
+export abstract class State_ROS_WA<
   RT,
   WT = RT,
   REL extends StateRelated = {}
@@ -507,14 +548,14 @@ export abstract class State_ROS_W<
   }
   abstract get(): Result<RT, string>;
   abstract getOk(): RT;
-  subscribe<B extends StateSubscriberOk<RT>>(func: B, update?: boolean): B {
-    return super.subscribe(func as StateSubscriber<RT>, update) as B;
+  subscribe<T = StateSubOk<RT>>(func: StateSubOk<RT>, update?: boolean): T {
+    return super.subscribe(func as StateSub<RT>, update) as T;
   }
-  unsubscribe<B extends StateSubscriberOk<RT>>(func: B): B {
-    return super.unsubscribe(func as StateSubscriber<RT>) as B;
+  unsubscribe<T = StateSub<RT>>(func: StateSubOk<RT>): T {
+    return super.unsubscribe(func as StateSub<RT>);
   }
-  hasSubscriber(subscriber: StateSubscriberOk<RT>): this | undefined {
-    return super.hasSubscriber(subscriber as StateSubscriber<RT>);
+  hasSubscriber(subscriber: StateSubOk<RT>): this | undefined {
+    return super.hasSubscriber(subscriber as StateSub<RT>);
   }
   get readonly(): State_ROS<RT, REL> {
     return this as State_ROS<RT, REL>;
@@ -529,15 +570,10 @@ export abstract class State_ROS_W<
   abstract limit(value: WT): Result<WT, string>;
   abstract check(value: WT): Result<WT, string>;
 
-  get readwrite(): State_ROS_W<RT, WT, REL> {
+  get readwrite(): State_ROS_WA<RT, WT, REL> {
     return this;
   }
 }
-export type State_RSO_W<
-  RT,
-  WT = RT,
-  REL extends StateRelated = {}
-> = State_ROS_W<RT, WT, REL>;
 
 export abstract class State_ROS_WS<
   RT,
@@ -552,14 +588,14 @@ export abstract class State_ROS_WS<
   }
   abstract get(): Result<RT, string>;
   abstract getOk(): RT;
-  subscribe<B extends StateSubscriberOk<RT>>(func: B, update?: boolean): B {
-    return super.subscribe(func as StateSubscriber<RT>, update) as B;
+  subscribe<T = StateSubOk<RT>>(func: StateSubOk<RT>, update?: boolean): T {
+    return super.subscribe(func as StateSub<RT>, update) as T;
   }
-  unsubscribe<B extends StateSubscriberOk<RT>>(func: B): B {
-    return super.unsubscribe(func as StateSubscriber<RT>) as B;
+  unsubscribe<T = StateSub<RT>>(func: StateSubOk<RT>): T {
+    return super.unsubscribe(func as StateSub<RT>);
   }
-  hasSubscriber(subscriber: StateSubscriberOk<RT>): this | undefined {
-    return super.hasSubscriber(subscriber as StateSubscriber<RT>);
+  hasSubscriber(subscriber: StateSubOk<RT>): this | undefined {
+    return super.hasSubscriber(subscriber as StateSub<RT>);
   }
   get readonly(): State_ROS<RT, REL> {
     return this as State_ROS<RT, REL>;
@@ -581,26 +617,21 @@ export abstract class State_ROS_WS<
   }
 }
 
-export type State_RSO_WS<
-  RT,
-  WT = RT,
-  REL extends StateRelated = {}
-> = State_ROS_WS<RT, WT, REL>;
-
 export type StateWrite<RT, WT = RT, REL extends StateRelated = {}> =
-  | State_R<RT, REL>
-  | State_RO<RT, REL>
-  | State_RS<RT, REL>
+  | State_REA<RT, REL>
+  | State_ROA<RT, REL>
+  | State_RES<RT, REL>
   | State_ROS<RT, REL>
-  | State_R_W<RT, WT, REL>
-  | State_R_WS<RT, WT, REL>
-  | State_RO_W<RT, WT, REL>
-  | State_RO_WS<RT, WT, REL>
-  | State_RS_W<RT, WT, REL>
-  | State_RS_WS<RT, WT, REL>
-  | State_ROS_W<RT, WT, REL>
+  | State_REA_WA<RT, WT, REL>
+  | State_REA_WS<RT, WT, REL>
+  | State_ROA_WA<RT, WT, REL>
+  | State_ROA_WS<RT, WT, REL>
+  | State_RES_WA<RT, WT, REL>
+  | State_RES_WS<RT, WT, REL>
+  | State_ROS_WA<RT, WT, REL>
   | State_ROS_WS<RT, WT, REL>;
 
+//###########################################################################################################################################################
 //###########################################################################################################################################################
 //       ______          ___   _ ______ _____     _____ ____  _   _ _______ ________   _________
 //      / __ \ \        / / \ | |  ____|  __ \   / ____/ __ \| \ | |__   __|  ____\ \ / /__   __|

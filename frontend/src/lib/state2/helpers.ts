@@ -1,29 +1,11 @@
-import { None, Ok, Some, type Option, type Result } from "@libResult";
+import { Err, Ok, Some, type Option, type Result } from "@libResult";
 import type {
   State,
-  StateHelper,
+  StateHelperWrite,
   StateRelated,
-  StateSubscriber,
+  StateSub,
+  StateSync,
 } from "./types";
-
-export async function state_await_value<T>(
-  value: T,
-  state: State<T, true>,
-  timeout: number = 500
-): Promise<boolean> {
-  let func: StateSubscriber<T>;
-  let res = await Promise.race([
-    new Promise<false>((a) => setTimeout(a, timeout, false)),
-    new Promise<true>((a) => {
-      func = state.subscribe((res) => {
-        if (res.ok && res.value === value) a(true);
-      });
-    }),
-  ]);
-  //@ts-expect-error
-  state.unsubscribe(func);
-  return res;
-}
 
 export interface StateNumberHelperType {
   min?: number;
@@ -33,7 +15,9 @@ export interface StateNumberHelperType {
 }
 
 export class StateNumberHelper
-  implements StateNumberHelperType, StateHelper<number, StateNumberHelperType>
+  implements
+    StateNumberHelperType,
+    StateHelperWrite<number, StateNumberHelperType>
 {
   min: number | undefined;
   max: number | undefined;
@@ -109,12 +93,12 @@ export class StateNumberHelper
     );
   }
 
-  check(value: number): Option<string> {
+  check(value: number): Result<number, string> {
     if ("max" in this && value > (this.max as number))
-      return Some(value + " is bigger than the limit of " + this.max);
+      return Err(value + " is bigger than the limit of " + this.max);
     if ("min" in this && value < (this.min as number))
-      return Some(value + " is smaller than the limit of " + this.max);
-    return None();
+      return Err(value + " is smaller than the limit of " + this.max);
+    return Ok(value);
   }
 
   related(): Option<StateNumberHelperType> {
@@ -128,7 +112,9 @@ export interface StateStringHelperType {
 }
 
 export class StateStringHelper
-  implements StateStringHelperType, StateHelper<string, StateStringHelperType>
+  implements
+    StateStringHelperType,
+    StateHelperWrite<string, StateStringHelperType>
 {
   maxLength: number | undefined;
   maxLengthBytes: number | undefined;
@@ -150,19 +136,19 @@ export class StateStringHelper
     }
     return Ok(value);
   }
-  check(value: string): Option<string> {
+  check(value: string): Result<string, string> {
     if ("maxLength" in this && value.length > this.maxLength!)
-      return Some(
+      return Err(
         "the text is longer than the limit of " + this.maxLength + " characters"
       );
     if (
       "maxLengthBytes" in this &&
       new TextEncoder().encode(value).length > this.maxLengthBytes!
     )
-      return Some(
+      return Err(
         "the text is longer than the limit of " + this.maxLengthBytes + " bytes"
       );
-    return None();
+    return Ok(value);
   }
   related(): Option<StateStringHelperType> {
     return Some(this as StateStringHelperType);
@@ -189,7 +175,7 @@ export class StateEnumHelper<
   K extends string | number | symbol,
   T extends StateEnumHelperList,
   R extends StateRelated = StateEnumHelperType<T>
-> implements StateHelper<K, R>, StateEnumHelperType<T>
+> implements StateHelperWrite<K, R>, StateEnumHelperType<T>
 {
   list: T;
 
@@ -200,9 +186,9 @@ export class StateEnumHelper<
   limit(value: K): Result<K, string> {
     return Ok(value);
   }
-  check(value: K): Option<string> {
-    if (value in this.list) return None();
-    return Some(String(value) + " is not in list");
+  check(value: K): Result<K, string> {
+    if (value in this.list) return Ok(value);
+    return Err(String(value) + " is not in list");
   }
 
   related(): Option<R> {
@@ -219,9 +205,13 @@ export function state_enum_iterate<T, R extends StateEnumHelperType<any>>(
   });
 }
 
+/**Compare two states for equality
+ * @param state1 first state
+ * @param state2 second state
+ * @returns true if states are equal*/
 export async function state_compare(
-  state1: State<any, true>,
-  state2: State<any, true>
+  state1: State<any>,
+  state2: State<any>
 ): Promise<boolean> {
   let res1 = await state1;
   let res2 = await state2;
@@ -229,12 +219,39 @@ export async function state_compare(
   return res1.value === res2.value;
 }
 
+/**Compare two sync states for equality
+ * @param state1 first state
+ * @param state2 second state
+ * @returns true if states are equal*/
 export function state_compare_sync(
-  state1: State<any, true>,
-  state2: State<any, true>
+  state1: StateSync<any>,
+  state2: StateSync<any>
 ): boolean {
   let res1 = state1.get();
   let res2 = state2.get();
   if (res1.err || res2.err) return true;
   return res1.value !== res2.value;
+}
+
+/**Waits for a state to have a specific value or until timeout is reached
+ * @param value value to wait for
+ * @param state state to wait on
+ * @param timeout timeout in milliseconds, default 500ms
+ * @returns true if value was reached before timeout, false if timeout was reached*/
+export async function state_await_value<T>(
+  value: T,
+  state: State<T>,
+  timeout: number = 500
+): Promise<boolean> {
+  let func: StateSub<T> = () => {};
+  let res = await Promise.race([
+    new Promise<false>((a) => setTimeout(a, timeout, false)),
+    new Promise<true>((a) => {
+      func = state.subscribe((res) => {
+        if (res.ok && res.value === value) a(true);
+      });
+    }),
+  ]);
+  state.unsubscribe(func);
+  return res;
 }

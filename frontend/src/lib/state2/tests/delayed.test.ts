@@ -1,6 +1,6 @@
 import { Ok } from "@libResult";
 import { describe, expect, it } from "vitest";
-import { state_delayed_from } from "../stateDelayed";
+import { state_delayed_from } from "../delayed";
 import { state_test_gen_error as errGen } from "./shared";
 
 describe("Special Cases For State Delayed", async () => {
