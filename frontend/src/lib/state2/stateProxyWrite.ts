@@ -1,18 +1,18 @@
 import { Ok, ResultOk, type Option, type Result } from "@libResult";
-import { StateBaseRead } from "./stateBase";
 import type {
   StateProxyTransform,
   StateProxyTransformBase,
   StateProxyTransformFromOk,
   StateProxyTransformOk,
   StateProxyTransformOkFromOk,
-} from "./stateProxy";
+} from "./proxy";
+import { StateBaseRead } from "./stateBase";
 import type {
   State,
+  STATE_XX_WX,
   StateReadOk,
   StateRelated,
   StateSubscriberBase,
-  StateWrite,
   StateWriteSync,
 } from "./types";
 
@@ -30,13 +30,13 @@ export class StateProxyWriteInternal<
     WRITEINPUT
   >
   extends StateBaseRead<OUTPUT, SYNC, RELATED>
-  implements StateWrite<OUTPUT, SYNC, RELATED, WRITEOUTPUT, WSYNC>
+  implements STATE_XX_WX<OUTPUT, SYNC, RELATED, WRITEOUTPUT, WSYNC>
 {
   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
    * @param transform - Function to translate value of state or states to something else, false means first states values is used.
    * @param state - The other states to be used in the derived state.*/
   constructor(
-    state: StateWrite<INPUT, SYNC, RELATED, WRITEINPUT, WSYNC>,
+    state: STATE_XX_WX<INPUT, SYNC, RELATED, WRITEINPUT, WSYNC>,
     transformRead?: StateProxyTransformBase<INPUT, OUTPUT>,
     transformWrite?: StateProxyWriteTransform<WRITEOUTPUT, WRITEINPUT>
   ) {
@@ -46,7 +46,7 @@ export class StateProxyWriteInternal<
     if (transformWrite) this.transformWrite = transformWrite;
   }
 
-  #state: StateWrite<INPUT, SYNC, RELATED, WRITEINPUT, WSYNC>;
+  #state: STATE_XX_WX<INPUT, SYNC, RELATED, WRITEINPUT, WSYNC>;
   #subscriber?: StateSubscriberBase<INPUT>;
   #buffer?: OUTPUT;
 
@@ -130,14 +130,14 @@ export class StateProxyWriteInternal<
   check(value: WRITEOUTPUT): Option<string> {
     return this.#state.check(this.transformWrite(value));
   }
-  get writeable(): StateWrite<OUTPUT, SYNC, RELATED, WRITEOUTPUT, WSYNC> {
+  get writeable(): STATE_XX_WX<OUTPUT, SYNC, RELATED, WRITEOUTPUT, WSYNC> {
     return this;
   }
 
   //##################################################################################################################################################
   //Owner Context
   /**Sets the state that is being proxied, and updates subscribers with new value*/
-  setState(state: StateWrite<INPUT, SYNC, RELATED, WRITEINPUT, WSYNC>) {
+  setState(state: STATE_XX_WX<INPUT, SYNC, RELATED, WRITEINPUT, WSYNC>) {
     if (this.inUse()) {
       this.#disconnect();
       this.#state = state;
@@ -180,9 +180,9 @@ export interface StateProxyWrite<
     INPUT
   > {
   readonly readable: State<OUTPUT, SYNC, RELATED>;
-  readonly writeable: StateWrite<OUTPUT, SYNC, RELATED, OUTPUT, WSYNC>;
+  readonly writeable: STATE_XX_WX<OUTPUT, SYNC, RELATED, OUTPUT, WSYNC>;
 
-  setState(state: StateWrite<INPUT, SYNC, RELATED, INPUT, WSYNC>): void;
+  setState(state: STATE_XX_WX<INPUT, SYNC, RELATED, INPUT, WSYNC>): void;
   setTransformRead(
     transform: StateProxyTransform<INPUT, OUTPUT>
   ): Promise<void>;
@@ -206,7 +206,7 @@ export interface StateProxyWriteFromOK<
     INPUT
   > {
   readonly readable: State<OUTPUT, SYNC, RELATED>;
-  readonly writeable: StateWrite<OUTPUT, SYNC, RELATED, OUTPUT, WSYNC>;
+  readonly writeable: STATE_XX_WX<OUTPUT, SYNC, RELATED, OUTPUT, WSYNC>;
 
   setState(state: StateWriteSync<INPUT, SYNC, RELATED, INPUT, WSYNC>): void;
   setTransformRead(
@@ -233,7 +233,7 @@ export interface StateProxyWriteOk<
   > {
   readonly readable: StateReadOk<OUTPUT, SYNC, RELATED>;
   readonly writeable: StateWriteSync<OUTPUT, SYNC, RELATED, OUTPUT, WSYNC>;
-  setState(state: StateWrite<INPUT, SYNC, RELATED, INPUT, WSYNC>): void;
+  setState(state: STATE_XX_WX<INPUT, SYNC, RELATED, INPUT, WSYNC>): void;
   setTransformRead(
     transform: StateProxyTransformOk<INPUT, OUTPUT>
   ): Promise<void>;
@@ -278,7 +278,7 @@ export function state_proxy_write_from<
   OUTPUT = INPUT,
   WSYNC extends boolean = SYNC
 >(
-  state: StateWrite<INPUT, SYNC, RELATED, INPUT, WSYNC>,
+  state: STATE_XX_WX<INPUT, SYNC, RELATED, INPUT, WSYNC>,
   transformRead?: StateProxyTransform<INPUT, OUTPUT>,
   transformWrite?: StateProxyWriteTransform<OUTPUT, INPUT>
 ) {
@@ -340,7 +340,7 @@ export function state_proxy_write_ok<
   OUTPUT = INPUT,
   WSYNC extends boolean = SYNC
 >(
-  state: StateWrite<INPUT, SYNC, RELATED>,
+  state: STATE_XX_WX<INPUT, SYNC, RELATED>,
   transform: StateProxyTransformOk<INPUT, OUTPUT>,
   transformWrite?: StateProxyWriteTransform<OUTPUT, INPUT>
 ): StateProxyWriteOk<OUTPUT, SYNC, RELATED, INPUT>;
@@ -362,7 +362,7 @@ export function state_proxy_write_ok<
   OUTPUT = INPUT,
   WSYNC extends boolean = SYNC
 >(
-  state: StateWrite<INPUT, SYNC, RELATED, INPUT, WSYNC>,
+  state: STATE_XX_WX<INPUT, SYNC, RELATED, INPUT, WSYNC>,
   transformRead?: StateProxyTransformOk<INPUT, OUTPUT>,
   transformWrite?: StateProxyWriteTransform<OUTPUT, INPUT>
 ) {

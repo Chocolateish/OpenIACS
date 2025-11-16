@@ -8,10 +8,10 @@ import {
   type Result,
 } from "@libResult";
 import {
-  State_REA,
-  State_REA_WS,
-  State_ROA,
-  State_ROA_WS,
+  STATE_REA,
+  STATE_REA_WS,
+  STATE_ROA,
+  STATE_ROA_WS,
   type StateHelper as Helper,
   type StateHelperWrite as HelperWrite,
   type StateRelated as Related,
@@ -26,7 +26,7 @@ import {
 //     | |    | |      / /\ \  \___ \\___ \|  __|  \___ \
 //     | |____| |____ / ____ \ ____) |___) | |____ ____) |
 //      \_____|______/_/    \_\_____/_____/|______|_____/
-export class State_Delayed_REA<RT, REL extends Related> extends State_REA<
+export class STATE_DELAYED_REA<RT, REL extends Related> extends STATE_REA<
   RT,
   REL
 > {
@@ -81,7 +81,7 @@ export class State_Delayed_REA<RT, REL extends Related> extends State_REA<
   }
 }
 
-export class State_Delayed_ROA<RT, REL extends Related> extends State_ROA<
+export class STATE_DELAYED_ROA<RT, REL extends Related> extends STATE_ROA<
   RT,
   REL
 > {
@@ -133,14 +133,14 @@ export class State_Delayed_ROA<RT, REL extends Related> extends State_ROA<
   }
 }
 
-export class State_Delayed_REA_WS<
+export class STATE_DELAYED_REA_WS<
   RT,
   WT,
   REL extends Related
-> extends State_REA_WS<RT, WT, REL> {
+> extends STATE_REA_WS<RT, WT, REL> {
   constructor(
     init?: PromiseLike<Result<RT, string>>,
-    setter?: Set<RT, WT, State_Delayed_REA_WS<RT, WT, REL>> | true,
+    setter?: Set<RT, WT, STATE_DELAYED_REA_WS<RT, WT, REL>> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     super();
@@ -182,7 +182,7 @@ export class State_Delayed_REA_WS<
   }
 
   #value?: Result<RT, string>;
-  #setter?: Set<RT, WT, State_Delayed_REA_WS<RT, WT, REL>>;
+  #setter?: Set<RT, WT, STATE_DELAYED_REA_WS<RT, WT, REL>>;
   #helper?: HelperWrite<WT, REL>;
 
   //##################################################################################################################################################
@@ -225,14 +225,14 @@ export class State_Delayed_REA_WS<
   }
 }
 
-export class State_Delayed_ROA_WS<
+export class STATE_DELAYED_ROA_WS<
   RT,
   WT,
   REL extends Related
-> extends State_ROA_WS<RT, WT, REL> {
+> extends STATE_ROA_WS<RT, WT, REL> {
   constructor(
     init?: PromiseLike<ResultOk<RT>>,
-    setter?: SetOk<RT, WT, State_Delayed_ROA_WS<RT, WT, REL>> | true,
+    setter?: SetOk<RT, WT, STATE_DELAYED_ROA_WS<RT, WT, REL>> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     super();
@@ -273,7 +273,7 @@ export class State_Delayed_ROA_WS<
   }
 
   #value?: ResultOk<RT>;
-  #setter?: SetOk<RT, WT, State_Delayed_ROA_WS<RT, WT, REL>>;
+  #setter?: SetOk<RT, WT, STATE_DELAYED_ROA_WS<RT, WT, REL>>;
   #helper?: HelperWrite<WT, REL>;
 
   //##################################################################################################################################################
@@ -324,7 +324,7 @@ function initToOk<T>(
       }
     : undefined;
 }
-function initToErr<T>(
+function initToErr(
   init?: PromiseLike<string>
 ): PromiseLike<ResultErr<string>> | undefined {
   return init
@@ -351,7 +351,7 @@ let read = {
     init?: PromiseLike<RT>,
     helper?: Helper<REL>
   ) {
-    return new State_Delayed_REA<RT, REL>(initToOk(init), helper);
+    return new STATE_DELAYED_REA<RT, REL>(initToOk(init), helper);
   },
   /**Creates a delayed state from an initial error, delayed meaning the value is a promise evaluated on first access.
    * @param init initial error for state.
@@ -360,7 +360,7 @@ let read = {
     init?: PromiseLike<string>,
     helper?: Helper<REL>
   ) {
-    return new State_Delayed_REA<RT, REL>(
+    return new STATE_DELAYED_REA<RT, REL>(
       init?.then((e) => Err(e)),
       helper
     );
@@ -372,13 +372,13 @@ let read = {
     init?: PromiseLike<Result<RT, string>>,
     helper?: Helper<REL>
   ) {
-    return new State_Delayed_REA<RT, REL>(init, helper);
+    return new STATE_DELAYED_REA<RT, REL>(init, helper);
   },
-  /**Checks if a state is a State_Delayed_R*/
-  is(state: any): state is State_Delayed_REA<any, any> {
-    return state instanceof State_Delayed_REA;
+  /**Checks if a state is a STATE_DELAYED_R*/
+  is(state: any): state is STATE_DELAYED_REA<any, any> {
+    return state instanceof STATE_DELAYED_REA;
   },
-  class: State_Delayed_REA,
+  class: STATE_DELAYED_REA,
 };
 
 let readOk = {
@@ -389,7 +389,7 @@ let readOk = {
     init?: PromiseLike<RT>,
     helper?: Helper<REL>
   ) {
-    return new State_Delayed_ROA<RT, REL>(initToOk(init), helper);
+    return new STATE_DELAYED_ROA<RT, REL>(initToOk(init), helper);
   },
   /**Creates a delayed ok state from an initial result, delayed meaning the value is a promise evaluated on first access.
    * @param init initial result for state.
@@ -398,13 +398,13 @@ let readOk = {
     init?: PromiseLike<ResultOk<RT>>,
     helper?: Helper<REL>
   ) {
-    return new State_Delayed_ROA<RT, REL>(init, helper);
+    return new STATE_DELAYED_ROA<RT, REL>(init, helper);
   },
-  /**Checks if a state is a State_Delayed_RO*/
-  is(state: any): state is State_Delayed_ROA<any, any> {
-    return state instanceof State_Delayed_ROA;
+  /**Checks if a state is a STATE_DELAYED_RO*/
+  is(state: any): state is STATE_DELAYED_ROA<any, any> {
+    return state instanceof STATE_DELAYED_ROA;
   },
-  class: State_Delayed_ROA,
+  class: STATE_DELAYED_ROA,
 };
 
 let write = {
@@ -413,10 +413,10 @@ let write = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Related = {}>(
     init?: PromiseLike<RT>,
-    setter?: Set<RT, WT, State_Delayed_REA_WS<RT, WT, REL>> | true,
+    setter?: Set<RT, WT, STATE_DELAYED_REA_WS<RT, WT, REL>> | true,
     helper?: HelperWrite<WT, REL>
   ) {
-    return new State_Delayed_REA_WS<RT, WT, REL>(
+    return new STATE_DELAYED_REA_WS<RT, WT, REL>(
       initToOk(init),
       setter,
       helper
@@ -427,10 +427,10 @@ let write = {
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends Related = {}>(
     init?: PromiseLike<string>,
-    setter?: Set<RT, WT, State_Delayed_REA_WS<RT, WT, REL>> | true,
+    setter?: Set<RT, WT, STATE_DELAYED_REA_WS<RT, WT, REL>> | true,
     helper?: HelperWrite<WT, REL>
   ) {
-    return new State_Delayed_REA_WS<RT, WT, REL>(
+    return new STATE_DELAYED_REA_WS<RT, WT, REL>(
       initToErr(init),
       setter,
       helper
@@ -441,16 +441,16 @@ let write = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Related = {}>(
     init?: PromiseLike<Result<RT, string>>,
-    setter?: Set<RT, WT, State_Delayed_REA_WS<RT, WT, REL>> | true,
+    setter?: Set<RT, WT, STATE_DELAYED_REA_WS<RT, WT, REL>> | true,
     helper?: HelperWrite<WT, REL>
   ) {
-    return new State_Delayed_REA_WS<RT, WT, REL>(init, setter, helper);
+    return new STATE_DELAYED_REA_WS<RT, WT, REL>(init, setter, helper);
   },
-  /**Checks if a state is a State_Delayed_R_W*/
-  is(state: any): state is State_Delayed_REA_WS<any, any, any> {
-    return state instanceof State_Delayed_REA_WS;
+  /**Checks if a state is a STATE_DELAYED_R_W*/
+  is(state: any): state is STATE_DELAYED_REA_WS<any, any, any> {
+    return state instanceof STATE_DELAYED_REA_WS;
   },
-  class: State_Delayed_REA_WS,
+  class: STATE_DELAYED_REA_WS,
 };
 
 let writeOk = {
@@ -459,10 +459,10 @@ let writeOk = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Related = {}>(
     init?: PromiseLike<RT>,
-    setter?: SetOk<RT, WT, State_Delayed_ROA_WS<RT, WT, REL>> | true,
+    setter?: SetOk<RT, WT, STATE_DELAYED_ROA_WS<RT, WT, REL>> | true,
     helper?: HelperWrite<WT, REL>
   ) {
-    return new State_Delayed_ROA_WS<RT, WT, REL>(
+    return new STATE_DELAYED_ROA_WS<RT, WT, REL>(
       initToOk(init),
       setter,
       helper
@@ -473,16 +473,16 @@ let writeOk = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Related = {}>(
     init?: PromiseLike<ResultOk<RT>>,
-    setter?: SetOk<RT, WT, State_Delayed_ROA_WS<RT, WT, REL>> | true,
+    setter?: SetOk<RT, WT, STATE_DELAYED_ROA_WS<RT, WT, REL>> | true,
     helper?: HelperWrite<WT, REL>
   ) {
-    return new State_Delayed_ROA_WS<RT, WT, REL>(init, setter, helper);
+    return new STATE_DELAYED_ROA_WS<RT, WT, REL>(init, setter, helper);
   },
-  /**Checks if a state is a State_Delayed_RO_W*/
-  is(state: any): state is State_Delayed_ROA_WS<any, any, any> {
-    return state instanceof State_Delayed_ROA_WS;
+  /**Checks if a state is a STATE_DELAYED_RO_W*/
+  is(state: any): state is STATE_DELAYED_ROA_WS<any, any, any> {
+    return state instanceof STATE_DELAYED_ROA_WS;
   },
-  class: State_Delayed_ROA_WS,
+  class: STATE_DELAYED_ROA_WS,
 };
 
 //##################################################################################################################################################

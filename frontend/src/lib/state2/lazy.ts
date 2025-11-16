@@ -1,9 +1,9 @@
 import { Err, None, Ok, ResultOk, type Option, type Result } from "@libResult";
 import {
-  State_RES,
-  State_RES_WS,
-  State_ROS,
-  State_ROS_WS,
+  STATE_RES,
+  STATE_RES_WS,
+  STATE_ROS,
+  STATE_ROS_WS,
   type StateHelper as Helper,
   type StateHelperWrite as HelperWrite,
   type StateRelated as Related,
@@ -18,7 +18,7 @@ import {
 //     | |    | |      / /\ \  \___ \\___ \|  __|  \___ \
 //     | |____| |____ / ____ \ ____) |___) | |____ ____) |
 //      \_____|______/_/    \_\_____/_____/|______|_____/
-export class State_Lazy_RES<RT, REL extends Related> extends State_RES<
+export class STATE_LAZY_RES<RT, REL extends Related> extends STATE_RES<
   RT,
   REL
 > {
@@ -63,7 +63,7 @@ export class State_Lazy_RES<RT, REL extends Related> extends State_RES<
   }
 }
 
-export class State_Lazy_ROS<RT, REL extends Related> extends State_ROS<
+export class STATE_LAZY_ROS<RT, REL extends Related> extends STATE_ROS<
   RT,
   REL
 > {
@@ -108,14 +108,14 @@ export class State_Lazy_ROS<RT, REL extends Related> extends State_ROS<
   }
 }
 
-export class State_Lazy_RES_WS<
+export class STATE_LAZY_RES_WS<
   RT,
   WT,
   REL extends Related
-> extends State_RES_WS<RT, WT, REL> {
+> extends STATE_RES_WS<RT, WT, REL> {
   constructor(
     init: () => Result<RT, string>,
-    setter?: StateSetSync<RT, WT, State_Lazy_RES_WS<RT, WT, REL>> | true,
+    setter?: StateSetSync<RT, WT, STATE_LAZY_RES_WS<RT, WT, REL>> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     super();
@@ -144,7 +144,7 @@ export class State_Lazy_RES_WS<
   }
 
   #value?: Result<RT, string>;
-  #setter?: StateSetSync<RT, WT, State_Lazy_RES_WS<RT, WT, REL>>;
+  #setter?: StateSetSync<RT, WT, STATE_LAZY_RES_WS<RT, WT, REL>>;
   #helper?: HelperWrite<WT, REL>;
 
   //##################################################################################################################################################
@@ -190,14 +190,14 @@ export class State_Lazy_RES_WS<
   }
 }
 
-export class State_Lazy_ROS_WS<
+export class STATE_LAZY_ROS_WS<
   RT,
   WT,
   REL extends Related
-> extends State_ROS_WS<RT, WT, REL> {
+> extends STATE_ROS_WS<RT, WT, REL> {
   constructor(
     init: () => ResultOk<RT>,
-    setter?: StateSetOkSync<RT, WT, State_Lazy_ROS_WS<RT, WT, REL>> | true,
+    setter?: StateSetOkSync<RT, WT, STATE_LAZY_ROS_WS<RT, WT, REL>> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     super();
@@ -226,7 +226,7 @@ export class State_Lazy_ROS_WS<
   }
 
   #value?: ResultOk<RT>;
-  #setter?: StateSetOkSync<RT, WT, State_Lazy_ROS_WS<RT, WT, REL>>;
+  #setter?: StateSetOkSync<RT, WT, STATE_LAZY_ROS_WS<RT, WT, REL>>;
   #helper?: HelperWrite<WT, REL>;
 
   //##################################################################################################################################################
@@ -284,13 +284,13 @@ let read = {
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, REL extends Related = {}>(init: () => RT, helper?: Helper<REL>) {
-    return new State_Lazy_RES<RT, REL>(() => Ok(init()), helper);
+    return new STATE_LAZY_RES<RT, REL>(() => Ok(init()), helper);
   },
   /**Creates a lazy state from an initial error, lazy meaning the value is only evaluated on first access.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, REL extends Related = {}>(init: () => string, helper?: Helper<REL>) {
-    return new State_Lazy_RES<RT, REL>(() => Err(init()), helper);
+    return new STATE_LAZY_RES<RT, REL>(() => Err(init()), helper);
   },
   /**Creates a lazy state from an initial result, lazy meaning the value is only evaluated on first access.
    * @param init initial result for state.
@@ -299,13 +299,13 @@ let read = {
     init: () => Result<RT, string>,
     helper?: Helper<REL>
   ) {
-    return new State_Lazy_RES<RT, REL>(init, helper);
+    return new STATE_LAZY_RES<RT, REL>(init, helper);
   },
-  /**Checks if a state is a State_Lazy_R*/
-  is(state: any): state is State_Lazy_RES<any, any> {
-    return state instanceof State_Lazy_RES;
+  /**Checks if a state is a STATE_LAZY_R*/
+  is(state: any): state is STATE_LAZY_RES<any, any> {
+    return state instanceof STATE_LAZY_RES;
   },
-  class: State_Lazy_RES,
+  class: STATE_LAZY_RES,
 };
 
 let readOk = {
@@ -313,7 +313,7 @@ let readOk = {
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, REL extends Related = {}>(init: () => RT, helper?: Helper<REL>) {
-    return new State_Lazy_ROS<RT, REL>(() => Ok(init()), helper);
+    return new STATE_LAZY_ROS<RT, REL>(() => Ok(init()), helper);
   },
   /**Creates a lazy ok state from an initial result, lazy meaning the value is only evaluated on first access.
    * @param init initial result for state.
@@ -322,13 +322,13 @@ let readOk = {
     init: () => ResultOk<RT>,
     helper?: Helper<REL>
   ) {
-    return new State_Lazy_ROS<RT, REL>(init, helper);
+    return new STATE_LAZY_ROS<RT, REL>(init, helper);
   },
-  /**Checks if a state is a State_Lazy_RO*/
-  is(state: any): state is State_Lazy_ROS<any, any> {
-    return state instanceof State_Lazy_ROS;
+  /**Checks if a state is a STATE_LAZY_RO*/
+  is(state: any): state is STATE_LAZY_ROS<any, any> {
+    return state instanceof STATE_LAZY_ROS;
   },
-  class: State_Lazy_ROS,
+  class: STATE_LAZY_ROS,
 };
 
 let write = {
@@ -337,20 +337,20 @@ let write = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Related = {}>(
     init: () => RT,
-    setter?: StateSetSync<RT, WT, State_Lazy_RES_WS<RT, WT, REL>> | true,
+    setter?: StateSetSync<RT, WT, STATE_LAZY_RES_WS<RT, WT, REL>> | true,
     helper?: HelperWrite<WT, REL>
   ) {
-    return new State_Lazy_RES_WS<RT, WT, REL>(() => Ok(init()), setter, helper);
+    return new STATE_LAZY_RES_WS<RT, WT, REL>(() => Ok(init()), setter, helper);
   },
   /**Creates a writable lazy state from an initial error, lazy meaning the value is only evaluated on first access.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends Related = {}>(
     init: () => string,
-    setter?: StateSetSync<RT, WT, State_Lazy_RES_WS<RT, WT, REL>> | true,
+    setter?: StateSetSync<RT, WT, STATE_LAZY_RES_WS<RT, WT, REL>> | true,
     helper?: HelperWrite<WT, REL>
   ) {
-    return new State_Lazy_RES_WS<RT, WT, REL>(
+    return new STATE_LAZY_RES_WS<RT, WT, REL>(
       () => Err(init()),
       setter,
       helper
@@ -361,16 +361,16 @@ let write = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Related = {}>(
     init: () => Result<RT, string>,
-    setter?: StateSetSync<RT, WT, State_Lazy_RES_WS<RT, WT, REL>> | true,
+    setter?: StateSetSync<RT, WT, STATE_LAZY_RES_WS<RT, WT, REL>> | true,
     helper?: HelperWrite<WT, REL>
   ) {
-    return new State_Lazy_RES_WS<RT, WT, REL>(init, setter, helper);
+    return new STATE_LAZY_RES_WS<RT, WT, REL>(init, setter, helper);
   },
-  /**Checks if a state is a State_Lazy_R_W*/
-  is(state: any): state is State_Lazy_RES_WS<any, any, any> {
-    return state instanceof State_Lazy_RES_WS;
+  /**Checks if a state is a STATE_LAZY_R_W*/
+  is(state: any): state is STATE_LAZY_RES_WS<any, any, any> {
+    return state instanceof STATE_LAZY_RES_WS;
   },
-  class: State_Lazy_RES_WS,
+  class: STATE_LAZY_RES_WS,
 };
 
 let writeOk = {
@@ -379,26 +379,26 @@ let writeOk = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Related = {}>(
     init: () => RT,
-    setter?: StateSetOkSync<RT, WT, State_Lazy_ROS_WS<RT, WT, REL>> | true,
+    setter?: StateSetOkSync<RT, WT, STATE_LAZY_ROS_WS<RT, WT, REL>> | true,
     helper?: HelperWrite<WT, REL>
   ) {
-    return new State_Lazy_ROS_WS<RT, WT, REL>(() => Ok(init()), setter, helper);
+    return new STATE_LAZY_ROS_WS<RT, WT, REL>(() => Ok(init()), setter, helper);
   },
   /**Creates a lazy ok state from an initial result, lazy meaning the value is only evaluated on first access.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Related = {}>(
     init: () => ResultOk<RT>,
-    setter?: StateSetOkSync<RT, WT, State_Lazy_ROS_WS<RT, WT, REL>> | true,
+    setter?: StateSetOkSync<RT, WT, STATE_LAZY_ROS_WS<RT, WT, REL>> | true,
     helper?: HelperWrite<WT, REL>
   ) {
-    return new State_Lazy_ROS_WS<RT, WT, REL>(init, setter, helper);
+    return new STATE_LAZY_ROS_WS<RT, WT, REL>(init, setter, helper);
   },
-  /**Checks if a state is a State_Lazy_RO_W*/
-  is(state: any): state is State_Lazy_ROS_WS<any, any, any> {
-    return state instanceof State_Lazy_ROS_WS;
+  /**Checks if a state is a STATE_LAZY_RO_W*/
+  is(state: any): state is STATE_LAZY_ROS_WS<any, any, any> {
+    return state instanceof STATE_LAZY_ROS_WS;
   },
-  class: State_Lazy_ROS_WS,
+  class: STATE_LAZY_ROS_WS,
 };
 
 //##################################################################################################################################################

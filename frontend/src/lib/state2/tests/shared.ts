@@ -13,6 +13,12 @@ import {
   state_lazy_from_result_ok as slfro,
   state_lazy_ok as slo,
 } from "../lazy";
+import {
+  state_proxy_from,
+  state_proxy_from_ok,
+  state_proxy_ok,
+  state_proxy_ok_from_ok,
+} from "../proxy";
 import type { StateBaseRead } from "../stateBase";
 import {
   state_derived_from_states as sdfs,
@@ -25,12 +31,6 @@ import {
   state_derives_sum_from_ok,
   state_derives_sum_ok_from_ok,
 } from "../stateDerives";
-import {
-  state_proxy_from,
-  state_proxy_from_ok,
-  state_proxy_ok,
-  state_proxy_ok_from_ok,
-} from "../stateProxy";
 import {
   state_proxy_write_from,
   state_proxy_write_from_ok,
@@ -46,10 +46,10 @@ import {
 } from "../sync";
 import type {
   State,
+  STATE_XX_WX,
   StateOwnerOk,
   StateSet,
   StateSetSync,
-  StateWrite,
 } from "../types";
 
 export function state_test_gen_error() {
@@ -68,7 +68,7 @@ export type StateTestsRead = [
 
 export type StateTestsWrite = [
   string,
-  StateWrite<number, any>,
+  STATE_XX_WX<number, any>,
   StateOwnerOk<number>,
   StateBaseRead<any, any, any>,
   Result<number, string>,
@@ -79,7 +79,7 @@ export function norm(
   text: string,
   state: StateBaseRead<any, any, any> &
     StateOwnerOk<any> &
-    StateWrite<any, any, any>,
+    STATE_XX_WX<any, any, any>,
   init: Result<number, string>
 ): StateTestsWrite {
   return [text, state.writeable, state, state, init, init.constructor as any];

@@ -1,9 +1,13 @@
+import { delayed } from "./delayed";
 import { lazy } from "./lazy";
+import { proxy } from "./proxy";
 import { sync } from "./sync";
 
 export default {
   s: sync,
   l: lazy,
+  d: delayed,
+  p: proxy,
 };
 
 //       _______     ___   _  _____   _____ _   _ _____ _______ _____          _      _____ ____________ _____
@@ -28,15 +32,7 @@ export { lazy } from "./lazy";
 //     | |  | |  __| | |      / /\ \\   / |  __| | |  | |   | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  /
 //     | |__| | |____| |____ / ____ \| |  | |____| |__| |  _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \
 //     |_____/|______|______/_/    \_\_|  |______|_____/  |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\
-export {
-  state_delayed_err,
-  state_delayed_from,
-  state_delayed_from_result,
-  state_delayed_from_result_ok,
-  state_delayed_ok,
-  type StateDelayed,
-  type StateDelayedOk,
-} from "./delayed";
+export { delayed } from "./delayed";
 
 //      _____  _____   ______   ____     __  _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
 //     |  __ \|  __ \ / __ \ \ / /\ \   / / |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
@@ -44,14 +40,7 @@ export {
 //     |  ___/|  _  /| |  | |> <    \   /     | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  / \___ \
 //     | |    | | \ \| |__| / . \    | |     _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
 //     |_|    |_|  \_\\____/_/ \_\   |_|    |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
-export {
-  state_proxy_from,
-  state_proxy_from_ok,
-  state_proxy_ok,
-  state_proxy_ok_from_ok,
-  type StateProxy,
-  type StateProxyOk,
-} from "./stateProxy";
+export { proxy } from "./proxy";
 
 //      _____  _____   ______   ____     __ __          _______  _____ _______ ______   _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
 //     |  __ \|  __ \ / __ \ \ / /\ \   / / \ \        / /  __ \|_   _|__   __|  ____| |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
@@ -153,7 +142,14 @@ export {
 //      \___ \   | | / /\ \ | |  |  __|      | |    \   / |  ___/|  __|  \___ \
 //      ____) |  | |/ ____ \| |  | |____     | |     | |  | |    | |____ ____) |
 //     |_____/   |_/_/    \_\_|  |______|    |_|     |_|  |_|    |______|_____/
-export type { State, StateWrite } from "./types";
+export type {
+  STATE,
+  STATE_EX,
+  STATE_OX,
+  STATE_XA,
+  STATE_XS,
+  STATE_XX_WX,
+} from "./types";
 
 //      ________   _________ ______ _   _  _____ _____ ____  _   _    _____ _                _____ _____ ______  _____
 //     |  ____\ \ / /__   __|  ____| \ | |/ ____|_   _/ __ \| \ | |  / ____| |        /\    / ____/ ____|  ____|/ ____|
@@ -163,19 +159,16 @@ export type { State, StateWrite } from "./types";
 //     |______/_/ \_\  |_|  |______|_| \_|_____/|_____\____/|_| \_|  \_____|______/_/    \_\_____/_____/|______|_____/
 export { StateResourceBase } from "./stateResource";
 export {
-  State_RAS as State_R,
-  State_REA_WA as State_R_W,
-  State_REA_WS as State_R_WS,
-  State_ROA as State_RO,
-  State_ROA_WA as State_RO_W,
-  State_ROA_WS as State_RO_WS,
-  State_ROS,
-  State_ROS_WA as State_ROS_W,
-  State_ROS_WS,
-  State_RES as State_RS,
-  State_RES_WA as State_RS_W,
-  State_RES_WS as State_RS_WS,
-  State_RSO,
-  State_RSO_W,
-  State_RSO_WS,
+  STATE_REA,
+  STATE_REA_WA,
+  STATE_REA_WS,
+  STATE_RES,
+  STATE_RES_WA,
+  STATE_RES_WS,
+  STATE_ROA,
+  STATE_ROA_WA,
+  STATE_ROA_WS,
+  STATE_ROS,
+  STATE_ROS_WA,
+  STATE_ROS_WS,
 } from "./types";

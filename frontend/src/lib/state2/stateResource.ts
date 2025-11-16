@@ -2,10 +2,10 @@ import { Err, None, Ok, ResultOk, type Option, type Result } from "@libResult";
 import { StateBaseRead } from "./stateBase";
 import type {
   State,
+  STATE_XX_WX,
   StateHelper,
   StateReadOk,
   StateRelated,
-  StateWrite,
   StateWriteSync,
 } from "./types";
 
@@ -31,7 +31,7 @@ export abstract class StateResourceBase<
     WRITE = READ extends Result<infer T, string> ? T : never
   >
   extends StateBaseRead<READ, false, RELATED>
-  implements StateWrite<READ, false, RELATED, WRITE, false>
+  implements STATE_XX_WX<READ, false, RELATED, WRITE, false>
 {
   #valid: number = 0;
   #fetching: boolean = false;
@@ -167,7 +167,7 @@ export abstract class StateResourceBase<
 
   abstract limit(value: WRITE): Result<WRITE, string>;
 
-  get writeable(): StateWrite<READ, false, RELATED, WRITE, false> {
+  get writeable(): STATE_XX_WX<READ, false, RELATED, WRITE, false> {
     return this;
   }
 }
@@ -244,7 +244,7 @@ export interface StateResource<
   WRITE = TYPE
 > extends StateResourceFunc<Result<TYPE, string>, RELATED, WRITE> {
   readonly readable: State<TYPE, false, RELATED>;
-  readonly writeable: StateWrite<TYPE, false, RELATED, WRITE>;
+  readonly writeable: STATE_XX_WX<TYPE, false, RELATED, WRITE>;
   updateResource(value: Result<TYPE, string>): void;
 }
 export interface StateResourceOk<

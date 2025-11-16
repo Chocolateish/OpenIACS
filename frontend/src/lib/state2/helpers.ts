@@ -1,10 +1,10 @@
 import { Err, Ok, Some, type Option, type Result } from "@libResult";
 import type {
-  State,
+  STATE,
+  STATE_XS,
   StateHelperWrite,
   StateRelated,
   StateSub,
-  StateSync,
 } from "./types";
 
 export interface StateNumberHelperType {
@@ -210,8 +210,8 @@ export function state_enum_iterate<T, R extends StateEnumHelperType<any>>(
  * @param state2 second state
  * @returns true if states are equal*/
 export async function state_compare(
-  state1: State<any>,
-  state2: State<any>
+  state1: STATE<any>,
+  state2: STATE<any>
 ): Promise<boolean> {
   let res1 = await state1;
   let res2 = await state2;
@@ -224,8 +224,8 @@ export async function state_compare(
  * @param state2 second state
  * @returns true if states are equal*/
 export function state_compare_sync(
-  state1: StateSync<any>,
-  state2: StateSync<any>
+  state1: STATE_XS<any>,
+  state2: STATE_XS<any>
 ): boolean {
   let res1 = state1.get();
   let res2 = state2.get();
@@ -240,7 +240,7 @@ export function state_compare_sync(
  * @returns true if value was reached before timeout, false if timeout was reached*/
 export async function state_await_value<T>(
   value: T,
-  state: State<T>,
+  state: STATE<T>,
   timeout: number = 500
 ): Promise<boolean> {
   let func: StateSub<T> = () => {};

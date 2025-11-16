@@ -1,6 +1,6 @@
 import { Err, None, Ok, type Option, type Result } from "@libResult";
 import { StateBaseRead } from "./stateBase";
-import type { StateHelper, StateWrite } from "./types";
+import type { STATE_XX_WX, StateHelper } from "./types";
 
 /**Enum of possible access types for base element*/
 const StateArrayReadType = {
@@ -91,7 +91,7 @@ export class StateArray<
   >
   extends StateBaseRead<Result<StateArrayRead<TYPE>, string>, SYNC, RELATED>
   implements
-    StateWrite<
+    STATE_XX_WX<
       Result<StateArrayRead<TYPE>, string>,
       SYNC,
       RELATED,
@@ -192,7 +192,7 @@ export class StateArray<
     return this.#helper?.check ? this.#helper.check(value) : None();
   }
 
-  get writeable(): StateWrite<
+  get writeable(): STATE_XX_WX<
     Result<StateArrayRead<TYPE>, string>,
     SYNC,
     RELATED,
