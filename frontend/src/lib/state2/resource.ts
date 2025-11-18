@@ -392,7 +392,7 @@ class STATE_RESOURCE_FUNC_REA_WA<
 //      _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \
 //     |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\
 
-let rea = {
+const rea = {
   /**Alternative state resource which can be initialized with functions
    * @template READ - The type of the state’s value when read.
    * @template REL - The type of related states, defaults to an empty object.
@@ -427,7 +427,7 @@ let rea = {
 };
 
 //##################################################################################################################################################
-let rea_wa = {
+const rea_wa = {
   /**Alternative state resource which can be initialized with functions
    * @template READ - The type of the state’s value when read.
    * @template WT - The type which can be written to the state.
@@ -483,7 +483,7 @@ let rea_wa = {
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 
 /**State that represent a remote resource*/
-export let state_resource = {
+export const state_resource = {
   /**Remote resource */
   rea,
   /**Remote resource with write cabability */

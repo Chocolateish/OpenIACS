@@ -271,7 +271,7 @@ function compare_sync(state1: STATE_RXS<any>, state2: STATE_RXS<any>): boolean {
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 
 /**Helper function and types for states */
-export let state_helpers = {
+export const state_helpers = {
   enum_iterate,
   await_value,
   compare,

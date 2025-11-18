@@ -341,7 +341,7 @@ function initToErr(
 }
 
 //##################################################################################################################################################
-let read = {
+const rea = {
   /**Creates a delayed state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
@@ -380,7 +380,7 @@ let read = {
 };
 
 //##################################################################################################################################################
-let readOk = {
+const roa = {
   /**Creates a delayed ok state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
@@ -407,7 +407,7 @@ let readOk = {
 };
 
 //##################################################################################################################################################
-let write = {
+const rea_ws = {
   /**Creates a writable delayed state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
@@ -454,7 +454,7 @@ let write = {
 };
 
 //##################################################################################################################################################
-let writeOk = {
+const roa_ws = {
   /**Creates a delayed ok state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
@@ -494,13 +494,13 @@ let writeOk = {
 //     | |____ / . \| |    | |__| | | \ \  | |  ____) |
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 /**Delayed valueholding states, delayed means the given promise is evaluated on first access */
-export let state_delayed = {
+export const state_delayed = {
   /**Read only delayed states with error, delayed meaning the value is a promise evaluated on first access. */
-  rea: read,
+  rea,
   /**Read only delayed states with guarenteed ok, delayed meaning the value is a promise evaluated on first access. */
-  roa: readOk,
+  roa,
   /**Read write only delayed states with error, delayed meaning the value is a promise evaluated on first access. */
-  rea_ws: write,
+  rea_ws,
   /**Read write only delayed states with guarenteed ok, delayed meaning the value is a promise evaluated on first access. */
-  roa_ws: writeOk,
+  roa_ws,
 };

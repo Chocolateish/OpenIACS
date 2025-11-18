@@ -275,7 +275,7 @@ export class STATE_LAZY_ROS_WS<
 //       | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  /
 //      _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \
 //     |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\
-let read = {
+const res = {
   /**Creates a lazy state from an initial value, lazy meaning the value is only evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
@@ -305,7 +305,7 @@ let read = {
 };
 
 //##################################################################################################################################################
-let readOk = {
+const ros = {
   /**Creates a lazy ok state from an initial value, lazy meaning the value is only evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
@@ -329,7 +329,7 @@ let readOk = {
 };
 
 //##################################################################################################################################################
-let write = {
+const res_ws = {
   /**Creates a writable lazy state from an initial value, lazy meaning the value is only evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
@@ -372,7 +372,7 @@ let write = {
 };
 
 //##################################################################################################################################################
-let writeOk = {
+const ros_ws = {
   /**Creates a lazy ok state from an initial value, lazy meaning the value is only evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
@@ -408,13 +408,13 @@ let writeOk = {
 //     | |____ / . \| |    | |__| | | \ \  | |  ____) |
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 /**Lazy valueholding states, lazy means the given function is evaluated on first access */
-export let state_lazy = {
+export const state_lazy = {
   /**Sync Read lazy states with error, lazy meaning the value is only evaluated on first access. */
-  res: read,
+  res,
   /**Sync Read lazy states with guarenteed ok, lazy meaning the value is only evaluated on first access. */
-  ros: readOk,
+  ros,
   /**Sync Read And Sync Write lazy states with error, lazy meaning the value is only evaluated on first access. */
-  res_ws: write,
+  res_ws,
   /**Sync Read And Sync Write lazy states with guarenteed ok, lazy meaning the value is only evaluated on first access. */
-  ros_ws: writeOk,
+  ros_ws,
 };

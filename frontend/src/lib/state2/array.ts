@@ -333,4 +333,4 @@ export function state_array_apply_read_to_array_transform<INPUT, OUTPUT>(
 //     | |____ / . \| |    | |__| | | \ \  | |  ____) |
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 /**States representing arrays */
-export let state_array = {};
+export const state_array = {};
