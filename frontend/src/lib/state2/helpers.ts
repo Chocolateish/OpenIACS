@@ -1,23 +1,23 @@
 import { Err, Ok, Some, type Option, type Result } from "@libResult";
 import type {
-  STATE,
-  STATE_XS,
-  StateHelperWrite,
-  StateRelated,
-  StateSub,
+  STATE_HELPER_WRITE,
+  STATE_RELATED,
+  STATE_RXS,
+  STATE_RXX,
+  STATE_SUB,
 } from "./types";
 
-export interface StateNumberHelperType {
+export interface STATE_NUMBER_RELATED extends STATE_RELATED {
   min?: number;
   max?: number;
   unit?: string;
   decimals?: number;
 }
 
-export class StateNumberHelper
+export class STATE_NUMBER_HELPER
   implements
-    StateNumberHelperType,
-    StateHelperWrite<number, StateNumberHelperType>
+    STATE_NUMBER_RELATED,
+    STATE_HELPER_WRITE<number, STATE_NUMBER_RELATED>
 {
   min: number | undefined;
   max: number | undefined;
@@ -101,20 +101,23 @@ export class StateNumberHelper
     return Ok(value);
   }
 
-  related(): Option<StateNumberHelperType> {
-    return Some(this as StateNumberHelperType);
+  related(): Option<STATE_NUMBER_RELATED> {
+    return Some(this as STATE_NUMBER_RELATED);
   }
 }
 
-export interface StateStringHelperType {
+//##################################################################################################################################################
+//##################################################################################################################################################
+
+export interface STATE_STRING_RELATED extends STATE_RELATED {
   maxLength?: number;
   maxLengthBytes?: number;
 }
 
-export class StateStringHelper
+export class STATE_STRING_HELPER
   implements
-    StateStringHelperType,
-    StateHelperWrite<string, StateStringHelperType>
+    STATE_STRING_RELATED,
+    STATE_HELPER_WRITE<string, STATE_STRING_RELATED>
 {
   maxLength: number | undefined;
   maxLengthBytes: number | undefined;
@@ -150,12 +153,15 @@ export class StateStringHelper
       );
     return Ok(value);
   }
-  related(): Option<StateStringHelperType> {
-    return Some(this as StateStringHelperType);
+  related(): Option<STATE_STRING_RELATED> {
+    return Some(this as STATE_STRING_RELATED);
   }
 }
 
-export type StateEnumHelperList = {
+//##################################################################################################################################################
+//##################################################################################################################################################
+
+export type STATE_ENUM_HELPER_LIST = {
   [key: string | number | symbol]: {
     name: string;
     description?: string;
@@ -163,19 +169,16 @@ export type StateEnumHelperList = {
   };
 };
 
-export interface StateEnumHelperType<T extends StateEnumHelperList>
-  extends StateRelated {
+export interface STATE_ENUM_RELATED<T extends STATE_ENUM_HELPER_LIST>
+  extends STATE_RELATED {
   list: T;
 }
-export interface StateEnumHelperAnyType {
-  list?: { [key: string | number | symbol]: { name: string } };
-}
 
-export class StateEnumHelper<
+export class STATE_ENUM_HELPER<
   K extends string | number | symbol,
-  T extends StateEnumHelperList,
-  R extends StateRelated = StateEnumHelperType<T>
-> implements StateHelperWrite<K, R>, StateEnumHelperType<T>
+  T extends STATE_ENUM_HELPER_LIST,
+  R extends STATE_RELATED = STATE_ENUM_RELATED<T>
+> implements STATE_HELPER_WRITE<K, R>, STATE_ENUM_RELATED<T>
 {
   list: T;
 
@@ -196,7 +199,7 @@ export class StateEnumHelper<
   }
 }
 
-export function state_enum_iterate<T, R extends StateEnumHelperType<any>>(
+function enum_iterate<T, R extends STATE_ENUM_RELATED<any>>(
   related: R,
   func: (key: keyof R["list"], val: R["list"][keyof R["list"]]) => T
 ) {
@@ -205,45 +208,19 @@ export function state_enum_iterate<T, R extends StateEnumHelperType<any>>(
   });
 }
 
-/**Compare two states for equality
- * @param state1 first state
- * @param state2 second state
- * @returns true if states are equal*/
-export async function state_compare(
-  state1: STATE<any>,
-  state2: STATE<any>
-): Promise<boolean> {
-  let res1 = await state1;
-  let res2 = await state2;
-  if (res1.err || res2.err) return false;
-  return res1.value === res2.value;
-}
-
-/**Compare two sync states for equality
- * @param state1 first state
- * @param state2 second state
- * @returns true if states are equal*/
-export function state_compare_sync(
-  state1: STATE_XS<any>,
-  state2: STATE_XS<any>
-): boolean {
-  let res1 = state1.get();
-  let res2 = state2.get();
-  if (res1.err || res2.err) return true;
-  return res1.value !== res2.value;
-}
-
+//##################################################################################################################################################
+//##################################################################################################################################################
 /**Waits for a state to have a specific value or until timeout is reached
  * @param value value to wait for
  * @param state state to wait on
  * @param timeout timeout in milliseconds, default 500ms
  * @returns true if value was reached before timeout, false if timeout was reached*/
-export async function state_await_value<T>(
+async function await_value<T>(
   value: T,
-  state: STATE<T>,
+  state: STATE_RXX<T>,
   timeout: number = 500
 ): Promise<boolean> {
-  let func: StateSub<T> = () => {};
+  let func: STATE_SUB<T> = () => {};
   let res = await Promise.race([
     new Promise<false>((a) => setTimeout(a, timeout, false)),
     new Promise<true>((a) => {
@@ -255,3 +232,48 @@ export async function state_await_value<T>(
   state.unsubscribe(func);
   return res;
 }
+
+//##################################################################################################################################################
+//##################################################################################################################################################
+/**Compare two states for equality
+ * @param state1 first state
+ * @param state2 second state
+ * @returns true if states are equal*/
+async function compare(
+  state1: STATE_RXX<any>,
+  state2: STATE_RXX<any>
+): Promise<boolean> {
+  let res1 = await state1;
+  let res2 = await state2;
+  if (res1.err || res2.err) return false;
+  return res1.value === res2.value;
+}
+
+//##################################################################################################################################################
+//##################################################################################################################################################
+/**Compare two sync states for equality
+ * @param state1 first state
+ * @param state2 second state
+ * @returns true if states are equal*/
+function compare_sync(state1: STATE_RXS<any>, state2: STATE_RXS<any>): boolean {
+  let res1 = state1.get();
+  let res2 = state2.get();
+  if (res1.err || res2.err) return true;
+  return res1.value !== res2.value;
+}
+
+//##################################################################################################################################################
+//      ________   _______   ____  _____ _______ _____
+//     |  ____\ \ / /  __ \ / __ \|  __ \__   __/ ____|
+//     | |__   \ V /| |__) | |  | | |__) | | | | (___
+//     |  __|   > < |  ___/| |  | |  _  /  | |  \___ \
+//     | |____ / . \| |    | |__| | | \ \  | |  ____) |
+//     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
+
+/**Helper function and types for states */
+export let state_helpers = {
+  enum_iterate,
+  await_value,
+  compare,
+  compare_sync,
+};

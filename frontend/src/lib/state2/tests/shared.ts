@@ -1,5 +1,16 @@
 import { Err, Ok, type Option, type Result } from "@libResult";
 import {
+  state_derived_from_states as sdfs,
+  state_derived_from_state_array as sdfsa,
+  state_derived_ok_from_states as sdofs,
+  state_derived_ok_from_state_array as sdofsa,
+} from "../collected";
+import {
+  state_derives_sum_from,
+  state_derives_sum_from_ok,
+  state_derives_sum_ok_from_ok,
+} from "../collects";
+import {
   state_delayed_err as sde,
   state_delayed_from as sdf,
   state_delayed_from_result as sdfr,
@@ -21,17 +32,6 @@ import {
 } from "../proxy";
 import type { StateBaseRead } from "../stateBase";
 import {
-  state_derived_from_states as sdfs,
-  state_derived_from_state_array as sdfsa,
-  state_derived_ok_from_states as sdofs,
-  state_derived_ok_from_state_array as sdofsa,
-} from "../stateDerived";
-import {
-  state_derives_sum_from,
-  state_derives_sum_from_ok,
-  state_derives_sum_ok_from_ok,
-} from "../stateDerives";
-import {
   state_proxy_write_from,
   state_proxy_write_from_ok,
   state_proxy_write_ok,
@@ -46,10 +46,10 @@ import {
 } from "../sync";
 import type {
   State,
+  STATE_SET_REA,
+  STATE_SET_RES,
   STATE_XX_WX,
   StateOwnerOk,
-  StateSet,
-  StateSetSync,
 } from "../types";
 
 export function state_test_gen_error() {
@@ -92,7 +92,7 @@ export function norm(
 //      ____) |  | |/ ____ \| |  | |____
 //     |_____/   |_/_/    \_\_|  |______|
 export function state_test_gen_normals(
-  setter?: StateSetSync<number, any> | true
+  setter?: STATE_SET_RES<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm("state_from", state_from(1, setter), Ok(1)),
@@ -101,7 +101,7 @@ export function state_test_gen_normals(
   ];
 }
 export function state_test_gen_normals_ok(
-  setter?: StateSetSync<number, any> | true
+  setter?: STATE_SET_RES<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm("state_ok", state_ok(1, setter), Ok(1)),
@@ -116,7 +116,7 @@ export function state_test_gen_normals_ok(
 //     | |____ / ____ \  / /__    | |
 //     |______/_/    \_\/_____|   |_|
 export function state_test_gen_lazy(
-  setter?: StateSetSync<number, any> | true
+  setter?: STATE_SET_RES<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm(
@@ -137,7 +137,7 @@ export function state_test_gen_lazy(
   ];
 }
 export function state_test_gen_lazy_ok(
-  setter?: StateSetSync<number, any> | true
+  setter?: STATE_SET_RES<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm(
@@ -160,7 +160,7 @@ export function state_test_gen_lazy_ok(
 //     | |__| | |____| |____ / ____ \| |  | |____| |__| |
 //     |_____/|______|______/_/    \_\_|  |______|_____/
 export function state_test_gen_delayed(
-  setter?: StateSet<number, any> | true
+  setter?: STATE_SET_REA<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm("state_delayed_from", sdf((async () => 1)(), setter), Ok(1)),
@@ -177,7 +177,7 @@ export function state_test_gen_delayed(
   ];
 }
 export function state_test_gen_delayed_ok(
-  setter?: StateSet<number, any> | true
+  setter?: STATE_SET_REA<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm("state_delayed_ok", sdo((async () => 1)(), setter as any), Ok(1)),
@@ -203,7 +203,7 @@ let dg = (ret: any) => {
 };
 
 export function state_test_gen_delayed_with_delay(
-  setter?: StateSet<number, any> | true
+  setter?: STATE_SET_REA<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm("state_delayed_from", sdf(dg(1), setter), Ok(1)),
@@ -216,7 +216,7 @@ export function state_test_gen_delayed_with_delay(
   ];
 }
 export function state_test_gen_delayed_with_delay_ok(
-  setter?: StateSet<number, any> | true
+  setter?: STATE_SET_REA<number, any> | true
 ): StateTestsWrite[] {
   return [
     norm("state_delayed_ok", sdo(dg(1), setter as any), Ok(1)),
@@ -266,7 +266,7 @@ export function state_test_gen_proxies_ok(): StateTestsRead[] {
 //     | |    | | \ \| |__| / . \    | |       \  /\  /  | | \ \ _| |_   | |  | |____
 //     |_|    |_|  \_\\____/_/ \_\   |_|        \/  \/   |_|  \_\_____|  |_|  |______|
 export function state_test_gen_proxies_write(
-  setter?: StateSetSync<number, any> | true
+  setter?: STATE_SET_RES<number, any> | true
 ): StateTestsWrite[] {
   let s7 = state_ok<number>(1, setter);
   let s8 = state_ok<number>(1, setter);
@@ -280,7 +280,7 @@ export function state_test_gen_proxies_write(
 }
 
 export function state_test_gen_proxies_write_ok(
-  setter?: StateSetSync<number, any> | true
+  setter?: STATE_SET_RES<number, any> | true
 ): StateTestsWrite[] {
   let s5 = state_ok<number>(1, setter);
   let s6 = state_ok<number>(1, setter);

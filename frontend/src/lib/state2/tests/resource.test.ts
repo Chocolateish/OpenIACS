@@ -1,6 +1,6 @@
 import { Err, Ok } from "@libResult";
 import { describe, expect, it } from "vitest";
-import { state_resource } from "../stateResource";
+import { state_resource } from "../resource";
 
 const generatePromises = (amount: number) => {
   let promises: Promise<any>[] = [];

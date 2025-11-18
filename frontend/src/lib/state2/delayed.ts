@@ -12,11 +12,11 @@ import {
   STATE_REA_WS,
   STATE_ROA,
   STATE_ROA_WS,
-  type StateHelper as Helper,
-  type StateHelperWrite as HelperWrite,
-  type StateRelated as Related,
-  type StateSetSync as Set,
-  type StateSetOkSync as SetOk,
+  type STATE_HELPER as Helper,
+  type STATE_HELPER_WRITE as HelperWrite,
+  type STATE_RELATED as Related,
+  type STATE_SET_RES as Set,
+  type STATE_SET_ROS as SetOk,
 } from "./types";
 
 //##################################################################################################################################################
@@ -57,8 +57,7 @@ export class STATE_DELAYED_REA<RT, REL extends Related> extends STATE_REA<
   #value?: Result<RT, string>;
   #helper?: Helper<REL>;
 
-  //##################################################################################################################################################
-  //Reader Context
+  //#Reader Context
   async then<TResult1 = Result<RT, string>>(
     func: (value: Result<RT, string>) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
@@ -68,8 +67,7 @@ export class STATE_DELAYED_REA<RT, REL extends Related> extends STATE_REA<
     return this.#helper?.related ? this.#helper.related() : None();
   }
 
-  //##################################################################################################################################################
-  //Owner Context
+  //#Owner Context
   set(value: Result<RT, string>) {
     this.updateSubscribers((this.#value = value));
   }
@@ -81,6 +79,8 @@ export class STATE_DELAYED_REA<RT, REL extends Related> extends STATE_REA<
   }
 }
 
+//##################################################################################################################################################
+//##################################################################################################################################################
 export class STATE_DELAYED_ROA<RT, REL extends Related> extends STATE_ROA<
   RT,
   REL
@@ -112,8 +112,7 @@ export class STATE_DELAYED_ROA<RT, REL extends Related> extends STATE_ROA<
   #value?: ResultOk<RT>;
   #helper?: Helper<REL>;
 
-  //##################################################################################################################################################
-  //Reader Context
+  //#Reader Context
   async then<TResult1 = ResultOk<RT>>(
     func: (value: ResultOk<RT>) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
@@ -123,8 +122,7 @@ export class STATE_DELAYED_ROA<RT, REL extends Related> extends STATE_ROA<
     return this.#helper?.related ? this.#helper.related() : None();
   }
 
-  //##################################################################################################################################################
-  //Owner Context
+  //#Owner Context
   set(value: ResultOk<RT>) {
     this.updateSubscribers((this.#value = value));
   }
@@ -133,6 +131,8 @@ export class STATE_DELAYED_ROA<RT, REL extends Related> extends STATE_ROA<
   }
 }
 
+//##################################################################################################################################################
+//##################################################################################################################################################
 export class STATE_DELAYED_REA_WS<
   RT,
   WT,
@@ -140,7 +140,7 @@ export class STATE_DELAYED_REA_WS<
 > extends STATE_REA_WS<RT, WT, REL> {
   constructor(
     init?: PromiseLike<Result<RT, string>>,
-    setter?: Set<RT, WT, STATE_DELAYED_REA_WS<RT, WT, REL>> | true,
+    setter?: Set<RT, STATE_DELAYED_REA_WS<RT, WT, REL>, WT> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     super();
@@ -182,11 +182,10 @@ export class STATE_DELAYED_REA_WS<
   }
 
   #value?: Result<RT, string>;
-  #setter?: Set<RT, WT, STATE_DELAYED_REA_WS<RT, WT, REL>>;
+  #setter?: Set<RT, STATE_DELAYED_REA_WS<RT, WT, REL>, WT>;
   #helper?: HelperWrite<WT, REL>;
 
-  //##################################################################################################################################################
-  //Reader Context
+  //#Reader Context
   async then<TResult1 = Result<RT, string>>(
     func: (value: Result<RT, string>) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
@@ -196,8 +195,7 @@ export class STATE_DELAYED_REA_WS<
     return this.#helper?.related ? this.#helper.related() : None();
   }
 
-  //##################################################################################################################################################
-  //Writer Context
+  //#Writer Context
   async write(value: WT): Promise<Result<void, string>> {
     return this.writeSync(value);
   }
@@ -212,8 +210,7 @@ export class STATE_DELAYED_REA_WS<
     return this.#helper?.check ? this.#helper.check(value) : Ok(value);
   }
 
-  //##################################################################################################################################################
-  //Owner Context
+  //#Owner Context
   set(value: Result<RT, string>) {
     this.updateSubscribers((this.#value = value));
   }
@@ -225,6 +222,8 @@ export class STATE_DELAYED_REA_WS<
   }
 }
 
+//##################################################################################################################################################
+//##################################################################################################################################################
 export class STATE_DELAYED_ROA_WS<
   RT,
   WT,
@@ -232,7 +231,7 @@ export class STATE_DELAYED_ROA_WS<
 > extends STATE_ROA_WS<RT, WT, REL> {
   constructor(
     init?: PromiseLike<ResultOk<RT>>,
-    setter?: SetOk<RT, WT, STATE_DELAYED_ROA_WS<RT, WT, REL>> | true,
+    setter?: SetOk<RT, STATE_DELAYED_ROA_WS<RT, WT, REL>, WT> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     super();
@@ -273,11 +272,10 @@ export class STATE_DELAYED_ROA_WS<
   }
 
   #value?: ResultOk<RT>;
-  #setter?: SetOk<RT, WT, STATE_DELAYED_ROA_WS<RT, WT, REL>>;
+  #setter?: SetOk<RT, STATE_DELAYED_ROA_WS<RT, WT, REL>, WT>;
   #helper?: HelperWrite<WT, REL>;
 
-  //##################################################################################################################################################
-  //Reader Context
+  //#Reader Context
   async then<TResult1 = ResultOk<RT>>(
     func: (value: ResultOk<RT>) => TResult1 | PromiseLike<TResult1>
   ): Promise<TResult1> {
@@ -287,8 +285,7 @@ export class STATE_DELAYED_ROA_WS<
     return this.#helper?.related ? this.#helper.related() : None();
   }
 
-  //##################################################################################################################################################
-  //Writer Context
+  //#Writer Context
   async write(value: WT): Promise<Result<void, string>> {
     return this.writeSync(value);
   }
@@ -303,8 +300,7 @@ export class STATE_DELAYED_ROA_WS<
     return this.#helper?.check ? this.#helper.check(value) : Ok(value);
   }
 
-  //##################################################################################################################################################
-  //Owner Context
+  //#Owner Context
   set(value: ResultOk<RT>) {
     this.updateSubscribers((this.#value = value));
   }
@@ -312,6 +308,14 @@ export class STATE_DELAYED_ROA_WS<
     this.set(Ok(value));
   }
 }
+
+//##################################################################################################################################################
+//      _____ _   _ _____ _______ _____          _      _____ ____________ _____
+//     |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \
+//       | | |  \| | | |    | |    | |    /  \  | |      | |    / /| |__  | |__) |
+//       | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  /
+//      _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \
+//     |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\
 
 function initToOk<T>(
   init?: PromiseLike<T>
@@ -337,12 +341,6 @@ function initToErr(
 }
 
 //##################################################################################################################################################
-//      _____ _   _ _____ _______ _____          _      _____ ____________ _____
-//     |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \
-//       | | |  \| | | |    | |    | |    /  \  | |      | |    / /| |__  | |__) |
-//       | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  /
-//      _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \
-//     |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\
 let read = {
   /**Creates a delayed state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
@@ -381,6 +379,7 @@ let read = {
   class: STATE_DELAYED_REA,
 };
 
+//##################################################################################################################################################
 let readOk = {
   /**Creates a delayed ok state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
@@ -407,13 +406,14 @@ let readOk = {
   class: STATE_DELAYED_ROA,
 };
 
+//##################################################################################################################################################
 let write = {
   /**Creates a writable delayed state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Related = {}>(
     init?: PromiseLike<RT>,
-    setter?: Set<RT, WT, STATE_DELAYED_REA_WS<RT, WT, REL>> | true,
+    setter?: Set<RT, STATE_DELAYED_REA_WS<RT, WT, REL>, WT> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     return new STATE_DELAYED_REA_WS<RT, WT, REL>(
@@ -427,7 +427,7 @@ let write = {
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends Related = {}>(
     init?: PromiseLike<string>,
-    setter?: Set<RT, WT, STATE_DELAYED_REA_WS<RT, WT, REL>> | true,
+    setter?: Set<RT, STATE_DELAYED_REA_WS<RT, WT, REL>, WT> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     return new STATE_DELAYED_REA_WS<RT, WT, REL>(
@@ -441,7 +441,7 @@ let write = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Related = {}>(
     init?: PromiseLike<Result<RT, string>>,
-    setter?: Set<RT, WT, STATE_DELAYED_REA_WS<RT, WT, REL>> | true,
+    setter?: Set<RT, STATE_DELAYED_REA_WS<RT, WT, REL>, WT> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     return new STATE_DELAYED_REA_WS<RT, WT, REL>(init, setter, helper);
@@ -453,13 +453,14 @@ let write = {
   class: STATE_DELAYED_REA_WS,
 };
 
+//##################################################################################################################################################
 let writeOk = {
   /**Creates a delayed ok state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Related = {}>(
     init?: PromiseLike<RT>,
-    setter?: SetOk<RT, WT, STATE_DELAYED_ROA_WS<RT, WT, REL>> | true,
+    setter?: SetOk<RT, STATE_DELAYED_ROA_WS<RT, WT, REL>, WT> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     return new STATE_DELAYED_ROA_WS<RT, WT, REL>(
@@ -473,7 +474,7 @@ let writeOk = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Related = {}>(
     init?: PromiseLike<ResultOk<RT>>,
-    setter?: SetOk<RT, WT, STATE_DELAYED_ROA_WS<RT, WT, REL>> | true,
+    setter?: SetOk<RT, STATE_DELAYED_ROA_WS<RT, WT, REL>, WT> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     return new STATE_DELAYED_ROA_WS<RT, WT, REL>(init, setter, helper);
@@ -492,7 +493,8 @@ let writeOk = {
 //     |  __|   > < |  ___/| |  | |  _  /  | |  \___ \
 //     | |____ / . \| |    | |__| | | \ \  | |  ____) |
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
-export let delayed = {
+/**Delayed valueholding states, delayed means the given promise is evaluated on first access */
+export let state_delayed = {
   /**Read only delayed states with error, delayed meaning the value is a promise evaluated on first access. */
   rea: read,
   /**Read only delayed states with guarenteed ok, delayed meaning the value is a promise evaluated on first access. */
