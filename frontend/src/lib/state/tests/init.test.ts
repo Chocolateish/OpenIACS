@@ -1,29 +1,24 @@
 import { Err, Ok, ResultOk, type Result } from "@libResult";
 import { describe, expect, expectTypeOf, it } from "vitest";
-import * as all from "../index";
-import { StateInternal, type State, type StateOk } from "../state";
+import {
+  STATE_COLLECTED_ROA,
+  type StateDerived,
+  type StateDerivedOk,
+} from "../collected";
 import {
   StateDelayedInternal,
   type StateDelayed,
   type StateDelayedOk,
-} from "../stateDelayed";
-import {
-  StateDerivedInternal,
-  type StateDerived,
-  type StateDerivedOk,
-} from "../stateDerived";
-import {
-  StateLazyInternal,
-  type StateLazy,
-  type StateLazyOk,
-} from "../stateLazy";
+} from "../delayed";
+import * as all from "../index";
+import { StateLazyInternal, type StateLazy, type StateLazyOk } from "../lazy";
 import {
   StateProxyInternal,
   type StateProxy,
   type StateProxyFromOK,
   type StateProxyOk,
   type StateProxyOkFromOk,
-} from "../stateProxy";
+} from "../proxy";
 import {
   StateProxyWriteInternal,
   type StateProxyWrite,
@@ -31,6 +26,7 @@ import {
   type StateProxyWriteOk,
   type StateProxyWriteOkFromOk,
 } from "../stateProxyWrite";
+import { STATE_SYNC_RES, type State, type StateOk } from "../sync";
 
 //       _____ _______    _______ ______
 //      / ____|__   __|/\|__   __|  ____|
@@ -41,32 +37,32 @@ import {
 describe("Initialize normal state", function () {
   it("by state_from", async function () {
     let init = all.state_from(1);
-    expect(init).instanceOf(StateInternal);
+    expect(init).instanceOf(STATE_SYNC_RES);
     expectTypeOf(init).toEqualTypeOf<State<number, {}>>();
   });
   it("by state_ok", async function () {
     let init = all.state_ok(1);
-    expect(init).instanceOf(StateInternal);
+    expect(init).instanceOf(STATE_SYNC_RES);
     expectTypeOf(init).toEqualTypeOf<StateOk<number, {}>>();
   });
   it("by state_err", async function () {
     let init = all.state_err<number>("Conn Lost");
-    expect(init).instanceOf(StateInternal);
+    expect(init).instanceOf(STATE_SYNC_RES);
     expectTypeOf(init).toEqualTypeOf<State<number, {}>>();
   });
   it("by state_from_result with ok", async function () {
     let init = all.state_from_result<number>(Ok(1));
-    expect(init).instanceOf(StateInternal);
+    expect(init).instanceOf(STATE_SYNC_RES);
     expectTypeOf(init).toEqualTypeOf<State<number, {}>>();
   });
   it("by state_from_result with err", async function () {
     let init = all.state_from_result<number>(Err("Conn Lost"));
-    expect(init).instanceOf(StateInternal);
+    expect(init).instanceOf(STATE_SYNC_RES);
     expectTypeOf(init).toEqualTypeOf<State<number, {}>>();
   });
   it("by state_from_result_ok", async function () {
     let init = all.state_from_result_ok<number>(Ok(1));
-    expect(init).instanceOf(StateInternal);
+    expect(init).instanceOf(STATE_SYNC_RES);
     expectTypeOf(init).toEqualTypeOf<StateOk<number, {}>>();
   });
 });
@@ -235,7 +231,7 @@ describe("Initialize derived state", function () {
       all.state_from(1).readable,
       all.state_ok(1).readable
     );
-    expect(init).instanceOf(StateDerivedInternal);
+    expect(init).instanceOf(STATE_COLLECTED_ROA);
     expectTypeOf(init).toEqualTypeOf<
       StateDerived<
         number,
@@ -260,7 +256,7 @@ describe("Initialize derived state", function () {
       all.state_from(1),
       all.state_ok(1)
     );
-    expect(init).instanceOf(StateDerivedInternal);
+    expect(init).instanceOf(STATE_COLLECTED_ROA);
     expectTypeOf(init).toEqualTypeOf<
       StateDerivedOk<
         number,
@@ -279,7 +275,7 @@ describe("Initialize derived state", function () {
       },
       [all.state_ok(1), all.state_ok(1), all.state_ok(1)]
     );
-    expect(init).instanceOf(StateDerivedInternal);
+    expect(init).instanceOf(STATE_COLLECTED_ROA);
     expectTypeOf(init).toEqualTypeOf<
       StateDerived<number, all.StateOk<number, {}>[], any>
     >();
@@ -294,7 +290,7 @@ describe("Initialize derived state", function () {
       },
       [all.state_ok(1), all.state_ok(1), all.state_ok(1)]
     );
-    expect(init).instanceOf(StateDerivedInternal);
+    expect(init).instanceOf(STATE_COLLECTED_ROA);
     expectTypeOf(init).toEqualTypeOf<
       StateDerivedOk<number, StateOk<number>[], any>
     >();
@@ -311,7 +307,7 @@ describe("Initialize derived state", function () {
 describe("Initialize derived state", function () {
   it("by state_derives_sum_from", async function () {
     let init = all.state_derives_sum_from(all.state_ok(1), all.state_from(1));
-    expect(init).instanceOf(StateDerivedInternal);
+    expect(init).instanceOf(STATE_COLLECTED_ROA);
     expectTypeOf(init).toEqualTypeOf<
       StateDerived<number, all.StateRead<number>[], any>
     >();
@@ -321,7 +317,7 @@ describe("Initialize derived state", function () {
       all.state_ok(1),
       all.state_from(1)
     );
-    expect(init).instanceOf(StateDerivedInternal);
+    expect(init).instanceOf(STATE_COLLECTED_ROA);
     expectTypeOf(init).toEqualTypeOf<
       StateDerived<number, [all.StateOk<number>, all.State<number>], any>
     >();
@@ -331,7 +327,7 @@ describe("Initialize derived state", function () {
       all.state_ok(1),
       all.state_ok(1)
     );
-    expect(init).instanceOf(StateDerivedInternal);
+    expect(init).instanceOf(STATE_COLLECTED_ROA);
     expectTypeOf(init).toEqualTypeOf<
       StateDerivedOk<number, [all.StateOk<number>, all.StateOk<number>], any>
     >();

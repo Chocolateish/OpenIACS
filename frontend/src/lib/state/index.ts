@@ -1,166 +1,72 @@
-//       _____ _______    _______ ______   _____ _   _ _____ _______ _____          _      _____ ____________ _____
-//      / ____|__   __|/\|__   __|  ____| |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \
-//     | (___    | |  /  \  | |  | |__      | | |  \| | | |    | |    | |    /  \  | |      | |    / /| |__  | |__) |
-//      \___ \   | | / /\ \ | |  |  __|     | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  /
-//      ____) |  | |/ ____ \| |  | |____   _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \
-//     |_____/   |_/_/    \_\_|  |______| |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\
-export {
-  state_err,
-  state_from,
-  state_from_result,
-  state_from_result_ok,
-  state_ok,
-  type State,
-  type StateOk,
-} from "./state";
+import { state_array } from "./array";
+import { state_collected } from "./collected";
+import { state_delayed } from "./delayed";
+import { state_helpers } from "./helpers";
+import { state_lazy } from "./lazy";
+import { state_proxy } from "./proxy";
+import { state_resource } from "./resource";
+import { state_sync } from "./sync";
 
-//      _                ________     __  _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
-//     | |        /\    |___  /\ \   / / |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
-//     | |       /  \      / /  \ \_/ /    | | |  \| | | |    | |    | |    /  \  | |      | |    / /| |__  | |__) | (___
-//     | |      / /\ \    / /    \   /     | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  / \___ \
-//     | |____ / ____ \  / /__    | |     _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
-//     |______/_/    \_\/_____|   |_|    |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
-export {
-  state_lazy_err,
-  state_lazy_from,
-  state_lazy_from_result,
-  state_lazy_from_result_ok,
-  state_lazy_ok,
-  type StateLazy,
-  type StateLazyOk,
-} from "./stateLazy";
+export default {
+  a: state_array,
+  c: state_collected,
+  d: state_delayed,
+  h: state_helpers,
+  l: state_lazy,
+  p: state_proxy,
+  r: state_resource,
+  s: state_sync,
+};
 
-//      _____  ______ _           __     ________ _____    _____ _   _ _____ _______ _____          _      _____ ____________ _____
-//     |  __ \|  ____| |        /\\ \   / /  ____|  __ \  |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \
-//     | |  | | |__  | |       /  \\ \_/ /| |__  | |  | |   | | |  \| | | |    | |    | |    /  \  | |      | |    / /| |__  | |__) |
-//     | |  | |  __| | |      / /\ \\   / |  __| | |  | |   | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  /
-//     | |__| | |____| |____ / ____ \| |  | |____| |__| |  _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \
-//     |_____/|______|______/_/    \_\_|  |______|_____/  |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\
+export { state_array } from "./array";
 export {
-  state_delayed_err,
-  state_delayed_from,
-  state_delayed_from_result,
-  state_delayed_from_result_ok,
-  state_delayed_ok,
-  type StateDelayed,
-  type StateDelayedOk,
-} from "./stateDelayed";
-
-//      _____  _____   ______   ____     __  _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
-//     |  __ \|  __ \ / __ \ \ / /\ \   / / |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
-//     | |__) | |__) | |  | \ V /  \ \_/ /    | | |  \| | | |    | |    | |    /  \  | |      | |    / /| |__  | |__) | (___
-//     |  ___/|  _  /| |  | |> <    \   /     | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  / \___ \
-//     | |    | | \ \| |__| / . \    | |     _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
-//     |_|    |_|  \_\\____/_/ \_\   |_|    |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
+  state_collected,
+  type STATE_COLLECTED_REA as STATE_CALCULATED_REA,
+  type STATE_COLLECTED_ROA as STATE_CALCULATED_ROA,
+} from "./collected";
 export {
-  state_proxy_from,
-  state_proxy_from_ok,
-  state_proxy_ok,
-  state_proxy_ok_from_ok,
-  type StateProxy,
-  type StateProxyOk,
-} from "./stateProxy";
-
-//      _____  _____   ______   ____     __ __          _______  _____ _______ ______   _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
-//     |  __ \|  __ \ / __ \ \ / /\ \   / / \ \        / /  __ \|_   _|__   __|  ____| |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
-//     | |__) | |__) | |  | \ V /  \ \_/ /   \ \  /\  / /| |__) | | |    | |  | |__      | | |  \| | | |    | |    | |    /  \  | |      | |    / /| |__  | |__) | (___
-//     |  ___/|  _  /| |  | |> <    \   /     \ \/  \/ / |  _  /  | |    | |  |  __|     | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  / \___ \
-//     | |    | | \ \| |__| / . \    | |       \  /\  /  | | \ \ _| |_   | |  | |____   _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
-//     |_|    |_|  \_\\____/_/ \_\   |_|        \/  \/   |_|  \_\_____|  |_|  |______| |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
+  state_delayed,
+  type STATE_DELAYED_REA,
+  type STATE_DELAYED_REA_WS,
+  type STATE_DELAYED_ROA,
+  type STATE_DELAYED_ROA_WS,
+} from "./delayed";
 export {
-  state_proxy_write_from,
-  state_proxy_write_from_ok,
-  state_proxy_write_ok,
-  state_proxy_write_ok_from_ok,
-  type StateProxyWrite,
-  type StateProxyWriteOk,
-} from "./stateProxyWrite";
-
-//      _____  ______ _____  _______      ________ _____    _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
-//     |  __ \|  ____|  __ \|_   _\ \    / /  ____|  __ \  |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
-//     | |  | | |__  | |__) | | |  \ \  / /| |__  | |  | |   | | |  \| | | |    | |    | |    /  \  | |      | |    / /| |__  | |__) | (___
-//     | |  | |  __| |  _  /  | |   \ \/ / |  __| | |  | |   | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  / \___ \
-//     | |__| | |____| | \ \ _| |_   \  /  | |____| |__| |  _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
-//     |_____/|______|_|  \_\_____|   \/   |______|_____/  |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
+  state_helpers,
+  type STATE_ENUM_HELPER,
+  type STATE_ENUM_HELPER_LIST,
+  type STATE_ENUM_RELATED,
+  type STATE_NUMBER_HELPER,
+  type STATE_NUMBER_RELATED,
+  type STATE_STRING_HELPER,
+  type STATE_STRING_RELATED,
+} from "./helpers";
 export {
-  state_derived_from_state_array,
-  state_derived_from_states,
-  state_derived_ok_from_state_array,
-  state_derived_ok_from_states,
-  state_derived_sync_from_state_array,
-  state_derived_sync_from_states,
-  state_derived_sync_ok_from_state_array,
-  state_derived_sync_ok_from_states,
-  type StateDerived,
-  type StateDerivedOk,
-} from "./stateDerived";
-
-//      _____  ______ _____  _______      ________  _____   _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
-//     |  __ \|  ____|  __ \|_   _\ \    / /  ____|/ ____| |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
-//     | |  | | |__  | |__) | | |  \ \  / /| |__  | (___     | | |  \| | | |    | |    | |    /  \  | |      | |    / /| |__  | |__) | (___
-//     | |  | |  __| |  _  /  | |   \ \/ / |  __|  \___ \    | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  / \___ \
-//     | |__| | |____| | \ \ _| |_   \  /  | |____ ____) |  _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
-//     |_____/|______|_|  \_\_____|   \/   |______|_____/  |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
+  state_lazy,
+  type STATE_LAZY_RES,
+  type STATE_LAZY_RES_WS,
+  type STATE_LAZY_ROS,
+  type STATE_LAZY_ROS_WS,
+} from "./lazy";
 export {
-  state_derives_sum_from,
-  state_derives_sum_from_ok,
-  state_derives_sum_ok_from_ok,
-} from "./stateDerives";
-
-//               _____  _____        __     __  _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
-//         /\   |  __ \|  __ \     /\\ \   / / |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
-//        /  \  | |__) | |__) |   /  \\ \_/ /    | | |  \| | | |    | |    | |    /  \  | |      | |    / /| |__  | |__) | (___
-//       / /\ \ |  _  /|  _  /   / /\ \\   /     | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  / \___ \
-//      / ____ \| | \ \| | \ \  / ____ \| |     _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
-//     /_/    \_\_|  \_\_|  \_\/_/    \_\_|    |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
-export {
-  state_array_apply_read_to_array,
-  state_array_apply_read_to_array_transform,
-  StateArray,
-  type StateArrayRead,
-  type StateArrayWrite,
-} from "./stateArray";
-
-//      _____  ______  _____  ____  _    _ _____   _____ ______   _____ _   _ _____ _______ _____          _      _____ ____________ _____   _____
-//     |  __ \|  ____|/ ____|/ __ \| |  | |  __ \ / ____|  ____| |_   _| \ | |_   _|__   __|_   _|   /\   | |    |_   _|___  /  ____|  __ \ / ____|
-//     | |__) | |__  | (___ | |  | | |  | | |__) | |    | |__      | | |  \| | | |    | |    | |    /  \  | |      | |    / /| |__  | |__) | (___
-//     |  _  /|  __|  \___ \| |  | | |  | |  _  /| |    |  __|     | | | . ` | | |    | |    | |   / /\ \ | |      | |   / / |  __| |  _  / \___ \
-//     | | \ \| |____ ____) | |__| | |__| | | \ \| |____| |____   _| |_| |\  |_| |_   | |   _| |_ / ____ \| |____ _| |_ / /__| |____| | \ \ ____) |
-//     |_|  \_\______|_____/ \____/ \____/|_|  \_\\_____|______| |_____|_| \_|_____|  |_|  |_____/_/    \_\______|_____/_____|______|_|  \_\_____/
+  state_proxy,
+  type STATE_PROXY_REA,
+  type STATE_PROXY_RES,
+  type STATE_PROXY_ROA,
+  type STATE_PROXY_ROS,
+} from "./proxy";
 export {
   state_resource,
-  state_resource_ok,
-  type StateResource,
-  type StateResourceOk,
-} from "./stateResource";
-
-//      _    _ ______ _      _____  ______ _____   _____
-//     | |  | |  ____| |    |  __ \|  ____|  __ \ / ____|
-//     | |__| | |__  | |    | |__) | |__  | |__) | (___
-//     |  __  |  __| | |    |  ___/|  __| |  _  / \___ \
-//     | |  | | |____| |____| |    | |____| | \ \ ____) |
-//     |_|  |_|______|______|_|    |______|_|  \_\_____/
+  type STATE_RESOURCE_REA,
+  type STATE_RESOURCE_REA_WA,
+} from "./resource";
 export {
-  state_await_value,
-  state_compare,
-  state_compare_sync,
-  state_enum_iterate,
-  StateEnumHelper,
-  StateNumberHelper,
-  StateStringHelper,
-  type StateEnumHelperAnyType,
-  type StateEnumHelperList,
-  type StateEnumHelperType,
-  type StateNumberHelperType,
-  type StateStringHelperType,
-} from "./helpers";
-
-export {
-  state_is,
-  state_ok_is,
-  state_sync_is,
-  state_sync_ok_is,
-} from "./stateBase";
+  state_sync,
+  type STATE_SYNC_RES,
+  type STATE_SYNC_RES_WS,
+  type STATE_SYNC_ROS,
+  type STATE_SYNC_ROS_WS,
+} from "./sync";
 
 //       _____ _______    _______ ______   _________     _______  ______  _____
 //      / ____|__   __|/\|__   __|  ____| |__   __\ \   / /  __ \|  ____|/ ____|
@@ -169,17 +75,38 @@ export {
 //      ____) |  | |/ ____ \| |  | |____     | |     | |  | |    | |____ ____) |
 //     |_____/   |_/_/    \_\_|  |______|    |_|     |_|  |_|    |______|_____/
 export type {
-  StateOwner,
-  StateOwnerOk,
-  StateRead,
-  StateReadOk,
-  StateSetter,
-  StateSetterOk,
-  StateSubscriber,
-  StateSubscriberBase,
-  StateSubscriberOk,
-  StateWrite,
-  StateWriteOk,
+  STATE,
+  STATE_INFER_RESULT,
+  STATE_INFER_SUB,
+  STATE_INFER_SUB_OK,
+  STATE_INFER_TYPE,
+  STATE_REX,
+  STATE_REX_WA,
+  STATE_REX_WS,
+  STATE_REX_WX,
+  STATE_REX_XX,
+  STATE_ROX,
+  STATE_ROX_WA,
+  STATE_ROX_WS,
+  STATE_ROX_WX,
+  STATE_ROX_XX,
+  STATE_RXA,
+  STATE_RXA_WA,
+  STATE_RXA_WS,
+  STATE_RXA_WX,
+  STATE_RXA_XX,
+  STATE_RXS,
+  STATE_RXS_WA,
+  STATE_RXS_WS,
+  STATE_RXS_WX,
+  STATE_RXS_XX,
+  STATE_RXX,
+  STATE_RXX_WA,
+  STATE_RXX_WS,
+  STATE_RXX_WX,
+  STATE_RXX_XX,
+  STATE_SUB,
+  STATE_SUB_OK,
 } from "./types";
 
 //      ________   _________ ______ _   _  _____ _____ ____  _   _    _____ _                _____ _____ ______  _____
@@ -188,13 +115,17 @@ export type {
 //     |  __|   > <    | |  |  __| | . ` |\___ \  | || |  | | . ` | | |    | |      / /\ \  \___ \\___ \|  __|  \___ \
 //     | |____ / . \   | |  | |____| |\  |____) |_| || |__| | |\  | | |____| |____ / ____ \ ____) |___) | |____ ____) |
 //     |______/_/ \_\  |_|  |______|_| \_|_____/|_____\____/|_| \_|  \_____|______/_/    \_\_____/_____/|______|_____/
-export { StateBase } from "./stateBase";
-export { StateResourceBase } from "./stateResource";
-
-//      ________   _________ ______ _   _  _____ _____ ____  _   _   _________     _______  ______  _____
-//     |  ____\ \ / /__   __|  ____| \ | |/ ____|_   _/ __ \| \ | | |__   __\ \   / /  __ \|  ____|/ ____|
-//     | |__   \ V /   | |  | |__  |  \| | (___   | || |  | |  \| |    | |   \ \_/ /| |__) | |__  | (___
-//     |  __|   > <    | |  |  __| | . ` |\___ \  | || |  | | . ` |    | |    \   / |  ___/|  __|  \___ \
-//     | |____ / . \   | |  | |____| |\  |____) |_| || |__| | |\  |    | |     | |  | |    | |____ ____) |
-//     |______/_/ \_\  |_|  |______|_| \_|_____/|_____\____/|_| \_|    |_|     |_|  |_|    |______|_____/
-export type { StateReadBase, StateWriteBase } from "./types";
+export {
+  STATE_REA,
+  STATE_REA_WA,
+  STATE_REA_WS,
+  STATE_RES,
+  STATE_RES_WA,
+  STATE_RES_WS,
+  STATE_ROA,
+  STATE_ROA_WA,
+  STATE_ROA_WS,
+  STATE_ROS,
+  STATE_ROS_WA,
+  STATE_ROS_WS,
+} from "./types";

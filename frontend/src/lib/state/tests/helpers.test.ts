@@ -1,6 +1,6 @@
 import { Ok } from "@libResult";
 import { describe, expect, it } from "vitest";
-import { StateNumberHelper, StateStringHelper } from "../helpers";
+import { STATE_NUMBER_HELPER, STATE_STRING_HELPER } from "../helpers";
 import * as all from "../index";
 
 describe("State Number Min Max", async () => {
@@ -8,7 +8,7 @@ describe("State Number Min Max", async () => {
     let stateInst = all.state_from_result<number>(
       Ok(5),
       true,
-      new StateNumberHelper(0, 10)
+      new STATE_NUMBER_HELPER(0, 10)
     );
     expect((await stateInst).unwrap).to.equal(5);
     expect(stateInst.limit(11).unwrap).to.equal(10);
@@ -22,7 +22,7 @@ describe("State Number Min Max", async () => {
     let stateInst = all.state_from_result<number>(
       Ok(5),
       true,
-      new StateNumberHelper(0, 10)
+      new STATE_NUMBER_HELPER(0, 10)
     );
     expect((await stateInst).unwrap).to.equal(5);
     expect(stateInst.check(11).unwrap).to.equal(
@@ -36,7 +36,7 @@ describe("State Number Min Max", async () => {
     let stateInst = all.state_from_result(
       Ok(5),
       true,
-      new StateNumberHelper(0, 10)
+      new STATE_NUMBER_HELPER(0, 10)
     );
     let related = stateInst.related().unwrap;
     expect(related.min).to.equal(0);
@@ -48,7 +48,7 @@ describe("State Number Unit", async () => {
     let stateInst = all.state_from_result(
       Ok(5),
       true,
-      new StateNumberHelper(undefined, undefined, "test")
+      new STATE_NUMBER_HELPER(undefined, undefined, "test")
     );
     let related = stateInst.related().unwrap;
     expect(related.unit).to.equal("test");
@@ -59,7 +59,7 @@ describe("State Number decimals", async () => {
     let stateInst = all.state_from_result(
       Ok(5),
       true,
-      new StateNumberHelper(undefined, undefined, undefined, 2)
+      new STATE_NUMBER_HELPER(undefined, undefined, undefined, 2)
     );
     let related = stateInst.related().unwrap;
     expect(related.decimals).to.equal(2);
@@ -68,7 +68,7 @@ describe("State Number decimals", async () => {
     let stateInst = all.state_from_result<number>(
       Ok(5),
       true,
-      new StateNumberHelper(undefined, undefined, undefined, 1, 0.13)
+      new STATE_NUMBER_HELPER(undefined, undefined, undefined, 1, 0.13)
     );
     expect((await stateInst).unwrap).to.equal(5);
     expect(stateInst.limit(11).unwrap).to.equal(11.1);
@@ -82,7 +82,7 @@ describe("State Number decimals", async () => {
     let stateInst = all.state_from_result<number>(
       Ok(5),
       true,
-      new StateNumberHelper(undefined, undefined, undefined, 3, 0.003, 0.07)
+      new STATE_NUMBER_HELPER(undefined, undefined, undefined, 3, 0.003, 0.07)
     );
     expect((await stateInst).unwrap).to.equal(5);
     expect(stateInst.limit(11).unwrap).to.equal(10.999);
@@ -98,7 +98,7 @@ describe("State Number step start", async () => {
     let stateInst = all.state_from_result<number>(
       Ok(5),
       true,
-      new StateNumberHelper(undefined, undefined, undefined, undefined, 0.13)
+      new STATE_NUMBER_HELPER(undefined, undefined, undefined, undefined, 0.13)
     );
     expect((await stateInst).unwrap).to.equal(5);
     expect(stateInst.limit(11).unwrap).to.equal(11.05);
@@ -112,7 +112,7 @@ describe("State Number step start", async () => {
     let stateInst = all.state_from_result<number>(
       Ok(5),
       true,
-      new StateNumberHelper(
+      new STATE_NUMBER_HELPER(
         undefined,
         undefined,
         undefined,
@@ -136,7 +136,7 @@ describe("State String Max Len", async () => {
     let stateInst = all.state_from_result<string>(
       Ok("5"),
       true,
-      new StateStringHelper(10)
+      new STATE_STRING_HELPER(10)
     );
     expect((await stateInst).unwrap).to.equal("5");
     expect(stateInst.limit("12345678901").unwrap).to.equal("1234567890");
@@ -147,7 +147,7 @@ describe("State String Max Len", async () => {
     let stateInst = all.state_from_result<string>(
       Ok("5"),
       true,
-      new StateStringHelper(10)
+      new STATE_STRING_HELPER(10)
     );
     expect((await stateInst).unwrap).to.equal("5");
     expect(stateInst.check("12345678901").unwrap).to.equal(
@@ -158,7 +158,7 @@ describe("State String Max Len", async () => {
     let stateInst = all.state_from_result(
       Ok("5"),
       true,
-      new StateStringHelper(10)
+      new STATE_STRING_HELPER(10)
     );
     let related = stateInst.related().unwrap;
     expect(related.maxLength).to.equal(10);
@@ -170,7 +170,7 @@ describe("State String Max Byte Len", async () => {
     let stateInst = all.state_from_result<string>(
       Ok("5"),
       true,
-      new StateStringHelper(undefined, 10)
+      new STATE_STRING_HELPER(undefined, 10)
     );
     expect((await stateInst).unwrap).to.equal("5");
     expect(stateInst.limit("1æøåæ01").unwrap).to.equal("1æøåæ0");
@@ -181,7 +181,7 @@ describe("State String Max Byte Len", async () => {
     let stateInst = all.state_from_result<string>(
       Ok("5"),
       true,
-      new StateStringHelper(undefined, 10)
+      new STATE_STRING_HELPER(undefined, 10)
     );
     expect((await stateInst).unwrap).to.equal("5");
     expect(stateInst.check("1æøåæ01").unwrap).to.equal(
@@ -192,7 +192,7 @@ describe("State String Max Byte Len", async () => {
     let stateInst = all.state_from_result(
       Ok("5"),
       true,
-      new StateStringHelper(undefined, 10)
+      new STATE_STRING_HELPER(undefined, 10)
     );
     let related = stateInst.related().unwrap;
     expect(related.maxLengthBytes).to.equal(10);

@@ -1,12 +1,11 @@
 import { EventHandler } from "@libEvent";
-import type { Result } from "@libResult";
-import {
-  state_is,
-  type StateRead,
-  type StateReadBase,
-  type StateReadOk,
-  type StateSubscriber,
-  type StateSubscriberBase,
+import { Ok, type Result } from "@libResult";
+import state, {
+  type STATE,
+  type STATE_INFER_TYPE,
+  type STATE_ROX,
+  type STATE_SUB,
+  type STATE_SUB_OK,
 } from "@libState";
 import { AccessTypes } from "./access";
 import "./base.scss";
@@ -33,7 +32,7 @@ export interface BaseEvents {
 /**Base options for base class */
 export interface BaseOptions {
   /**Access for element, default is write access */
-  access?: AccessTypes | StateRead<AccessTypes>;
+  access?: AccessTypes | STATE<AccessTypes>;
   /**Options to use for element observer */
   observerOptions?: BaseObserverOptions;
 }
@@ -42,8 +41,8 @@ export interface BaseOptions {
 type DataProps<T> = {
   [K in keyof T as T[K] extends Function ? never : K]: T[K];
 };
-type WithStateRead<T> = {
-  [K in keyof T]?: T[K] | StateReadOk<T[K]>;
+type WithStateROX<T> = {
+  [K in keyof T]?: T[K] | STATE_ROX<T[K]>;
 };
 
 /**Shared class for elements to extend
@@ -79,8 +78,7 @@ export abstract class Base<
   readonly baseEvents = this.#baseEvents.consumer;
 
   #isConnected: boolean = false;
-  #connectStates?: StateRead<any>[];
-  #connectSubscribers?: StateSubscriberBase<any>[];
+  #connects: Map<STATE_SUB<any> & STATE_SUB_OK<any>, STATE<any>> = new Map();
 
   /**Observer for children of this element */
   #observer?: BaseObserver;
@@ -89,20 +87,17 @@ export abstract class Base<
   /**Works when element is connected to observer, otherwise it is an alias for isConnected*/
   readonly isVisible: boolean = false;
   #attachedObserver?: BaseObserver;
-  #visibleStates?: StateRead<any>[];
-  #visibleSubscribers?: StateSubscriberBase<any>[];
+  #visibles: Map<STATE_SUB<any> & STATE_SUB_OK<any>, STATE<any>> = new Map();
 
   #access?: AccessTypes;
 
-  #propStates?: { [k in keyof this]: [StateSubscriberBase<any>, boolean] };
-  #attributeStates?: { [k: string]: [StateSubscriberBase<any>, boolean] };
+  #props: Map<keyof this, [STATE_SUB_OK<any>, boolean]> = new Map();
+  #attributes: Map<string, [STATE_SUB_OK<any>, boolean]> = new Map();
 
   /**Runs when element is attached to document*/
   protected connectedCallback() {
     this.#baseEvents.emit("connect", ConnectEventVal.Connect);
-    if (this.#connectStates && this.#connectSubscribers)
-      for (let i = 0; i < this.#connectStates.length; i++)
-        this.#connectStates[i].subscribe(this.#connectSubscribers[i], true);
+    for (const [f, s] of this.#connects) s.subscribe(f, true);
     if (this.#attachedObserver) this.#attachedObserver.observe(this);
     else this._setVisible(true);
     this.#isConnected = true;
@@ -111,9 +106,7 @@ export abstract class Base<
   /**Runs when element is dettached from document*/
   protected disconnectedCallback() {
     this.#baseEvents.emit("connect", ConnectEventVal.Disconnect);
-    if (this.#connectStates && this.#connectSubscribers)
-      for (let i = 0; i < this.#connectStates.length; i++)
-        this.#connectStates[i].unsubscribe(this.#connectSubscribers[i]);
+    for (const [f, s] of this.#connects) s.unsubscribe(f);
     if (this.#attachedObserver) {
       this.#attachedObserver.unobserve(this);
       this._setVisible(false);
@@ -131,15 +124,8 @@ export abstract class Base<
       //@ts-expect-error
       this.isVisible = is;
       this.#baseEvents.emit("visible", is);
-      if (is) {
-        if (this.#visibleStates && this.#visibleSubscribers)
-          for (let i = 0; i < this.#visibleStates.length; i++)
-            this.#visibleStates[i].subscribe(this.#visibleSubscribers[i], true);
-      } else {
-        if (this.#visibleStates && this.#visibleSubscribers)
-          for (let i = 0; i < this.#visibleStates.length; i++)
-            this.#visibleStates[i].unsubscribe(this.#visibleSubscribers[i]);
-      }
+      if (is) for (const [f, s] of this.#visibles) s.subscribe(f, true);
+      else for (const [f, s] of this.#visibles) s.unsubscribe(f);
     }
   }
 
@@ -153,11 +139,10 @@ export abstract class Base<
   }
 
   /**Sets any attribute on the base element, to either a fixed value or a state value */
-  opts(opts: WithStateRead<DataProps<this>>): this {
+  opts(opts: WithStateROX<DataProps<this>>): this {
     for (let key in opts) {
       let opt = opts[key];
-      let isKeyState = state_is(opt);
-      if (isKeyState) this.attachStateToProp(key, isKeyState);
+      if (state.h.is.rox(opt)) this.attachSTATEROXToProp(key, opt);
       else this[key] = opt as any;
     }
     return this;
@@ -210,89 +195,89 @@ export abstract class Base<
 
   /**Attaches a state to a function, so that the function is subscribed to the state when the component is connected
    * @param visible when set true the function is only subscribed when the element is visible, this requires an observer to be attached to the element*/
-  attachState<READ extends Result<any, string>>(
-    state: StateReadBase<READ, any, any>,
-    func: StateSubscriberBase<READ>,
+  attachSTATEROX<S extends STATE_ROX<any>>(
+    state: S,
+    func: STATE_SUB_OK<STATE_INFER_TYPE<S>>,
     visible?: boolean
-  ) {
+  ): typeof func {
+    return this.attachSTATE(
+      state,
+      func as STATE_SUB<any>,
+      visible
+    ) as typeof func;
+  }
+
+  /**Attaches a state to a function, so that the function is subscribed to the state when the component is connected
+   * @param visible when set true the function is only subscribed when the element is visible, this requires an observer to be attached to the element*/
+  attachSTATE<S extends STATE<any>>(
+    state: S,
+    func: STATE_SUB<STATE_INFER_TYPE<S>>,
+    visible?: boolean
+  ): typeof func {
     if (visible) {
-      if (!this.#visibleStates) {
-        this.#visibleStates = [];
-        this.#visibleSubscribers = [];
-      }
-      this.#visibleStates.push(state);
-      this.#visibleSubscribers!.push(func);
+      this.#visibles.set(func, state);
       if (this.isVisible) state.subscribe(func, true);
       return func;
     }
-    if (!this.#connectStates) {
-      this.#connectStates = [];
-      this.#connectSubscribers = [];
-    }
-    this.#connectStates.push(state);
-    this.#connectSubscribers!.push(func);
+    this.#connects.set(func, state);
     if (this.#isConnected) state.subscribe(func, true);
     return func;
   }
 
   /**Dettaches the function from the state/component */
-  dettachState(func: StateSubscriber<any>, visible?: boolean) {
+  dettachState(func: STATE_SUB<any>, visible?: boolean) {
     if (visible) {
-      if (this.#visibleSubscribers) {
-        let index = this.#visibleSubscribers.indexOf(func);
-        if (index === -1) {
-          console.warn("Function not registered with element", func, this);
-        } else {
-          if (this.isVisible) this.#visibleStates![index].unsubscribe(func);
-          this.#visibleStates!.splice(index, 1);
-          this.#visibleSubscribers.splice(index, 1);
-        }
+      if (this.#visibles.has(func)) {
+        console.warn("Function not registered with element", func, this);
+      } else {
+        if (this.isVisible) this.#visibles.get(func)!.unsubscribe(func);
+        this.#visibles.delete(func);
       }
       return;
     }
-    if (this.#connectSubscribers) {
-      let index = this.#connectSubscribers.indexOf(func);
-      if (index === -1) {
-        console.warn("Function not registered with element", func, this);
-      } else {
-        if (this.isVisible) this.#connectStates![index].unsubscribe(func);
-        this.#connectStates!.splice(index, 1);
-        this.#connectSubscribers.splice(index, 1);
-      }
+    if (this.#connects.has(func)) {
+      console.warn("Function not registered with element", func, this);
+    } else {
+      if (this.isVisible) this.#connects.get(func)!.unsubscribe(func);
+      this.#connects.delete(func);
     }
   }
 
   /**Attaches a state to a property, so that the property is updated when the state changes
    * @param prop the property to attach the state to
    * @param state the state to attach to the property
-   * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element
-   * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok
-   * */
-  attachStateToProp<T extends keyof this>(
+   * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element*/
+  attachSTATEROXToProp<T extends keyof this>(
     prop: T,
-    state: StateRead<(typeof this)[T]>,
-    visible?: boolean,
-    fallback?: (typeof this)[T],
-    fallbackFunc?: (error: string) => (typeof this)[T]
+    state: STATE_ROX<this[T]>,
+    visible?: boolean
   ): this {
-    if (!this.#propStates)
-      this.#propStates = {} as {
-        [k in keyof this]: [StateSubscriber<any>, boolean];
-      };
-    else this.dettachStateFromProp(prop);
-    this.#propStates[prop] = [
-      this.attachState(
+    this.dettachStateFromProp(prop);
+    this.#props.set(prop, [
+      this.attachSTATEROX(state, (val) => (this[prop] = val.value), visible),
+      Boolean(visible),
+    ]);
+    return this;
+  }
+  /**Attaches a state to a property, so that the property is updated when the state changes
+   * @param prop the property to attach the state to
+   * @param state the state to attach to the property
+   * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element*/
+  attachSTATEROXToPropTransform<T extends keyof this, S extends STATE_ROX<any>>(
+    prop: T,
+    state: S,
+    transform: (val: STATE_INFER_TYPE<S>) => this[T],
+    visible?: boolean
+  ): this {
+    this.dettachStateFromProp(prop);
+    this.#props.set(prop, [
+      this.attachSTATEROX(
         state,
-        (val) => {
-          if (val.ok) this[prop] = val.value;
-          else if (fallbackFunc !== undefined)
-            this[prop] = fallbackFunc(val.error);
-          else if (fallback !== undefined) this[prop] = fallback;
-        },
+        (val) => (this[prop] = transform(val.value)),
         visible
       ),
       Boolean(visible),
-    ];
+    ]);
     return this;
   }
 
@@ -300,53 +285,56 @@ export abstract class Base<
    * @param prop the property to attach the state to
    * @param state the state to attach to the property
    * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element
-   * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok
-   * */
-  attachStateToPropTransform<
-    T extends keyof this,
-    U extends Result<any, string>
-  >(
+   * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
+  attachSTATEToProp<T extends keyof this>(
     prop: T,
-    state: StateReadBase<U, any, any>,
-    transform: (val: U) => Result<(typeof this)[T], string>,
-    visible?: boolean,
-    fallback?: (typeof this)[T],
-    fallbackFunc?: (error: string) => (typeof this)[T]
+    state: STATE<this[T]>,
+    fallback: (error: string) => this[T],
+    visible?: boolean
   ): this {
-    if (!this.#propStates)
-      this.#propStates = {} as {
-        [k in keyof this]: [StateSubscriber<any>, boolean];
-      };
     this.dettachStateFromProp(prop);
-    this.#propStates[prop] = [
-      this.attachState(
+    this.#props.set(prop, [
+      this.attachSTATE(
         state,
-        (val) => {
-          let transformed = transform(val);
-          if (transformed.ok) {
-            this[prop] = transformed.value;
-          } else if (fallbackFunc !== undefined) {
-            this[prop] = fallbackFunc(transformed.error);
-          } else if (fallback !== undefined) {
-            this[prop] = fallback;
-          }
-        },
+        (val) => (this[prop] = val.orElse((e) => Ok(fallback(e))).value),
         visible
       ),
       Boolean(visible),
-    ];
+    ]);
+    return this;
+  }
+
+  /**Attaches a state to a property, so that the property is updated when the state changes
+   * @param prop the property to attach the state to
+   * @param state the state to attach to the property
+   * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element
+   * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
+  attachStateToPropTransform<T extends keyof this, S extends STATE<any>>(
+    prop: T,
+    state: S,
+    transform: (
+      val: Result<STATE_INFER_TYPE<S>, string>
+    ) => Result<(typeof this)[T], string>,
+    fallback: (error: string) => (typeof this)[T],
+    visible?: boolean
+  ): this {
+    this.dettachStateFromProp(prop);
+    this.#props.set(prop, [
+      this.attachSTATE(
+        state,
+        (val) =>
+          (this[prop] = transform(val).orElse((e) => Ok(fallback(e))).value),
+        visible
+      ),
+      Boolean(visible),
+    ]);
     return this;
   }
 
   /**Dettaches the state from the property */
   dettachStateFromProp<T extends keyof this>(prop: T): this {
-    if (this.#propStates && prop in this.#propStates)
-      this.dettachState(
-        ...(this.#propStates[prop] as [
-          StateSubscriber<any>,
-          boolean | undefined
-        ])
-      );
+    let pro = this.#props.get(prop);
+    if (pro) this.dettachState(pro[0], pro[1]);
     return this;
   }
 
@@ -354,6 +342,23 @@ export abstract class Base<
    * @param state the state to attach to the property
    * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok
    * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element*/
+  attachSTATEROXToAttribute(
+    qualifiedName: string,
+    state: STATE_ROX<string>,
+    visible?: boolean
+  ): this {
+    this.dettachStateFromAttribute(qualifiedName);
+    this.#attributes[qualifiedName] = [
+      this.attachState(
+        state,
+        (val) => this.setAttribute(qualifiedName, val.value),
+        visible
+      ),
+      Boolean(visible),
+    ];
+    return this;
+  }
+
   attachStateToAttribute(
     qualifiedName: string,
     state: StateRead<string>,
@@ -361,12 +366,12 @@ export abstract class Base<
     fallback?: string,
     fallbackFunc?: (error: string) => string
   ): this {
-    if (!this.#attributeStates)
-      this.#attributeStates = {} as {
+    if (!this.#attributes)
+      this.#attributes = {} as {
         [k: string]: [StateSubscriber<any>, boolean];
       };
     this.dettachStateFromAttribute(qualifiedName);
-    this.#attributeStates[qualifiedName] = [
+    this.#attributes[qualifiedName] = [
       this.attachState(
         state,
         (val) => {
@@ -391,18 +396,18 @@ export abstract class Base<
    * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element*/
   attachStateToAttributeTransform<U extends Result<any, string>>(
     qualifiedName: string,
-    state: StateReadBase<U, any, any>,
+    state: STATE<U, any, any>,
     transform: (val: U) => Result<string, string>,
     visible?: boolean,
     fallback?: string,
     fallbackFunc?: (error: string) => string
   ): this {
-    if (!this.#attributeStates)
-      this.#attributeStates = {} as {
-        [k: string]: [StateSubscriber<any>, boolean];
+    if (!this.#attributes)
+      this.#attributes = {} as {
+        [k: string]: [STATE_SUB<any>, boolean];
       };
     this.dettachStateFromAttribute(qualifiedName);
-    this.#attributeStates[qualifiedName] = [
+    this.#attributes[qualifiedName] = [
       this.attachState(
         state,
         (val) => {
@@ -424,10 +429,10 @@ export abstract class Base<
 
   /**Dettaches the state from the property */
   dettachStateFromAttribute(qualifiedName: string): this {
-    if (this.#attributeStates && qualifiedName in this.#attributeStates)
+    if (this.#attributes && qualifiedName in this.#attributes)
       this.dettachState(
-        ...(this.#attributeStates[qualifiedName] as [
-          StateSubscriber<any>,
+        ...(this.#attributes[qualifiedName] as [
+          STATE_SUB<any>,
           boolean | undefined
         ])
       );
@@ -459,7 +464,7 @@ export abstract class Base<
   }
   /**Sets the access of the element, passing undefined is the same as passing write access*/
   accessByState(
-    access: StateRead<AccessTypes> | AccessTypes | undefined,
+    access: STATE<AccessTypes> | AccessTypes | undefined,
     visible?: boolean,
     fallback?: AccessTypes,
     fallbackFunc?: (error: string) => AccessTypes
@@ -471,3 +476,8 @@ export abstract class Base<
     return this;
   }
 }
+
+let test: Base = {} as any; //
+test.attachSTATEREX(state.s.ros.ok(5), (val) => {});
+
+test.attachStateToProp("innerHTML", state.s.res.ok("5"));

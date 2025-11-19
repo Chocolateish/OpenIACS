@@ -1,39 +1,38 @@
-import { None, Ok, Some, type Option, type Result } from "@libResult";
-import type {
-  StateHelper,
-  StateRead,
-  StateRelated,
-  StateSubscriber,
+import { Err, Ok, Some, type Option, type Result } from "@libResult";
+import {
+  STATE_REA,
+  STATE_REA_WA,
+  STATE_REA_WS,
+  STATE_RES,
+  STATE_RES_WA,
+  STATE_RES_WS,
+  STATE_ROA,
+  STATE_ROA_WA,
+  STATE_ROA_WS,
+  STATE_ROS,
+  STATE_ROS_WA,
+  STATE_ROS_WS,
+  type STATE_HELPER_WRITE,
+  type STATE_RELATED,
+  type STATE_REX,
+  type STATE_ROX,
+  type STATE_RXA,
+  type STATE_RXS,
+  type STATE_RXX,
+  type STATE_SUB,
 } from "./types";
 
-export async function state_await_value<T>(
-  value: T,
-  state: StateRead<T, true>,
-  timeout: number = 500
-): Promise<boolean> {
-  let func: StateSubscriber<T>;
-  let res = await Promise.race([
-    new Promise<false>((a) => setTimeout(a, timeout, false)),
-    new Promise<true>((a) => {
-      func = state.subscribe((res) => {
-        if (res.ok && res.value === value) a(true);
-      });
-    }),
-  ]);
-  //@ts-expect-error
-  state.unsubscribe(func);
-  return res;
-}
-
-export interface StateNumberHelperType {
+export interface STATE_NUMBER_RELATED extends STATE_RELATED {
   min?: number;
   max?: number;
   unit?: string;
   decimals?: number;
 }
 
-export class StateNumberHelper
-  implements StateNumberHelperType, StateHelper<number, StateNumberHelperType>
+export class STATE_NUMBER_HELPER
+  implements
+    STATE_NUMBER_RELATED,
+    STATE_HELPER_WRITE<number, STATE_NUMBER_RELATED>
 {
   min: number | undefined;
   max: number | undefined;
@@ -109,26 +108,31 @@ export class StateNumberHelper
     );
   }
 
-  check(value: number): Option<string> {
+  check(value: number): Result<number, string> {
     if ("max" in this && value > (this.max as number))
-      return Some(value + " is bigger than the limit of " + this.max);
+      return Err(value + " is bigger than the limit of " + this.max);
     if ("min" in this && value < (this.min as number))
-      return Some(value + " is smaller than the limit of " + this.max);
-    return None();
+      return Err(value + " is smaller than the limit of " + this.max);
+    return Ok(value);
   }
 
-  related(): Option<StateNumberHelperType> {
-    return Some(this as StateNumberHelperType);
+  related(): Option<STATE_NUMBER_RELATED> {
+    return Some(this as STATE_NUMBER_RELATED);
   }
 }
 
-export interface StateStringHelperType {
+//##################################################################################################################################################
+//##################################################################################################################################################
+
+export interface STATE_STRING_RELATED extends STATE_RELATED {
   maxLength?: number;
   maxLengthBytes?: number;
 }
 
-export class StateStringHelper
-  implements StateStringHelperType, StateHelper<string, StateStringHelperType>
+export class STATE_STRING_HELPER
+  implements
+    STATE_STRING_RELATED,
+    STATE_HELPER_WRITE<string, STATE_STRING_RELATED>
 {
   maxLength: number | undefined;
   maxLengthBytes: number | undefined;
@@ -150,26 +154,29 @@ export class StateStringHelper
     }
     return Ok(value);
   }
-  check(value: string): Option<string> {
+  check(value: string): Result<string, string> {
     if ("maxLength" in this && value.length > this.maxLength!)
-      return Some(
+      return Err(
         "the text is longer than the limit of " + this.maxLength + " characters"
       );
     if (
       "maxLengthBytes" in this &&
       new TextEncoder().encode(value).length > this.maxLengthBytes!
     )
-      return Some(
+      return Err(
         "the text is longer than the limit of " + this.maxLengthBytes + " bytes"
       );
-    return None();
+    return Ok(value);
   }
-  related(): Option<StateStringHelperType> {
-    return Some(this as StateStringHelperType);
+  related(): Option<STATE_STRING_RELATED> {
+    return Some(this as STATE_STRING_RELATED);
   }
 }
 
-export type StateEnumHelperList = {
+//##################################################################################################################################################
+//##################################################################################################################################################
+
+export type STATE_ENUM_HELPER_LIST = {
   [key: string | number | symbol]: {
     name: string;
     description?: string;
@@ -177,19 +184,16 @@ export type StateEnumHelperList = {
   };
 };
 
-export interface StateEnumHelperType<T extends StateEnumHelperList>
-  extends StateRelated {
+export interface STATE_ENUM_RELATED<T extends STATE_ENUM_HELPER_LIST>
+  extends STATE_RELATED {
   list: T;
 }
-export interface StateEnumHelperAnyType {
-  list?: { [key: string | number | symbol]: { name: string } };
-}
 
-export class StateEnumHelper<
+export class STATE_ENUM_HELPER<
   K extends string | number | symbol,
-  T extends StateEnumHelperList,
-  R extends StateRelated = StateEnumHelperType<T>
-> implements StateHelper<K, R>, StateEnumHelperType<T>
+  T extends STATE_ENUM_HELPER_LIST,
+  R extends STATE_RELATED = STATE_ENUM_RELATED<T>
+> implements STATE_HELPER_WRITE<K, R>, STATE_ENUM_RELATED<T>
 {
   list: T;
 
@@ -200,9 +204,9 @@ export class StateEnumHelper<
   limit(value: K): Result<K, string> {
     return Ok(value);
   }
-  check(value: K): Option<string> {
-    if (value in this.list) return None();
-    return Some(String(value) + " is not in list");
+  check(value: K): Result<K, string> {
+    if (value in this.list) return Ok(value);
+    return Err(String(value) + " is not in list");
   }
 
   related(): Option<R> {
@@ -210,7 +214,7 @@ export class StateEnumHelper<
   }
 }
 
-export function state_enum_iterate<T, R extends StateEnumHelperType<any>>(
+function enum_iterate<T, R extends STATE_ENUM_RELATED<any>>(
   related: R,
   func: (key: keyof R["list"], val: R["list"][keyof R["list"]]) => T
 ) {
@@ -219,9 +223,40 @@ export function state_enum_iterate<T, R extends StateEnumHelperType<any>>(
   });
 }
 
-export async function state_compare(
-  state1: StateRead<any, true>,
-  state2: StateRead<any, true>
+//##################################################################################################################################################
+//##################################################################################################################################################
+/**Waits for a state to have a specific value or until timeout is reached
+ * @param value value to wait for
+ * @param state state to wait on
+ * @param timeout timeout in milliseconds, default 500ms
+ * @returns true if value was reached before timeout, false if timeout was reached*/
+async function await_value<T>(
+  value: T,
+  state: STATE_RXX<T>,
+  timeout: number = 500
+): Promise<boolean> {
+  let func: STATE_SUB<T> = () => {};
+  let res = await Promise.race([
+    new Promise<false>((a) => setTimeout(a, timeout, false)),
+    new Promise<true>((a) => {
+      func = state.subscribe((res) => {
+        if (res.ok && res.value === value) a(true);
+      });
+    }),
+  ]);
+  state.unsubscribe(func);
+  return res;
+}
+
+//##################################################################################################################################################
+//##################################################################################################################################################
+/**Compare two states for equality
+ * @param state1 first state
+ * @param state2 second state
+ * @returns true if states are equal*/
+async function compare(
+  state1: STATE_RXX<any>,
+  state2: STATE_RXX<any>
 ): Promise<boolean> {
   let res1 = await state1;
   let res2 = await state2;
@@ -229,12 +264,107 @@ export async function state_compare(
   return res1.value === res2.value;
 }
 
-export function state_compare_sync(
-  state1: StateRead<any, true>,
-  state2: StateRead<any, true>
-): boolean {
+//##################################################################################################################################################
+//##################################################################################################################################################
+/**Compare two sync states for equality
+ * @param state1 first state
+ * @param state2 second state
+ * @returns true if states are equal*/
+function compare_sync(state1: STATE_RXS<any>, state2: STATE_RXS<any>): boolean {
   let res1 = state1.get();
   let res2 = state2.get();
   if (res1.err || res2.err) return true;
   return res1.value !== res2.value;
 }
+
+//##################################################################################################################################################
+//      _____  _____    _____ _______    _______ ______    _____ _    _ ______ _____ _  __ _____
+//     |_   _|/ ____|  / ____|__   __|/\|__   __|  ____|  / ____| |  | |  ____/ ____| |/ // ____|
+//       | | | (___   | (___    | |  /  \  | |  | |__    | |    | |__| | |__ | |    | ' /| (___
+//       | |  \___ \   \___ \   | | / /\ \ | |  |  __|   | |    |  __  |  __|| |    |  <  \___ \
+//      _| |_ ____) |  ____) |  | |/ ____ \| |  | |____  | |____| |  | | |___| |____| . \ ____) |
+//     |_____|_____/  |_____/   |_/_/    \_\_|  |______|  \_____|_|  |_|______\_____|_|\_\_____/
+/**Functions to check if something is a state */
+const is = {
+  /**Checks if something is a STATE_REX */
+  rex(s: any): s is STATE_REX<any> {
+    return s instanceof STATE_REA || s instanceof STATE_RES;
+  },
+  /**Checks if something is a STATE_ROX */
+  rox(s: any): s is STATE_ROX<any> {
+    return s instanceof STATE_ROA || s instanceof STATE_ROS;
+  },
+  /**Checks if something is a STATE_RXA */
+  rxa(s: any): s is STATE_RXA<any> {
+    return s instanceof STATE_REA || s instanceof STATE_ROA;
+  },
+  /**Checks if something is a STATE_RXS */
+  rxs(s: any): s is STATE_RXS<any> {
+    return s instanceof STATE_RES || s instanceof STATE_ROS;
+  },
+  /**Checks if something is a STATE_REA */
+  rea(s: any): s is STATE_REA<any> {
+    return s instanceof STATE_REA;
+  },
+  /**Checks if something is a STATE_ROA */
+  roa(s: any): s is STATE_ROA<any> {
+    return s instanceof STATE_ROA;
+  },
+  /**Checks if something is a STATE_RES */
+  res(s: any): s is STATE_RES<any> {
+    return s instanceof STATE_RES;
+  },
+  /**Checks if something is a STATE_ROS */
+  ros(s: any): s is STATE_ROS<any> {
+    return s instanceof STATE_ROS;
+  },
+  /**Checks if something is a STATE_REA_WA */
+  rea_wa(s: any): s is STATE_REA_WA<any> {
+    return s instanceof STATE_REA_WA;
+  },
+  /**Checks if something is a STATE_ROA_WA */
+  roa_wa(s: any): s is STATE_ROA_WA<any> {
+    return s instanceof STATE_ROA_WA;
+  },
+  /**Checks if something is a STATE_RES_WA */
+  res_wa(s: any): s is STATE_RES_WA<any> {
+    return s instanceof STATE_RES_WA;
+  },
+  /**Checks if something is a STATE_ROS_WA */
+  ros_wa(s: any): s is STATE_ROS_WA<any> {
+    return s instanceof STATE_ROS_WA;
+  },
+  /**Checks if something is a STATE_REA_WS */
+  rea_ws(s: any): s is STATE_REA_WS<any> {
+    return s instanceof STATE_REA_WS;
+  },
+  /**Checks if something is a STATE_ROA_WS */
+  roa_ws(s: any): s is STATE_ROA_WS<any> {
+    return s instanceof STATE_ROA_WS;
+  },
+  /**Checks if something is a STATE_RES_WS */
+  res_ws(s: any): s is STATE_RES_WS<any> {
+    return s instanceof STATE_RES_WS;
+  },
+  /**Checks if something is a STATE_ROS_WS */
+  ros_ws(s: any): s is STATE_ROS_WS<any> {
+    return s instanceof STATE_ROS_WS;
+  },
+};
+
+//##################################################################################################################################################
+//      ________   _______   ____  _____ _______ _____
+//     |  ____\ \ / /  __ \ / __ \|  __ \__   __/ ____|
+//     | |__   \ V /| |__) | |  | | |__) | | | | (___
+//     |  __|   > < |  ___/| |  | |  _  /  | |  \___ \
+//     | |____ / . \| |    | |__| | | \ \  | |  ____) |
+//     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
+
+/**Helper function and types for states */
+export const state_helpers = {
+  is,
+  enum_iterate,
+  await_value,
+  compare,
+  compare_sync,
+};
