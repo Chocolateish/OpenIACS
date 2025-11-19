@@ -1,5 +1,5 @@
 import { Err, None, Ok, type Option, type Result } from "@libResult";
-import { STATE_REA_WA, type STATE_HELPER_WRITE } from "./types";
+import { STATE_RES_WA, type STATE_HELPER_WRITE } from "./types";
 
 /**Enum of possible access types for base element*/
 const READ_TYPE = {
@@ -44,7 +44,7 @@ export interface STATE_ARRAY_WRITE<TYPE> {
  * @template SYNC - Whether `get()` is available synchronously (true = available).
  * @template OK - Indicates if state can have erroneous values (true = no errors).
  * @template RELATED - The type of related states, defaults to an empty object.*/
-export class StateArray<AT, RELATED extends {} = {}> extends STATE_REA_WA<
+export class STATE_ARRAY_RES<AT, RELATED extends {} = {}> extends STATE_RES_WA<
   STATE_ARRAY_READ<AT>,
   STATE_ARRAY_WRITE<AT>,
   RELATED

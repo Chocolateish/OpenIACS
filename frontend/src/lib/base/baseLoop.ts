@@ -1,10 +1,6 @@
-import {
-  state_array_apply_read_to_array,
-  state_array_apply_read_to_array_transform,
-  type StateArray,
-  type StateArrayRead,
-  type StateSubscriber,
-} from "@libState";
+import type { Result } from "@libResult";
+import { STATE_ARRAY_RES, type STATE_SUB } from "@libState";
+import type { STATE_ARRAY_READ } from "../state/array";
 import { Base } from "./base";
 
 interface A<T, E extends Node> {
@@ -12,7 +8,7 @@ interface A<T, E extends Node> {
   error(err: string): Node;
   destructor?(val: T, element: E): void;
   array?: T[];
-  state?: StateArray<T>;
+  state?: STATE_ARRAY_RES<T>;
 }
 
 interface B<T, E extends Node> extends A<T, E> {
@@ -22,7 +18,7 @@ interface B<T, E extends Node> extends A<T, E> {
 
 interface C<T, E extends Node> extends A<T, E> {
   array?: undefined;
-  state: StateArray<T>;
+  state: STATE_ARRAY_RES<T>;
 }
 export type LoopOptions<T, E extends Node> = B<T, E> | C<T, E>;
 
@@ -30,8 +26,8 @@ export class Loop<T, E extends Node> extends Base {
   #generator: (val: T) => E;
   //#error: (err: string) => Node = () => document.createTextNode("");
   #destructor?: (val: T, element: E) => void;
-  #stateArray?: StateArray<T>;
-  #subSubscriber?: StateSubscriber<StateArrayRead<T>>;
+  #stateArray?: STATE_ARRAY_RES<T>;
+  #subSubscriber?: STATE_SUB<Result<STATE_ARRAY_READ<T>, string>>;
   #values: T[] = [];
   #children: E[] = [];
 
@@ -43,15 +39,15 @@ export class Loop<T, E extends Node> extends Base {
   }
 
   set array(array: T[]) {
-    if (this.#subSubscriber) this.#stateArray?.unsubscribe(this.#subSubscriber);
+    if (this.#subSubscriber) this.#stateArray?.unsub(this.#subSubscriber);
     this.replaceChildren(...array.map(this.#generator));
   }
 
-  set state(state: StateArray<T>) {
+  set state(state: STATE_ARRAY_RES<T>) {
     if (state === this.#stateArray) return;
-    if (this.#subSubscriber) this.#stateArray?.unsubscribe(this.#subSubscriber);
+    if (this.#subSubscriber) this.#stateArray?.unsub(this.#subSubscriber);
     this.#stateArray = state;
-    this.#subSubscriber = this.#stateArray.subscribe((val) => {
+    this.#subSubscriber = this.#stateArray.sub((val) => {
       if (val.ok) {
         let value = val.value;
         this.#values = state_array_apply_read_to_array(this.#values, value);

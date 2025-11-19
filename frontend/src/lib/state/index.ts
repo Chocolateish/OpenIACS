@@ -18,7 +18,7 @@ export default {
   s: state_sync,
 };
 
-export { state_array } from "./array";
+export { state_array, STATE_ARRAY_RES } from "./array";
 export {
   state_collected,
   type STATE_COLLECTED_REA as STATE_CALCULATED_REA,
@@ -78,7 +78,6 @@ export type {
   STATE,
   STATE_INFER_RESULT,
   STATE_INFER_SUB,
-  STATE_INFER_SUB_OK,
   STATE_INFER_TYPE,
   STATE_REX,
   STATE_REX_WA,
@@ -106,7 +105,6 @@ export type {
   STATE_RXX_WX,
   STATE_RXX_XX,
   STATE_SUB,
-  STATE_SUB_OK,
 } from "./types";
 
 //      ________   _________ ______ _   _  _____ _____ ____  _   _    _____ _                _____ _____ ______  _____

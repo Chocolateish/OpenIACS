@@ -6,12 +6,7 @@ import {
   material_hardware_mouse_rounded,
   material_image_edit_rounded,
 } from "@libIcons";
-import {
-  state_ok,
-  StateEnumHelper,
-  StateNumberHelper,
-  type StateEnumHelperList,
-} from "@libState";
+import state from "@libState";
 import { name, version } from "@package";
 
 const settings = settingsInit(
@@ -34,7 +29,7 @@ export const Themes = {
 } as const;
 export type Themes = (typeof Themes)[keyof typeof Themes];
 
-const themesInternal = {
+const themesInternal = state.h.enums.list({
   [Themes.Light]: {
     name: "Light",
     description: "Theme optimized for daylight",
@@ -45,9 +40,9 @@ const themesInternal = {
     description: "Theme optimized for night time",
     icon: material_device_dark_mode_rounded,
   },
-} satisfies StateEnumHelperList;
+});
 
-const themeInternal = state_ok(
+const themeInternal = state.s.ros_ws.ok(
   settings.get(
     ThemeID,
     window.matchMedia &&
@@ -56,10 +51,10 @@ const themeInternal = state_ok(
       : (Themes.Light as Themes)
   ),
   true,
-  new StateEnumHelper(themesInternal)
+  state.h.enums.helper(Themes, themesInternal)
 );
 settings.register(ThemeID, "Theme", "Theme to use for the UI", themeInternal);
-export const theme = themeInternal.writeable;
+export const theme = themeInternal.readwrite;
 
 //Sets up automatic theme change based on operating system
 window

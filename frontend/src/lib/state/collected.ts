@@ -83,7 +83,7 @@ export class STATE_COLLECTED_REA<
         this.#state = 1;
         let count = this.#states.length;
         for (let i = 0; i < this.#states.length; i++) {
-          this.#stateSubscribers[i] = this.#states[i].subscribe((value) => {
+          this.#stateSubscribers[i] = this.#states[i].sub((value) => {
             if (this.#state === 2) {
               this.#stateBuffers[i] = value;
               this.#calculate(false);
@@ -99,7 +99,7 @@ export class STATE_COLLECTED_REA<
         }
       } else if (this.#states.length === 1) {
         this.#state = 1;
-        this.#stateSubscribers[0] = this.#states[0].subscribe((value) => {
+        this.#stateSubscribers[0] = this.#states[0].sub((value) => {
           this.#state = 2;
           this.#buffer = this.getter([value] as TRANS_VAL<IN>);
           this.updateSubscribers(this.#buffer);
@@ -118,7 +118,7 @@ export class STATE_COLLECTED_REA<
   protected onUnsubscribe(last: boolean) {
     if (last) {
       for (let i = 0; i < this.#states.length; i++)
-        this.#states[i].unsubscribe(this.#stateSubscribers[i] as any);
+        this.#states[i].unsub(this.#stateSubscribers[i] as any);
       this.#stateSubscribers = [];
       this.#stateBuffers = [] as TRANS_VAL<IN>;
       this.#buffer = undefined;
@@ -215,7 +215,7 @@ export class STATE_COLLECTED_ROA<
         this.#state = 1;
         let count = this.#states.length;
         for (let i = 0; i < this.#states.length; i++) {
-          this.#stateSubscribers[i] = this.#states[i].subscribe((value) => {
+          this.#stateSubscribers[i] = this.#states[i].sub((value) => {
             if (this.#state === 2) {
               this.#stateBuffers[i] = value;
               this.#calculate(false);
@@ -231,7 +231,7 @@ export class STATE_COLLECTED_ROA<
         }
       } else if (this.#states.length === 1) {
         this.#state = 1;
-        this.#stateSubscribers[0] = this.#states[0].subscribe((value) => {
+        this.#stateSubscribers[0] = this.#states[0].sub((value) => {
           this.#state = 2;
           this.#buffer = this.getter([value] as TRANS_VAL<IN>);
           this.updateSubscribers(this.#buffer);
@@ -245,7 +245,7 @@ export class STATE_COLLECTED_ROA<
   protected onUnsubscribe(last: boolean) {
     if (last) {
       for (let i = 0; i < this.#states.length; i++)
-        this.#states[i].unsubscribe(this.#stateSubscribers[i] as any);
+        this.#states[i].unsub(this.#stateSubscribers[i] as any);
       this.#stateSubscribers = [];
       this.#stateBuffers = [] as TRANS_VAL<IN>;
       this.#buffer = undefined;
@@ -338,7 +338,7 @@ export class STATE_COLLECTED_RES<
         let calc = false;
         for (let i = 0; i < this.#states.length; i++) {
           this.#stateBuffers[i] = this.#states[i].get();
-          this.#stateSubscribers[i] = this.#states[i].subscribe((value) => {
+          this.#stateSubscribers[i] = this.#states[i].sub((value) => {
             this.#stateBuffers[i] = value;
             if (!calc) {
               calc = true;
@@ -355,7 +355,7 @@ export class STATE_COLLECTED_RES<
       } else if (this.#states.length === 1) {
         this.#buffer = this.get();
         this.updateSubscribers(this.#buffer);
-        this.#stateSubscribers[0] = this.#states[0].subscribe((value) => {
+        this.#stateSubscribers[0] = this.#states[0].sub((value) => {
           this.#buffer = this.getter([value] as TRANS_VAL<IN>);
           this.updateSubscribers(this.#buffer);
         }, false);
@@ -370,7 +370,7 @@ export class STATE_COLLECTED_RES<
   protected onUnsubscribe(last: boolean) {
     if (last) {
       for (let i = 0; i < this.#states.length; i++)
-        this.#states[i].unsubscribe(this.#stateSubscribers[i] as any);
+        this.#states[i].unsub(this.#stateSubscribers[i] as any);
       this.#stateSubscribers = [];
       this.#stateBuffers = [] as TRANS_VAL<IN>;
       this.#buffer = undefined;
@@ -447,7 +447,7 @@ export class STATE_COLLECTED_ROS<
         let calc = false;
         for (let i = 0; i < this.#states.length; i++) {
           this.#stateBuffers[i] = this.#states[i].get();
-          this.#stateSubscribers[i] = this.#states[i].subscribe((value) => {
+          this.#stateSubscribers[i] = this.#states[i].sub((value) => {
             this.#stateBuffers[i] = value;
             if (!calc) {
               calc = true;
@@ -464,7 +464,7 @@ export class STATE_COLLECTED_ROS<
       } else if (this.#states.length === 1) {
         this.#buffer = this.get();
         this.updateSubscribers(this.#buffer);
-        this.#stateSubscribers[0] = this.#states[0].subscribe((value) => {
+        this.#stateSubscribers[0] = this.#states[0].sub((value) => {
           this.#buffer = this.getter([value] as TRANS_VAL<IN>);
           this.updateSubscribers(this.#buffer);
         });
@@ -476,7 +476,7 @@ export class STATE_COLLECTED_ROS<
   protected onUnsubscribe(last: boolean) {
     if (last) {
       for (let i = 0; i < this.#states.length; i++)
-        this.#states[i].unsubscribe(this.#stateSubscribers[i] as any);
+        this.#states[i].unsub(this.#stateSubscribers[i] as any);
       this.#stateSubscribers = [];
       this.#stateBuffers = [] as TRANS_VAL<IN>;
       this.#buffer = undefined;

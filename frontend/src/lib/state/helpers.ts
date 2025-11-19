@@ -12,6 +12,8 @@ import {
   STATE_ROS,
   STATE_ROS_WA,
   STATE_ROS_WS,
+  StateReadAll,
+  type STATE,
   type STATE_HELPER_WRITE,
   type STATE_RELATED,
   type STATE_REX,
@@ -214,7 +216,7 @@ export class STATE_ENUM_HELPER<
   }
 }
 
-function enum_iterate<T, R extends STATE_ENUM_RELATED<any>>(
+function iterate<T, R extends STATE_ENUM_RELATED<any>>(
   related: R,
   func: (key: keyof R["list"], val: R["list"][keyof R["list"]]) => T
 ) {
@@ -222,6 +224,20 @@ function enum_iterate<T, R extends STATE_ENUM_RELATED<any>>(
     return func(key, related.list[key]);
   });
 }
+
+const enums = {
+  iterate,
+  helper<
+    K extends string | number | symbol,
+    T extends STATE_ENUM_HELPER_LIST,
+    R extends STATE_RELATED = STATE_ENUM_RELATED<T>
+  >(_enu: K, list: T) {
+    return new STATE_ENUM_HELPER<K, T, R>(list);
+  },
+  list<L extends STATE_ENUM_HELPER_LIST>(list: L): L {
+    return list;
+  },
+};
 
 //##################################################################################################################################################
 //##################################################################################################################################################
@@ -235,16 +251,16 @@ async function await_value<T>(
   state: STATE_RXX<T>,
   timeout: number = 500
 ): Promise<boolean> {
-  let func: STATE_SUB<T> = () => {};
+  let func: STATE_SUB<Result<T, string>> = () => {};
   let res = await Promise.race([
     new Promise<false>((a) => setTimeout(a, timeout, false)),
     new Promise<true>((a) => {
-      func = state.subscribe((res) => {
+      func = state.sub((res) => {
         if (res.ok && res.value === value) a(true);
       });
     }),
   ]);
-  state.unsubscribe(func);
+  state.unsub(func);
   return res;
 }
 
@@ -286,68 +302,72 @@ function compare_sync(state1: STATE_RXS<any>, state2: STATE_RXS<any>): boolean {
 //     |_____|_____/  |_____/   |_/_/    \_\_|  |______|  \_____|_|  |_|______\_____|_|\_\_____/
 /**Functions to check if something is a state */
 const is = {
+  /**Checks if something is a STATE */
+  state<T = any>(s: any): s is STATE<T> {
+    return s instanceof StateReadAll;
+  },
   /**Checks if something is a STATE_REX */
-  rex(s: any): s is STATE_REX<any> {
+  rex<T = any>(s: any): s is STATE_REX<T> {
     return s instanceof STATE_REA || s instanceof STATE_RES;
   },
   /**Checks if something is a STATE_ROX */
-  rox(s: any): s is STATE_ROX<any> {
+  rox<T = any>(s: any): s is STATE_ROX<T> {
     return s instanceof STATE_ROA || s instanceof STATE_ROS;
   },
   /**Checks if something is a STATE_RXA */
-  rxa(s: any): s is STATE_RXA<any> {
+  rxa<T = any>(s: any): s is STATE_RXA<T> {
     return s instanceof STATE_REA || s instanceof STATE_ROA;
   },
   /**Checks if something is a STATE_RXS */
-  rxs(s: any): s is STATE_RXS<any> {
+  rxs<T = any>(s: any): s is STATE_RXS<T> {
     return s instanceof STATE_RES || s instanceof STATE_ROS;
   },
   /**Checks if something is a STATE_REA */
-  rea(s: any): s is STATE_REA<any> {
+  rea<T = any>(s: any): s is STATE_REA<T> {
     return s instanceof STATE_REA;
   },
   /**Checks if something is a STATE_ROA */
-  roa(s: any): s is STATE_ROA<any> {
+  roa<T = any>(s: any): s is STATE_ROA<T> {
     return s instanceof STATE_ROA;
   },
   /**Checks if something is a STATE_RES */
-  res(s: any): s is STATE_RES<any> {
+  res<T = any>(s: any): s is STATE_RES<T> {
     return s instanceof STATE_RES;
   },
   /**Checks if something is a STATE_ROS */
-  ros(s: any): s is STATE_ROS<any> {
+  ros<T = any>(s: any): s is STATE_ROS<T> {
     return s instanceof STATE_ROS;
   },
   /**Checks if something is a STATE_REA_WA */
-  rea_wa(s: any): s is STATE_REA_WA<any> {
+  rea_wa<T = any>(s: any): s is STATE_REA_WA<T> {
     return s instanceof STATE_REA_WA;
   },
   /**Checks if something is a STATE_ROA_WA */
-  roa_wa(s: any): s is STATE_ROA_WA<any> {
+  roa_wa<T = any>(s: any): s is STATE_ROA_WA<T> {
     return s instanceof STATE_ROA_WA;
   },
   /**Checks if something is a STATE_RES_WA */
-  res_wa(s: any): s is STATE_RES_WA<any> {
+  res_wa<T = any>(s: any): s is STATE_RES_WA<T> {
     return s instanceof STATE_RES_WA;
   },
   /**Checks if something is a STATE_ROS_WA */
-  ros_wa(s: any): s is STATE_ROS_WA<any> {
+  ros_wa<T = any>(s: any): s is STATE_ROS_WA<T> {
     return s instanceof STATE_ROS_WA;
   },
   /**Checks if something is a STATE_REA_WS */
-  rea_ws(s: any): s is STATE_REA_WS<any> {
+  rea_ws<T = any>(s: any): s is STATE_REA_WS<T> {
     return s instanceof STATE_REA_WS;
   },
   /**Checks if something is a STATE_ROA_WS */
-  roa_ws(s: any): s is STATE_ROA_WS<any> {
+  roa_ws<T = any>(s: any): s is STATE_ROA_WS<T> {
     return s instanceof STATE_ROA_WS;
   },
   /**Checks if something is a STATE_RES_WS */
-  res_ws(s: any): s is STATE_RES_WS<any> {
+  res_ws<T = any>(s: any): s is STATE_RES_WS<T> {
     return s instanceof STATE_RES_WS;
   },
   /**Checks if something is a STATE_ROS_WS */
-  ros_ws(s: any): s is STATE_ROS_WS<any> {
+  ros_ws<T = any>(s: any): s is STATE_ROS_WS<T> {
     return s instanceof STATE_ROS_WS;
   },
 };
@@ -363,7 +383,7 @@ const is = {
 /**Helper function and types for states */
 export const state_helpers = {
   is,
-  enum_iterate,
+  enums,
   await_value,
   compare,
   compare_sync,

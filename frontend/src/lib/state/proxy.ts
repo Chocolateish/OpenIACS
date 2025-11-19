@@ -60,11 +60,11 @@ export class STATE_PROXY_REA<
   }
 
   protected onSubscribe(first: boolean): void {
-    if (first) this.#state.subscribe(this.#subscriber, false);
+    if (first) this.#state.sub(this.#subscriber, false);
   }
   protected onUnsubscribe(last: boolean): void {
     if (last) {
-      this.#state.unsubscribe(this.#subscriber);
+      this.#state.unsub(this.#subscriber);
       this.#buffer = undefined;
     }
   }
@@ -144,11 +144,11 @@ export class STATE_PROXY_ROA<
   }
 
   protected onSubscribe(first: boolean): void {
-    if (first) this.#state.subscribe(this.#subscriber, false);
+    if (first) this.#state.sub(this.#subscriber, false);
   }
   protected onUnsubscribe(last: boolean): void {
     if (last) {
-      this.#state.unsubscribe(this.#subscriber);
+      this.#state.unsub(this.#subscriber);
       this.#buffer = undefined;
     }
   }
@@ -223,11 +223,11 @@ export class STATE_PROXY_RES<
   }
 
   protected onSubscribe(first: boolean): void {
-    if (first) this.#state.subscribe(this.#subscriber, false);
+    if (first) this.#state.sub(this.#subscriber, false);
   }
   protected onUnsubscribe(last: boolean): void {
     if (last) {
-      this.#state.unsubscribe(this.#subscriber);
+      this.#state.unsub(this.#subscriber);
       this.#buffer = undefined;
     }
   }
@@ -316,11 +316,11 @@ export class STATE_PROXY_ROS<
   }
 
   protected onSubscribe(first: boolean): void {
-    if (first) this.#state.subscribe(this.#subscriber, false);
+    if (first) this.#state.sub(this.#subscriber, false);
   }
   protected onUnsubscribe(last: boolean): void {
     if (last) {
-      this.#state.unsubscribe(this.#subscriber);
+      this.#state.unsub(this.#subscriber);
       this.#buffer = undefined;
     }
   }
