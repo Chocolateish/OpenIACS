@@ -18,7 +18,12 @@ export default {
   s: state_sync,
 };
 
-export { state_array, STATE_ARRAY_RES } from "./array";
+export {
+  state_array,
+  STATE_ARRAY_RES_WS as STATE_ARRAY_RES,
+  type STATE_ARRAY_READ,
+  type STATE_ARRAY_WRITE,
+} from "./array";
 export {
   state_collected,
   type STATE_COLLECTED_REA as STATE_CALCULATED_REA,

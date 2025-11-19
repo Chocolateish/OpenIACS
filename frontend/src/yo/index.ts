@@ -1,38 +1,44 @@
-import { Ok, type Option } from "../lib/result";
-import { State, type StateSubscriber } from "../lib/state";
-import { StateArray, type StateArrayRead } from "../lib/state/stateArray";
+import type {
+  STATE_ARRAY_READ,
+  STATE_ARRAY_RES,
+  STATE_SUB,
+  STATE_SYNC_ROS,
+  STATE_SYNC_ROS_WS,
+} from "@libState";
+import { default as st } from "@libState";
+import { type Option, type Result } from "../lib/result";
 
 class Base {}
 
 class BaseAdd extends Base {
-  #tag: State<string>;
-  #name: State<string>;
-  #description: State<string>;
+  #tag: STATE_SYNC_ROS<string>;
+  #name: STATE_SYNC_ROS_WS<string>;
+  #description: STATE_SYNC_ROS_WS<string>;
   constructor(tag: string, name: string, description: string) {
     super();
-    this.#tag = new State(Ok(tag));
-    this.#name = new State(Ok(name));
-    this.#description = new State(Ok(description));
+    this.#tag = st.s.ros.ok(tag);
+    this.#name = st.s.ros_ws.ok(name);
+    this.#description = st.s.ros_ws.ok(description);
   }
   get tag() {
-    return this.#tag.readable;
+    return this.#tag.readonly;
   }
   get name() {
-    return this.#name.writeable;
+    return this.#name.readwrite;
   }
   get description() {
-    return this.#description.writeable;
+    return this.#description.readwrite;
   }
 }
 
 class History extends Base {
-  #his: State<string>;
+  #his: STATE_SYNC_ROS<string>;
   constructor(text: string) {
     super();
-    this.#his = new State(Ok(text));
+    this.#his = st.s.ros.ok(text);
   }
   get history() {
-    return this.#his.readable;
+    return this.#his.readonly;
   }
 }
 
@@ -44,7 +50,7 @@ class Skill extends BaseAdd {
 }
 
 class Class extends BaseAdd {
-  #skills: StateArray<Skill>;
+  #skills: STATE_ARRAY_RES<Skill>;
 
   constructor(
     add: string,
@@ -53,11 +59,11 @@ class Class extends BaseAdd {
     skills: Skill[] = []
   ) {
     super(add, name, description);
-    this.#skills = new StateArray(Ok(skills));
+    this.#skills = st.a.res_ws.ok(skills);
   }
 
   get skills() {
-    return this.#skills.readable;
+    return this.#skills.readonly;
   }
 }
 class ClassInstance {
@@ -115,8 +121,8 @@ class AttributeInstance {
 }
 
 class Item extends BaseAdd {
-  #attributes: StateArray<Attribute>;
-  #instances: StateArray<ItemInstance> = new StateArray();
+  #attributes: STATE_ARRAY_RES<Attribute>;
+  #instances: STATE_ARRAY_RES<ItemInstance> = st.a.res_ws.ok();
   constructor(
     add: string,
     name: string,
@@ -124,7 +130,7 @@ class Item extends BaseAdd {
     attributes: Attribute[] = []
   ) {
     super(add, name, description);
-    this.#attributes = new StateArray(Ok(attributes));
+    this.#attributes = st.a.res_ws.ok(attributes);
   }
   get instance() {
     let inst = new ItemInstance(this);
@@ -132,31 +138,30 @@ class Item extends BaseAdd {
     return inst;
   }
   deleteInstance(instance: ItemInstance) {
-    this.#instances.removeAllOf(instance);
+    this.#instances.delete(instance);
   }
   get attibutes() {
-    return this.#attributes.readable;
+    return this.#attributes.readonly;
   }
   get instances() {
-    return this.#instances.readable;
+    return this.#instances.readonly;
   }
 }
 
 class ItemInstance {
   #item: Item;
-  #attributes: StateArray<AttributeInstance> = new StateArray();
-  #attributeSub: StateSubscriber<StateArrayRead<Attribute>>;
+  #attributes: STATE_ARRAY_RES<AttributeInstance> =
+    st.a.res_ws.ok<AttributeInstance>([]);
+  #attributeSub: STATE_SUB<Result<STATE_ARRAY_READ<Attribute>, string>>;
 
   constructor(item: Item) {
     this.#item = item;
-    this.#attributeSub = item.attibutes.subscribe((val) => {
-      this.#attributes.applyStateArrayRead(val, (val) =>
-        val.map((a) => a.instance)
-      );
+    this.#attributeSub = item.attibutes.sub((val) => {
+      this.#attributes.applyRead(val, (val) => val.map((a) => a.instance));
     }, true);
   }
   destroy() {
-    this.#item.attibutes.unsubscribe(this.#attributeSub);
+    this.#item.attibutes.unsub(this.#attributeSub);
     this.#item.deleteInstance(this);
   }
 }

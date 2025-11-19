@@ -18,7 +18,7 @@ import {
 //     | |    | |      / /\ \  \___ \\___ \|  __|  \___ \
 //     | |____| |____ / ____ \ ____) |___) | |____ ____) |
 //      \_____|______/_/    \_\_____/_____/|______|_____/
-export class STATE_SYNC_RES<RT, REL extends Related> extends STATE_RES<
+export class STATE_SYNC_RES<RT, REL extends Related = {}> extends STATE_RES<
   RT,
   REL
 > {
@@ -46,7 +46,7 @@ export class STATE_SYNC_RES<RT, REL extends Related> extends STATE_RES<
 
   //#Owner Context
   set(value: Result<RT, string>) {
-    this.updateSubscribers((this.#value = value));
+    this.updateSubs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -58,7 +58,7 @@ export class STATE_SYNC_RES<RT, REL extends Related> extends STATE_RES<
 
 //##################################################################################################################################################
 //##################################################################################################################################################
-export class STATE_SYNC_ROS<RT, REL extends Related> extends STATE_ROS<
+export class STATE_SYNC_ROS<RT, REL extends Related = {}> extends STATE_ROS<
   RT,
   REL
 > {
@@ -89,7 +89,7 @@ export class STATE_SYNC_ROS<RT, REL extends Related> extends STATE_ROS<
 
   //#Owner Context
   set(value: ResultOk<RT>) {
-    this.updateSubscribers((this.#value = value));
+    this.updateSubs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -100,8 +100,8 @@ export class STATE_SYNC_ROS<RT, REL extends Related> extends STATE_ROS<
 //##################################################################################################################################################
 export class STATE_SYNC_RES_WS<
   RT,
-  WT,
-  REL extends Related
+  WT = RT,
+  REL extends Related = {}
 > extends STATE_RES_WS<RT, WT, REL> {
   constructor(
     init: Result<RT, string>,
@@ -159,7 +159,7 @@ export class STATE_SYNC_RES_WS<
 
   //#Owner Context
   set(value: Result<RT, string>) {
-    this.updateSubscribers((this.#value = value));
+    this.updateSubs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -173,8 +173,8 @@ export class STATE_SYNC_RES_WS<
 //##################################################################################################################################################
 export class STATE_SYNC_ROS_WS<
   RT,
-  WT,
-  REL extends Related
+  WT = RT,
+  REL extends Related = {}
 > extends STATE_ROS_WS<RT, WT, REL> {
   constructor(
     init: ResultOk<RT>,
@@ -235,7 +235,7 @@ export class STATE_SYNC_ROS_WS<
 
   //#Owner Context
   set(value: ResultOk<RT>) {
-    this.updateSubscribers((this.#value = value));
+    this.updateSubs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));

@@ -69,7 +69,7 @@ export class STATE_DELAYED_REA<RT, REL extends Related> extends STATE_REA<
 
   //#Owner Context
   set(value: Result<RT, string>) {
-    this.updateSubscribers((this.#value = value));
+    this.updateSubs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -124,7 +124,7 @@ export class STATE_DELAYED_ROA<RT, REL extends Related> extends STATE_ROA<
 
   //#Owner Context
   set(value: ResultOk<RT>) {
-    this.updateSubscribers((this.#value = value));
+    this.updateSubs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -212,7 +212,7 @@ export class STATE_DELAYED_REA_WS<
 
   //#Owner Context
   set(value: Result<RT, string>) {
-    this.updateSubscribers((this.#value = value));
+    this.updateSubs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -302,7 +302,7 @@ export class STATE_DELAYED_ROA_WS<
 
   //#Owner Context
   set(value: ResultOk<RT>) {
-    this.updateSubscribers((this.#value = value));
+    this.updateSubs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));

@@ -40,7 +40,7 @@ export class STATE_PROXY_REA<
   #state: S;
   #subscriber = (value: Result<IN, string>) => {
     this.#buffer = this.transform(value);
-    this.updateSubscribers(this.#buffer);
+    this.updateSubs(this.#buffer);
   };
   #buffer?: Result<OUT, string>;
 
@@ -124,7 +124,7 @@ export class STATE_PROXY_ROA<
   #state: S;
   #subscriber = (value: Result<IN, string>) => {
     this.#buffer = this.transform(value);
-    this.updateSubscribers(this.#buffer);
+    this.updateSubs(this.#buffer);
   };
   #buffer?: ResultOk<OUT>;
 
@@ -198,7 +198,7 @@ export class STATE_PROXY_RES<
   #state: S;
   #subscriber = (value: Result<IN, string>) => {
     this.#buffer = this.transform(value);
-    this.updateSubscribers(this.#buffer);
+    this.updateSubs(this.#buffer);
   };
   #buffer?: Result<OUT, string>;
 
@@ -286,7 +286,7 @@ export class STATE_PROXY_ROS<
   #state: S;
   #subscriber = (value: Result<IN, string>) => {
     this.#buffer = this.transform(value);
-    this.updateSubscribers(this.#buffer);
+    this.updateSubs(this.#buffer);
   };
   #buffer?: ResultOk<OUT>;
 

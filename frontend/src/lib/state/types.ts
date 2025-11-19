@@ -131,7 +131,7 @@ export abstract class StateReadAll<
   protected onUnsubscribe(_last: boolean): void {}
 
   /**Updates all subscribers with a value */
-  protected updateSubscribers(value: RRT): void {
+  protected updateSubs(value: RRT): void {
     for (const subscriber of this.#subscribers) {
       try {
         subscriber(value);

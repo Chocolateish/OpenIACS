@@ -1,6 +1,10 @@
 import type { Result } from "@libResult";
-import { STATE_ARRAY_RES, type STATE_SUB } from "@libState";
-import type { STATE_ARRAY_READ } from "../state/array";
+import {
+  default as st,
+  STATE_ARRAY_RES,
+  type STATE_ARRAY_READ,
+  type STATE_SUB,
+} from "@libState";
 import { Base } from "./base";
 
 interface A<T, E extends Node> {
@@ -50,8 +54,8 @@ export class Loop<T, E extends Node> extends Base {
     this.#subSubscriber = this.#stateArray.sub((val) => {
       if (val.ok) {
         let value = val.value;
-        this.#values = state_array_apply_read_to_array(this.#values, value);
-        this.#children = state_array_apply_read_to_array_transform(
+        this.#values = st.a.apply_read(this.#values, value);
+        this.#children = st.a.apply_read(
           this.#children,
           value,
           this.#generator

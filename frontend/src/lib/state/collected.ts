@@ -4,12 +4,12 @@ import {
   STATE_RES,
   STATE_ROA,
   STATE_ROS,
+  type STATE_INFER_RESULT,
   type STATE_REX,
   type STATE_ROX,
   type STATE_RXS,
   type STATE_RXX,
   type STATE_SUB,
-  type STATE_SUB_OK,
 } from "./types";
 
 //##################################################################################################################################################
@@ -21,11 +21,7 @@ import {
 //      \_____|______/_/    \_\_____/_____/|______|_____/
 
 type TRANS_VAL<IN extends STATE_RXX<any>[]> = {
-  [I in keyof IN]: IN[I] extends STATE_ROX<infer RT>
-    ? ResultOk<RT>
-    : IN[I] extends STATE_REX<infer RT>
-    ? Result<RT, string>
-    : never;
+  [I in keyof IN]: STATE_INFER_RESULT<IN[I]>;
 };
 
 type TRANS_VAL_UNK<IN extends STATE_RXX<any>[]> = {
@@ -37,11 +33,7 @@ type TRANS_VAL_UNK<IN extends STATE_RXX<any>[]> = {
 };
 
 type SUBS<IN extends STATE_RXX<any>[]> = {
-  [I in keyof IN]: IN[I] extends STATE_ROX<infer RT>
-    ? STATE_SUB_OK<RT>
-    : IN[I] extends STATE_REX<infer RT>
-    ? STATE_SUB<RT>
-    : never;
+  [I in keyof IN]: STATE_SUB<STATE_INFER_RESULT<IN[I]>>;
 };
 
 type STATES<IN extends STATE_RXX<any>[]> = {
@@ -102,13 +94,13 @@ export class STATE_COLLECTED_REA<
         this.#stateSubscribers[0] = this.#states[0].sub((value) => {
           this.#state = 2;
           this.#buffer = this.getter([value] as TRANS_VAL<IN>);
-          this.updateSubscribers(this.#buffer);
+          this.updateSubs(this.#buffer);
           this.fulRProm(this.#buffer);
         }, true);
       } else {
         this.#state = 2;
         this.#buffer = Err("No states registered");
-        this.updateSubscribers(this.#buffer);
+        this.updateSubs(this.#buffer);
         this.fulRProm(this.#buffer);
       }
     }
@@ -130,7 +122,7 @@ export class STATE_COLLECTED_REA<
     this.#state = 3;
     await Promise.resolve();
     this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
-    if (!first) this.updateSubscribers(this.#buffer);
+    if (!first) this.updateSubs(this.#buffer);
     this.fulRProm(this.#buffer);
     this.#state = 2;
   }
@@ -205,7 +197,7 @@ export class STATE_COLLECTED_ROA<
   #stateSubscribers: SUBS<IN>[] = [];
 
   protected getter(values: TRANS_VAL<IN>): ResultOk<RT> {
-    return values[0];
+    return values[0] as ResultOk<RT>;
   }
 
   /**Called when subscriber is added*/
@@ -234,7 +226,7 @@ export class STATE_COLLECTED_ROA<
         this.#stateSubscribers[0] = this.#states[0].sub((value) => {
           this.#state = 2;
           this.#buffer = this.getter([value] as TRANS_VAL<IN>);
-          this.updateSubscribers(this.#buffer);
+          this.updateSubs(this.#buffer);
           this.fulRProm(this.#buffer);
         }, true);
       }
@@ -257,7 +249,7 @@ export class STATE_COLLECTED_ROA<
     this.#state = 3;
     await Promise.resolve();
     this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
-    if (!first) this.updateSubscribers(this.#buffer);
+    if (!first) this.updateSubs(this.#buffer);
     this.fulRProm(this.#buffer);
     this.#state = 2;
   }
@@ -344,24 +336,24 @@ export class STATE_COLLECTED_RES<
               calc = true;
               Promise.resolve().then(() => {
                 this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
-                if (!first) this.updateSubscribers(this.#buffer);
+                if (!first) this.updateSubs(this.#buffer);
                 calc = false;
               });
             }
           }, false);
         }
         this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
-        this.updateSubscribers(this.#buffer);
+        this.updateSubs(this.#buffer);
       } else if (this.#states.length === 1) {
         this.#buffer = this.get();
-        this.updateSubscribers(this.#buffer);
+        this.updateSubs(this.#buffer);
         this.#stateSubscribers[0] = this.#states[0].sub((value) => {
           this.#buffer = this.getter([value] as TRANS_VAL<IN>);
-          this.updateSubscribers(this.#buffer);
+          this.updateSubs(this.#buffer);
         }, false);
       } else {
         this.#buffer = Err("No states registered");
-        this.updateSubscribers(this.#buffer);
+        this.updateSubs(this.#buffer);
       }
     }
   }
@@ -437,7 +429,7 @@ export class STATE_COLLECTED_ROS<
   #stateSubscribers: SUBS<IN>[] = [];
 
   protected getter(values: TRANS_VAL<IN>): ResultOk<RT> {
-    return values[0];
+    return values[0] as ResultOk<RT>;
   }
 
   /**Called when subscriber is added*/
@@ -453,20 +445,20 @@ export class STATE_COLLECTED_ROS<
               calc = true;
               Promise.resolve().then(() => {
                 this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
-                if (!first) this.updateSubscribers(this.#buffer);
+                if (!first) this.updateSubs(this.#buffer);
                 calc = false;
               });
             }
           }, false);
         }
         this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
-        this.updateSubscribers(this.#buffer);
+        this.updateSubs(this.#buffer);
       } else if (this.#states.length === 1) {
         this.#buffer = this.get();
-        this.updateSubscribers(this.#buffer);
+        this.updateSubs(this.#buffer);
         this.#stateSubscribers[0] = this.#states[0].sub((value) => {
           this.#buffer = this.getter([value] as TRANS_VAL<IN>);
-          this.updateSubscribers(this.#buffer);
+          this.updateSubs(this.#buffer);
         });
       }
     }

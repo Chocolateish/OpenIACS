@@ -51,7 +51,7 @@ export class STATE_LAZY_RES<RT, REL extends Related> extends STATE_RES<
 
   //#Owner Context
   set(value: Result<RT, string>) {
-    this.updateSubscribers((this.#value = value));
+    this.updateSubs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -99,7 +99,7 @@ export class STATE_LAZY_ROS<RT, REL extends Related> extends STATE_ROS<
 
   //#Owner Context
   set(value: ResultOk<RT>) {
-    this.updateSubscribers((this.#value = value));
+    this.updateSubs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -177,7 +177,7 @@ export class STATE_LAZY_RES_WS<
 
   //#Owner Context
   set(value: Result<RT, string>) {
-    this.updateSubscribers((this.#value = value));
+    this.updateSubs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -261,7 +261,7 @@ export class STATE_LAZY_ROS_WS<
 
   //#Owner Context
   set(value: ResultOk<RT>) {
-    this.updateSubscribers((this.#value = value));
+    this.updateSubs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));

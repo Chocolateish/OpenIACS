@@ -92,7 +92,7 @@ export abstract class STATE_RESOURCE_REA<
     this.fulRProm(value);
     this.#fetching = false;
     if (value.ok && this.#buffer?.ok && value.value !== this.#buffer.value)
-      this.updateSubscribers(value);
+      this.updateSubs(value);
     this.#buffer = value;
   }
 
@@ -219,7 +219,7 @@ export abstract class STATE_RESOURCE_REA_WA<
     this.fulRProm(value);
     this.#fetching = false;
     if (value.ok && this.#buffer?.ok && value.value !== this.#buffer.value)
-      this.updateSubscribers(value);
+      this.updateSubs(value);
     this.#buffer = value;
   }
 

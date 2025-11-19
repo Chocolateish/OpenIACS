@@ -13,12 +13,12 @@ describe("Any Equals", async () => {
       b: 2,
       e: 4,
     };
-    expect(objectEqualsDeep(test1, test2)).toEqual(false);
     let test3 = {
       a: 1,
       b: 2,
       c: 3,
     };
+    expect(objectEqualsDeep(test1, test2)).toEqual(false);
     expect(objectEqualsDeep(test1, test3)).toEqual(true);
   });
 });
