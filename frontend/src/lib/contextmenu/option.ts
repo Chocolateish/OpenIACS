@@ -67,6 +67,10 @@ export class ContextMenuOption extends ContextMenuLine {
       e.stopPropagation();
     };
   }
+
+  doFocus(): void {
+    this.focus();
+  }
 }
 defineElement(ContextMenuOption);
 

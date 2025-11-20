@@ -9,7 +9,7 @@ interface DocumentHandlerEvents {
 
 export let documentHandler = new (class DocumentHandler {
   /**Stores all managed documents */
-  #documents: Document[];
+  #documents: Set<Document> = new Set();
   /**Stores the main docuement of the manager */
   readonly main: Document;
   /**Event handler */
@@ -19,12 +19,14 @@ export let documentHandler = new (class DocumentHandler {
 
   constructor(mainDocument: Document) {
     this.main = mainDocument;
-    this.#documents = [mainDocument];
+    this.#documents.add(mainDocument);
   }
 
   /**Itterates a function over all existing documents */
   forDocuments(func: (document: Document) => void) {
-    for (let i = 0; i < this.#documents.length; i++) func(this.#documents[i]);
+    for (const doc of this.#documents) {
+      func(doc);
+    }
   }
 
   get documents() {
@@ -35,9 +37,9 @@ export let documentHandler = new (class DocumentHandler {
    * @param document document to register
    * @param styles copies all style from main document if set true */
   registerDocument(document: Document, styles?: boolean) {
-    if (this.#documents.includes(document))
-      return console.warn("Document registered twice");
-    this.#documents.push(document);
+    if (this.#documents.has(document))
+      return console.error("Document already registered");
+    this.#documents.add(document);
     if (styles) {
       let headElements = this.main.head.children;
       for (let i = 0; i < headElements.length; i++) {
@@ -55,11 +57,11 @@ export let documentHandler = new (class DocumentHandler {
 
   /**Registers a document with the theme engine, which will be updated with */
   deregisterDocument(document: Document) {
-    let index = this.#documents.indexOf(document);
-    if (index == -1) return console.warn("Document not registered");
-    if (this.#documents[index] === this.main)
-      return console.warn("Main document cannot be removed");
-    this.#documents.splice(index, 1);
+    if (!this.#documents.has(document))
+      return console.error("Document not registered");
+    if (document === this.main)
+      return console.error("Main document cannot be removed");
+    this.#documents.delete(document);
     this.#events.emit("removed", document);
   }
 })(document);

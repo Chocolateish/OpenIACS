@@ -1,3 +1,4 @@
+import { sleep } from "@libCommon";
 import {
   contextDevider,
   contextLine,
@@ -5,15 +6,75 @@ import {
   contextMenuDefault,
   contextSub,
 } from "@libContextmenu";
-import { Some } from "@libResult";
+import { Ok, ResultOk, Some, type Result } from "@libResult";
+import { default as st, type STATE_SUB } from "@libState";
 import "./index.scss";
+
+let stat1 = st.d.roa.ok(sleep(1, 0.25));
+let stat2 = st.d.roa.ok(sleep(1, 0.25));
+let stat3 = st.d.roa.ok(sleep(1, 0.25));
+let stat4 = st.d.roa.ok(sleep(1, 0.25));
+let set = (val: ResultOk<number>) => {
+  stat1.setOk(val.value / 4);
+  stat2.setOk(val.value / 4);
+  stat3.setOk(val.value / 4);
+  stat4.setOk(val.value / 4);
+};
+let state = st.c.roa.from(
+  (val) => Ok(val[0].value + val[1].value + val[2].value + val[3].value),
+  stat1,
+  stat2,
+  stat3,
+  stat4
+);
+let count = 0;
+let sub1 = state.sub(() => {
+  count++;
+}, true);
+await sleep(1);
+let sub2 = state.sub(() => {
+  count += 10;
+});
+set(Ok(8));
+await sleep(1);
+let sub3 = state.sub(() => {
+  count += 100;
+  throw new Error("Gaurded against crash");
+});
+set(Ok(12));
+await sleep(1);
+state.unsub(sub1);
+state.unsub(sub2);
+set(Ok(12));
+await sleep(1);
+state.unsub(sub3);
+
+let [sub4, val] = await new Promise<[STATE_SUB<any>, Result<number, string>]>(
+  (a) => {
+    let sub4 = state.sub((val) => {
+      count += 1000;
+      a([sub4, val]);
+    }) as STATE_SUB<any>;
+    set(Ok(15));
+  }
+);
+await sleep(1);
+state.unsub(sub4);
+console.warn(count);
+// let sub2 = state.sub(() => {
+//   count += 10;
+// });
+// stat1.setOk(2);
+// stat2.setOk(2);
+// stat3.setOk(2);
+// stat4.setOk(2);
 
 contextMenuDefault(() => {
   console.warn("No context menu defined, using default.");
   return Some(
     contextMenu(async () => {
       await new Promise((a) => {
-        setTimeout(a, 2000);
+        setTimeout(a, 50);
       });
       console.warn("No context menu defined, using default.");
       return [

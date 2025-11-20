@@ -1,4 +1,4 @@
-import { documentHandler } from "@libCommon";
+import { documentHandler } from "@libDocument";
 import type { Option } from "@libResult";
 import { Container } from "./container";
 import { ContextMenu } from "./menu";
@@ -35,7 +35,7 @@ export function contextMenuAttach(
   lines: ContextMenu | (() => Option<ContextMenu>)
 ) {
   if (element["@contextmenu"]) {
-    console.warn("Context menu already attached to node", element);
+    console.error("Context menu already attached to node", element);
     return;
   }
   var listener = (e: Event) => {
@@ -60,7 +60,7 @@ export function contextMenuDettach(element: Element) {
   if (element["@contextmenu"]) {
     element.removeEventListener("contextmenu", element["@contextmenu"]);
     delete element["@contextmenu"];
-  } else console.warn("No context menu registered with node", element);
+  } else console.error("No context menu registered with node", element);
 }
 
 /**Summons a context menu at a given location
@@ -93,7 +93,7 @@ export function contextMenuSummon(
     container
       .attachMenu(menu)
       .setPosition(x, y, dontCover ? element : undefined);
-  } else console.warn("No context menu container available");
+  } else console.error("No context menu container available");
 }
 
 /**Sets the default context menu for the page, the one used if no other context menu has been attached to the element

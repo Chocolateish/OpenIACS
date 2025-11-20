@@ -14,7 +14,7 @@ export class Buffer extends ContextMenuLine {
     this.appendChild(new Spinner());
   }
 
-  focus(dir: FocusOptions) {
+  doFocus(dir: FocusOptions) {
     this.focusNext(dir as any);
   }
 }

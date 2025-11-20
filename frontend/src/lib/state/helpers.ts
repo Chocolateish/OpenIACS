@@ -42,11 +42,7 @@ export class STATE_NUMBER_HELPER
   decimals: number | undefined;
   step: number | undefined;
   start: number | undefined;
-  /**Number limiter struct
-   * @param min minimum allowed number
-   * @param max maximum allowed number
-   * @param step allowed step size for number 0.1 allows 0,0.1,0.2,0.3...
-   * @param start start offset for step, 0.5 and step 2 allows 0.5,2.5,4.5,6.5*/
+
   constructor(
     min?: number,
     max?: number,
@@ -123,6 +119,26 @@ export class STATE_NUMBER_HELPER
   }
 }
 
+const nums = {
+  /**Number limiter struct
+   * @param min minimum allowed number
+   * @param max maximum allowed number
+   * @param unit unit for number
+   * @param decimals number of suggested decimals to show
+   * @param step allowed step size for number 0.1 allows 0,0.1,0.2,0.3...
+   * @param start start offset for step, 0.5 and step 2 allows 0.5,2.5,4.5,6.5*/
+  helper(
+    min?: number,
+    max?: number,
+    unit?: string,
+    decimals?: number,
+    step?: number,
+    start?: number
+  ) {
+    return new STATE_NUMBER_HELPER(min, max, unit, decimals, step, start);
+  },
+};
+
 //##################################################################################################################################################
 //##################################################################################################################################################
 
@@ -138,9 +154,6 @@ export class STATE_STRING_HELPER
 {
   maxLength: number | undefined;
   maxLengthBytes: number | undefined;
-  /**String limiter struct
-   * @param maxLength max length for string
-   * @param maxLengthBytes max byte length for string*/
   constructor(maxLength?: number, maxLengthBytes?: number) {
     if (maxLength !== undefined) this.maxLength = maxLength;
     if (maxLengthBytes !== undefined) this.maxLengthBytes = maxLengthBytes;
@@ -175,31 +188,42 @@ export class STATE_STRING_HELPER
   }
 }
 
-//##################################################################################################################################################
-//##################################################################################################################################################
-
-export type STATE_ENUM_HELPER_LIST = {
-  [key: string | number | symbol]: {
-    name: string;
-    description?: string;
-    icon?: () => SVGSVGElement;
-  };
+const strings = {
+  /**String limiter struct
+   * @param maxLength max length for string
+   * @param maxLengthBytes max byte length for string*/
+  helper(maxLength?: number, maxLengthBytes?: number) {
+    return new STATE_STRING_HELPER(maxLength, maxLengthBytes);
+  },
 };
 
-export interface STATE_ENUM_RELATED<T extends STATE_ENUM_HELPER_LIST>
+//##################################################################################################################################################
+//##################################################################################################################################################
+
+type ENUM_HELPER_ENTRY = {
+  name: string;
+  description?: string;
+  icon?: () => SVGSVGElement;
+};
+
+type STATE_ENUM_HELPER_LIST<K extends PropertyKey> = {
+  [P in K]: ENUM_HELPER_ENTRY;
+};
+
+export interface STATE_ENUM_RELATED<T extends STATE_ENUM_HELPER_LIST<any>>
   extends STATE_RELATED {
   list: T;
 }
 
 export class STATE_ENUM_HELPER<
-  K extends string | number | symbol,
-  T extends STATE_ENUM_HELPER_LIST,
-  R extends STATE_RELATED = STATE_ENUM_RELATED<T>
-> implements STATE_HELPER_WRITE<K, R>, STATE_ENUM_RELATED<T>
+  L extends STATE_ENUM_HELPER_LIST<any>,
+  K extends PropertyKey = keyof L,
+  R extends STATE_RELATED = STATE_ENUM_RELATED<L>
+> implements STATE_HELPER_WRITE<K, R>, STATE_ENUM_RELATED<L>
 {
-  list: T;
+  list: L;
 
-  constructor(list: T) {
+  constructor(list: L) {
     this.list = list;
   }
 
@@ -210,16 +234,16 @@ export class STATE_ENUM_HELPER<
     if (value in this.list) return Ok(value);
     return Err(String(value) + " is not in list");
   }
-
   related(): Option<R> {
     return Some(this as unknown as R);
   }
 }
 
+/**Iterates a enum description list*/
 function iterate<T, R extends STATE_ENUM_RELATED<any>>(
   related: R,
   func: (key: keyof R["list"], val: R["list"][keyof R["list"]]) => T
-) {
+): T[] {
   return Object.keys(related.list).map((key) => {
     return func(key, related.list[key]);
   });
@@ -227,14 +251,16 @@ function iterate<T, R extends STATE_ENUM_RELATED<any>>(
 
 const enums = {
   iterate,
+  /**Creates an enum helper struct, use list method to make a list with correct typing*/
   helper<
-    K extends string | number | symbol,
-    T extends STATE_ENUM_HELPER_LIST,
-    R extends STATE_RELATED = STATE_ENUM_RELATED<T>
-  >(_enu: K, list: T) {
-    return new STATE_ENUM_HELPER<K, T, R>(list);
+    L extends STATE_ENUM_HELPER_LIST<any>,
+    K extends PropertyKey = keyof L,
+    R extends STATE_RELATED = STATE_ENUM_RELATED<L>
+  >(list: L) {
+    return new STATE_ENUM_HELPER<L, K, R>(list);
   },
-  list<L extends STATE_ENUM_HELPER_LIST>(list: L): L {
+  /**Creates an enum description list, passing the enum as a generic type to this function makes things look a bit nicer */
+  list<K extends PropertyKey>(list: STATE_ENUM_HELPER_LIST<K>): typeof list {
     return list;
   },
 };
@@ -383,6 +409,8 @@ const is = {
 /**Helper function and types for states */
 export const state_helpers = {
   is,
+  nums,
+  strings,
   enums,
   await_value,
   compare,

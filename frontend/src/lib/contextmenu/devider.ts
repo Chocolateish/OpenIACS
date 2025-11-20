@@ -8,8 +8,8 @@ export class Devider extends ContextMenuLine {
     return "devider";
   }
 
-  focus(dir: FocusOptions) {
-    this.focusNext(dir as any);
+  doFocus(dir?: boolean) {
+    this.focusNext(dir);
   }
 }
 defineElement(Devider);

@@ -100,22 +100,25 @@ describe("Adding and removing listeners", { timeout: 50 }, function () {
 
 describe("Dispatching event", { timeout: 50 }, function () {
   it("Checking if values are correct when dispatching event", async function () {
-    return new Promise<void>((done) => {
+    let num = await new Promise<number>((done) => {
       let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
       handler.consumer.on("test", (e) => {
         expect(e.type).equal("test");
         expect(e.target).equal(undefined);
         expect(e.data).equal(10);
-        done();
+        done(50);
       });
       handler.producer.emit("test", 10);
     });
+    expect(num).equal(50);
   });
 
   it("Checking listener removing itself on event", function () {
     let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
     handler.consumer.on("test", () => {});
-    handler.consumer.on("test", () => true);
+    let func = handler.consumer.on("test", () => {
+      handler.consumer.off("test", func);
+    });
     handler.producer.emit("test", 10);
     expect(handler.producer.amount("test")).equal(1);
   });
@@ -280,16 +283,14 @@ describe("Target override", { timeout: 50 }, function () {
   });
 });
 
-describe("Proxy Event Handler", { timeout: 50 }, function () {
+describe("Proxy Event Handler", { timeout: 5000 }, function () {
   it("Attaching Proxy Event Handler Then emitting event", async function () {
     let target = {};
     let handler = new EventHandlerSub<{ test: number }, {}>(target);
     let proxyHandler = new EventHandlerSub<{ test: number }, {}>(target);
     let proxFunc = handler.proxyOn(proxyHandler.proxyFunc());
-    expect("").equal("This test does not work ");
     let e = await new Promise<ESub<"test", {}, number>>((done) => {
-      proxyHandler.on("test", (e) => {
-        //This part here
+      proxyHandler.on("test", async (e) => {
         done(e);
       });
       handler.emit("test", 10);

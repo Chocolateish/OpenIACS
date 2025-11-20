@@ -108,16 +108,17 @@ describe("Adding and removing listeners", { timeout: 50 }, function () {
 
 describe("Dispatching event", { timeout: 50 }, function () {
   it("Checking if values are correct when dispatching event", async function () {
-    return new Promise<void>((done) => {
+    let num = await new Promise<number>((done) => {
       let handler = new EventHandler<{ test: number }, undefined>(undefined);
       handler.consumer.on("test", (e) => {
         expect(e.type).equal("test");
         expect(e.target).equal(undefined);
         expect(e.data).equal(10);
-        done();
+        done(50);
       });
       handler.producer.emit("test", 10);
     });
+    expect(num).equal(50);
   });
 
   it("Checking amount of listners", function () {
@@ -131,7 +132,9 @@ describe("Dispatching event", { timeout: 50 }, function () {
   it("Checking listener removing itself on event", function () {
     let handler = new EventHandler<{ test: number }, undefined>(undefined);
     handler.on("test", () => {});
-    handler.on("test", () => true);
+    let func = handler.on("test", () => {
+      handler.off("test", func);
+    });
     handler.emit("test", 10);
     expect(handler.amount("test")).equal(1);
   });
@@ -142,9 +145,9 @@ describe("Dispatching event", { timeout: 50 }, function () {
     handler.on("test", () => {
       counter += 10;
     });
-    handler.on("test", () => {
+    let func = handler.on("test", () => {
       counter += 100;
-      return true;
+      handler.off("test", func);
     });
     handler.on("test", () => {
       counter += 1000;

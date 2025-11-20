@@ -34,20 +34,29 @@ export class STATE_DELAYED_REA<RT, REL extends Related> extends STATE_REA<
     super();
     if (helper) this.#helper = helper;
 
+    //Temporary override until first access
     this.then = async <TResult1 = Result<RT, string>>(
       func: (value: Result<RT, string>) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
-      let prom = this.appendRProm(func);
       if (init) {
-        try {
-          this.set(await init);
-        } catch (e) {
-          this.setErr(String(e));
-        }
+        let ini = init;
+        init = undefined;
+        (async () => {
+          try {
+            this.#value = await ini;
+          } catch (e) {
+            this.#value = Err(String(e));
+          }
+          this.fulRProm(this.#value);
+          this.#clean();
+        })();
       }
-      return prom;
+      return this.appendRProm(func);
     };
-    this.set = (value) => this.set(this.fulRProm(this.#clean() ?? value));
+    this.set = (value) => {
+      this.#clean();
+      this.set(this.fulRProm(value));
+    };
   }
 
   #clean(): void {
@@ -89,20 +98,29 @@ export class STATE_DELAYED_ROA<RT, REL extends Related> extends STATE_ROA<
     super();
     if (helper) this.#helper = helper;
 
+    //Temporary override until first access
     this.then = async <TResult1 = ResultOk<RT>>(
       func: (value: ResultOk<RT>) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
-      let prom = this.appendRProm(func);
       if (init) {
-        try {
-          this.set(await init);
-        } catch (e) {
-          console.warn("Failed to initialize delayed RO state: ", e, this);
-        }
+        let ini = init;
+        init = undefined;
+        (async () => {
+          try {
+            this.#value = await ini;
+            this.fulRProm(this.#value);
+          } catch (e) {
+            console.error("Failed to initialize delayed RO state: ", e, this);
+          }
+          this.#clean();
+        })();
       }
-      return prom;
+      return this.appendRProm(func);
     };
-    this.set = (value) => this.set(this.fulRProm(this.#clean() ?? value));
+    this.set = (value) => {
+      this.#clean();
+      this.set(this.fulRProm(value));
+    };
   }
 
   #clean(): void {
@@ -158,27 +176,39 @@ export class STATE_DELAYED_REA_WS<
       else this.#setter = setter;
     if (helper) this.#helper = helper;
 
+    //Temporary override until first access
     this.then = async <TResult1 = ResultOk<RT>>(
       func: (value: ResultOk<RT>) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
-      let prom = this.appendRProm(func);
       if (init) {
-        try {
-          this.set(await init);
-        } catch (e) {
-          console.warn("Failed to initialize delayed RO state: ", e, this);
-        }
+        let ini = init;
+        init = undefined;
+        (async () => {
+          try {
+            this.#value = await ini;
+          } catch (e) {
+            this.#value = Err(String(e));
+          }
+          this.fulRProm(this.#value);
+          this.#clean();
+        })();
       }
-      return prom;
+      return this.appendRProm(func);
     };
-    this.set = (value) => this.set(this.fulRProm(this.#clean() ?? value));
+    this.set = (value) => {
+      this.#clean();
+      this.set(this.fulRProm(value));
+    };
+
     let writeSync = this.writeSync.bind(this);
     this.writeSync = (value) =>
       writeSync(value).map((val) => this.#clean() ?? val);
   }
 
   #clean(): void {
-    (["get", "set", "writeSync"] as const).forEach((k) => delete this[k]);
+    (["then", "set", "writeSync", "sub"] as const).forEach(
+      (k) => delete this[k]
+    );
   }
 
   #value?: Result<RT, string>;
@@ -248,27 +278,39 @@ export class STATE_DELAYED_ROA_WS<
         };
       else this.#setter = setter;
     if (helper) this.#helper = helper;
+
+    //Temporary override until first access
     this.then = async <TResult1 = ResultOk<RT>>(
       func: (value: ResultOk<RT>) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
-      let prom = this.appendRProm(func);
       if (init) {
-        try {
-          this.set(await init);
-        } catch (e) {
-          console.warn("Failed to initialize delayed RO state: ", e, this);
-        }
+        let ini = init;
+        init = undefined;
+        (async () => {
+          try {
+            this.#value = await ini;
+            this.fulRProm(this.#value);
+          } catch (e) {
+            console.error("Failed to initialize delayed RO state: ", e, this);
+          }
+          this.#clean();
+        })();
       }
-      return prom;
+      return this.appendRProm(func);
     };
-    this.set = (value) => this.set(this.fulRProm(this.#clean() ?? value));
+    this.set = (value) => {
+      this.#clean();
+      this.set(this.fulRProm(value));
+    };
     let writeSync = this.writeSync.bind(this);
     this.writeSync = (value) =>
       writeSync(value).map((val) => this.#clean() ?? val);
   }
 
   #clean(): void {
-    (["get", "set", "writeSync"] as const).forEach((k) => delete this[k]);
+    (["then", "set", "writeSync", "sub"] as const).forEach(
+      (k) => delete this[k]
+    );
   }
 
   #value?: ResultOk<RT>;

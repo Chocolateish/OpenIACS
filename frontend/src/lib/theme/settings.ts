@@ -1,4 +1,3 @@
-import { settingsInit } from "@libCommon";
 import {
   material_action_touch_app_rounded,
   material_device_dark_mode_rounded,
@@ -6,7 +5,8 @@ import {
   material_hardware_mouse_rounded,
   material_image_edit_rounded,
 } from "@libIcons";
-import state from "@libState";
+import { settingsInit } from "@libSettings";
+import st from "@libState";
 import { name, version } from "@package";
 
 const settings = settingsInit(
@@ -29,7 +29,7 @@ export const Themes = {
 } as const;
 export type Themes = (typeof Themes)[keyof typeof Themes];
 
-const themesInternal = state.h.enums.list({
+const themesInternal = st.h.enums.list<Themes>({
   [Themes.Light]: {
     name: "Light",
     description: "Theme optimized for daylight",
@@ -42,7 +42,7 @@ const themesInternal = state.h.enums.list({
   },
 });
 
-const themeInternal = state.s.ros_ws.ok(
+const themeInternal = st.s.ros_ws.ok(
   settings.get(
     ThemeID,
     window.matchMedia &&
@@ -51,7 +51,7 @@ const themeInternal = state.s.ros_ws.ok(
       : (Themes.Light as Themes)
   ),
   true,
-  state.h.enums.helper(Themes, themesInternal)
+  st.h.enums.helper(themesInternal)
 );
 settings.register(ThemeID, "Theme", "Theme to use for the UI", themeInternal);
 export const theme = themeInternal.readwrite;
@@ -70,13 +70,13 @@ window
 //      ____) | |____ / ____ \| |____| |____
 //     |_____/ \_____/_/    \_\______|______|
 const ScaleID = "scale";
-const scaleInternal = state_ok(
+const scaleInternal = st.s.ros_ws.ok(
   settings.get(ScaleID, 100),
   true,
-  new StateNumberHelper(50, 400, "%", 0, 1)
+  st.h.nums.helper(50, 400, "%", 0, 1)
 );
 settings.register(ScaleID, "Scale", "UI scale", scaleInternal);
-export const scale = scaleInternal.writeable;
+export const scale = scaleInternal.readwrite;
 
 //       _____  _____ _____   ____  _      _      ____          _____
 //      / ____|/ ____|  __ \ / __ \| |    | |    |  _ \   /\   |  __ \
@@ -93,7 +93,7 @@ export const ScrollbarModes = {
 export type ScrollbarModes =
   (typeof ScrollbarModes)[keyof typeof ScrollbarModes];
 
-const scrollbarModesInternal = {
+const scrollbarModesInternal = st.h.enums.list<ScrollbarModes>({
   [ScrollbarModes.THIN]: {
     name: "Thin",
     description: "Thin modern scrollbar",
@@ -103,12 +103,12 @@ const scrollbarModesInternal = {
     name: "Wide",
     description: "Large touch friendly scrollbar",
   },
-} satisfies StateEnumHelperList;
+});
 
-const scrollBarModeInternal = state_ok(
+const scrollBarModeInternal = st.s.ros_ws.ok(
   settings.get(ScrollbarID, ScrollbarModes.THIN as ScrollbarModes),
   true,
-  new StateEnumHelper(scrollbarModesInternal)
+  st.h.enums.helper(scrollbarModesInternal)
 );
 settings.register(
   "scrollbar",
@@ -116,7 +116,7 @@ settings.register(
   "Size of the scrollbar to use",
   scrollBarModeInternal
 );
-export const scrollBarMode = scrollBarModeInternal.writeable;
+export const scrollBarMode = scrollBarModeInternal.readwrite;
 
 //      _____ _   _ _____  _    _ _______   __  __  ____  _____  ______
 //     |_   _| \ | |  __ \| |  | |__   __| |  \/  |/ __ \|  __ \|  ____|
@@ -132,7 +132,7 @@ export const InputModes = {
 } as const;
 export type InputModes = (typeof InputModes)[keyof typeof InputModes];
 
-const inputModesInternal = {
+const inputModesInternal = st.h.enums.list<InputModes>({
   [InputModes.MOUSE]: {
     name: "Mouse",
     description: "Mouse input",
@@ -148,17 +148,17 @@ const inputModesInternal = {
     description: "Touch input",
     icon: material_action_touch_app_rounded,
   },
-} satisfies StateEnumHelperList;
+});
 
-const inputModeInternal = state_ok(
+const inputModeInternal = st.s.ros_ws.ok(
   settings.get(
     InputModeID,
     matchMedia("(pointer: coarse)").matches
       ? InputModes.TOUCH
-      : InputModes.MOUSE
+      : (InputModes.MOUSE as InputModes)
   ),
   true,
-  new StateEnumHelper(inputModesInternal)
+  st.h.enums.helper(inputModesInternal)
 );
 settings.register(
   InputModeID,
@@ -166,7 +166,7 @@ settings.register(
   "Setting for preffered input mode, changes UI elements to be more optimized for the selected input mode",
   inputModeInternal
 );
-export const inputMode = inputModeInternal.writeable;
+export const inputMode = inputModeInternal.readwrite;
 
 //               _   _ _____ __  __       _______ _____ ____  _   _   _      ________      ________ _
 //         /\   | \ | |_   _|  \/  |   /\|__   __|_   _/ __ \| \ | | | |    |  ____\ \    / /  ____| |
@@ -184,7 +184,7 @@ export const AnimationLevels = {
 export type AnimationLevels =
   (typeof AnimationLevels)[keyof typeof AnimationLevels];
 
-const animationLevelsInternal = {
+const animationLevelsInternal = st.h.enums.list<AnimationLevels>({
   [AnimationLevels.ALL]: { name: "All", description: "All animations" },
   [AnimationLevels.MOST]: {
     name: "Most",
@@ -195,12 +195,12 @@ const animationLevelsInternal = {
     description: "Only the lightest animations",
   },
   [AnimationLevels.NONE]: { name: "None", description: "No animations" },
-} satisfies StateEnumHelperList;
+});
 
-const animationLevelInternal = state_ok(
+const animationLevelInternal = st.s.ros_ws.ok(
   settings.get(AnimationLevelID, AnimationLevels.NONE as AnimationLevels),
   true,
-  new StateEnumHelper(animationLevelsInternal)
+  st.h.enums.helper(animationLevelsInternal)
 );
 settings.register(
   AnimationLevelID,
@@ -208,4 +208,4 @@ settings.register(
   "Setting for animation level, changes the amount of animations used in the UI",
   animationLevelInternal
 );
-export const animationLevel = animationLevelInternal.writeable;
+export const animationLevel = animationLevelInternal.readwrite;

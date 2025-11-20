@@ -39,7 +39,6 @@ export {
 export {
   state_helpers,
   type STATE_ENUM_HELPER,
-  type STATE_ENUM_HELPER_LIST,
   type STATE_ENUM_RELATED,
   type STATE_NUMBER_HELPER,
   type STATE_NUMBER_RELATED,

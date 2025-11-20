@@ -92,7 +92,7 @@ export abstract class StateReadAll<
    * @param update set true to update subscriber immediatly*/
   sub<T = STATE_SUB<RRT>>(func: STATE_SUB<RRT>, update?: boolean): T {
     if (this.#subscribers.has(func)) {
-      console.warn("Function already registered as subscriber", this, func);
+      console.error("Function already registered as subscriber", this, func);
       return func as T;
     }
     this.onSubscribe(this.#subscribers.size == 0);
@@ -104,7 +104,7 @@ export abstract class StateReadAll<
   unsub(func: STATE_SUB<RRT>): STATE_SUB<RRT> {
     if (this.#subscribers.delete(func))
       this.onUnsubscribe(this.#subscribers.size == 0);
-    else console.warn("Subscriber not found with state", this, func);
+    else console.error("Subscriber not found with state", this, func);
     return func;
   }
   /**This returns related states if any*/
@@ -136,7 +136,7 @@ export abstract class StateReadAll<
       try {
         subscriber(value);
       } catch (e) {
-        console.warn("Failed while calling subscribers ", e, this, subscriber);
+        console.error("Failed while calling subscribers ", e, this, subscriber);
       }
     }
   }
@@ -201,11 +201,6 @@ export abstract class STATE_ROA<
     return this;
   }
 }
-
-let test: STATE_RXA<number> = null as any;
-let test2 = test.sub((val) => {
-  val;
-});
 
 //###########################################################################################################################################################
 export abstract class STATE_RES<

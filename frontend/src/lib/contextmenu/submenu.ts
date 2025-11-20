@@ -91,6 +91,10 @@ export class ContextMenuSub extends ContextMenuLine {
     this.#isOpen = true;
   }
 
+  doFocus(): void {
+    this.focus();
+  }
+
   /**Closes menu by calling parent*/
   close() {
     this.focus();

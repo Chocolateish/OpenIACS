@@ -92,7 +92,7 @@ export abstract class Base<
 
   #access?: AccessTypes;
 
-  #props: Map<keyof this, STATE_SUB<any>> = new Map();
+  #props: Map<any, STATE_SUB<any>> = new Map();
   #attr: Map<string, STATE_SUB<any>> = new Map();
 
   /**Runs when element is attached to document*/
@@ -211,7 +211,7 @@ export abstract class Base<
     visible?: boolean
   ): typeof func {
     if (this.#states.has(func))
-      console.warn("Function already registered with element", func, this);
+      console.error("Function already registered with element", func, this);
     else {
       this.#states.set(func, [state, Boolean(visible)]);
       if (visible ? this.isVisible : this.#isConnected)
@@ -227,7 +227,7 @@ export abstract class Base<
       if (state[1] ? this.isVisible : this.#isConnected) state[0].unsub(func);
       this.#states.delete(func);
     } else {
-      console.warn("Function not registered with element", func, this);
+      console.error("Function not registered with element", func, this);
     }
     return func;
   }

@@ -44,6 +44,13 @@ type STATES<IN extends STATE_RXX<any>[]> = {
     : never;
 };
 
+//##################################################################################################################################################
+//      _____  ______
+//     |  __ \|  ____|   /\
+//     | |__) | |__     /  \
+//     |  _  /|  __|   / /\ \
+//     | | \ \| |____ / ____ \
+//     |_|  \_\______/_/    \_\
 export class STATE_COLLECTED_REA<
   RT,
   IN extends STATE_RXX<any>[]
@@ -57,7 +64,6 @@ export class STATE_COLLECTED_REA<
     this.#states = states;
   }
 
-  #state: 0 | 1 | 2 | 3 = 0; //0 = not subscribed, 1 = buffer invalid subscribed, 2 = buffer valid, 3 = calculating
   #buffer?: Result<RT, string>;
 
   #states: IN;
@@ -70,61 +76,48 @@ export class STATE_COLLECTED_REA<
 
   /**Called when subscriber is added*/
   protected onSubscribe(first: boolean) {
-    if (first) {
-      if (this.#states.length > 1) {
-        this.#state = 1;
-        let count = this.#states.length;
-        for (let i = 0; i < this.#states.length; i++) {
-          this.#stateSubscribers[i] = this.#states[i].sub((value) => {
-            if (this.#state === 2) {
-              this.#stateBuffers[i] = value;
-              this.#calculate(false);
-            } else if (this.#state === 1 && !this.#stateBuffers[i]) {
-              this.#stateBuffers[i] = value;
-              count--;
-              if (count === 0) {
-                this.#state = 2;
-                this.#calculate(true);
-              }
-            } else this.#stateBuffers[i] = value;
-          }, true);
+    if (!first) return;
+    if (!this.#states.length)
+      return (this.#buffer = Err("No states registered"));
+    this.#stateBuffers.length = this.#states.length;
+    let count = 0;
+    let amount = this.#states.length - 1;
+    Promise.all(this.#states).then((vals) => {
+      for (let i = 0; i < this.#stateBuffers.length; i++)
+        this.#stateBuffers[i] = this.#stateBuffers[i] ?? vals[i];
+      this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
+      this.fulRProm(this.#buffer);
+      count = amount;
+    });
+    let calc = false;
+    for (let i = 0; i < this.#states.length; i++) {
+      this.#stateSubscribers[i] = this.#states[i].sub((value) => {
+        if (count < amount) {
+          if (!this.#stateBuffers[i]) count++;
+          this.#stateBuffers[i] = value;
+          return;
         }
-      } else if (this.#states.length === 1) {
-        this.#state = 1;
-        this.#stateSubscribers[0] = this.#states[0].sub((value) => {
-          this.#state = 2;
-          this.#buffer = this.getter([value] as TRANS_VAL<IN>);
-          this.updateSubs(this.#buffer);
-          this.fulRProm(this.#buffer);
-        }, true);
-      } else {
-        this.#state = 2;
-        this.#buffer = Err("No states registered");
-        this.updateSubs(this.#buffer);
-        this.fulRProm(this.#buffer);
-      }
+        this.#stateBuffers[i] = value;
+        if (!calc) {
+          calc = true;
+          Promise.resolve().then(() => {
+            this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
+            this.updateSubs(this.#buffer);
+            calc = false;
+          });
+        }
+      });
     }
   }
 
   /**Called when subscriber is removed*/
   protected onUnsubscribe(last: boolean) {
-    if (last) {
-      for (let i = 0; i < this.#states.length; i++)
-        this.#states[i].unsub(this.#stateSubscribers[i] as any);
-      this.#stateSubscribers = [];
-      this.#stateBuffers = [] as TRANS_VAL<IN>;
-      this.#buffer = undefined;
-      this.#state = 0;
-    }
-  }
-
-  async #calculate(first: boolean) {
-    this.#state = 3;
-    await Promise.resolve();
-    this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
-    if (!first) this.updateSubs(this.#buffer);
-    this.fulRProm(this.#buffer);
-    this.#state = 2;
+    if (!last) return;
+    for (let i = 0; i < this.#states.length; i++)
+      this.#states[i].unsub(this.#stateSubscribers[i] as any);
+    this.#stateSubscribers = [];
+    this.#stateBuffers = [] as TRANS_VAL<IN>;
+    this.#buffer = undefined;
   }
 
   //Reader Context
@@ -132,19 +125,11 @@ export class STATE_COLLECTED_REA<
     func: (value: Result<RT, string>) => T | PromiseLike<T>
   ): Promise<T> {
     if (this.#buffer) return func(this.#buffer);
-    switch (this.#state) {
-      case 0:
-        return func(
-          this.#states.length
-            ? this.getter((await Promise.all(this.#states)) as TRANS_VAL<IN>)
-            : Err("No states registered")
-        );
-      case 1:
-      case 3:
-        return this.appendRProm(func);
-      case 2:
-        return func(this.#buffer!);
-    }
+    if (!this.#stateBuffers.length)
+      return func(
+        this.getter((await Promise.all(this.#states)) as TRANS_VAL<IN>)
+      );
+    return this.appendRProm(func);
   }
 
   //Owner
@@ -171,8 +156,12 @@ export class STATE_COLLECTED_REA<
 }
 
 //##################################################################################################################################################
-//##################################################################################################################################################
-
+//      _____   ____
+//     |  __ \ / __ \   /\
+//     | |__) | |  | | /  \
+//     |  _  /| |  | |/ /\ \
+//     | | \ \| |__| / ____ \
+//     |_|  \_\\____/_/    \_\
 export class STATE_COLLECTED_ROA<
   RT,
   IN extends [STATE_RXX<any>, ...STATE_RXX<any>[]]
@@ -189,7 +178,6 @@ export class STATE_COLLECTED_ROA<
     this.#states = states;
   }
 
-  #state: 0 | 1 | 2 | 3 = 0; //0 = not subscribed, 1 = buffer invalid subscribed, 2 = buffer valid, 3 = calculating
   #buffer?: ResultOk<RT>;
 
   #states: IN;
@@ -202,56 +190,46 @@ export class STATE_COLLECTED_ROA<
 
   /**Called when subscriber is added*/
   protected onSubscribe(first: boolean) {
-    if (first) {
-      if (this.#states.length > 1) {
-        this.#state = 1;
-        let count = this.#states.length;
-        for (let i = 0; i < this.#states.length; i++) {
-          this.#stateSubscribers[i] = this.#states[i].sub((value) => {
-            if (this.#state === 2) {
-              this.#stateBuffers[i] = value;
-              this.#calculate(false);
-            } else if (this.#state === 1 && !this.#stateBuffers[i]) {
-              this.#stateBuffers[i] = value;
-              count--;
-              if (count === 0) {
-                this.#state = 2;
-                this.#calculate(true);
-              }
-            } else this.#stateBuffers[i] = value;
-          }, true);
+    if (!first) return;
+    this.#stateBuffers.length = this.#states.length;
+    let count = 0;
+    let amount = this.#states.length - 1;
+    Promise.all(this.#states).then((vals) => {
+      for (let i = 0; i < this.#stateBuffers.length; i++)
+        this.#stateBuffers[i] = this.#stateBuffers[i] ?? vals[i];
+      this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
+      this.fulRProm(this.#buffer);
+      count = amount;
+    });
+    let calc = false;
+    for (let i = 0; i < this.#states.length; i++) {
+      this.#stateSubscribers[i] = this.#states[i].sub((value) => {
+        if (count < amount) {
+          if (!this.#stateBuffers[i]) count++;
+          this.#stateBuffers[i] = value;
+          return;
         }
-      } else if (this.#states.length === 1) {
-        this.#state = 1;
-        this.#stateSubscribers[0] = this.#states[0].sub((value) => {
-          this.#state = 2;
-          this.#buffer = this.getter([value] as TRANS_VAL<IN>);
-          this.updateSubs(this.#buffer);
-          this.fulRProm(this.#buffer);
-        }, true);
-      }
+        this.#stateBuffers[i] = value;
+        if (!calc) {
+          calc = true;
+          Promise.resolve().then(() => {
+            this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
+            this.updateSubs(this.#buffer);
+            calc = false;
+          });
+        }
+      });
     }
   }
 
   /**Called when subscriber is removed*/
   protected onUnsubscribe(last: boolean) {
-    if (last) {
-      for (let i = 0; i < this.#states.length; i++)
-        this.#states[i].unsub(this.#stateSubscribers[i] as any);
-      this.#stateSubscribers = [];
-      this.#stateBuffers = [] as TRANS_VAL<IN>;
-      this.#buffer = undefined;
-      this.#state = 0;
-    }
-  }
-
-  async #calculate(first: boolean) {
-    this.#state = 3;
-    await Promise.resolve();
-    this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
-    if (!first) this.updateSubs(this.#buffer);
-    this.fulRProm(this.#buffer);
-    this.#state = 2;
+    if (!last) return;
+    for (let i = 0; i < this.#states.length; i++)
+      this.#states[i].unsub(this.#stateSubscribers[i] as any);
+    this.#stateSubscribers = [];
+    this.#stateBuffers = [] as TRANS_VAL<IN>;
+    this.#buffer = undefined;
   }
 
   //Reader Context
@@ -259,17 +237,11 @@ export class STATE_COLLECTED_ROA<
     func: (value: ResultOk<RT>) => T | PromiseLike<T>
   ): Promise<T> {
     if (this.#buffer) return func(this.#buffer);
-    switch (this.#state) {
-      case 0:
-        return func(
-          this.getter((await Promise.all(this.#states)) as TRANS_VAL<IN>)
-        );
-      case 1:
-      case 3:
-        return this.appendRProm(func);
-      case 2:
-        return func(this.#buffer!);
-    }
+    if (!this.#stateBuffers.length)
+      return func(
+        this.getter((await Promise.all(this.#states)) as TRANS_VAL<IN>)
+      );
+    return this.appendRProm(func);
   }
 
   //Owner
@@ -296,7 +268,12 @@ export class STATE_COLLECTED_ROA<
 }
 
 //##################################################################################################################################################
-//##################################################################################################################################################
+//      _____  ______  _____
+//     |  __ \|  ____|/ ____|
+//     | |__) | |__  | (___
+//     |  _  /|  __|  \___ \
+//     | | \ \| |____ ____) |
+//     |_|  \_\______|_____/
 export class STATE_COLLECTED_RES<
   RT,
   IN extends STATE_RXS<any>[]
@@ -325,56 +302,43 @@ export class STATE_COLLECTED_RES<
 
   /**Called when subscriber is added*/
   protected onSubscribe(first: boolean) {
-    if (first) {
-      if (this.#states.length > 1) {
-        let calc = false;
-        for (let i = 0; i < this.#states.length; i++) {
-          this.#stateBuffers[i] = this.#states[i].get();
-          this.#stateSubscribers[i] = this.#states[i].sub((value) => {
-            this.#stateBuffers[i] = value;
-            if (!calc) {
-              calc = true;
-              Promise.resolve().then(() => {
-                this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
-                if (!first) this.updateSubs(this.#buffer);
-                calc = false;
-              });
-            }
-          }, false);
+    if (!first) return;
+    if (!this.#states.length)
+      return (this.#buffer = Err("No states registered"));
+    let calc = false;
+    for (let i = 0; i < this.#states.length; i++) {
+      this.#stateBuffers[i] = this.#states[i].get();
+      this.#stateSubscribers[i] = this.#states[i].sub((value) => {
+        this.#stateBuffers[i] = value;
+        if (!calc) {
+          calc = true;
+          Promise.resolve().then(() => {
+            this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
+            this.updateSubs(this.#buffer);
+            calc = false;
+          });
         }
-        this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
-        this.updateSubs(this.#buffer);
-      } else if (this.#states.length === 1) {
-        this.#buffer = this.get();
-        this.updateSubs(this.#buffer);
-        this.#stateSubscribers[0] = this.#states[0].sub((value) => {
-          this.#buffer = this.getter([value] as TRANS_VAL<IN>);
-          this.updateSubs(this.#buffer);
-        }, false);
-      } else {
-        this.#buffer = Err("No states registered");
-        this.updateSubs(this.#buffer);
-      }
+      });
     }
+    this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
+    this.updateSubs(this.#buffer);
   }
 
   /**Called when subscriber is removed*/
   protected onUnsubscribe(last: boolean) {
-    if (last) {
-      for (let i = 0; i < this.#states.length; i++)
-        this.#states[i].unsub(this.#stateSubscribers[i] as any);
-      this.#stateSubscribers = [];
-      this.#stateBuffers = [] as TRANS_VAL<IN>;
-      this.#buffer = undefined;
-    }
+    if (!last) return;
+    for (let i = 0; i < this.#states.length; i++)
+      this.#states[i].unsub(this.#stateSubscribers[i] as any);
+    this.#stateSubscribers = [];
+    this.#stateBuffers = [] as TRANS_VAL<IN>;
+    this.#buffer = undefined;
   }
 
   //Reader Context
   async then<T = Result<RT, string>>(
     func: (value: Result<RT, string>) => T | PromiseLike<T>
   ): Promise<T> {
-    if (this.#buffer) return func(this.#buffer);
-    return await func(this.get());
+    return func(this.get());
   }
 
   get(): Result<RT, string> {
@@ -408,7 +372,12 @@ export class STATE_COLLECTED_RES<
 }
 
 //##################################################################################################################################################
-//##################################################################################################################################################
+//      _____   ____   _____
+//     |  __ \ / __ \ / ____|
+//     | |__) | |  | | (___
+//     |  _  /| |  | |\___ \
+//     | | \ \| |__| |____) |
+//     |_|  \_\\____/|_____/
 export class STATE_COLLECTED_ROS<
   RT,
   IN extends [STATE_RXS<any>, ...STATE_RXS<any>[]]
@@ -434,53 +403,41 @@ export class STATE_COLLECTED_ROS<
 
   /**Called when subscriber is added*/
   protected onSubscribe(first: boolean) {
-    if (first) {
-      if (this.#states.length > 1) {
-        let calc = false;
-        for (let i = 0; i < this.#states.length; i++) {
-          this.#stateBuffers[i] = this.#states[i].get();
-          this.#stateSubscribers[i] = this.#states[i].sub((value) => {
-            this.#stateBuffers[i] = value;
-            if (!calc) {
-              calc = true;
-              Promise.resolve().then(() => {
-                this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
-                if (!first) this.updateSubs(this.#buffer);
-                calc = false;
-              });
-            }
-          }, false);
+    if (!first) return;
+    let calc = false;
+    for (let i = 0; i < this.#states.length; i++) {
+      this.#stateBuffers[i] = this.#states[i].get();
+      this.#stateSubscribers[i] = this.#states[i].sub((value) => {
+        this.#stateBuffers[i] = value;
+        if (!calc) {
+          calc = true;
+          Promise.resolve().then(() => {
+            this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
+            this.updateSubs(this.#buffer);
+            calc = false;
+          });
         }
-        this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
-        this.updateSubs(this.#buffer);
-      } else if (this.#states.length === 1) {
-        this.#buffer = this.get();
-        this.updateSubs(this.#buffer);
-        this.#stateSubscribers[0] = this.#states[0].sub((value) => {
-          this.#buffer = this.getter([value] as TRANS_VAL<IN>);
-          this.updateSubs(this.#buffer);
-        });
-      }
+      });
     }
+    this.#buffer = this.getter(this.#stateBuffers as TRANS_VAL<IN>);
+    this.updateSubs(this.#buffer);
   }
 
   /**Called when subscriber is removed*/
   protected onUnsubscribe(last: boolean) {
-    if (last) {
-      for (let i = 0; i < this.#states.length; i++)
-        this.#states[i].unsub(this.#stateSubscribers[i] as any);
-      this.#stateSubscribers = [];
-      this.#stateBuffers = [] as TRANS_VAL<IN>;
-      this.#buffer = undefined;
-    }
+    if (!last) return;
+    for (let i = 0; i < this.#states.length; i++)
+      this.#states[i].unsub(this.#stateSubscribers[i] as any);
+    this.#stateSubscribers = [];
+    this.#stateBuffers = [] as TRANS_VAL<IN>;
+    this.#buffer = undefined;
   }
 
   //Reader Context
   async then<T = ResultOk<RT>>(
     func: (value: ResultOk<RT>) => T | PromiseLike<T>
   ): Promise<T> {
-    if (this.#buffer) return func(this.#buffer);
-    return await func(this.get());
+    return func(this.get());
   }
 
   get(): ResultOk<RT> {

@@ -13,18 +13,26 @@ import {
   type TEST_STATE_WRITESYNC,
 } from "./shared";
 
-describe("Sync states", function () {
+describe("Initialize lazy states", function () {
   describe("ROS", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.s.ros.ok(1);
-      expect(init).instanceOf(st.s.ros.class);
+      let init = st.l.ros.ok(() => 1);
+      expect(init).instanceOf(st.l.ros.class);
     });
     it("result ok", async function () {
-      let init = st.s.ros.result(Ok(1));
-      expect(init).instanceOf(st.s.ros.class);
+      let init = st.l.ros.result(() => Ok(1));
+      expect(init).instanceOf(st.l.ros.class);
+    });
+    it("cleanup successfull", async function () {
+      let init = st.l.ros.result(() => Ok(1));
+      let get = init.get;
+      let set = init.set;
+      await init;
+      expect(init.get).not.eq(get, "get");
+      expect(init.set).not.eq(set, "set");
     });
     let maker: TEST_STATE_OK_SYNC = () => {
-      let state = st.s.ros.ok(1);
+      let state = st.l.ros.ok(() => 1);
       let set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: true, w: false, ws: false, state, set };
     };
@@ -44,19 +52,27 @@ describe("Sync states", function () {
   //##################################################################################################################################################
   describe("RES", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.s.res.ok(1);
-      expect(init).instanceOf(st.s.res.class);
+      let init = st.l.res.ok(() => 1);
+      expect(init).instanceOf(st.l.res.class);
     });
     it("err", async function () {
-      let init = st.s.res.err("1");
-      expect(init).instanceOf(st.s.res.class);
+      let init = st.l.res.err(() => "1");
+      expect(init).instanceOf(st.l.res.class);
     });
     it("result ok", async function () {
-      let init = st.s.res.result(Ok(1));
-      expect(init).instanceOf(st.s.res.class);
+      let init = st.l.res.result(() => Ok(1));
+      expect(init).instanceOf(st.l.res.class);
+    });
+    it("cleanup successfull", async function () {
+      let init = st.l.res.result(() => Ok(1));
+      let get = init.get;
+      let set = init.set;
+      await init;
+      expect(init.get).not.eq(get, "get");
+      expect(init.set).not.eq(set, "set");
     });
     let maker: TEST_STATE_SYNC = () => {
-      let state = st.s.res.ok(1);
+      let state = st.l.res.ok(() => 1);
       let set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: true, w: false, ws: false, state, set };
     };
@@ -73,15 +89,23 @@ describe("Sync states", function () {
   //##################################################################################################################################################
   describe("ROS_WS", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.s.ros_ws.ok(1);
-      expect(init).instanceOf(st.s.ros_ws.class);
+      let init = st.l.ros_ws.ok(() => 1);
+      expect(init).instanceOf(st.l.ros_ws.class);
     });
     it("result ok", async function () {
-      let init = st.s.ros_ws.result(Ok(1));
-      expect(init).instanceOf(st.s.ros_ws.class);
+      let init = st.l.ros_ws.result(() => Ok(1));
+      expect(init).instanceOf(st.l.ros_ws.class);
+    });
+    it("cleanup successfull", async function () {
+      let init = st.l.ros_ws.ok(() => 1);
+      let set = init.set;
+      let writeSync = init.writeSync;
+      await init;
+      expect(init.set).not.eq(set, "set");
+      expect(init.writeSync).not.eq(writeSync, "writeSync");
     });
     let maker: TEST_STATE_OK_SYNC = () => {
-      let state = st.s.ros_ws.ok(1);
+      let state = st.l.ros_ws.ok(() => 1);
       let set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: true, w: true, ws: true, state, set };
     };
@@ -98,7 +122,7 @@ describe("Sync states", function () {
       await test_state_get_ok(maker);
     });
     let makerWrite: TEST_STATE_WRITESYNC = () => {
-      let state = st.s.ros_ws.ok(1, true);
+      let state = st.l.ros_ws.ok(() => 1, true);
       let set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: true, w: true, ws: true, state, set };
     };
@@ -112,33 +136,41 @@ describe("Sync states", function () {
   //##################################################################################################################################################
   describe("RES_WS", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.s.res_ws.ok(1);
-      expect(init).instanceOf(st.s.res_ws.class);
+      let init = st.l.res_ws.ok(() => 1);
+      expect(init).instanceOf(st.l.res_ws.class);
     });
     it("err", async function () {
-      let init = st.s.res_ws.err("1");
-      expect(init).instanceOf(st.s.res_ws.class);
+      let init = st.l.res_ws.err(() => "1");
+      expect(init).instanceOf(st.l.res_ws.class);
     });
     it("result ok", async function () {
-      let init = st.s.res_ws.result(Ok(1));
-      expect(init).instanceOf(st.s.res_ws.class);
+      let init = st.l.res_ws.result(() => Ok(1));
+      expect(init).instanceOf(st.l.res_ws.class);
+    });
+    it("cleanup successfull", async function () {
+      let init = st.l.res_ws.ok(() => 1);
+      let set = init.set;
+      let writeSync = init.writeSync;
+      await init;
+      expect(init.set).not.eq(set, "set");
+      expect(init.writeSync).not.eq(writeSync, "writeSync");
     });
     let maker: TEST_STATE_SYNC = () => {
-      let state = st.s.res_ws.ok(1);
+      let state = st.l.res_ws.ok(() => 1);
       let set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: true, w: true, ws: true, state, set };
     };
-    it("Test Subscribing And Unsubscribing", async function () {
+    it("Subscribing And Unsubscribing", async function () {
       await test_state_sub(maker, 0);
     });
-    describe("Test Then", async function () {
+    describe("Then", async function () {
       await test_state_then(maker, 0);
     });
     it("Get", async function () {
       await test_state_get(maker);
     });
     let makerWrite: TEST_STATE_WRITESYNC = () => {
-      let state = st.s.res_ws.ok(1, true);
+      let state = st.l.res_ws.ok(() => 1, true);
       let set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: true, w: true, ws: true, state, set };
     };

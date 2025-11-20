@@ -112,8 +112,8 @@ export class ContextMenu extends Base {
   /**Changes focus to the next line
    * @param direction false is first child, true is last child */
   focusNext(direction: boolean) {
-    if (direction) (this.lastChild as any)?.focus();
-    else (this.firstChild as any)?.focus({});
+    if (direction) (this.lastChild as ContextMenuLine)?.doFocus();
+    else (this.firstChild as any)?.doFocus({});
   }
 
   set closer(closer: boolean) {
@@ -237,9 +237,8 @@ export function contextMenu(
         | (ContextMenuLine | undefined)[]
         | Promise<(ContextMenuLine | undefined)[]>
       )
-    | (() =>
-        | (ContextMenuLine | undefined)[]
-        | Promise<(ContextMenuLine | undefined)[]>)
+    | (() => (ContextMenuLine | undefined)[])
+    | (() => Promise<(ContextMenuLine | undefined)[]>)
 ): ContextMenu {
   return new ContextMenu(lines);
 }

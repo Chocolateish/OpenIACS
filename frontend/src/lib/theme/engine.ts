@@ -1,4 +1,4 @@
-import { documentHandler } from "@libCommon";
+import { documentHandler } from "@libDocument";
 import {
   AnimationLevels,
   InputModes,
@@ -126,12 +126,12 @@ export let themeEngine = new (class ThemeEngine {
   }
 })();
 
-theme.subscribe((val) => {
+theme.sub((val) => {
   themeEngine.applyTheme(val.value);
 });
 let scaleValue = 16;
 let scaleRem = 16;
-scale.subscribe((val) => {
+scale.sub((val) => {
   scaleValue = val.value / 100;
   scaleRem = scaleValue * 16;
   themeEngine.applyScale(scaleValue);
@@ -144,12 +144,12 @@ export const remToPx = (rem: number) => {
 export const pxToRem = (px: number) => {
   return px / scaleRem;
 };
-scrollBarMode.subscribe((val) => {
+scrollBarMode.sub((val) => {
   themeEngine.applyScrollbar(val.value);
 });
-inputMode.subscribe((val) => {
+inputMode.sub((val) => {
   themeEngine.applyInput(val.value);
 });
-animationLevel.subscribe((val) => {
+animationLevel.sub((val) => {
   themeEngine.applyAnimation(val.value);
 });

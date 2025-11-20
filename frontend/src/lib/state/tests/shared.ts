@@ -1,369 +1,401 @@
-// import { Err, Ok, type Option, type Result } from "@libResult";
-// import {
-//   state_derived_from_states as sdfs,
-//   state_derived_from_state_array as sdfsa,
-//   state_derived_ok_from_states as sdofs,
-//   state_derived_ok_from_state_array as sdofsa,
-// } from "../collected";
-// import {
-//   state_derives_sum_from,
-//   state_derives_sum_from_ok,
-//   state_derives_sum_ok_from_ok,
-// } from "../collects";
-// import {
-//   state_delayed_err as sde,
-//   state_delayed_from as sdf,
-//   state_delayed_from_result as sdfr,
-//   state_delayed_from_result_ok as sdfro,
-//   state_delayed_ok as sdo,
-// } from "../delayed";
-// import {
-//   state_lazy_err as sle,
-//   state_lazy_from as slf,
-//   state_lazy_from_result as slfr,
-//   state_lazy_from_result_ok as slfro,
-//   state_lazy_ok as slo,
-// } from "../lazy";
-// import {
-//   state_proxy_from,
-//   state_proxy_from_ok,
-//   state_proxy_ok,
-//   state_proxy_ok_from_ok,
-// } from "../proxy";
-// import type { StateBaseRead } from "../stateBase";
-// import {
-//   state_proxy_write_from,
-//   state_proxy_write_from_ok,
-//   state_proxy_write_ok,
-//   state_proxy_write_ok_from_ok,
-// } from "../stateProxyWrite";
-// import {
-//   state_from_result as sfr,
-//   state_from_result_ok as sfro,
-//   state_err,
-//   state_from,
-//   state_ok,
-// } from "../sync";
-// import type {
-//   State,
-//   STATE_SET_REA,
-//   STATE_SET_RES,
-//   STATE_XX_WX,
-//   StateOwnerOk,
-// } from "../types";
+import { sleep } from "@libCommon";
+import { Err, Ok, ResultOk, type Result } from "@libResult";
+import { expect, it } from "vitest";
+import type {
+  STATE_REA,
+  STATE_REA_WA,
+  STATE_REA_WS,
+  STATE_RES,
+  STATE_RES_WA,
+  STATE_RES_WS,
+  STATE_ROA,
+  STATE_ROA_WA,
+  STATE_ROA_WS,
+  STATE_ROS,
+  STATE_ROS_WA,
+  STATE_ROS_WS,
+  STATE_SUB,
+} from "../types";
 
-// export function state_test_gen_error() {
-//   return "Test Error";
-// }
-// let eg = state_test_gen_error;
+function errGen() {
+  return "Test Error";
+}
 
-// export type StateTestsRead = [
-//   string,
-//   State<number, any>,
-//   StateOwnerOk<number>,
-//   StateBaseRead<any, any, any>,
-//   Result<number, string>,
-//   Result<number, string>
-// ];
+type STATE_TYPE<O, SY, W, WS, ST, R> = {
+  o: O;
+  s: SY;
+  w: W;
+  ws: WS;
+  state: ST;
+  set: (val: R) => void;
+};
+type RERR = Result<number, string>;
+type ROK = ResultOk<number>;
 
-// export type StateTestsWrite = [
-//   string,
-//   STATE_XX_WX<number, any>,
-//   StateOwnerOk<number>,
-//   StateBaseRead<any, any, any>,
-//   Result<number, string>,
-//   Result<number, string>
-// ];
+export type TEST_STATE_ALL = (
+  setter?: (w: number) => void
+) =>
+  | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
+  | STATE_TYPE<true, true, true, false, STATE_ROS_WA<number>, ROK>
+  | STATE_TYPE<true, true, false, false, STATE_ROS<number>, ROK>
+  | STATE_TYPE<true, false, false, false, STATE_ROA<number>, ROK>
+  | STATE_TYPE<true, false, true, false, STATE_ROA_WA<number>, ROK>
+  | STATE_TYPE<true, false, true, true, STATE_ROA_WS<number>, ROK>
+  | STATE_TYPE<false, true, true, true, STATE_RES_WS<number>, RERR>
+  | STATE_TYPE<false, true, true, false, STATE_RES_WA<number>, RERR>
+  | STATE_TYPE<false, true, false, false, STATE_RES<number>, RERR>
+  | STATE_TYPE<false, false, true, false, STATE_REA_WA<number>, RERR>
+  | STATE_TYPE<false, false, true, true, STATE_REA_WS<number>, RERR>
+  | STATE_TYPE<false, false, false, false, STATE_REA<number>, RERR>;
 
-// export function norm(
-//   text: string,
-//   state: StateBaseRead<any, any, any> &
-//     StateOwnerOk<any> &
-//     STATE_XX_WX<any, any, any>,
-//   init: Result<number, string>
-// ): StateTestsWrite {
-//   return [text, state.writeable, state, state, init, init.constructor as any];
-// }
+export type TEST_STATE_OK = () =>
+  | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
+  | STATE_TYPE<true, true, true, false, STATE_ROS_WA<number>, ROK>
+  | STATE_TYPE<true, true, false, false, STATE_ROS<number>, ROK>
+  | STATE_TYPE<true, false, true, false, STATE_ROA_WA<number>, ROK>
+  | STATE_TYPE<true, false, true, true, STATE_ROA_WS<number>, ROK>
+  | STATE_TYPE<true, false, false, false, STATE_ROA<number>, ROK>;
 
-// //       _____ _______    _______ ______
-// //      / ____|__   __|/\|__   __|  ____|
-// //     | (___    | |  /  \  | |  | |__
-// //      \___ \   | | / /\ \ | |  |  __|
-// //      ____) |  | |/ ____ \| |  | |____
-// //     |_____/   |_/_/    \_\_|  |______|
-// export function state_test_gen_normals(
-//   setter?: STATE_SET_RES<number, any> | true
-// ): StateTestsWrite[] {
-//   return [
-//     norm("state_from", state_from(1, setter), Ok(1)),
-//     norm("state_err", state_err<number>(eg(), setter), Err(eg())),
-//     norm("state_from_result", sfr<number>(Err(eg()), setter), Err(eg())),
-//   ];
-// }
-// export function state_test_gen_normals_ok(
-//   setter?: STATE_SET_RES<number, any> | true
-// ): StateTestsWrite[] {
-//   return [
-//     norm("state_ok", state_ok(1, setter), Ok(1)),
-//     norm("state_from_result_ok", sfro<number>(Ok(1), setter), Ok(1)),
-//   ];
-// }
+export type TEST_STATE_SYNC = () =>
+  | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
+  | STATE_TYPE<true, true, true, false, STATE_ROS_WA<number>, ROK>
+  | STATE_TYPE<true, true, false, false, STATE_ROS<number>, ROK>
+  | STATE_TYPE<false, true, true, true, STATE_RES_WS<number>, RERR>
+  | STATE_TYPE<false, true, true, false, STATE_RES_WA<number>, RERR>
+  | STATE_TYPE<false, true, false, false, STATE_RES<number>, RERR>;
 
-// //      _                ________     __
-// //     | |        /\    |___  /\ \   / /
-// //     | |       /  \      / /  \ \_/ /
-// //     | |      / /\ \    / /    \   /
-// //     | |____ / ____ \  / /__    | |
-// //     |______/_/    \_\/_____|   |_|
-// export function state_test_gen_lazy(
-//   setter?: STATE_SET_RES<number, any> | true
-// ): StateTestsWrite[] {
-//   return [
-//     norm(
-//       "state_lazy_from",
-//       slf(() => 1, setter),
-//       Ok(1)
-//     ),
-//     norm(
-//       "state_lazy_err",
-//       sle<number>(() => eg(), setter),
-//       Err(eg())
-//     ),
-//     norm(
-//       "state_lazy_from_result",
-//       slfr<number>(() => Err(eg()), setter),
-//       Err(eg())
-//     ),
-//   ];
-// }
-// export function state_test_gen_lazy_ok(
-//   setter?: STATE_SET_RES<number, any> | true
-// ): StateTestsWrite[] {
-//   return [
-//     norm(
-//       "state_lazy_ok",
-//       slo(() => 1, setter),
-//       Ok(1)
-//     ),
-//     norm(
-//       "state_lazy_from_result_ok",
-//       slfro<number>(() => Ok(1), setter),
-//       Ok(1)
-//     ),
-//   ];
-// }
+export type TEST_STATE_OK_SYNC = () =>
+  | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
+  | STATE_TYPE<true, true, true, false, STATE_ROS_WA<number>, ROK>
+  | STATE_TYPE<true, true, false, false, STATE_ROS<number>, ROK>;
 
-// //      _____  ______ _           __     ________ _____
-// //     |  __ \|  ____| |        /\\ \   / /  ____|  __ \
-// //     | |  | | |__  | |       /  \\ \_/ /| |__  | |  | |
-// //     | |  | |  __| | |      / /\ \\   / |  __| | |  | |
-// //     | |__| | |____| |____ / ____ \| |  | |____| |__| |
-// //     |_____/|______|______/_/    \_\_|  |______|_____/
-// export function state_test_gen_delayed(
-//   setter?: STATE_SET_REA<number, any> | true
-// ): StateTestsWrite[] {
-//   return [
-//     norm("state_delayed_from", sdf((async () => 1)(), setter), Ok(1)),
-//     norm(
-//       "state_delayed_err",
-//       sde<number>((async () => eg())(), setter),
-//       Err(eg())
-//     ),
-//     norm(
-//       "state_delayed_from_result",
-//       sdfr<number>((async () => Err(eg()))(), setter),
-//       Err(eg())
-//     ),
-//   ];
-// }
-// export function state_test_gen_delayed_ok(
-//   setter?: STATE_SET_REA<number, any> | true
-// ): StateTestsWrite[] {
-//   return [
-//     norm("state_delayed_ok", sdo((async () => 1)(), setter as any), Ok(1)),
-//     norm(
-//       "state_delayed_from_result_ok",
-//       sdfro<number>((async () => Ok(1))(), setter as any),
-//       Ok(1)
-//     ),
-//   ];
-// }
+export type TEST_STATE_WRITE = () =>
+  | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
+  | STATE_TYPE<true, true, true, false, STATE_ROS_WA<number>, ROK>
+  | STATE_TYPE<true, false, true, true, STATE_ROA_WS<number>, ROK>
+  | STATE_TYPE<true, false, true, false, STATE_ROA_WA<number>, ROK>
+  | STATE_TYPE<false, true, true, true, STATE_RES_WS<number>, RERR>
+  | STATE_TYPE<false, true, true, false, STATE_RES_WA<number>, RERR>
+  | STATE_TYPE<false, false, true, true, STATE_REA_WS<number>, RERR>
+  | STATE_TYPE<false, false, true, false, STATE_REA_WA<number>, RERR>;
 
-// //      _____  ______ _           __     ________ _____   __          _______ _______ _    _   _____  ______ _           __     __
-// //     |  __ \|  ____| |        /\\ \   / /  ____|  __ \  \ \        / /_   _|__   __| |  | | |  __ \|  ____| |        /\\ \   / /
-// //     | |  | | |__  | |       /  \\ \_/ /| |__  | |  | |  \ \  /\  / /  | |    | |  | |__| | | |  | | |__  | |       /  \\ \_/ /
-// //     | |  | |  __| | |      / /\ \\   / |  __| | |  | |   \ \/  \/ /   | |    | |  |  __  | | |  | |  __| | |      / /\ \\   /
-// //     | |__| | |____| |____ / ____ \| |  | |____| |__| |    \  /\  /   _| |_   | |  | |  | | | |__| | |____| |____ / ____ \| |
-// //     |_____/|______|______/_/    \_\_|  |______|_____/      \/  \/   |_____|  |_|  |_|  |_| |_____/|______|______/_/    \_\_|
-// let dg = (ret: any) => {
-//   return (async () => {
-//     await new Promise((a) => setTimeout(a, 4));
-//     return ret;
-//   })();
-// };
+export type TEST_STATE_WRITESYNC = () =>
+  | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
+  | STATE_TYPE<true, false, true, true, STATE_ROA_WS<number>, ROK>
+  | STATE_TYPE<false, true, true, true, STATE_RES_WS<number>, RERR>
+  | STATE_TYPE<false, false, true, true, STATE_REA_WS<number>, RERR>;
 
-// export function state_test_gen_delayed_with_delay(
-//   setter?: STATE_SET_REA<number, any> | true
-// ): StateTestsWrite[] {
-//   return [
-//     norm("state_delayed_from", sdf(dg(1), setter), Ok(1)),
-//     norm("state_delayed_err", sde<number>(dg(eg()), setter), Err(eg())),
-//     norm(
-//       "state_delayed_from_result",
-//       sdfr<number>(dg(Err(eg())), setter),
-//       Err(eg())
-//     ),
-//   ];
-// }
-// export function state_test_gen_delayed_with_delay_ok(
-//   setter?: STATE_SET_REA<number, any> | true
-// ): StateTestsWrite[] {
-//   return [
-//     norm("state_delayed_ok", sdo(dg(1), setter as any), Ok(1)),
-//     norm(
-//       "state_delayed_from_result_ok",
-//       sdfro<number>(dg(Ok(1)), setter as any),
-//       Ok(1)
-//     ),
-//   ];
-// }
+//       _____ _    _ ____   _____  _____ _____  _____ ____  ______
+//      / ____| |  | |  _ \ / ____|/ ____|  __ \|_   _|  _ \|  ____|
+//     | (___ | |  | | |_) | (___ | |    | |__) | | | | |_) | |__
+//      \___ \| |  | |  _ < \___ \| |    |  _  /  | | |  _ <|  __|
+//      ____) | |__| | |_) |____) | |____| | \ \ _| |_| |_) | |____
+//     |_____/ \____/|____/|_____/ \_____|_|  \_\_____|____/|______|
+/**Tests different cases of subscribing and unsubscribing to a state
+ * @param wait Time to wait after subscribing first time for async states
+ */
+export async function test_state_sub(
+  stateMaker: TEST_STATE_ALL,
+  wait: number
+): Promise<void> {
+  let made = stateMaker();
+  let { state, set } = made;
+  let warnBackup = console.error;
+  console.error = () => {
+    count += 100000000;
+  };
+  let count = 0;
+  let sub1 = state.sub(() => {
+    count++;
+  }, true) as STATE_SUB<any>;
+  expect(state.inUse()).equal(state);
+  expect(state.hasSubscriber(sub1)).equal(state);
+  expect(state.amountSubscriber()).equal(1);
+  await sleep(wait ?? 1);
+  expect(count).equal(1);
+  let sub2 = state.sub(() => {
+    count += 10;
+  }) as STATE_SUB<any>;
+  expect(state.inUse()).equal(state);
+  expect(state.hasSubscriber(sub2)).equal(state);
+  expect(state.amountSubscriber()).equal(2);
+  expect(count).equal(1);
+  set(Ok(8));
+  await sleep(1);
+  expect(count).equal(12);
+  let sub3 = state.sub(() => {
+    count += 100;
+    throw new Error("Gaurded against crash");
+  }) as STATE_SUB<any>;
+  expect(state.inUse()).equal(state);
+  expect(state.hasSubscriber(sub3)).equal(state);
+  expect(state.amountSubscriber()).equal(3);
+  set(Ok(12));
+  await sleep(1);
+  expect(count).equal(100000123);
+  state.unsub(sub1);
+  state.unsub(sub2);
+  expect(state.inUse()).equal(state);
+  expect(state.hasSubscriber(sub3)).equal(state);
+  expect(state.amountSubscriber()).equal(1);
+  set(Ok(12));
+  await sleep(1);
+  expect(count).equal(200000223);
+  state.unsub(sub3);
+  expect(state.inUse()).equal(undefined);
+  expect(state.amountSubscriber()).equal(0);
+  let [sub4, val] = await new Promise<[STATE_SUB<any>, Result<number, string>]>(
+    (a) => {
+      let sub4 = state.sub((val) => {
+        count += 1000;
+        a([sub4, val]);
+      }) as STATE_SUB<any>;
+      set(Ok(15));
+    }
+  );
+  await sleep(1);
+  expect(val).toEqual(Ok(15));
+  expect(count).equal(200001223);
+  state.unsub(sub4);
+  if (!made.o) {
+    let [sub5, val2] = await new Promise<
+      [STATE_SUB<any>, Result<number, string>]
+    >((a) => {
+      let sub5 = state.sub((val) => {
+        count += 10000;
+        a([sub5, val]);
+      }) as STATE_SUB<any>;
+      made.set(Err(errGen()));
+    });
+    await sleep(1);
+    expect(val2).toEqual(Err(errGen()));
+    expect(count).equal(200011223);
+    state.unsub(sub5);
+  }
 
-// //      _____  _____   ______   ____     __
-// //     |  __ \|  __ \ / __ \ \ / /\ \   / /
-// //     | |__) | |__) | |  | \ V /  \ \_/ /
-// //     |  ___/|  _  /| |  | |> <    \   /
-// //     | |    | | \ \| |__| / . \    | |
-// //     |_|    |_|  \_\\____/_/ \_\   |_|
-// let pr = Ok(1);
-// let prc = pr.constructor as any;
+  console.error = warnBackup;
+}
 
-// export function state_test_gen_proxies(): StateTestsRead[] {
-//   let s3 = state_ok(1);
-//   let s4 = state_ok(1);
-//   let sp3 = state_proxy_from(s3);
-//   let sp4 = state_proxy_from_ok(s4);
-//   return [
-//     ["state_proxy_from", sp3.readable, s3, sp3, pr, prc],
-//     ["state_proxy_from_ok", sp4.readable, s4, sp4, pr, prc],
-//   ];
-// }
+//      _______ _    _ ______ _   _
+//     |__   __| |  | |  ____| \ | |
+//        | |  | |__| | |__  |  \| |
+//        | |  |  __  |  __| | . ` |
+//        | |  | |  | | |____| |\  |
+//        |_|  |_|  |_|______|_| \_|
+/**Tests different cases of using then on a state
+ * Expects initial value to be number 1
+ * @param wait Time to wait for async states values
+ */
+export async function test_state_then(
+  stateMaker: TEST_STATE_ALL,
+  wait: number
+): Promise<void> {
+  it("awaiting then setting trice", async function () {
+    let { state, set } = stateMaker();
+    let awaited = await Promise.race([state, sleep(wait)]);
+    expect(awaited).instanceOf(ResultOk);
+    expect(awaited).toEqual(Ok(1));
+    set(Ok(5));
+    awaited = await Promise.race([state, sleep(wait)]);
+    expect(awaited).instanceOf(ResultOk);
+    expect(awaited).toEqual(Ok(5));
+    set(Ok(9999999999));
+    awaited = await Promise.race([state, sleep(wait)]);
+    expect(awaited).instanceOf(ResultOk);
+    expect(awaited).toEqual(Ok(9999999999));
+  });
+  it("using then", async function () {
+    let { state } = stateMaker();
+    await Promise.race([
+      new Promise((a) => {
+        state.then((val) => {
+          expect(val).instanceOf(ResultOk);
+          expect(val).toEqual(Ok(1));
+          a(null);
+        });
+      }),
+      sleep(wait),
+    ]);
+  });
+  it("using then", async function () {
+    let { state } = stateMaker();
+    expect(
+      await new Promise((a) => {
+        state
+          .then((val) => {
+            expect(val).instanceOf(ResultOk);
+            expect(val).toEqual(Ok(1));
+            return 8;
+          })
+          .then((val) => {
+            expect(val).equal(8);
+            a(12);
+          });
+      })
+    ).equal(12);
+  });
+  it("using then", async function () {
+    let { state } = stateMaker();
+    expect(
+      await new Promise((a) => {
+        state
+          .then((val) => {
+            expect(val).instanceOf(ResultOk);
+            expect(val).toEqual(Ok(1));
+            throw 8;
+          })
+          .then(
+            () => {},
+            (val) => {
+              expect(val).equal(8);
+              a(12);
+            }
+          );
+      })
+    ).equal(12);
+  });
+  it("setting then awaiting", async function () {
+    let { state, set } = stateMaker();
+    set(Ok(7));
+    let awaited = await state;
+    expect(awaited).toEqual(Ok(7));
+  });
+  it("setting error then awaiting", async function () {
+    let made = stateMaker();
+    if (made.o) return;
+    made.set(Err(errGen()));
+    let awaited = await made.state;
+    expect(awaited).toEqual(Err(errGen()));
+  });
+}
 
-// export function state_test_gen_proxies_ok(): StateTestsRead[] {
-//   let s1 = state_ok(1);
-//   let s2 = state_ok(1);
-//   let sp1 = state_proxy_ok(s1);
-//   let sp2 = state_proxy_ok_from_ok(s2);
-//   return [
-//     ["state_proxy_ok", sp1.readable, s1, sp1, pr, prc],
-//     ["state_proxy_ok_from_ok", sp2.readable, s2, sp2, pr, prc],
-//   ];
-// }
+//       _____ ______ _______
+//      / ____|  ____|__   __|
+//     | |  __| |__     | |
+//     | | |_ |  __|    | |
+//     | |__| | |____   | |
+//      \_____|______|  |_|
+/**Tests different cases of using get on a state
+ * Expects initial value to be number 1
+ */
+export async function test_state_get(
+  stateMaker: TEST_STATE_SYNC
+): Promise<void> {
+  let made = stateMaker();
+  expect(made.state.get()).toEqual(Ok(1));
+  made.set(Ok(55));
+  expect(made.state.get()).toEqual(Ok(55));
+  if (!made.o) {
+    made.set(Err(errGen()));
+    expect(made.state.get()).toEqual(Err(errGen()));
+  }
+}
 
-// //      _____  _____   ______   ____     __ __          _______  _____ _______ ______
-// //     |  __ \|  __ \ / __ \ \ / /\ \   / / \ \        / /  __ \|_   _|__   __|  ____|
-// //     | |__) | |__) | |  | \ V /  \ \_/ /   \ \  /\  / /| |__) | | |    | |  | |__
-// //     |  ___/|  _  /| |  | |> <    \   /     \ \/  \/ / |  _  /  | |    | |  |  __|
-// //     | |    | | \ \| |__| / . \    | |       \  /\  /  | | \ \ _| |_   | |  | |____
-// //     |_|    |_|  \_\\____/_/ \_\   |_|        \/  \/   |_|  \_\_____|  |_|  |______|
-// export function state_test_gen_proxies_write(
-//   setter?: STATE_SET_RES<number, any> | true
-// ): StateTestsWrite[] {
-//   let s7 = state_ok<number>(1, setter);
-//   let s8 = state_ok<number>(1, setter);
-//   let sp7 = state_proxy_write_from(s7);
-//   let sp8 = state_proxy_write_from_ok(s8);
+//       _____ ______ _______    ____  _  __
+//      / ____|  ____|__   __|  / __ \| |/ /
+//     | |  __| |__     | |    | |  | | ' /
+//     | | |_ |  __|    | |    | |  | |  <
+//     | |__| | |____   | |    | |__| | . \
+//      \_____|______|  |_|     \____/|_|\_\
+/**Tests different cases of using getOk on a state
+ * Expects initial value to be number 1
+ */
+export async function test_state_get_ok(
+  stateMaker: TEST_STATE_OK_SYNC
+): Promise<void> {
+  let { state } = stateMaker();
+  expect(state.getOk()).toEqual(1);
+}
 
-//   return [
-//     ["state_proxy_write_from", sp7.writeable, s7, sp7, pr, prc],
-//     ["state_proxy_write_from_ok", sp8.writeable, s8, sp8, pr, prc],
-//   ];
-// }
+//     __          _______  _____ _______ ______
+//     \ \        / /  __ \|_   _|__   __|  ____|
+//      \ \  /\  / /| |__) | | |    | |  | |__
+//       \ \/  \/ / |  _  /  | |    | |  |  __|
+//        \  /\  /  | | \ \ _| |_   | |  | |____
+//         \/  \/   |_|  \_\_____|  |_|  |______|
+/**Tests different cases of using write on a state
+ * Expects initial value to be number 1
+ */
+export async function test_state_write(
+  stateMaker: TEST_STATE_WRITE
+): Promise<void> {
+  let { state } = stateMaker();
+  expect(await state.write(15)).toEqual(Ok(undefined));
+  let awaited = await state;
+  expect(awaited).toEqual(Ok(15));
+}
 
-// export function state_test_gen_proxies_write_ok(
-//   setter?: STATE_SET_RES<number, any> | true
-// ): StateTestsWrite[] {
-//   let s5 = state_ok<number>(1, setter);
-//   let s6 = state_ok<number>(1, setter);
-//   let sp5 = state_proxy_write_ok(s5);
-//   let sp6 = state_proxy_write_ok_from_ok(s6);
-//   return [
-//     ["state_proxy_write_ok", sp5.writeable, s5, sp5, pr, prc],
-//     ["state_proxy_write_ok_from_ok", sp6.writeable, s6, sp6, pr, prc],
-//   ];
-// }
+//     __          _______  _____ _______ ______    _______     ___   _  _____
+//     \ \        / /  __ \|_   _|__   __|  ____|  / ____\ \   / / \ | |/ ____|
+//      \ \  /\  / /| |__) | | |    | |  | |__    | (___  \ \_/ /|  \| | |
+//       \ \/  \/ / |  _  /  | |    | |  |  __|    \___ \  \   / | . ` | |
+//        \  /\  /  | | \ \ _| |_   | |  | |____   ____) |  | |  | |\  | |____
+//         \/  \/   |_|  \_\_____|  |_|  |______| |_____/   |_|  |_| \_|\_____|
+/**Tests different cases of using writeSync on a state
+ * Expects initial value to be number 1
+ */
+export async function test_state_writeSync(
+  stateMaker: TEST_STATE_WRITESYNC
+): Promise<void> {
+  let { state } = stateMaker();
+  expect(state.writeSync(10)).toEqual(Ok(undefined));
+  let awaited = await state;
+  expect(awaited).toEqual(Ok(10));
+}
 
-// //      _____  ______ _____  _______      ________ _____
-// //     |  __ \|  ____|  __ \|_   _\ \    / /  ____|  __ \
-// //     | |  | | |__  | |__) | | |  \ \  / /| |__  | |  | |
-// //     | |  | |  __| |  _  /  | |   \ \/ / |  __| | |  | |
-// //     | |__| | |____| | \ \ _| |_   \  /  | |____| |__| |
-// //     |_____/|______|_|  \_\_____|   \/   |______|_____/
-// let dr = Ok(1);
-// let drc = pr.constructor as any;
+// describe(
+//   "Normal async states with setter set to simple function",
+//   {
+//     timeout: 50,
+//   },
+//   function () {
+//     let tests = gen_sync_states((val, state) => Ok(state.setOk(val)));
+//     for (let i = 0; i < tests.length; i++) {
+//       const test = tests[i];
+//       it(test[0], async function () {
+//         let state = test[1];
+//         expect(state.write(10)).toEqual(Ok(undefined));
+//         let awaited = await state;
+//         expect(awaited).toEqual(Ok(10));
+//       });
+//     }
+//   }
+// );
 
-// export function state_test_gen_derived(
-//   setter?: ((val: number) => Option<Result<number, string>>) | true
-// ): StateTestsRead[] {
-//   let s1 = state_ok(1, setter as any);
-//   let s2 = state_ok(1, setter as any);
-//   let d1 = sdfs((val) => {
-//     return val[0];
-//   }, s1);
-//   let d2 = sdfsa(
-//     (val) => {
-//       return val[0];
-//     },
-//     [s2]
-//   );
-//   return [
-//     ["state_derived_from_states", d1.readable, s1, d1, dr, drc],
-//     ["state_derived_from_state_array", d2.readable, s2, d2, dr, drc],
-//   ];
-// }
+// describe(
+//   "Normal states with setter set to transforming function",
+//   {
+//     timeout: 50,
+//   },
+//   function () {
+//     let tests = gen_states(async (val, state) => Ok(state.setOk(val * 2)));
+//     for (let i = 0; i < tests.length; i++) {
+//       const test = tests[i];
+//       it(test[0], async function () {
+//         let state = test[1];
+//         expect(state.write(10)).equal(true);
+//         let awaited = await state;
+//         expect(awaited).toEqual(Ok(20));
+//       });
+//     }
+//   }
+// );
 
-// export function state_test_gen_derived_ok(
-//   setter?: ((val: number) => Option<Result<number, string>>) | true
-// ): StateTestsRead[] {
-//   let s1 = state_ok(1, setter as any);
-//   let s2 = state_ok(1, setter as any);
-//   let d1 = sdofs((val) => {
-//     return val[0];
-//   }, s1);
-//   let d2 = sdofsa(
-//     (val) => {
-//       return val[0];
-//     },
-//     [s2]
-//   );
-//   return [
-//     ["state_derived_ok_from_states", d1.readable, s1, d1, dr, drc],
-//     ["state_derived_ok_from_state_array", d2.readable, s2, d2, dr, drc],
-//   ];
-// }
-
-// //      _____  ______ _____  _______      ________  _____
-// //     |  __ \|  ____|  __ \|_   _\ \    / /  ____|/ ____|
-// //     | |  | | |__  | |__) | | |  \ \  / /| |__  | (___
-// //     | |  | |  __| |  _  /  | |   \ \/ / |  __|  \___ \
-// //     | |__| | |____| | \ \ _| |_   \  /  | |____ ____) |
-// //     |_____/|______|_|  \_\_____|   \/   |______|_____/
-
-// export function state_test_gen_derives_sum(
-//   setter?: ((val: number) => Option<Result<number, string>>) | true
-// ): StateTestsRead[] {
-//   let s1 = state_ok(1, setter as any);
-//   let s2 = state_ok(1, setter as any);
-//   let d1 = state_derives_sum_from(s1);
-//   let d2 = state_derives_sum_from_ok(s2);
-//   return [
-//     ["state_derives_sum_from", d1.readable, s1, d1, dr, drc],
-//     ["state_derives_sum_from_ok", d2.readable, s2, d2, dr, drc],
-//   ];
-// }
-// export function state_test_gen_derives_sum_ok(
-//   setter?: ((val: number) => Option<Result<number, string>>) | true
-// ): StateTestsRead[] {
-//   let s1 = state_ok(1, setter as any);
-//   let d1 = state_derives_sum_ok_from_ok(s1);
-//   return [["state_derives_sum_ok_from_ok", d1.readable, s1, d1, dr, drc]];
-// }
+// describe(
+//   "Normal states with setter set to function returning error",
+//   {
+//     timeout: 50,
+//   },
+//   function () {
+//     let tests = gen_states(async (_val, state) => Ok(state.setErr(errGen())));
+//     for (let i = 0; i < tests.length; i++) {
+//       const test = tests[i];
+//       it(test[0], async function () {
+//         let state = test[1];
+//         expect(state.write(10)).equal(true);
+//         let awaited = await state;
+//         expect(awaited).toEqual(Err(errGen()));
+//       });
+//     }
+//   }
+// );

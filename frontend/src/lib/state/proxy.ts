@@ -205,8 +205,7 @@ export class STATE_PROXY_RES<
   async then<T = Result<OUT, string>>(
     func: (value: Result<OUT, string>) => T | PromiseLike<T>
   ): Promise<T> {
-    if (this.#buffer) return func(this.#buffer);
-    return func(this.transform(await this.#state));
+    return func(this.get());
   }
 
   get(): Result<OUT, string> {
@@ -293,8 +292,7 @@ export class STATE_PROXY_ROS<
   async then<T = ResultOk<OUT>>(
     func: (value: ResultOk<OUT>) => T | PromiseLike<T>
   ): Promise<T> {
-    if (this.#buffer) return func(this.#buffer);
-    return func(this.transform(await this.#state));
+    return func(this.get());
   }
 
   get(): ResultOk<OUT> {
@@ -303,8 +301,7 @@ export class STATE_PROXY_ROS<
   }
 
   getOk(): OUT {
-    if (this.#buffer) return this.#buffer.unwrap;
-    return this.transform(this.#state.get()).value;
+    return this.get().value;
   }
 
   related(): Option<{}> {

@@ -24,7 +24,7 @@ export class ESub<Type, Target, Data> {
 /**Function used to subscribe to event*/
 export type ESubSubscriber<Type, Target, Data> = (
   event: ESub<Type, Target, Data>
-) => boolean | void;
+) => void;
 
 export interface EventSubConsumer<Events extends {}, Target> {
   /**This add the subscriber to the event handler
@@ -121,7 +121,7 @@ export class EventHandlerSub<Events extends {}, Target>
       }
     var typeListeners = subLevel!.funcs;
     if (typeListeners.has(subscriber))
-      console.warn("Subscriber already in handler");
+      console.error("Subscriber already in handler");
     else typeListeners.add(subscriber);
     return subscriber;
   }
@@ -138,12 +138,12 @@ export class EventHandlerSub<Events extends {}, Target>
           let subLevelBuffer = subLevel!.subs[sub[i]];
           if (subLevelBuffer) subLevel = subLevelBuffer;
           else {
-            console.warn("Subscriber not in handler");
+            console.error("Subscriber not in handler");
             return subscriber;
           }
         }
       if (subLevel!.funcs.delete(subscriber) === false)
-        console.warn("Subscriber not in handler");
+        console.error("Subscriber not in handler");
     }
     return subscriber;
   }
@@ -153,14 +153,14 @@ export class EventHandlerSub<Events extends {}, Target>
   ): typeof subscriber {
     if (!this.#proxies) this.#proxies = new Set([subscriber]);
     else if (!this.#proxies.has(subscriber)) this.#proxies.add(subscriber);
-    else console.warn("Proxy subscriber already registered");
+    else console.error("Proxy subscriber already registered");
     return subscriber;
   }
   proxyOff(
     subscriber: ESubSubscriber<keyof Events, Target, Events[keyof Events]>
   ): typeof subscriber {
     if (this.#proxies?.delete(subscriber) === false)
-      console.warn("Proxy subscriber not registered");
+      console.error("Proxy subscriber not registered");
     return subscriber;
   }
 
@@ -217,9 +217,9 @@ export class EventHandlerSub<Events extends {}, Target>
     });
     funcs?.forEach((func) => {
       try {
-        if (func(e)) funcs.delete(func);
+        func(e);
       } catch (e) {
-        console.warn("Failed while dispatching event", e);
+        console.error("Failed while dispatching event", e);
       }
     });
   }
