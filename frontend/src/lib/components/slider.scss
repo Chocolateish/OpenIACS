@@ -1,0 +1,214 @@
+@use "../components/common.scss";
+
+lib-component-slider {
+  $basis: 2rem;
+  $touchBasis: 2.5rem;
+
+  display: flex;
+  flex-direction: column;
+  -webkit-user-select: none;
+  user-select: none;
+
+  &.READ {
+    filter: var(--libOldCommon-readOpacityFilter);
+    pointer-events: none;
+  }
+
+  &.NONE {
+    display: none;
+  }
+
+  > span {
+    color: var(--libOldComponents-componentTextColor);
+    margin-left: 0.3rem;
+    margin-bottom: 0.1rem;
+
+    .anim-all & {
+      transition: color var(--libOldCommon-colorTransitionType)
+        var(--libOldCommon-colorTransitionTime);
+    }
+  }
+
+  &.horz > div {
+    min-width: 12rem;
+    height: $basis;
+    flex-direction: row;
+
+    .touch & {
+      height: $touchBasis;
+    }
+
+    .anim-all & {
+      transition: height var(--libOldCommon-sizeTransitionType)
+          var(--libOldCommon-sizeTransitionTime),
+        background-color var(--libOldCommon-colorTransitionType)
+          var(--libOldCommon-colorTransitionTime);
+    }
+
+    > div {
+      height: 100%;
+      left: 2.5rem;
+      width: calc(100% - 5rem);
+
+      > div {
+        height: 100%;
+        width: 5rem;
+        transform: translateX(-50%);
+      }
+    }
+
+    > svg.icon {
+      height: 100%;
+      width: auto;
+      max-width: $basis;
+
+      .touch & {
+        max-width: $touchBasis;
+      }
+
+      .anim-all & {
+        transition: height var(--libOldCommon-sizeTransitionType)
+            var(--libOldCommon-sizeTransitionTime),
+          max-width var(--libOldCommon-sizeTransitionType)
+            var(--libOldCommon-sizeTransitionTime),
+          padding var(--libOldCommon-sizeTransitionType)
+            var(--libOldCommon-sizeTransitionTime),
+          fill var(--libOldCommon-colorTransitionType)
+            var(--libOldCommon-colorTransitionTime);
+      }
+    }
+  }
+
+  &.vert > div {
+    min-height: 10rem;
+    width: $basis;
+    flex-direction: column;
+
+    .touch & {
+      width: $touchBasis;
+    }
+
+    .anim-all & {
+      transition: width var(--libOldCommon-sizeTransitionType)
+          var(--libOldCommon-sizeTransitionTime),
+        background-color var(--libOldCommon-colorTransitionType)
+          var(--libOldCommon-colorTransitionTime);
+    }
+
+    > div {
+      width: 100%;
+      top: 2.5rem;
+      height: calc(100% - 5rem);
+
+      > div {
+        width: 100%;
+        height: 5rem;
+        transform: translateY(-50%);
+      }
+    }
+
+    > svg.icon {
+      width: 100%;
+      height: auto;
+      max-height: $basis;
+
+      .touch & {
+        max-height: $touchBasis;
+      }
+
+      .anim-all & {
+        transition: height var(--libOldCommon-sizeTransitionType)
+            var(--libOldCommon-sizeTransitionTime),
+          max-height var(--libOldCommon-sizeTransitionType)
+            var(--libOldCommon-sizeTransitionTime),
+          padding var(--libOldCommon-sizeTransitionType)
+            var(--libOldCommon-sizeTransitionTime),
+          fill var(--libOldCommon-colorTransitionType)
+            var(--libOldCommon-colorTransitionTime);
+      }
+    }
+  }
+
+  > div {
+    position: relative;
+    background-color: var(
+      --libOldComponents-componentUnselectedBackGroundColor
+    );
+    border-radius: var(--componentCornerRadius);
+    display: flex;
+    justify-content: space-between;
+
+    > svg {
+      padding: 0.3rem;
+      border-radius: var(--componentCornerRadius);
+      fill: var(--libOldComponents-componentSymbolColor);
+
+      .touch &.icon {
+        padding: 0.4rem;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          background-color: var(
+            --libOldComponents-componentHoverBackGroundColor
+          );
+        }
+      }
+    }
+
+    > div {
+      position: absolute;
+
+      > div {
+        color: var(--libOldComponents-componentTextColor);
+        touch-action: none;
+        position: absolute;
+        background-color: var(--libOldComponents-componentBackGroundColor);
+        border-radius: var(--componentCornerRadius);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        -webkit-user-select: none;
+        user-select: none;
+        box-shadow: inset 0 0 0px 1px
+            var(--libOldComponents-componentBorderColor),
+          var(--componentShadowOut);
+        outline: none;
+        line-height: 0.8rem;
+        box-sizing: border-box;
+
+        > div {
+          font-size: 0.8rem;
+        }
+
+        .anim-all & {
+          transition: color var(--libOldCommon-colorTransitionType)
+              var(--libOldCommon-colorTransitionTime),
+            background-color var(--libOldCommon-colorTransitionType)
+              var(--libOldCommon-colorTransitionTime),
+            box-shadow var(--libOldCommon-colorTransitionType)
+              var(--libOldCommon-colorTransitionTime);
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+          &:hover {
+            background-color: var(
+              --libOldComponents-componentHoverBackGroundColor
+            );
+          }
+
+          &:focus-visible::after {
+            content: "";
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            z-index: 1;
+            border-radius: inherit;
+            box-shadow: var(--componentShadowFocus);
+          }
+        }
+      }
+    }
+  }
+}
