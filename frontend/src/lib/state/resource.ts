@@ -42,38 +42,34 @@ export abstract class STATE_RESOURCE_REA<
   abstract get retention(): number;
 
   protected onSubscribe(first: boolean): void {
-    if (first) {
-      if (!this.inUse()) {
-        if (this.#retentionTimout) {
-          clearTimeout(this.#retentionTimout);
-          this.#retentionTimout = 0;
-        } else {
-          this.#fetching = true;
-          if (this.debounce > 0)
-            this.#debounceTimout = setTimeout(() => {
-              this.setupConnection(this);
-              this.#debounceTimout = 0;
-            }, this.debounce) as any;
-          else this.setupConnection(this);
-        }
-      }
+    if (!first || this.inUse()) return;
+    if (this.#retentionTimout) {
+      clearTimeout(this.#retentionTimout);
+      this.#retentionTimout = 0;
+    } else {
+      this.#fetching = true;
+      if (this.debounce > 0)
+        this.#debounceTimout = setTimeout(() => {
+          this.setupConnection(this);
+          this.#debounceTimout = 0;
+        }, this.debounce) as any;
+      else this.setupConnection(this);
     }
   }
 
   protected onUnsubscribe(last: boolean): void {
-    if (last) {
-      if (this.#debounceTimout) {
-        clearTimeout(this.#debounceTimout);
-        this.#debounceTimout = 0;
-      } else {
-        if (this.retention > 0) {
-          this.#retentionTimout = setTimeout(() => {
-            this.teardownConnection();
-            this.#retentionTimout = 0;
-          }, this.retention) as any;
-        } else {
+    if (!last) return;
+    if (this.#debounceTimout) {
+      clearTimeout(this.#debounceTimout);
+      this.#debounceTimout = 0;
+    } else {
+      if (this.retention > 0) {
+        this.#retentionTimout = setTimeout(() => {
           this.teardownConnection();
-        }
+          this.#retentionTimout = 0;
+        }, this.retention) as any;
+      } else {
+        this.teardownConnection();
       }
     }
   }
@@ -163,38 +159,34 @@ export abstract class STATE_RESOURCE_REA_WA<
   abstract get writebounce(): number;
 
   protected onSubscribe(first: boolean) {
-    if (first) {
-      if (!this.inUse()) {
-        if (this.#retentionTimout) {
-          clearTimeout(this.#retentionTimout);
-          this.#retentionTimout = 0;
-        } else {
-          this.#fetching = true;
-          if (this.debounce > 0)
-            this.#debounceTimout = setTimeout(() => {
-              this.setupConnection(this);
-              this.#debounceTimout = 0;
-            }, this.debounce) as any;
-          else this.setupConnection(this);
-        }
-      }
+    if (!first || this.inUse()) return;
+    if (this.#retentionTimout) {
+      clearTimeout(this.#retentionTimout);
+      this.#retentionTimout = 0;
+    } else {
+      this.#fetching = true;
+      if (this.debounce > 0)
+        this.#debounceTimout = setTimeout(() => {
+          this.setupConnection(this);
+          this.#debounceTimout = 0;
+        }, this.debounce) as any;
+      else this.setupConnection(this);
     }
   }
 
   protected onUnsubscribe(last: boolean) {
-    if (last) {
-      if (this.#debounceTimout) {
-        clearTimeout(this.#debounceTimout);
-        this.#debounceTimout = 0;
-      } else {
-        if (this.retention > 0) {
-          this.#retentionTimout = setTimeout(() => {
-            this.teardownConnection();
-            this.#retentionTimout = 0;
-          }, this.retention) as any;
-        } else {
+    if (!last) return;
+    if (this.#debounceTimout) {
+      clearTimeout(this.#debounceTimout);
+      this.#debounceTimout = 0;
+    } else {
+      if (this.retention > 0) {
+        this.#retentionTimout = setTimeout(() => {
           this.teardownConnection();
-        }
+          this.#retentionTimout = 0;
+        }, this.retention) as any;
+      } else {
+        this.teardownConnection();
       }
     }
   }
@@ -396,23 +388,23 @@ const rea = {
   /**Alternative state resource which can be initialized with functions
    * @template READ - The type of the state’s value when read.
    * @template REL - The type of related states, defaults to an empty object.
-   * @param once function called when state value is requested once, returns a Err(string) on failure
+   * @param once function called when state value is requested once
    * @param setup function called when state has been subscribed to
    * @param teardown function called when state has been unsubscribed from completely
    * @param debounce delay added to once value retrival, which will collect multiple once requests into a single one
    * @param timeout how long the last retrived value is considered valid
    * @param retention delay after last subscriber unsubscribes before teardown is called, to allow quick resubscribe without teardown
    * */
-  state_resource<RT, REL extends Related = {}>(
-    once: (state: STATE_RESOURCE_FUNC_REA<Result<RT, string>, REL>) => void,
-    setup: (state: STATE_RESOURCE_FUNC_REA<Result<RT, string>, REL>) => void,
+  from<RT, REL extends Related = {}>(
+    once: (state: STATE_RESOURCE_FUNC_REA<RT, REL>) => void,
+    setup: (state: STATE_RESOURCE_FUNC_REA<RT, REL>) => void,
     teardown: () => void,
     debounce: number = 0,
     timeout: number = 0,
     retention: number = 0,
     helper?: STATE_HELPER<REL>
   ) {
-    return new STATE_RESOURCE_FUNC_REA<Result<RT, string>, REL>(
+    return new STATE_RESOURCE_FUNC_REA<RT, REL>(
       once,
       setup,
       teardown,
@@ -441,13 +433,9 @@ const rea_wa = {
    * @param writeBounce debounce delay for write calls, only the last write within the delay is used
    * @param writeAction function called after write debounce finished with the last written value
    * */
-  state_resource<RT, REL extends Related = {}, WT = RT>(
-    once: (
-      state: STATE_RESOURCE_FUNC_REA_WA<Result<RT, string>, WT, REL>
-    ) => void,
-    setup: (
-      state: STATE_RESOURCE_FUNC_REA_WA<Result<RT, string>, WT, REL>
-    ) => void,
+  from<RT, REL extends Related = {}, WT = RT>(
+    once: (state: STATE_RESOURCE_FUNC_REA_WA<RT, WT, REL>) => void,
+    setup: (state: STATE_RESOURCE_FUNC_REA_WA<RT, WT, REL>) => void,
     teardown: () => void,
     debounce: number = 0,
     timeout: number = 0,
@@ -455,11 +443,11 @@ const rea_wa = {
     writeBounce?: number,
     writeAction?: (
       value: WT,
-      state: STATE_RESOURCE_FUNC_REA_WA<Result<RT, string>, WT, REL>
+      state: STATE_RESOURCE_FUNC_REA_WA<RT, WT, REL>
     ) => Promise<Result<void, string>>,
     helper?: STATE_HELPER_WRITE<WT, REL>
   ) {
-    return new STATE_RESOURCE_FUNC_REA_WA<Result<RT, string>, WT, REL>(
+    return new STATE_RESOURCE_FUNC_REA_WA<RT, WT, REL>(
       once,
       setup,
       teardown,

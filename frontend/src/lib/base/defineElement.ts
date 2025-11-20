@@ -81,6 +81,8 @@ export let baseElementName = <T extends BaseOptions>(
   return namespace + defineName;
 };
 
+export let elementList: Set<string> = new Set();
+
 /**Defines elements inheriting from the base*/
 export let defineElement = <T extends BaseOptions>(
   element: (abstract new (...options: any) => Base<T>) & {
@@ -115,6 +117,7 @@ export let defineElement = <T extends BaseOptions>(
   try {
     // @ts-expect-error
     customElements.define(defineName, element);
+    elementList.add(defineName);
   } catch (e) {
     if (
       e instanceof Error &&
