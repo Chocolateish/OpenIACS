@@ -1,5 +1,7 @@
 import { Err, Ok, Some, type Option, type Result } from "@libResult";
+import type { SVGFunc } from "@libSVG";
 import {
+  STATE_IS,
   STATE_REA,
   STATE_REA_WA,
   STATE_REA_WS,
@@ -12,7 +14,6 @@ import {
   STATE_ROS,
   STATE_ROS_WA,
   STATE_ROS_WS,
-  StateReadAll,
   type STATE,
   type STATE_HELPER_WRITE,
   type STATE_RELATED,
@@ -203,7 +204,7 @@ const strings = {
 type ENUM_HELPER_ENTRY = {
   name: string;
   description?: string;
-  icon?: () => SVGSVGElement;
+  icon?: SVGFunc;
 };
 
 type STATE_ENUM_HELPER_LIST<K extends PropertyKey> = {
@@ -330,7 +331,7 @@ function compare_sync(state1: STATE_RXS<any>, state2: STATE_RXS<any>): boolean {
 const is = {
   /**Checks if something is a STATE */
   state<T = any>(s: any): s is STATE<T> {
-    return s instanceof StateReadAll;
+    return s instanceof STATE_IS;
   },
   /**Checks if something is a STATE_REX */
   rex<T = any>(s: any): s is STATE_REX<T> {

@@ -259,11 +259,11 @@ export class Stepper extends ValueComponent<StepperOptions> {
     val = Number(
       Math.min(Math.max(val, this.#min), this.#max).toFixed(this.#dec)
     );
-    this.__setValue(val);
+    this.setValue(val);
   }
 
   /**Internal access call*/
-  protected __onAccess(a: AccessTypes) {
+  protected onAccess(a: AccessTypes) {
     if (a == AccessTypes.READ) this.#stepper.tabIndex = -1;
     else if (a == AccessTypes.WRITE) this.#stepper.tabIndex = 0;
   }

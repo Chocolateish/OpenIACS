@@ -97,7 +97,7 @@ export class InputBox extends ValueComponent<InputBoxOptions> {
         reset = 1;
       } else {
         this.__input.setCustomValidity("");
-        this.__setValue(val);
+        this.setValue(val);
         reset = 0;
       }
     };
@@ -112,7 +112,7 @@ export class InputBox extends ValueComponent<InputBoxOptions> {
           reset = 1;
         } else {
           this.__input.setCustomValidity("");
-          this.__setValue(val);
+          this.setValue(val);
           reset = 0;
         }
       }
@@ -276,7 +276,7 @@ export class InputBox extends ValueComponent<InputBoxOptions> {
   }
 
   /**Internal access call*/
-  __onAccess(a: AccessTypes) {
+  onAccess(a: AccessTypes) {
     switch (a) {
       case AccessTypes.READ:
         this.__input.setAttribute("readonly", "");
@@ -569,7 +569,7 @@ export class InputBox extends ValueComponent<InputBoxOptions> {
         if (old !== old) {
           old = 0;
         }
-        this.__setValue(way ? old + 1 : old - 1);
+        this.setValue(way ? old + 1 : old - 1);
         break;
     }
   }

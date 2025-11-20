@@ -1,6 +1,7 @@
 import { AccessTypes, defineElement } from "@libBase";
+import type { SVGFunc } from "@libSVG";
 import "./button.scss";
-import { ValueComponent, type ValueComponentOptions } from "./common";
+import { ValueComponent } from "./common";
 
 /**Defines all possible background colors for the button*/
 export const ButtonColors = {
@@ -12,46 +13,30 @@ export const ButtonColors = {
 } as const;
 export type ButtonColors = (typeof ButtonColors)[keyof typeof ButtonColors];
 
-/**Defines options for button component*/
-export type ButtonOptions = {
-  symbol?: SVGSVGElement;
-  //@ts-ignore
-  click?: () => void;
-  toggle?: boolean;
-  color?: ButtonColors;
-} & ValueComponentOptions;
-
 /**Button for clicking*/
-export class Button extends ValueComponent<ButtonOptions> {
+export class Button extends ValueComponent<boolean> {
   /**Returns the name used to define the element */
   static elementName() {
     return "button";
   }
 
-  __click?: () => void;
   __text?: HTMLDivElement;
-  __sym?: SVGSVGElement;
+  #sym?: SVGSVGElement;
 
   constructor() {
     super();
     this.setAttribute("tabindex", "0");
   }
 
-  options(options: ButtonOptions): this {
-    super.options(options);
-    if (options.symbol) this.symbol = options.symbol;
+  /**Overridable click function*/
+  onClick(): void {}
 
-    if (options.click) this.click = options.click;
-
-    this.toggle = options.toggle || false;
-    if (typeof options.color !== "undefined") this.color = options.color;
-    return this;
-  }
-
-  /**Changes the text description of the button*/
-  //@ts-expect-error
-  set click(func: () => void) {
-    this.__click = func;
+  #doClick() {
+    try {
+      this.onClick();
+    } catch (error) {
+      console.error("Failed while executing button click", error);
+    }
   }
 
   /**Changes the text description of the button */
@@ -71,17 +56,17 @@ export class Button extends ValueComponent<ButtonOptions> {
   }
 
   /**Changes the symbol of the button*/
-  set symbol(sym: SVGSVGElement | undefined) {
-    if (sym instanceof SVGElement) {
-      if (this.__sym) {
-        this.replaceChild(sym, this.__sym);
-        this.__sym = sym;
+  set icon(icon: SVGFunc | undefined) {
+    if (icon instanceof SVGElement) {
+      if (this.#sym) {
+        this.replaceChild(icon, this.#sym);
+        this.#sym = icon();
       } else {
-        this.__sym = this.insertBefore(sym, this.firstChild);
+        this.#sym = this.insertBefore(icon(), this.firstChild);
       }
-    } else if (this.__sym) {
-      this.removeChild(this.__sym);
-      delete this.__sym;
+    } else if (this.#sym) {
+      this.removeChild(this.#sym);
+      this.#sym = undefined;
     }
   }
 
@@ -100,10 +85,8 @@ export class Button extends ValueComponent<ButtonOptions> {
                 case "Enter":
                 case " ": {
                   e.stopPropagation();
-                  this.__setValue(!this.__valueBuffer);
-                  if (this.__click) {
-                    this.__click();
-                  }
+                  this.setValue(!this.__valueBuffer);
+                  this.#doClick();
                   break;
                 }
               }
@@ -115,10 +98,8 @@ export class Button extends ValueComponent<ButtonOptions> {
       };
       this.onclick = (e) => {
         e.stopPropagation();
-        this.__setValue(!this.__valueBuffer);
-        if (this.__click) {
-          this.__click();
-        }
+        this.setValue(!this.__valueBuffer);
+        this.#doClick();
       };
     } else {
       this.onpointerdown = (e) => {
@@ -127,15 +108,13 @@ export class Button extends ValueComponent<ButtonOptions> {
           e.preventDefault();
         }
         this.setPointerCapture(e.pointerId);
-        this.__setValue(true);
+        this.setValue(true);
         this.onpointerup = (ev) => {
           ev.stopPropagation();
           this.focus();
           this.releasePointerCapture(ev.pointerId);
-          this.__setValue(false);
-          if (this.__click) {
-            this.__click();
-          }
+          this.setValue(false);
+          this.#doClick();
           this.onpointerup = null;
         };
       };
@@ -144,16 +123,14 @@ export class Button extends ValueComponent<ButtonOptions> {
           case "Enter":
           case " ": {
             e.stopPropagation();
-            this.__setValue(true);
+            this.setValue(true);
             this.onkeyup = (e) => {
               switch (e.key) {
                 case "Enter":
                 case " ": {
                   e.stopPropagation();
-                  this.__setValue(false);
-                  if (this.__click) {
-                    this.__click();
-                  }
+                  this.setValue(false);
+                  this.#doClick();
                   break;
                 }
               }
@@ -169,30 +146,20 @@ export class Button extends ValueComponent<ButtonOptions> {
 
   /** Sets the background color of the button*/
   set color(color: ButtonColors) {
-    if (color === ButtonColors.NONE) {
-      this.removeAttribute("color");
-      return;
-    }
-    this.setAttribute("color", color);
+    if (color === ButtonColors.NONE) this.removeAttribute("color");
+    else this.setAttribute("color", color);
   }
 
   /**Internal access call*/
-  protected __onAccess(a: AccessTypes) {
-    switch (a) {
-      case AccessTypes.READ:
-        return this.setAttribute("tabindex", "-1");
-      case AccessTypes.WRITE:
-        return this.setAttribute("tabindex", "0");
-    }
+  protected onAccess(a: AccessTypes) {
+    if (a === AccessTypes.READ) return this.setAttribute("tabindex", "-1");
+    else if (a === AccessTypes.WRITE) return this.setAttribute("tabindex", "0");
   }
 
   /**Internal value setter*/
-  __newValue(val: boolean) {
-    if (val) {
-      this.classList.add("active");
-    } else {
-      this.classList.remove("active");
-    }
+  newValue(val: boolean) {
+    if (val) this.classList.add("active");
+    else this.classList.remove("active");
   }
 }
 defineElement(Button);

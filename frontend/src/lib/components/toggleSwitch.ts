@@ -54,7 +54,7 @@ export class ToggleSwitch extends ValueComponent<ToggleSwitchOptions> {
             switch (e.key) {
               case "Enter":
               case " ": {
-                this.__setValue(!this.__valueBuffer);
+                this.setValue(!this.__valueBuffer);
                 break;
               }
             }
@@ -78,11 +78,11 @@ export class ToggleSwitch extends ValueComponent<ToggleSwitchOptions> {
           let midCord = box.x + box.width / 2;
           if (ev.clientX > midCord) {
             if (!this.__valueBuffer) {
-              this.__setValue(true);
+              this.setValue(true);
             }
           } else {
             if (this.__valueBuffer) {
-              this.__setValue(false);
+              this.setValue(false);
             }
           }
         } else if (
@@ -97,7 +97,7 @@ export class ToggleSwitch extends ValueComponent<ToggleSwitchOptions> {
         ev.preventDefault();
         ev.stopPropagation();
         if (!hasMoved) {
-          this.__setValue(!this.__valueBuffer);
+          this.setValue(!this.__valueBuffer);
         }
         this.__switch.releasePointerCapture(ev.pointerId);
         this.__switch.onpointerup = null;
@@ -118,7 +118,7 @@ export class ToggleSwitch extends ValueComponent<ToggleSwitchOptions> {
         this.__preventClick = false;
         return;
       }
-      this.__setValue(!this.__valueBuffer);
+      this.setValue(!this.__valueBuffer);
     };
   }
 
@@ -156,7 +156,7 @@ export class ToggleSwitch extends ValueComponent<ToggleSwitchOptions> {
   }
 
   /**Internal access call*/
-  protected __onAccess(a: AccessTypes) {
+  protected onAccess(a: AccessTypes) {
     switch (a) {
       case AccessTypes.READ: {
         this.__switch.removeAttribute("tabindex");

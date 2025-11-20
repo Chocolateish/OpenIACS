@@ -141,7 +141,7 @@ export class ToggleButton extends SelectorComponent<ToggleButtonOptions> {
   }
 
   /**Internal way call*/
-  protected __onWay(ways: Way) {
+  protected onWay(ways: Way) {
     switch (ways) {
       case Way.UP:
         if (this.__textRow)
@@ -155,7 +155,7 @@ export class ToggleButton extends SelectorComponent<ToggleButtonOptions> {
   }
 
   /**Internal access call*/
-  protected __onAccess(a: AccessTypes) {
+  protected onAccess(a: AccessTypes) {
     if (a == AccessTypes.READ) {
       let items = this.querySelectorAll("*[tabindex]");
       for (let i = 0, m = items.length; i < m; i++)
@@ -173,7 +173,7 @@ export class ToggleButton extends SelectorComponent<ToggleButtonOptions> {
       elem instanceof HTMLTableCellElement &&
       this.__buttonsRow.contains(elem)
     ) {
-      this.__setValue((elem as Option).value);
+      this.setValue((elem as Option).value);
       this.__selected.focus();
     }
   }

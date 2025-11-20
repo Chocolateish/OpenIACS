@@ -236,7 +236,7 @@ export class DropDown extends SelectorComponent<DropDownOptions> {
   }
 
   /**Internal access call*/
-  protected __onAccess(a: AccessTypes) {
+  protected onAccess(a: AccessTypes) {
     switch (a) {
       case AccessTypes.READ: {
         let items = this.querySelectorAll("*[tabindex]");
@@ -261,7 +261,7 @@ export class DropDown extends SelectorComponent<DropDownOptions> {
   /**Sets the value by using the options element*/
   setByOption(elem: Node | null) {
     if (elem && this.__dropDown.contains(elem))
-      this.__setValue((elem as OptionContainer).value);
+      this.setValue((elem as OptionContainer).value);
   }
 
   /**Internal value setter*/

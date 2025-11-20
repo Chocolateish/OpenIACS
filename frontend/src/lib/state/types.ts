@@ -67,7 +67,7 @@ export type STATE_SET_ROS<RT, S extends STATE<any>, WT = RT> = (
 //     | | \ \| |____ / ____ \| |__| | |____| | \ \  | |___| |__| | |\  |  | |  | |____ / . \   | |
 //     |_|  \_\______/_/    \_\_____/|______|_|  \_\  \_____\____/|_| \_|  |_|  |______/_/ \_\  |_|
 
-export abstract class StateReadAll<
+export abstract class STATE_IS<
   RT,
   REL extends STATE_RELATED,
   RRT extends Result<RT, string>
@@ -142,7 +142,7 @@ export abstract class StateReadAll<
   }
 
   /**Returns state as a readable state type*/
-  abstract get readonly(): StateReadAll<RT, REL, RRT>;
+  abstract get readonly(): STATE_IS<RT, REL, RRT>;
 
   //Promises
   /**Creates a promise which can be fulfilled later with fulRProm */
@@ -172,7 +172,7 @@ export abstract class StateReadAll<
 export abstract class STATE_REA<
   RT,
   REL extends STATE_RELATED = {}
-> extends StateReadAll<RT, REL, Result<RT, string>> {
+> extends STATE_IS<RT, REL, Result<RT, string>> {
   get rsync(): false {
     return false;
   }
@@ -189,7 +189,7 @@ export abstract class STATE_REA<
 export abstract class STATE_ROA<
   RT,
   REL extends STATE_RELATED = {}
-> extends StateReadAll<RT, REL, ResultOk<RT>> {
+> extends STATE_IS<RT, REL, ResultOk<RT>> {
   get rsync(): false {
     return false;
   }
@@ -206,7 +206,7 @@ export abstract class STATE_ROA<
 export abstract class STATE_RES<
   RT,
   REL extends STATE_RELATED = {}
-> extends StateReadAll<RT, REL, Result<RT, string>> {
+> extends STATE_IS<RT, REL, Result<RT, string>> {
   get rsync(): true {
     return true;
   }
@@ -224,7 +224,7 @@ export abstract class STATE_RES<
 export abstract class STATE_ROS<
   RT,
   REL extends STATE_RELATED = {}
-> extends StateReadAll<RT, REL, ResultOk<RT>> {
+> extends STATE_IS<RT, REL, ResultOk<RT>> {
   get rsync(): true {
     return true;
   }
@@ -246,12 +246,12 @@ export abstract class STATE_ROS<
 //        \  /\  /  | | \ \ _| |_   | |  | |____| | \ \  | |___| |__| | |\  |  | |  | |____ / . \   | |
 //         \/  \/   |_|  \_\_____|  |_|  |______|_|  \_\  \_____\____/|_| \_|  |_|  |______/_/ \_\  |_|
 
-export abstract class StateWriteAll<
+export abstract class STATE_WRITE_IS<
   RT,
   WT,
   REL extends STATE_RELATED,
   RRT extends Result<RT, string>
-> extends StateReadAll<RT, REL, RRT> {
+> extends STATE_IS<RT, REL, RRT> {
   #writePromises?: ((val: Result<void, string>) => void)[];
 
   //#Writer Context
@@ -270,7 +270,7 @@ export abstract class StateWriteAll<
    * @returns result with error for the write*/
   writeSync?(value: WT): Result<void, string>;
   /**Returns the same state as just a writable, for access management*/
-  abstract readonly readwrite?: StateWriteAll<RT, WT, REL, RRT>;
+  abstract readonly readwrite?: STATE_WRITE_IS<RT, WT, REL, RRT>;
 
   //Promises
   /**Creates a promise which can be fulfilled later with fulRProm */
@@ -295,7 +295,7 @@ export abstract class STATE_REA_WA<
   RT,
   WT = RT,
   REL extends STATE_RELATED = {}
-> extends StateWriteAll<RT, WT, REL, Result<RT, string>> {
+> extends STATE_WRITE_IS<RT, WT, REL, Result<RT, string>> {
   get rsync(): false {
     return false;
   }
@@ -324,7 +324,7 @@ export abstract class STATE_REA_WS<
   RT,
   WT = RT,
   REL extends STATE_RELATED = {}
-> extends StateWriteAll<RT, WT, REL, Result<RT, string>> {
+> extends STATE_WRITE_IS<RT, WT, REL, Result<RT, string>> {
   get rsync(): false {
     return false;
   }
@@ -355,7 +355,7 @@ export abstract class STATE_ROA_WA<
   RT,
   WT = RT,
   REL extends STATE_RELATED = {}
-> extends StateWriteAll<RT, WT, REL, ResultOk<RT>> {
+> extends STATE_WRITE_IS<RT, WT, REL, ResultOk<RT>> {
   get rsync(): false {
     return false;
   }
@@ -384,7 +384,7 @@ export abstract class STATE_ROA_WS<
   RT,
   WT = RT,
   REL extends STATE_RELATED = {}
-> extends StateWriteAll<RT, WT, REL, ResultOk<RT>> {
+> extends STATE_WRITE_IS<RT, WT, REL, ResultOk<RT>> {
   get rsync(): false {
     return false;
   }
@@ -416,7 +416,7 @@ export abstract class STATE_RES_WA<
   RT,
   WT = RT,
   REL extends STATE_RELATED = {}
-> extends StateWriteAll<RT, WT, REL, Result<RT, string>> {
+> extends STATE_WRITE_IS<RT, WT, REL, Result<RT, string>> {
   get rsync(): true {
     return true;
   }
@@ -447,7 +447,7 @@ export abstract class STATE_RES_WS<
   RT,
   WT = RT,
   REL extends STATE_RELATED = {}
-> extends StateWriteAll<RT, WT, REL, Result<RT, string>> {
+> extends STATE_WRITE_IS<RT, WT, REL, Result<RT, string>> {
   get rsync(): true {
     return true;
   }
@@ -482,7 +482,7 @@ export abstract class STATE_ROS_WA<
   RT,
   WT = RT,
   REL extends STATE_RELATED = {}
-> extends StateWriteAll<RT, WT, REL, ResultOk<RT>> {
+> extends STATE_WRITE_IS<RT, WT, REL, ResultOk<RT>> {
   get rsync(): true {
     return true;
   }
@@ -513,7 +513,7 @@ export abstract class STATE_ROS_WS<
   RT,
   WT = RT,
   REL extends STATE_RELATED = {}
-> extends StateWriteAll<RT, WT, REL, ResultOk<RT>> {
+> extends STATE_WRITE_IS<RT, WT, REL, ResultOk<RT>> {
   get rsync(): true {
     return true;
   }

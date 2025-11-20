@@ -179,7 +179,7 @@ export class Slider extends ValueComponent<SliderOptions> {
     val = Math.min(Math.max(val, this.__min), this.__max);
     if (this.__live || !this.__moving) {
       this.__val = Number(val.toFixed(this.__dec));
-      this.__setValue(this.__val);
+      this.setValue(this.__val);
     }
 
     this.__movePerc(((-this.__min + val) / this.__span) * 100);
@@ -310,7 +310,7 @@ export class Slider extends ValueComponent<SliderOptions> {
   }
 
   /**Internal access call*/
-  protected __onAccess(a: AccessTypes) {
+  protected onAccess(a: AccessTypes) {
     switch (a) {
       case AccessTypes.READ:
         this.__slider.tabIndex = -1;

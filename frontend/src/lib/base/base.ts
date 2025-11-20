@@ -34,8 +34,6 @@ export interface BaseEvents {
 export interface BaseOptions {
   /**Access for element, default is write access */
   access?: AccessTypes | STATE<AccessTypes>;
-  /**Options to use for element observer */
-  observerOptions?: BaseObserverOptions;
 }
 
 // Helpers for opts
@@ -84,7 +82,6 @@ export abstract class Base<
 
   /**Observer for children of this element */
   #observer?: BaseObserver;
-  #observerOptions?: BaseObserverOptions;
 
   /**Works when element is connected to observer, otherwise it is an alias for isConnected*/
   readonly isVisible: boolean = false;
@@ -143,8 +140,6 @@ export abstract class Base<
     if (state.h.is.state<AccessTypes>(acc))
       this.attachSTATEToProp("access", false, acc, () => AccessTypes.WRITE);
     else this.access = acc ?? AccessTypes.WRITE;
-    if (options.observerOptions)
-      this.#observerOptions = options.observerOptions;
     return this;
   }
 
@@ -159,16 +154,14 @@ export abstract class Base<
   }
 
   /**Returns an observer for the element */
-  get observer(): BaseObserver {
-    return this.#observer
-      ? this.#observer
-      : (this.#observer = new BaseObserver(
-          this.#observerOptions ?? {
-            root: this,
-            threshold: 0,
-            defferedHidden: 1000,
-          }
-        ));
+  observer(
+    options: BaseObserverOptions = {
+      root: this,
+      threshold: 0,
+      defferedHidden: 1000,
+    }
+  ): BaseObserver {
+    return (this.#observer ??= new BaseObserver(options));
   }
 
   /**Attaches the component to an observer, which is needed for the isVisible state and event to work and for the state system to work on visible*/
@@ -179,22 +172,6 @@ export abstract class Base<
         observer.observe(this);
       }
       this.#attachedObserver = observer;
-    } else if (this.#attachedObserver) {
-      if (this.#isConnected) this.#attachedObserver.unobserve(this);
-      if (!this.isVisible) this._setVisible(true);
-      this.#attachedObserver = undefined;
-    }
-    return this;
-  }
-
-  /**Attaches the component to an observer, which is needed for the isVisible state and event to work and for the state system to work on visible*/
-  attachToBaseObserver(baseElement?: Base): this {
-    if (baseElement) {
-      if (this.#isConnected) {
-        if (this.#attachedObserver) this.#attachedObserver.unobserve(this);
-        baseElement.observer.observe(this);
-      }
-      this.#attachedObserver = baseElement.observer;
     } else if (this.#attachedObserver) {
       if (this.#isConnected) this.#attachedObserver.unobserve(this);
       if (!this.isVisible) this._setVisible(true);
@@ -361,7 +338,7 @@ export abstract class Base<
   }
 
   /**Overrideable function for additional access */
-  protected __onAccess(_access: AccessTypes) {}
+  protected onAccess(_access: AccessTypes) {}
 
   /**Returns the current access of the element */
   get access(): AccessTypes {

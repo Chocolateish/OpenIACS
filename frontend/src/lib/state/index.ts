@@ -83,6 +83,7 @@ export type {
   STATE_INFER_RESULT,
   STATE_INFER_SUB,
   STATE_INFER_TYPE,
+  STATE_IS,
   STATE_REX,
   STATE_REX_WA,
   STATE_REX_WS,
@@ -109,6 +110,7 @@ export type {
   STATE_RXX_WX,
   STATE_RXX_XX,
   STATE_SUB,
+  STATE_WRITE_IS,
 } from "./types";
 
 //      ________   _________ ______ _   _  _____ _____ ____  _   _    _____ _                _____ _____ ______  _____
