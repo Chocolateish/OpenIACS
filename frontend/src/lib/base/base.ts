@@ -1,5 +1,5 @@
 import { EventHandler } from "@libEvent";
-import { Ok, type Result } from "@libResult";
+import { Ok, ResultOk, type Result } from "@libResult";
 import state, {
   type STATE,
   type STATE_INFER_RESULT,
@@ -138,7 +138,7 @@ export abstract class Base<
   options(options: Options): this {
     let acc = options.access;
     if (state.h.is.state<AccessTypes>(acc))
-      this.attachSTATEToProp("access", false, acc, () => AccessTypes.WRITE);
+      this.attachSTATEREXToProp("access", acc, () => AccessTypes.WRITE, false);
     else this.access = acc ?? AccessTypes.WRITE;
     return this;
   }
@@ -147,7 +147,7 @@ export abstract class Base<
   opts(opts: WithStateROX<DataProps<this>>): this {
     for (let key in opts) {
       let opt = opts[key];
-      if (state.h.is.rox(opt)) this.attachSTATEToProp(key, false, opt);
+      if (state.h.is.rox(opt)) this.attachSTATEROXToProp(key, opt, false);
       else this[key] = opt as any;
     }
     return this;
@@ -214,21 +214,39 @@ export abstract class Base<
    * @param state the state to attach to the property
    * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element
    * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
-  attachSTATEToProp<T extends keyof this>(
+  attachSTATEROXToProp<T extends keyof this>(
     prop: T,
-    visible: boolean,
-    ...state:
-      | [STATE_ROX<this[T]>]
-      | [STATE_REX<this[T]>, (error: string) => this[T]]
+    state: STATE_ROX<this[T]>,
+    visible?: boolean
   ): this {
     this.dettachStateFromProp(prop).#props.set(
       prop,
       this.attachSTATE(
-        state[0],
-        (val: Result<this[T], string>) => {
-          if (val.ok) this[prop] = val.value;
-          else this[prop] = val.orElse((e) => Ok(state[1]!(e))).value;
-        },
+        state,
+        (val: ResultOk<this[T]>) => (this[prop] = val.value),
+        visible
+      )
+    );
+    return this;
+  }
+
+  /**Attaches a state to a property, so that the property is updated when the state changes
+   * @param prop the property to attach the state to
+   * @param state the state to attach to the property
+   * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element
+   * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
+  attachSTATEREXToProp<T extends keyof this>(
+    prop: T,
+    state: STATE_REX<this[T]>,
+    fallback: (error: string) => this[T],
+    visible?: boolean
+  ): this {
+    this.dettachStateFromProp(prop).#props.set(
+      prop,
+      this.attachSTATE(
+        state,
+        (val: Result<this[T], string>) =>
+          (this[prop] = val.orElse((e) => Ok(fallback(e))).value),
         visible
       )
     );
@@ -266,25 +284,37 @@ export abstract class Base<
     return this;
   }
 
-  attachSTATEToAttribute(
+  attachSTATEROXToAttribute(
     qualifiedName: string,
-    visible: boolean,
-    ...state:
-      | [STATE_ROX<string>]
-      | [STATE_REX<string>, (error: string) => string]
+    state: STATE_ROX<string>,
+    visible?: boolean
   ): this {
     this.dettachStateFromAttribute(qualifiedName).#attr.set(
       qualifiedName,
       this.attachSTATE(
-        state[0],
-        (val: Result<string, string>) => {
-          if (val.ok) this.setAttribute(qualifiedName, val.value);
-          else
-            this.setAttribute(
-              qualifiedName,
-              val.orElse((e) => Ok(state[1]!(e))).value
-            );
-        },
+        state,
+        (val: ResultOk<string>) => this.setAttribute(qualifiedName, val.value),
+        visible
+      )
+    );
+    return this;
+  }
+
+  attachSTATEREXToAttribute(
+    qualifiedName: string,
+    state: STATE_REX<string>,
+    fallback: (error: string) => string,
+    visible?: boolean
+  ): this {
+    this.dettachStateFromAttribute(qualifiedName).#attr.set(
+      qualifiedName,
+      this.attachSTATE(
+        state,
+        (val: Result<string, string>) =>
+          this.setAttribute(
+            qualifiedName,
+            val.orElse((e) => Ok(fallback(e))).value
+          ),
         visible
       )
     );
