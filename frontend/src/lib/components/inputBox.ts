@@ -1,5 +1,8 @@
 import { AccessTypes, defineElement } from "@libBase";
-import { edit_calendar, schedule } from "@libOldIcons";
+import {
+  material_action_edit_calendar_rounded,
+  material_action_schedule_rounded,
+} from "@libIcons";
 import { stringByteLength } from "@libString";
 import { ValueComponent, type ValueComponentOptions } from "./common";
 import "./inputBox.scss";
@@ -330,7 +333,7 @@ export class InputBox extends ValueComponent<InputBoxOptions> {
       case InputBoxTypes.DATE:
         this.__input.type = "date";
         (this.__icon = this.__cont.insertBefore(
-          edit_calendar(),
+          material_action_edit_calendar_rounded(),
           this.__unit
         )).onclick = () => {
           this.__input.showPicker();
@@ -342,7 +345,7 @@ export class InputBox extends ValueComponent<InputBoxOptions> {
       case InputBoxTypes.TIMEMINUTE:
         this.__input.type = "time";
         (this.__icon = this.__cont.insertBefore(
-          schedule(),
+          material_action_schedule_rounded(),
           this.__unit
         )).onclick = () => {
           this.__input.showPicker();
@@ -354,7 +357,7 @@ export class InputBox extends ValueComponent<InputBoxOptions> {
       case InputBoxTypes.DATETIMEMINUTE:
         this.__input.type = "datetime-local";
         (this.__icon = this.__cont.insertBefore(
-          edit_calendar(),
+          material_action_edit_calendar_rounded(),
           this.__unit
         )).onclick = () => {
           this.__input.showPicker();

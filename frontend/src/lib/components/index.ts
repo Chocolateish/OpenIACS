@@ -1,11 +1,7 @@
-export * from "./button";
-export * from "./common";
-export * from "./dropDown";
-export * from "./group";
-export * from "./inputBox";
-export * from "./lamp";
-export * from "./slider";
-export * from "./stepper";
-export * from "./text";
-export * from "./toggleButton";
-export * from "./toggleSwitch";
+import { component_button } from "./button";
+
+export let components = {
+  button: component_button,
+};
+
+export { component_button } from "./button";

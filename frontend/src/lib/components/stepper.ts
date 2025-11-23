@@ -1,7 +1,10 @@
 import { AccessTypes, defineElement } from "@libBase";
+import {
+  material_content_add_rounded,
+  material_content_remove_rounded,
+} from "@libIcons";
 import { setCaretPosition } from "@libOldCommon";
-import { add, remove } from "@libOldIcons";
-import { ValueComponent, type ValueComponentOptions } from "./common";
+import { ValueComponent } from "./common";
 import "./stepper.scss";
 
 /**Defines options for stepper component*/
@@ -73,7 +76,7 @@ export class Stepper extends ValueComponent<StepperOptions> {
         this.#field.focus();
       }
     };
-    this.#leftSymbol.appendChild(remove());
+    this.#leftSymbol.appendChild(material_content_remove_rounded());
     this.#leftSymbol.onpointerdown = (e) => {
       this.#leftSymbol.setPointerCapture(e.pointerId);
       this.__stepValue(false);
@@ -139,7 +142,7 @@ export class Stepper extends ValueComponent<StepperOptions> {
     this.#field.onclick = (e) => {
       e.stopPropagation();
     };
-    this.#rightSymbol.appendChild(add());
+    this.#rightSymbol.appendChild(material_content_add_rounded());
     this.#rightSymbol.onpointerdown = (e) => {
       this.#rightSymbol.setPointerCapture(e.pointerId);
       this.__stepValue(true);

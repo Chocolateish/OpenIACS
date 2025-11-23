@@ -1,146 +1,8 @@
 import { Base, defineElement } from "@libBase";
-import { blue, green, grey, orange, red, yellow } from "@libColors";
 import { Err, Ok, type Result } from "@libResult";
 import type { STATE_RXX_WX, STATE_SUB } from "@libState";
 import type { SVGFunc } from "@libSVG";
 import "./common.scss";
-import { componentThemeRoot } from "./shared";
-
-componentThemeRoot.makeVariable(
-  "componentLabelTextColor",
-  "componentLabelTextColor",
-  "componentLabelTextColor",
-  grey["700"],
-  grey["300"],
-  "Color",
-  undefined
-);
-componentThemeRoot.makeVariable(
-  "componentBorderColor",
-  "componentBorderColor",
-  "componentBorderColor",
-  grey["700"],
-  grey["300"],
-  "Color",
-  undefined
-);
-componentThemeRoot.makeVariable(
-  "componentTextColor",
-  "componentTextColor",
-  "componentTextColor",
-  grey["800"],
-  grey["200"],
-  "Color",
-  undefined
-);
-componentThemeRoot.makeVariable(
-  "componentSymbolColor",
-  "componentSymbolColor",
-  "componentSymbolColor",
-  grey["800"],
-  grey["200"],
-  "Color",
-  undefined
-);
-componentThemeRoot.makeVariable(
-  "componentBackGroundColor",
-  "componentBackGroundColor",
-  "componentBackGroundColor",
-  grey["50"],
-  grey["900"],
-  "Color",
-  undefined
-);
-componentThemeRoot.makeVariable(
-  "componentHoverBackGroundColor",
-  "componentHoverBackGroundColor",
-  "componentHoverBackGroundColor",
-  grey["400"],
-  grey["700"],
-  "Color",
-  undefined
-);
-componentThemeRoot.makeVariable(
-  "componentFocusOutlineColor",
-  "componentFocusOutlineColor",
-  "componentFocusOutlineColor",
-  orange["600"],
-  orange["300"],
-  "Color",
-  undefined
-);
-componentThemeRoot.makeVariable(
-  "componentUnselectedBorderColor",
-  "componentUnselectedBorderColor",
-  "componentUnselectedBorderColor",
-  grey["700"],
-  grey["300"],
-  "Color",
-  undefined
-);
-componentThemeRoot.makeVariable(
-  "componentUnselectedTextColor",
-  "componentUnselectedTextColor",
-  "componentUnselectedTextColor",
-  grey["600"],
-  grey["400"],
-  "Color",
-  undefined
-);
-componentThemeRoot.makeVariable(
-  "componentUnselectedSymbolColor",
-  "componentUnselectedSymbolColor",
-  "componentUnselectedSymbolColor",
-  grey["600"],
-  grey["400"],
-  "Color",
-  undefined
-);
-componentThemeRoot.makeVariable(
-  "componentUnselectedBackGroundColor",
-  "componentUnselectedBackGroundColor",
-  "componentUnselectedBackGroundColor",
-  grey["300"],
-  grey["800"],
-  "Color",
-  undefined
-);
-componentThemeRoot.makeVariable(
-  "componentGreenColor",
-  "componentGreenColor",
-  "componentGreenColor",
-  green["300"],
-  green["900"],
-  "Color",
-  undefined
-);
-componentThemeRoot.makeVariable(
-  "componentRedColor",
-  "componentRedColor",
-  "componentRedColor",
-  red["300"],
-  red["900"],
-  "Color",
-  undefined
-);
-componentThemeRoot.makeVariable(
-  "componentBlueColor",
-  "componentBlueColor",
-  "componentBlueColor",
-  blue["300"],
-  blue["900"],
-  "Color",
-  undefined
-);
-componentThemeRoot.makeVariable(
-  "componentYellowColor",
-  "componentYellowColor",
-  "componentYellowColor",
-  yellow["300"],
-  yellow["900"],
-  "Color",
-  undefined
-);
 
 /**This contains the different ways to render an component*/
 export const Way = {
@@ -150,15 +12,6 @@ export const Way = {
   RIGHT: 3,
 } as const;
 export type Way = (typeof Way)[keyof typeof Way];
-
-//###################################
-//#    ____                         #
-//#   |  _ \                        #
-//#   | |_) | __ _ ___  ___  ___    #
-//#   |  _ < / _` / __|/ _ \/ __|   #
-//#   | |_) | (_| \__ \  __/\__ \   #
-//#   |____/ \__,_|___/\___||___/   #
-//###################################
 
 const wayDir = ["up", "down", "left", "right"];
 const wayHorzVert = ["horz", "horz", "vert", "vert"];
@@ -214,6 +67,10 @@ export abstract class ValueComponent<T> extends Component {
   #func?: STATE_SUB<Result<T, string>>;
   #changed: boolean = false;
   #buffer?: T;
+
+  get buffer(): T | undefined {
+    return this.#buffer;
+  }
 
   /**Returns the value of the component if it has changed*/
   get changed(): boolean {

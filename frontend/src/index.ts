@@ -4,6 +4,7 @@ import { Err, Ok, type Result } from "@libResult";
 import type { STATE_SYNC_ROS_WS } from "@libState";
 import st from "@libState";
 import "./index.scss";
+import { components } from "./lib/components";
 
 interface CharacterData {
   uuid: string;
@@ -39,3 +40,5 @@ console.warn(elementList);
 for (const element of elementList) {
   console.warn(element);
 }
+
+document.body.appendChild(components.button.from(true));

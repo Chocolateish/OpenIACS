@@ -23,9 +23,10 @@ export class Button extends ValueComponent<boolean> {
   __text?: HTMLDivElement;
   #sym?: SVGSVGElement;
 
-  constructor() {
+  constructor(toggle: boolean = false) {
     super();
     this.setAttribute("tabindex", "0");
+    this.toggle = toggle;
   }
 
   /**Overridable click function*/
@@ -85,7 +86,7 @@ export class Button extends ValueComponent<boolean> {
                 case "Enter":
                 case " ": {
                   e.stopPropagation();
-                  this.setValue(!this.__valueBuffer);
+                  this.setValue(!this.buffer);
                   this.#doClick();
                   break;
                 }
@@ -98,7 +99,7 @@ export class Button extends ValueComponent<boolean> {
       };
       this.onclick = (e) => {
         e.stopPropagation();
-        this.setValue(!this.__valueBuffer);
+        this.setValue(!this.buffer);
         this.#doClick();
       };
     } else {
@@ -150,16 +151,24 @@ export class Button extends ValueComponent<boolean> {
     else this.setAttribute("color", color);
   }
 
-  /**Internal access call*/
   protected onAccess(a: AccessTypes) {
     if (a === AccessTypes.READ) return this.setAttribute("tabindex", "-1");
     else if (a === AccessTypes.WRITE) return this.setAttribute("tabindex", "0");
   }
 
-  /**Internal value setter*/
-  newValue(val: boolean) {
+  protected newValue(val: boolean) {
     if (val) this.classList.add("active");
     else this.classList.remove("active");
   }
+
+  protected newError(_val: string): void {}
 }
 defineElement(Button);
+
+export let component_button = {
+  /**Creates a button component */
+  from(toggle: boolean = false): Button {
+    return new Button(toggle);
+  },
+  class: Button,
+};

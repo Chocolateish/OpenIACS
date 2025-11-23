@@ -337,7 +337,7 @@ export abstract class Base<
     }
   }
 
-  /**Overrideable function for additional access */
+  /**Overrideable function called when access is changed */
   protected onAccess(_access: AccessTypes) {}
 
   /**Returns the current access of the element */
