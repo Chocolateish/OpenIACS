@@ -4,6 +4,7 @@ import {
   STATE_RES,
   STATE_ROA,
   STATE_ROS,
+  type STATE,
   type STATE_REX,
   type STATE_ROX,
   type STATE_RXS,
@@ -20,7 +21,7 @@ import {
 
 export class STATE_PROXY_REA<
   S extends STATE_RXX<IN>,
-  IN,
+  IN = S extends STATE<infer RT> ? RT : never,
   OUT = IN
 > extends STATE_REA<OUT> {
   constructor(
@@ -104,7 +105,7 @@ type ROA_TRANSFORM<S extends STATE_RXX<any, any>, IN, OUT> = (
 
 export class STATE_PROXY_ROA<
   S extends STATE_RXX<IN>,
-  IN,
+  IN = S extends STATE<infer RT> ? RT : never,
   OUT = IN
 > extends STATE_ROA<OUT> {
   constructor(
@@ -178,7 +179,7 @@ export class STATE_PROXY_ROA<
 
 export class STATE_PROXY_RES<
   S extends STATE_RXS<IN>,
-  IN,
+  IN = S extends STATE<infer RT> ? RT : never,
   OUT = IN
 > extends STATE_RES<OUT> {
   constructor(
@@ -265,7 +266,7 @@ type ROS_TRANSFORM<S extends STATE_RXX<any, any>, IN, OUT> = (
 ) => ResultOk<OUT>;
 export class STATE_PROXY_ROS<
   S extends STATE_RXS<IN>,
-  IN,
+  IN = S extends STATE<infer RT> ? RT : never,
   OUT = IN
 > extends STATE_ROS<OUT> {
   constructor(

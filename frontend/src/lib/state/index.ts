@@ -16,6 +16,12 @@ export default {
   p: state_proxy,
   r: state_resource,
   s: state_sync,
+  ok: state_sync.ros.ok,
+  err: state_sync.res.err,
+  from: state_sync.res.ok,
+  ok_ws: state_sync.ros_ws.ok,
+  err_ws: state_sync.res_ws.err,
+  from_ws: state_sync.res_ws.ok,
 };
 
 export {
