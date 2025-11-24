@@ -2,16 +2,16 @@ import { sleep } from "@libCommon";
 import { Err, Ok, ResultOk, type Result } from "@libResult";
 import { expect, it } from "vitest";
 import type {
-  STATE_REA,
+  STATE_REA_BASE,
   STATE_REA_WA,
   STATE_REA_WS,
-  STATE_RES,
+  STATE_RES_BASE,
   STATE_RES_WA,
   STATE_RES_WS,
-  STATE_ROA,
+  STATE_ROA_BASE,
   STATE_ROA_WA,
   STATE_ROA_WS,
-  STATE_ROS,
+  STATE_ROS_BASE,
   STATE_ROS_WA,
   STATE_ROS_WS,
   STATE_SUB,
@@ -37,37 +37,37 @@ export type TEST_STATE_ALL = (
 ) =>
   | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
   | STATE_TYPE<true, true, true, false, STATE_ROS_WA<number>, ROK>
-  | STATE_TYPE<true, true, false, false, STATE_ROS<number>, ROK>
-  | STATE_TYPE<true, false, false, false, STATE_ROA<number>, ROK>
+  | STATE_TYPE<true, true, false, false, STATE_ROS_BASE<number>, ROK>
+  | STATE_TYPE<true, false, false, false, STATE_ROA_BASE<number>, ROK>
   | STATE_TYPE<true, false, true, false, STATE_ROA_WA<number>, ROK>
   | STATE_TYPE<true, false, true, true, STATE_ROA_WS<number>, ROK>
   | STATE_TYPE<false, true, true, true, STATE_RES_WS<number>, RERR>
   | STATE_TYPE<false, true, true, false, STATE_RES_WA<number>, RERR>
-  | STATE_TYPE<false, true, false, false, STATE_RES<number>, RERR>
+  | STATE_TYPE<false, true, false, false, STATE_RES_BASE<number>, RERR>
   | STATE_TYPE<false, false, true, false, STATE_REA_WA<number>, RERR>
   | STATE_TYPE<false, false, true, true, STATE_REA_WS<number>, RERR>
-  | STATE_TYPE<false, false, false, false, STATE_REA<number>, RERR>;
+  | STATE_TYPE<false, false, false, false, STATE_REA_BASE<number>, RERR>;
 
 export type TEST_STATE_OK = () =>
   | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
   | STATE_TYPE<true, true, true, false, STATE_ROS_WA<number>, ROK>
-  | STATE_TYPE<true, true, false, false, STATE_ROS<number>, ROK>
+  | STATE_TYPE<true, true, false, false, STATE_ROS_BASE<number>, ROK>
   | STATE_TYPE<true, false, true, false, STATE_ROA_WA<number>, ROK>
   | STATE_TYPE<true, false, true, true, STATE_ROA_WS<number>, ROK>
-  | STATE_TYPE<true, false, false, false, STATE_ROA<number>, ROK>;
+  | STATE_TYPE<true, false, false, false, STATE_ROA_BASE<number>, ROK>;
 
 export type TEST_STATE_SYNC = () =>
   | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
   | STATE_TYPE<true, true, true, false, STATE_ROS_WA<number>, ROK>
-  | STATE_TYPE<true, true, false, false, STATE_ROS<number>, ROK>
+  | STATE_TYPE<true, true, false, false, STATE_ROS_BASE<number>, ROK>
   | STATE_TYPE<false, true, true, true, STATE_RES_WS<number>, RERR>
   | STATE_TYPE<false, true, true, false, STATE_RES_WA<number>, RERR>
-  | STATE_TYPE<false, true, false, false, STATE_RES<number>, RERR>;
+  | STATE_TYPE<false, true, false, false, STATE_RES_BASE<number>, RERR>;
 
 export type TEST_STATE_OK_SYNC = () =>
   | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
   | STATE_TYPE<true, true, true, false, STATE_ROS_WA<number>, ROK>
-  | STATE_TYPE<true, true, false, false, STATE_ROS<number>, ROK>;
+  | STATE_TYPE<true, true, false, false, STATE_ROS_BASE<number>, ROK>;
 
 export type TEST_STATE_WRITE = () =>
   | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>

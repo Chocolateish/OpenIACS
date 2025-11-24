@@ -1,19 +1,28 @@
 import { state_array } from "./array";
-import { state_collected } from "./collected";
-import { state_delayed } from "./delayed";
+import { state_collected } from "./collected/collected";
+import { state_delayed_rea } from "./delayed/rea";
+import { state_delayed_roa } from "./delayed/roa";
 import { state_helpers } from "./helpers";
 import { state_lazy } from "./lazy";
-import { state_proxy } from "./proxy";
+import { state_proxy_rea } from "./proxy/rea";
+import { state_proxy_res } from "./proxy/res";
+import { state_proxy_roa } from "./proxy/roa";
+import { state_proxy_ros } from "./proxy/ros";
 import { state_resource } from "./resource";
 import { state_sync } from "./sync";
 
 export default {
   a: state_array,
   c: state_collected,
-  d: state_delayed,
+  d: { ...state_delayed_rea, ...state_delayed_roa },
   h: state_helpers,
   l: state_lazy,
-  p: state_proxy,
+  p: {
+    ...state_proxy_rea,
+    ...state_proxy_res,
+    ...state_proxy_roa,
+    ...state_proxy_ros,
+  },
   r: state_resource,
   s: state_sync,
   ok: state_sync.ros.ok,
@@ -34,14 +43,19 @@ export {
   state_collected,
   type STATE_COLLECTED_REA as STATE_CALCULATED_REA,
   type STATE_COLLECTED_ROA as STATE_CALCULATED_ROA,
-} from "./collected";
+} from "./collected/collected";
 export {
-  state_delayed,
+  state_delayed_rea,
   type STATE_DELAYED_REA,
+  type STATE_DELAYED_REA_WA,
   type STATE_DELAYED_REA_WS,
+} from "./delayed/rea";
+export {
+  state_delayed_roa,
   type STATE_DELAYED_ROA,
+  type STATE_DELAYED_ROA_WA,
   type STATE_DELAYED_ROA_WS,
-} from "./delayed";
+} from "./delayed/roa";
 export {
   state_helpers,
   type STATE_ENUM_HELPER,
@@ -59,16 +73,37 @@ export {
   type STATE_LAZY_ROS_WS,
 } from "./lazy";
 export {
-  state_proxy,
+  state_proxy_rea,
   type STATE_PROXY_REA,
+  type STATE_PROXY_REA_WA,
+  type STATE_PROXY_REA_WS,
+} from "./proxy/rea";
+export {
+  state_proxy_res,
   type STATE_PROXY_RES,
+  type STATE_PROXY_RES_WA,
+  type STATE_PROXY_RES_WS,
+} from "./proxy/res";
+export {
+  state_proxy_roa,
   type STATE_PROXY_ROA,
+  type STATE_PROXY_ROA_WA,
+  type STATE_PROXY_ROA_WS,
+} from "./proxy/roa";
+export {
+  state_proxy_ros,
   type STATE_PROXY_ROS,
-} from "./proxy";
+  type STATE_PROXY_ROS_WA,
+  type STATE_PROXY_ROS_WS,
+} from "./proxy/ros";
 export {
   state_resource,
+  type STATE_RESOURCE_FUNC_REA,
+  type STATE_RESOURCE_FUNC_REA_WA,
+  type STATE_RESOURCE_FUNC_ROA,
   type STATE_RESOURCE_REA,
   type STATE_RESOURCE_REA_WA,
+  type STATE_RESOURCE_ROA,
 } from "./resource";
 export {
   state_sync,
@@ -94,27 +129,21 @@ export type {
   STATE_REX_WA,
   STATE_REX_WS,
   STATE_REX_WX,
-  STATE_REX_XX,
   STATE_ROX,
   STATE_ROX_WA,
   STATE_ROX_WS,
   STATE_ROX_WX,
-  STATE_ROX_XX,
   STATE_RXA,
   STATE_RXA_WA,
   STATE_RXA_WS,
   STATE_RXA_WX,
-  STATE_RXA_XX,
   STATE_RXS,
   STATE_RXS_WA,
   STATE_RXS_WS,
   STATE_RXS_WX,
-  STATE_RXS_XX,
-  STATE_RXX,
   STATE_RXX_WA,
   STATE_RXX_WS,
   STATE_RXX_WX,
-  STATE_RXX_XX,
   STATE_SUB,
   STATE_WRITE_IS,
 } from "./types";
@@ -125,7 +154,7 @@ export type {
 //     |  __|   > <    | |  |  __| | . ` |\___ \  | || |  | | . ` | | |    | |      / /\ \  \___ \\___ \|  __|  \___ \
 //     | |____ / . \   | |  | |____| |\  |____) |_| || |__| | |\  | | |____| |____ / ____ \ ____) |___) | |____ ____) |
 //     |______/_/ \_\  |_|  |______|_| \_|_____/|_____\____/|_| \_|  \_____|______/_/    \_\_____/_____/|______|_____/
-export {
+export type {
   STATE_REA,
   STATE_REA_WA,
   STATE_REA_WS,

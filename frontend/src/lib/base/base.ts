@@ -4,7 +4,6 @@ import state, {
   type STATE,
   type STATE_INFER_RESULT,
   type STATE_INFER_SUB,
-  type STATE_REX,
   type STATE_ROX,
   type STATE_SUB,
 } from "@libState";
@@ -198,7 +197,7 @@ export abstract class Base<
   }
 
   /**Dettaches the function from the state/component */
-  dettachState(func: STATE_SUB<any>): typeof func {
+  dettachSTATE(func: STATE_SUB<any>): typeof func {
     let state = this.#states.get(func);
     if (state) {
       if (state[1] ? this.isVisible : this.#isConnected) state[0].unsub(func);
@@ -219,7 +218,7 @@ export abstract class Base<
     state: STATE_ROX<this[T]>,
     visible?: boolean
   ): this {
-    this.dettachStateFromProp(prop).#props.set(
+    this.dettachSTATEFromProp(prop).#props.set(
       prop,
       this.attachSTATE(
         state,
@@ -237,11 +236,11 @@ export abstract class Base<
    * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
   attachSTATEREXToProp<T extends keyof this>(
     prop: T,
-    state: STATE_REX<this[T]>,
+    state: STATE<this[T]>,
     fallback: (error: string) => this[T],
     visible?: boolean
   ): this {
-    this.dettachStateFromProp(prop).#props.set(
+    this.dettachSTATEFromProp(prop).#props.set(
       prop,
       this.attachSTATE(
         state,
@@ -260,11 +259,11 @@ export abstract class Base<
    * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
   attachSTATEToPropTransform<T extends keyof this, S extends STATE<any>>(
     prop: T,
-    visible: boolean,
     state: S,
-    transform: (val: STATE_INFER_RESULT<S>) => (typeof this)[T]
+    transform: (val: STATE_INFER_RESULT<S>) => (typeof this)[T],
+    visible?: boolean
   ): this {
-    this.dettachStateFromProp(prop).#props.set(
+    this.dettachSTATEFromProp(prop).#props.set(
       prop,
       this.attachSTATE(
         state,
@@ -278,9 +277,9 @@ export abstract class Base<
   }
 
   /**Dettaches the state from the property */
-  dettachStateFromProp<T extends keyof this>(prop: T): this {
+  dettachSTATEFromProp<T extends keyof this>(prop: T): this {
     let pro = this.#props.get(prop);
-    if (pro) this.dettachState(pro);
+    if (pro) this.dettachSTATE(pro);
     return this;
   }
 
@@ -289,7 +288,7 @@ export abstract class Base<
     state: STATE_ROX<string>,
     visible?: boolean
   ): this {
-    this.dettachStateFromAttribute(qualifiedName).#attr.set(
+    this.dettachSTATEFromAttribute(qualifiedName).#attr.set(
       qualifiedName,
       this.attachSTATE(
         state,
@@ -302,11 +301,11 @@ export abstract class Base<
 
   attachSTATEREXToAttribute(
     qualifiedName: string,
-    state: STATE_REX<string>,
+    state: STATE<string>,
     fallback: (error: string) => string,
     visible?: boolean
   ): this {
-    this.dettachStateFromAttribute(qualifiedName).#attr.set(
+    this.dettachSTATEFromAttribute(qualifiedName).#attr.set(
       qualifiedName,
       this.attachSTATE(
         state,
@@ -325,13 +324,13 @@ export abstract class Base<
    * @param state the state to attach to the property
    * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok
    * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element*/
-  attachStateToAttributeTransform<S extends STATE<any>>(
+  attachSTATEToAttributeTransform<S extends STATE<any>>(
     qualifiedName: string,
-    visible: boolean,
     state: S,
-    transform: (val: STATE_INFER_RESULT<S>) => string
+    transform: (val: STATE_INFER_RESULT<S>) => string,
+    visible?: boolean
   ): this {
-    this.dettachStateFromAttribute(qualifiedName).#attr.set(
+    this.dettachSTATEFromAttribute(qualifiedName).#attr.set(
       qualifiedName,
       this.attachSTATE(
         state,
@@ -345,9 +344,9 @@ export abstract class Base<
   }
 
   /**Dettaches the state from the property */
-  dettachStateFromAttribute(qualifiedName: string): this {
+  dettachSTATEFromAttribute(qualifiedName: string): this {
     let pro = this.#attr.get(qualifiedName);
-    if (pro) this.dettachState(pro);
+    if (pro) this.dettachSTATE(pro);
     return this;
   }
 

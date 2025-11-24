@@ -1,12 +1,12 @@
 import { Err, None, Ok, ResultOk, type Option, type Result } from "@libResult";
 import {
-  STATE_RES,
+  STATE_RES_BASE,
   STATE_RES_WS,
-  STATE_ROS,
+  STATE_ROS_BASE,
   STATE_ROS_WS,
   type STATE_HELPER,
   type STATE_HELPER_WRITE,
-  type STATE_SET_RES,
+  type STATE_SET_REX_WS,
 } from "./types";
 
 const WRITE_TYPE = {
@@ -50,7 +50,7 @@ interface STATE_ARRAY<AT> {
 //     | |____| |____ / ____ \ ____) |___) | |____ ____) |
 //      \_____|______/_/    \_\_____/_____/|______|_____/
 export class STATE_ARRAY_RES<AT, RELATED extends {} = {}>
-  extends STATE_RES<STATE_ARRAY_READ<AT>, RELATED>
+  extends STATE_RES_BASE<STATE_ARRAY_READ<AT>, RELATED>
   implements STATE_ARRAY<AT>
 {
   constructor(init?: Result<AT[], string>, helper?: STATE_HELPER<RELATED>) {
@@ -161,7 +161,7 @@ export class STATE_ARRAY_RES<AT, RELATED extends {} = {}>
 //##################################################################################################################################################
 //##################################################################################################################################################
 export class STATE_ARRAY_ROS<AT, RELATED extends {} = {}>
-  extends STATE_ROS<STATE_ARRAY_READ<AT>, RELATED>
+  extends STATE_ROS_BASE<STATE_ARRAY_READ<AT>, RELATED>
   implements STATE_ARRAY<AT>
 {
   constructor(init?: ResultOk<AT[]>, helper?: STATE_HELPER<RELATED>) {
@@ -281,7 +281,7 @@ export class STATE_ARRAY_RES_WS<AT, RELATED extends {} = {}>
   constructor(
     init?: Result<AT[], string>,
     setter?:
-      | STATE_SET_RES<STATE_ARRAY_READ<AT>, STATE_ARRAY_RES_WS<AT, RELATED>>
+      | STATE_SET_REX_WS<STATE_ARRAY_READ<AT>, STATE_ARRAY_RES_WS<AT, RELATED>>
       | true,
     helper?: STATE_HELPER_WRITE<STATE_ARRAY_WRITE<AT>, RELATED>
   ) {
@@ -298,7 +298,7 @@ export class STATE_ARRAY_RES_WS<AT, RELATED extends {} = {}>
   #e?: string;
   #a: AT[] = [];
   #h?: STATE_HELPER_WRITE<STATE_ARRAY_WRITE<AT>, RELATED>;
-  #s?: STATE_SET_RES<STATE_ARRAY_READ<AT>, STATE_ARRAY_RES_WS<AT, RELATED>>;
+  #s?: STATE_SET_REX_WS<STATE_ARRAY_READ<AT>, STATE_ARRAY_RES_WS<AT, RELATED>>;
 
   #mr(type: READ_TYPE, index: number, items: AT[]): STATE_ARRAY_READ<AT> {
     return { array: this.#a, type, index, items };
@@ -424,7 +424,7 @@ export class STATE_ARRAY_ROS_WS<AT, RELATED extends {} = {}>
   constructor(
     init?: ResultOk<AT[]>,
     setter?:
-      | STATE_SET_RES<STATE_ARRAY_READ<AT>, STATE_ARRAY_ROS_WS<AT, RELATED>>
+      | STATE_SET_REX_WS<STATE_ARRAY_READ<AT>, STATE_ARRAY_ROS_WS<AT, RELATED>>
       | true,
     helper?: STATE_HELPER_WRITE<STATE_ARRAY_WRITE<AT>, RELATED>
   ) {
@@ -440,7 +440,7 @@ export class STATE_ARRAY_ROS_WS<AT, RELATED extends {} = {}>
   //Internal Context
   #a: AT[] = [];
   #h?: STATE_HELPER_WRITE<STATE_ARRAY_WRITE<AT>, RELATED>;
-  #s?: STATE_SET_RES<STATE_ARRAY_READ<AT>, STATE_ARRAY_ROS_WS<AT, RELATED>>;
+  #s?: STATE_SET_REX_WS<STATE_ARRAY_READ<AT>, STATE_ARRAY_ROS_WS<AT, RELATED>>;
 
   #mr(type: READ_TYPE, index: number, items: AT[]): STATE_ARRAY_READ<AT> {
     return { array: this.#a, type, index, items };
@@ -596,7 +596,7 @@ const res_ws = {
   ok<AT, RELATED extends {} = {}>(
     init: AT[] = [],
     setter?:
-      | STATE_SET_RES<STATE_ARRAY_READ<AT>, STATE_ARRAY_RES_WS<AT, RELATED>>
+      | STATE_SET_REX_WS<STATE_ARRAY_READ<AT>, STATE_ARRAY_RES_WS<AT, RELATED>>
       | true,
     helper?: STATE_HELPER_WRITE<STATE_ARRAY_WRITE<AT>, RELATED>
   ) {
@@ -613,7 +613,7 @@ const ros_ws = {
   ok<AT, RELATED extends {} = {}>(
     init: AT[] = [],
     setter?:
-      | STATE_SET_RES<STATE_ARRAY_READ<AT>, STATE_ARRAY_ROS_WS<AT, RELATED>>
+      | STATE_SET_REX_WS<STATE_ARRAY_READ<AT>, STATE_ARRAY_ROS_WS<AT, RELATED>>
       | true,
     helper?: STATE_HELPER_WRITE<STATE_ARRAY_WRITE<AT>, RELATED>
   ) {

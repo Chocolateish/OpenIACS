@@ -1,16 +1,16 @@
 import { Err, Ok, type Result, type ResultOk } from "@libResult";
 import {
-  STATE_REA,
-  STATE_RES,
-  STATE_ROA,
-  STATE_ROS,
+  STATE_REA_BASE,
+  STATE_RES_BASE,
+  STATE_ROA_BASE,
+  STATE_ROS_BASE,
+  type STATE,
   type STATE_INFER_RESULT,
   type STATE_REX,
   type STATE_ROX,
   type STATE_RXS,
-  type STATE_RXX,
   type STATE_SUB,
-} from "./types";
+} from "../types";
 
 //##################################################################################################################################################
 //       _____ _                _____ _____ ______  _____
@@ -20,11 +20,11 @@ import {
 //     | |____| |____ / ____ \ ____) |___) | |____ ____) |
 //      \_____|______/_/    \_\_____/_____/|______|_____/
 
-type TRANS_VAL<IN extends STATE_RXX<any>[]> = {
+type TRANS_VAL<IN extends STATE<any>[]> = {
   [I in keyof IN]: STATE_INFER_RESULT<IN[I]>;
 };
 
-type TRANS_VAL_UNK<IN extends STATE_RXX<any>[]> = {
+type TRANS_VAL_UNK<IN extends STATE<any>[]> = {
   [I in keyof IN]: IN[I] extends STATE_ROX<infer RT>
     ? ResultOk<RT>
     : IN[I] extends STATE_REX<infer RT>
@@ -32,11 +32,11 @@ type TRANS_VAL_UNK<IN extends STATE_RXX<any>[]> = {
     : unknown;
 };
 
-type SUBS<IN extends STATE_RXX<any>[]> = {
+type SUBS<IN extends STATE<any>[]> = {
   [I in keyof IN]: STATE_SUB<STATE_INFER_RESULT<IN[I]>>;
 };
 
-type STATES<IN extends STATE_RXX<any>[]> = {
+type STATES<IN extends STATE<any>[]> = {
   [I in keyof IN]: IN[I] extends STATE_ROX<infer RT>
     ? STATE_ROX<RT>
     : IN[I] extends STATE_REX<infer RT>
@@ -53,8 +53,8 @@ type STATES<IN extends STATE_RXX<any>[]> = {
 //     |_|  \_\______/_/    \_\
 export class STATE_COLLECTED_REA<
   RT,
-  IN extends STATE_RXX<any>[]
-> extends STATE_REA<RT> {
+  IN extends STATE<any>[]
+> extends STATE_REA_BASE<RT> {
   constructor(
     transform: ((values: TRANS_VAL<IN>) => Result<RT, string>) | false,
     ...states: IN
@@ -164,8 +164,8 @@ export class STATE_COLLECTED_REA<
 //     |_|  \_\\____/_/    \_\
 export class STATE_COLLECTED_ROA<
   RT,
-  IN extends [STATE_RXX<any>, ...STATE_RXX<any>[]]
-> extends STATE_ROA<RT> {
+  IN extends [STATE<any>, ...STATE<any>[]]
+> extends STATE_ROA_BASE<RT> {
   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
    * @param transform - Function to translate value of state or states to something else, false means first states values is used.
    * @param states - The other states to be used in the derived state.*/
@@ -277,7 +277,7 @@ export class STATE_COLLECTED_ROA<
 export class STATE_COLLECTED_RES<
   RT,
   IN extends STATE_RXS<any>[]
-> extends STATE_RES<RT> {
+> extends STATE_RES_BASE<RT> {
   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
    * @param transform - Function to translate value of state or states to something else, false means first states values is used.
    * @param states - The other states to be used in the derived state.*/
@@ -381,7 +381,7 @@ export class STATE_COLLECTED_RES<
 export class STATE_COLLECTED_ROS<
   RT,
   IN extends [STATE_RXS<any>, ...STATE_RXS<any>[]]
-> extends STATE_ROS<RT> {
+> extends STATE_ROS_BASE<RT> {
   constructor(
     transform: ((values: TRANS_VAL<IN>) => ResultOk<RT>) | false,
     ...states: IN
@@ -484,7 +484,7 @@ const rea = {
   /**Creates a state that collects multiple states values and reduces it to one.
    * @param transform - Function to translate value of collected states, false means first states values is used.
    * @param states - The states to collect.*/
-  from<RT, IN extends STATE_RXX<any>[]>(
+  from<RT, IN extends STATE<any>[]>(
     transform: ((values: TRANS_VAL<IN>) => Result<RT, string>) | false,
     ...states: IN
   ) {
@@ -496,7 +496,7 @@ const roa = {
   /**Creates a guarenteed ok state that collects multiple states values and reduces it to one.
    * @param transform - Function to translate value of collected states, false means first states values is used.
    * @param states - The states to collect.*/
-  from<RT, IN extends [STATE_RXX<any>, ...STATE_RXX<any>[]]>(
+  from<RT, IN extends [STATE<any>, ...STATE<any>[]]>(
     transform: ((values: TRANS_VAL<IN>) => ResultOk<RT>) | false,
     ...states: IN
   ) {
@@ -543,7 +543,7 @@ const ros = {
 //     | . ` | |  | | |\/| |  _ <|  __| |  _  /   \___ \| |  | | |\/| |
 //     | |\  | |__| | |  | | |_) | |____| | \ \   ____) | |__| | |  | |
 //     |_| \_|\____/|_|  |_|____/|______|_|  \_\ |_____/ \____/|_|  |_|
-class NUMBER_SUM_REA<S extends STATE_RXX<number>[]> extends STATE_COLLECTED_REA<
+class NUMBER_SUM_REA<S extends STATE<number>[]> extends STATE_COLLECTED_REA<
   number,
   S
 > {
@@ -589,7 +589,7 @@ class NUMBER_SUM_RES<S extends STATE_RXS<number>[]> extends STATE_COLLECTED_RES<
 }
 //##################################################################################################################################################
 class NUMBER_SUM_ROS<
-  S extends [STATE_ROS<number>, ...STATE_ROS<number>[]]
+  S extends [STATE_ROS_BASE<number>, ...STATE_ROS_BASE<number>[]]
 > extends STATE_COLLECTED_ROS<number, S> {
   constructor(...states: S) {
     super(false, ...states);
@@ -601,7 +601,7 @@ class NUMBER_SUM_ROS<
 
 const number = {
   sum: {
-    rea<S extends STATE_RXX<number>[]>(...states: S) {
+    rea<S extends STATE<number>[]>(...states: S) {
       return new NUMBER_SUM_REA(...states);
     },
     roa<S extends [STATE_ROX<number>, ...STATE_ROX<number>[]]>(...states: S) {
@@ -610,7 +610,9 @@ const number = {
     res<S extends STATE_RXS<number>[]>(...states: S) {
       return new NUMBER_SUM_RES(...states);
     },
-    ros<S extends [STATE_ROS<number>, ...STATE_ROS<number>[]]>(...states: S) {
+    ros<S extends [STATE_ROS_BASE<number>, ...STATE_ROS_BASE<number>[]]>(
+      ...states: S
+    ) {
       return new NUMBER_SUM_ROS(...states);
     },
   },

@@ -2,16 +2,16 @@ import { Err, Ok, Some, type Option, type Result } from "@libResult";
 import type { SVGFunc } from "@libSVG";
 import {
   STATE_IS,
-  STATE_REA,
+  STATE_REA_BASE,
   STATE_REA_WA,
   STATE_REA_WS,
-  STATE_RES,
+  STATE_RES_BASE,
   STATE_RES_WA,
   STATE_RES_WS,
-  STATE_ROA,
+  STATE_ROA_BASE,
   STATE_ROA_WA,
   STATE_ROA_WS,
-  STATE_ROS,
+  STATE_ROS_BASE,
   STATE_ROS_WA,
   STATE_ROS_WS,
   type STATE,
@@ -21,7 +21,6 @@ import {
   type STATE_ROX,
   type STATE_RXA,
   type STATE_RXS,
-  type STATE_RXX,
   type STATE_SUB,
 } from "./types";
 
@@ -275,7 +274,7 @@ const enums = {
  * @returns true if value was reached before timeout, false if timeout was reached*/
 async function await_value<T>(
   value: T,
-  state: STATE_RXX<T>,
+  state: STATE<T>,
   timeout: number = 500
 ): Promise<boolean> {
   let func: STATE_SUB<Result<T, string>> = () => {};
@@ -298,8 +297,8 @@ async function await_value<T>(
  * @param state2 second state
  * @returns true if states are equal*/
 async function compare(
-  state1: STATE_RXX<any>,
-  state2: STATE_RXX<any>
+  state1: STATE<any>,
+  state2: STATE<any>
 ): Promise<boolean> {
   let res1 = await state1;
   let res2 = await state2;
@@ -335,35 +334,35 @@ const is = {
   },
   /**Checks if something is a STATE_REX */
   rex<T = any>(s: any): s is STATE_REX<T> {
-    return s instanceof STATE_REA || s instanceof STATE_RES;
+    return s instanceof STATE_REA_BASE || s instanceof STATE_RES_BASE;
   },
   /**Checks if something is a STATE_ROX */
   rox<T = any>(s: any): s is STATE_ROX<T> {
-    return s instanceof STATE_ROA || s instanceof STATE_ROS;
+    return s instanceof STATE_ROA_BASE || s instanceof STATE_ROS_BASE;
   },
   /**Checks if something is a STATE_RXA */
   rxa<T = any>(s: any): s is STATE_RXA<T> {
-    return s instanceof STATE_REA || s instanceof STATE_ROA;
+    return s instanceof STATE_REA_BASE || s instanceof STATE_ROA_BASE;
   },
   /**Checks if something is a STATE_RXS */
   rxs<T = any>(s: any): s is STATE_RXS<T> {
-    return s instanceof STATE_RES || s instanceof STATE_ROS;
+    return s instanceof STATE_RES_BASE || s instanceof STATE_ROS_BASE;
   },
   /**Checks if something is a STATE_REA */
-  rea<T = any>(s: any): s is STATE_REA<T> {
-    return s instanceof STATE_REA;
+  rea<T = any>(s: any): s is STATE_REA_BASE<T> {
+    return s instanceof STATE_REA_BASE;
   },
   /**Checks if something is a STATE_ROA */
-  roa<T = any>(s: any): s is STATE_ROA<T> {
-    return s instanceof STATE_ROA;
+  roa<T = any>(s: any): s is STATE_ROA_BASE<T> {
+    return s instanceof STATE_ROA_BASE;
   },
   /**Checks if something is a STATE_RES */
-  res<T = any>(s: any): s is STATE_RES<T> {
-    return s instanceof STATE_RES;
+  res<T = any>(s: any): s is STATE_RES_BASE<T> {
+    return s instanceof STATE_RES_BASE;
   },
   /**Checks if something is a STATE_ROS */
-  ros<T = any>(s: any): s is STATE_ROS<T> {
-    return s instanceof STATE_ROS;
+  ros<T = any>(s: any): s is STATE_ROS_BASE<T> {
+    return s instanceof STATE_ROS_BASE;
   },
   /**Checks if something is a STATE_REA_WA */
   rea_wa<T = any>(s: any): s is STATE_REA_WA<T> {

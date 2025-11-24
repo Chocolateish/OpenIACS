@@ -1,14 +1,14 @@
 import { Err, None, Ok, ResultOk, type Option, type Result } from "@libResult";
 import {
-  STATE_RES,
+  STATE_RES_BASE,
   STATE_RES_WS,
-  STATE_ROS,
+  STATE_ROS_BASE,
   STATE_ROS_WS,
   type STATE_HELPER as Helper,
   type STATE_HELPER_WRITE as HelperWrite,
   type STATE_RELATED as Related,
-  type STATE_SET_RES,
-  type STATE_SET_ROS,
+  type STATE_SET_REX_WS,
+  type STATE_SET_ROX_WS,
 } from "./types";
 
 //##################################################################################################################################################
@@ -18,7 +18,7 @@ import {
 //     | |    | |      / /\ \  \___ \\___ \|  __|  \___ \
 //     | |____| |____ / ____ \ ____) |___) | |____ ____) |
 //      \_____|______/_/    \_\_____/_____/|______|_____/
-export class STATE_LAZY_RES<RT, REL extends Related> extends STATE_RES<
+export class STATE_LAZY_RES<RT, REL extends Related> extends STATE_RES_BASE<
   RT,
   REL
 > {
@@ -63,7 +63,7 @@ export class STATE_LAZY_RES<RT, REL extends Related> extends STATE_RES<
 
 //##################################################################################################################################################
 //##################################################################################################################################################
-export class STATE_LAZY_ROS<RT, REL extends Related> extends STATE_ROS<
+export class STATE_LAZY_ROS<RT, REL extends Related> extends STATE_ROS_BASE<
   RT,
   REL
 > {
@@ -115,7 +115,7 @@ export class STATE_LAZY_RES_WS<
 > extends STATE_RES_WS<RT, WT, REL> {
   constructor(
     init: () => Result<RT, string>,
-    setter?: STATE_SET_RES<RT, STATE_LAZY_RES_WS<RT, WT, REL>, WT> | true,
+    setter?: STATE_SET_REX_WS<RT, STATE_LAZY_RES_WS<RT, WT, REL>, WT> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     super();
@@ -144,7 +144,7 @@ export class STATE_LAZY_RES_WS<
   }
 
   #value?: Result<RT, string>;
-  #setter?: STATE_SET_RES<RT, STATE_LAZY_RES_WS<RT, WT, REL>, WT>;
+  #setter?: STATE_SET_REX_WS<RT, STATE_LAZY_RES_WS<RT, WT, REL>, WT>;
   #helper?: HelperWrite<WT, REL>;
 
   //#Reader Context
@@ -196,7 +196,7 @@ export class STATE_LAZY_ROS_WS<
 > extends STATE_ROS_WS<RT, WT, REL> {
   constructor(
     init: () => ResultOk<RT>,
-    setter?: STATE_SET_ROS<RT, STATE_LAZY_ROS_WS<RT, WT, REL>, WT> | true,
+    setter?: STATE_SET_ROX_WS<RT, STATE_LAZY_ROS_WS<RT, WT, REL>, WT> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     super();
@@ -225,7 +225,7 @@ export class STATE_LAZY_ROS_WS<
   }
 
   #value?: ResultOk<RT>;
-  #setter?: STATE_SET_ROS<RT, STATE_LAZY_ROS_WS<RT, WT, REL>, WT>;
+  #setter?: STATE_SET_ROX_WS<RT, STATE_LAZY_ROS_WS<RT, WT, REL>, WT>;
   #helper?: HelperWrite<WT, REL>;
 
   //#Reader Context
@@ -335,7 +335,7 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Related = {}>(
     init: () => RT,
-    setter?: STATE_SET_RES<RT, STATE_LAZY_RES_WS<RT, WT, REL>, WT> | true,
+    setter?: STATE_SET_REX_WS<RT, STATE_LAZY_RES_WS<RT, WT, REL>, WT> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     return new STATE_LAZY_RES_WS<RT, WT, REL>(() => Ok(init()), setter, helper);
@@ -345,7 +345,7 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends Related = {}>(
     init: () => string,
-    setter?: STATE_SET_RES<RT, STATE_LAZY_RES_WS<RT, WT, REL>, WT> | true,
+    setter?: STATE_SET_REX_WS<RT, STATE_LAZY_RES_WS<RT, WT, REL>, WT> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     return new STATE_LAZY_RES_WS<RT, WT, REL>(
@@ -359,7 +359,7 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Related = {}>(
     init: () => Result<RT, string>,
-    setter?: STATE_SET_RES<RT, STATE_LAZY_RES_WS<RT, WT, REL>, WT> | true,
+    setter?: STATE_SET_REX_WS<RT, STATE_LAZY_RES_WS<RT, WT, REL>, WT> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     return new STATE_LAZY_RES_WS<RT, WT, REL>(init, setter, helper);
@@ -378,7 +378,7 @@ const ros_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Related = {}>(
     init: () => RT,
-    setter?: STATE_SET_ROS<RT, STATE_LAZY_ROS_WS<RT, WT, REL>, WT> | true,
+    setter?: STATE_SET_ROX_WS<RT, STATE_LAZY_ROS_WS<RT, WT, REL>, WT> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     return new STATE_LAZY_ROS_WS<RT, WT, REL>(() => Ok(init()), setter, helper);
@@ -388,7 +388,7 @@ const ros_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Related = {}>(
     init: () => ResultOk<RT>,
-    setter?: STATE_SET_ROS<RT, STATE_LAZY_ROS_WS<RT, WT, REL>, WT> | true,
+    setter?: STATE_SET_ROX_WS<RT, STATE_LAZY_ROS_WS<RT, WT, REL>, WT> | true,
     helper?: HelperWrite<WT, REL>
   ) {
     return new STATE_LAZY_ROS_WS<RT, WT, REL>(init, setter, helper);

@@ -34,25 +34,25 @@ export interface STATE_HELPER_WRITE<WT, REL extends STATE_RELATED = {}>
   check?: (value: WT) => Result<WT, string>;
 }
 
-export type STATE_SET_REA<RT, S extends STATE<any>, WT = RT> = (
+export type STATE_SET_REX_WA<RT, S extends STATE<any>, WT = RT> = (
   value: WT,
   state: S,
   old?: Result<RT, string>
 ) => Promise<Result<void, string>>;
 
-export type STATE_SET_ROA<RT, S extends STATE<any>, WT = RT> = (
+export type STATE_SET_ROX_WA<RT, S extends STATE<any>, WT = RT> = (
   value: WT,
   state: S,
   old?: ResultOk<RT>
 ) => Promise<Result<void, string>>;
 
-export type STATE_SET_RES<RT, S extends STATE<any>, WT = RT> = (
+export type STATE_SET_REX_WS<RT, S extends STATE<any>, WT = RT> = (
   value: WT,
   state: S,
   old?: Result<RT, string>
 ) => Result<void, string>;
 
-export type STATE_SET_ROS<RT, S extends STATE<any>, WT = RT> = (
+export type STATE_SET_ROX_WS<RT, S extends STATE<any>, WT = RT> = (
   value: WT,
   state: S,
   old?: ResultOk<RT>
@@ -69,13 +69,17 @@ export type STATE_SET_ROS<RT, S extends STATE<any>, WT = RT> = (
 
 export abstract class STATE_IS<
   RT,
-  REL extends STATE_RELATED,
-  RRT extends Result<RT, string>
+  REL extends STATE_RELATED = {},
+  RRT extends Result<RT, string> = Result<RT, string>
 > {
   #subscribers: Set<STATE_SUB<RRT>> = new Set();
   #readPromises?: ((val: RRT) => void)[];
 
   //#Reader Context
+
+  /**Returns state as the simplest STATE type*/
+  abstract get simple(): STATE_IS<RT, REL, RRT>;
+
   /**Can state value be retrieved syncronously*/
   abstract readonly rsync: boolean;
   /**Is state guarenteed to be Ok */
@@ -125,6 +129,23 @@ export abstract class STATE_IS<
     return this.#subscribers.size;
   }
 
+  /**Can state be written syncronously*/
+  readonly wsync?: boolean;
+  /**Is state writable*/
+  get writable(): boolean {
+    return false;
+  }
+  /** This attempts a write to the state, write is not guaranteed to succeed
+   * @returns promise of result with error for the write*/
+  write?(value: any): Promise<Result<void, string>>;
+  /**Limits given value to valid range if possible returns None if not possible */
+  limit?(value: any): Result<any, string>;
+  /**Checks if the value is valid and returns reason for invalidity */
+  check?(value: any): Result<any, string>;
+  /** This attempts a write to the state, write is not guaranteed to succeed, this sync method is available on sync states
+   * @returns result with error for the write*/
+  writeSync?(value: any): Result<void, string>;
+
   /**Called when subscriber is added*/
   protected onSubscribe(_first: boolean): void {}
   /**Called when subscriber is removed*/
@@ -140,9 +161,6 @@ export abstract class STATE_IS<
       }
     }
   }
-
-  /**Returns state as a readable state type*/
-  abstract get readonly(): STATE_IS<RT, REL, RRT>;
 
   //Promises
   /**Creates a promise which can be fulfilled later with fulRProm */
@@ -166,10 +184,15 @@ export abstract class STATE_IS<
     this.#readPromises = [];
     return value;
   }
+
+  /**Creates a promise which can be fulfilled later with fulRProm */
+  protected appendWProm?(): Promise<Result<void, string>>;
+  /**Fulfills all write promises with given value */
+  protected fulWProm?(value: Result<void, string>): typeof value;
 }
 
 //###########################################################################################################################################################
-export abstract class STATE_REA<
+export abstract class STATE_REA_BASE<
   RT,
   REL extends STATE_RELATED = {}
 > extends STATE_IS<RT, REL, Result<RT, string>> {
@@ -179,14 +202,22 @@ export abstract class STATE_REA<
   get rok(): false {
     return false;
   }
-
-  get readonly(): STATE_REA<RT, REL> {
+  get simple(): STATE_REA<RT, REL> {
     return this;
+  }
+
+  get writable(): false {
+    return false;
   }
 }
 
+export type STATE_REA<RT, REL extends STATE_RELATED = {}> =
+  | STATE_REA_BASE<RT, REL>
+  | STATE_ROA<RT, REL>
+  | STATE_RES<RT, REL>;
+
 //###########################################################################################################################################################
-export abstract class STATE_ROA<
+export abstract class STATE_ROA_BASE<
   RT,
   REL extends STATE_RELATED = {}
 > extends STATE_IS<RT, REL, ResultOk<RT>> {
@@ -197,13 +228,20 @@ export abstract class STATE_ROA<
     return true;
   }
 
-  get readonly(): STATE_ROA<RT, REL> {
+  get simple(): STATE_ROA<RT, REL> {
     return this;
   }
+
+  get writable(): false {
+    return false;
+  }
 }
+export type STATE_ROA<RT, REL extends STATE_RELATED = {}> =
+  | STATE_ROA_BASE<RT, REL>
+  | STATE_ROS<RT, REL>;
 
 //###########################################################################################################################################################
-export abstract class STATE_RES<
+export abstract class STATE_RES_BASE<
   RT,
   REL extends STATE_RELATED = {}
 > extends STATE_IS<RT, REL, Result<RT, string>> {
@@ -215,13 +253,20 @@ export abstract class STATE_RES<
   }
   abstract get(): Result<RT, string>;
 
-  get readonly(): STATE_RES<RT, REL> {
+  get simple(): STATE_RES<RT, REL> {
     return this;
   }
+
+  get writable(): false {
+    return false;
+  }
 }
+export type STATE_RES<RT, REL extends STATE_RELATED = {}> =
+  | STATE_RES_BASE<RT, REL>
+  | STATE_ROS<RT, REL>;
 
 //###########################################################################################################################################################
-export abstract class STATE_ROS<
+export abstract class STATE_ROS_BASE<
   RT,
   REL extends STATE_RELATED = {}
 > extends STATE_IS<RT, REL, ResultOk<RT>> {
@@ -233,10 +278,18 @@ export abstract class STATE_ROS<
   }
   abstract get(): ResultOk<RT>;
   abstract getOk(): RT;
-  get readonly(): STATE_ROS<RT, REL> {
+  get simple(): STATE_ROS<RT, REL> {
     return this;
   }
+
+  get writable(): false {
+    return false;
+  }
 }
+export type STATE_ROS<RT, REL extends STATE_RELATED = {}> = STATE_ROS_BASE<
+  RT,
+  REL
+>;
 
 //###########################################################################################################################################################
 //     __          _______  _____ _______ ______ _____     _____ ____  _   _ _______ ________   _________
@@ -254,11 +307,18 @@ export abstract class STATE_WRITE_IS<
 > extends STATE_IS<RT, REL, RRT> {
   #writePromises?: ((val: Result<void, string>) => void)[];
 
+  /**Returns the same state as just a writable, for access management*/
+  get simple(): STATE_WRITE_IS<RT, WT, REL, RRT> {
+    return this;
+  }
+
   //#Writer Context
   /**Can state be written syncronously*/
   abstract readonly wsync: boolean;
   /**Is state writable*/
-  abstract readonly writable: boolean;
+  get writable(): true {
+    return true;
+  }
   /** This attempts a write to the state, write is not guaranteed to succeed
    * @returns promise of result with error for the write*/
   abstract write(value: WT): Promise<Result<void, string>>;
@@ -269,8 +329,6 @@ export abstract class STATE_WRITE_IS<
   /** This attempts a write to the state, write is not guaranteed to succeed, this sync method is available on sync states
    * @returns result with error for the write*/
   writeSync?(value: WT): Result<void, string>;
-  /**Returns the same state as just a writable, for access management*/
-  abstract readonly readwrite?: STATE_WRITE_IS<RT, WT, REL, RRT>;
 
   //Promises
   /**Creates a promise which can be fulfilled later with fulRProm */
@@ -296,27 +354,21 @@ export abstract class STATE_REA_WA<
   WT = RT,
   REL extends STATE_RELATED = {}
 > extends STATE_WRITE_IS<RT, WT, REL, Result<RT, string>> {
+  get simple(): STATE_REA_WA<RT, WT, REL> {
+    return this;
+  }
   get rsync(): false {
     return false;
   }
   get rok(): false {
     return false;
   }
-  get readonly(): STATE_REA<RT, REL> {
-    return this;
-  }
   get wsync(): false {
     return false;
-  }
-  get writable(): true {
-    return true;
   }
   abstract write(value: WT): Promise<Result<void, string>>;
   abstract limit(value: WT): Result<WT, string>;
   abstract check(value: WT): Result<WT, string>;
-  get readwrite(): STATE_REA_WA<RT, WT, REL> {
-    return this;
-  }
 }
 
 //###########################################################################################################################################################
@@ -325,28 +377,22 @@ export abstract class STATE_REA_WS<
   WT = RT,
   REL extends STATE_RELATED = {}
 > extends STATE_WRITE_IS<RT, WT, REL, Result<RT, string>> {
+  get simple(): STATE_REA_WS<RT, WT, REL> {
+    return this;
+  }
   get rsync(): false {
     return false;
   }
   get rok(): false {
     return false;
   }
-  get readonly(): STATE_REA<RT, REL> {
-    return this;
-  }
   get wsync(): true {
-    return true;
-  }
-  get writable(): true {
     return true;
   }
   abstract write(value: WT): Promise<Result<void, string>>;
   abstract limit(value: WT): Result<WT, string>;
   abstract check(value: WT): Result<WT, string>;
   abstract writeSync(value: WT): Result<void, string>;
-  get readwrite(): STATE_REA_WS<RT, WT, REL> {
-    return this;
-  }
 }
 
 //###########################################################################################################################################################
@@ -356,27 +402,21 @@ export abstract class STATE_ROA_WA<
   WT = RT,
   REL extends STATE_RELATED = {}
 > extends STATE_WRITE_IS<RT, WT, REL, ResultOk<RT>> {
+  get simple(): STATE_ROA_WA<RT, WT, REL> {
+    return this;
+  }
   get rsync(): false {
     return false;
   }
   get rok(): true {
     return true;
   }
-  get readonly(): STATE_ROA<RT, REL> {
-    return this;
-  }
   get wsync(): false {
     return false;
-  }
-  get writable(): true {
-    return true;
   }
   abstract write(value: WT): Promise<Result<void, string>>;
   abstract limit(value: WT): Result<WT, string>;
   abstract check(value: WT): Result<WT, string>;
-  get readwrite(): STATE_ROA_WA<RT, WT, REL> {
-    return this;
-  }
 }
 
 //###########################################################################################################################################################
@@ -385,29 +425,23 @@ export abstract class STATE_ROA_WS<
   WT = RT,
   REL extends STATE_RELATED = {}
 > extends STATE_WRITE_IS<RT, WT, REL, ResultOk<RT>> {
+  get simple(): STATE_ROA_WS<RT, WT, REL> {
+    return this;
+  }
   get rsync(): false {
     return false;
   }
   get rok(): true {
     return true;
   }
-  get readonly(): STATE_ROA<RT, REL> {
-    return this as STATE_ROA<RT, REL>;
-  }
 
   get wsync(): true {
-    return true;
-  }
-  get writable(): true {
     return true;
   }
   abstract write(value: WT): Promise<Result<void, string>>;
   abstract limit(value: WT): Result<WT, string>;
   abstract check(value: WT): Result<WT, string>;
   abstract writeSync(value: WT): Result<void, string>;
-  get readwrite(): STATE_ROA_WS<RT, WT, REL> {
-    return this;
-  }
 }
 
 //###########################################################################################################################################################
@@ -417,6 +451,9 @@ export abstract class STATE_RES_WA<
   WT = RT,
   REL extends STATE_RELATED = {}
 > extends STATE_WRITE_IS<RT, WT, REL, Result<RT, string>> {
+  get simple(): STATE_RES_WA<RT, WT, REL> {
+    return this;
+  }
   get rsync(): true {
     return true;
   }
@@ -425,21 +462,12 @@ export abstract class STATE_RES_WA<
   }
   abstract get(): Result<RT, string>;
 
-  get readonly(): STATE_RES<RT, REL> {
-    return this;
-  }
   get wsync(): false {
     return false;
-  }
-  get writable(): true {
-    return true;
   }
   abstract write(value: WT): Promise<Result<void, string>>;
   abstract limit(value: WT): Result<WT, string>;
   abstract check(value: WT): Result<WT, string>;
-  get readwrite(): STATE_RES_WA<RT, WT, REL> {
-    return this;
-  }
 }
 
 //###########################################################################################################################################################
@@ -448,6 +476,9 @@ export abstract class STATE_RES_WS<
   WT = RT,
   REL extends STATE_RELATED = {}
 > extends STATE_WRITE_IS<RT, WT, REL, Result<RT, string>> {
+  get simple(): STATE_RES_WS<RT, WT, REL> {
+    return this;
+  }
   get rsync(): true {
     return true;
   }
@@ -456,24 +487,13 @@ export abstract class STATE_RES_WS<
   }
   abstract get(): Result<RT, string>;
 
-  get readonly(): STATE_RES<RT, REL> {
-    return this;
-  }
-
   get wsync(): true {
     return true;
   }
-  get writable(): true {
-    return true;
-  }
   abstract write(value: WT): Promise<Result<void, string>>;
+  abstract writeSync(value: WT): Result<void, string>;
   abstract limit(value: WT): Result<WT, string>;
   abstract check(value: WT): Result<WT, string>;
-
-  abstract writeSync(value: WT): Result<void, string>;
-  get readwrite(): STATE_RES_WS<RT, WT, REL> {
-    return this;
-  }
 }
 
 //###########################################################################################################################################################
@@ -483,6 +503,9 @@ export abstract class STATE_ROS_WA<
   WT = RT,
   REL extends STATE_RELATED = {}
 > extends STATE_WRITE_IS<RT, WT, REL, ResultOk<RT>> {
+  get simple(): STATE_ROS_WA<RT, WT, REL> {
+    return this;
+  }
   get rsync(): true {
     return true;
   }
@@ -491,22 +514,13 @@ export abstract class STATE_ROS_WA<
   }
   abstract get(): ResultOk<RT>;
   abstract getOk(): RT;
-  get readonly(): STATE_ROS<RT, REL> {
-    return this as STATE_ROS<RT, REL>;
-  }
+
   get wsync(): false {
     return false;
-  }
-  get writable(): true {
-    return true;
   }
   abstract write(value: WT): Promise<Result<void, string>>;
   abstract limit(value: WT): Result<WT, string>;
   abstract check(value: WT): Result<WT, string>;
-
-  get readwrite(): STATE_ROS_WA<RT, WT, REL> {
-    return this;
-  }
 }
 //###########################################################################################################################################################
 export abstract class STATE_ROS_WS<
@@ -514,6 +528,9 @@ export abstract class STATE_ROS_WS<
   WT = RT,
   REL extends STATE_RELATED = {}
 > extends STATE_WRITE_IS<RT, WT, REL, ResultOk<RT>> {
+  get simple(): STATE_ROS_WS<RT, WT, REL> {
+    return this;
+  }
   get rsync(): true {
     return true;
   }
@@ -522,24 +539,14 @@ export abstract class STATE_ROS_WS<
   }
   abstract get(): ResultOk<RT>;
   abstract getOk(): RT;
-  get readonly(): STATE_ROS<RT, REL> {
-    return this as STATE_ROS<RT, REL>;
-  }
 
   get wsync(): true {
     return true;
   }
-  get writable(): true {
-    return true;
-  }
   abstract write(value: WT): Promise<Result<void, string>>;
+  abstract writeSync(value: WT): Result<void, string>;
   abstract limit(value: WT): Result<WT, string>;
   abstract check(value: WT): Result<WT, string>;
-
-  abstract writeSync(value: WT): Result<void, string>;
-  get readwrite(): STATE_ROS_WS<RT, WT, REL> {
-    return this;
-  }
 }
 
 //###########################################################################################################################################################
@@ -551,7 +558,7 @@ export abstract class STATE_ROS_WS<
 //        |_|     |_|  |_|    |______|_____/
 
 export type STATE<RT, WT = RT, REL extends STATE_RELATED = {}> =
-  | STATE_RXX<RT, REL>
+  | STATE_REA<RT, REL>
   | STATE_REA_WA<RT, WT, REL>
   | STATE_REA_WS<RT, WT, REL>
   | STATE_ROA_WA<RT, WT, REL>
@@ -560,43 +567,36 @@ export type STATE<RT, WT = RT, REL extends STATE_RELATED = {}> =
   | STATE_RES_WS<RT, WT, REL>
   | STATE_ROS_WA<RT, WT, REL>
   | STATE_ROS_WS<RT, WT, REL>;
-
-export type STATE_RXX<RT, REL extends STATE_RELATED = {}> =
-  | STATE_REA<RT, REL>
-  | STATE_ROA<RT, REL>
-  | STATE_RES<RT, REL>
-  | STATE_ROS<RT, REL>;
 
 export type STATE_REX<RT, REL extends STATE_RELATED = {}> =
   | STATE_REA<RT, REL>
-  | STATE_RES<RT, REL>
-  | STATE_ROX<RT, REL>;
+  | STATE_REA_WA<RT, any, REL>
+  | STATE_REA_WS<RT, any, REL>
+  | STATE_RES_WA<RT, any, REL>
+  | STATE_RES_WS<RT, any, REL>;
 
 export type STATE_ROX<RT, REL extends STATE_RELATED = {}> =
   | STATE_ROA<RT, REL>
-  | STATE_ROS<RT, REL>;
+  | STATE_ROA_WA<RT, any, REL>
+  | STATE_ROA_WS<RT, any, REL>
+  | STATE_ROS_WA<RT, any, REL>
+  | STATE_ROS_WS<RT, any, REL>;
 
 export type STATE_RXA<RT, REL extends STATE_RELATED = {}> =
   | STATE_REA<RT, REL>
-  | STATE_ROA<RT, REL>
-  | STATE_RXS<RT, REL>;
+  | STATE_REA_WA<RT, any, REL>
+  | STATE_REA_WS<RT, any, REL>
+  | STATE_ROA_WA<RT, any, REL>
+  | STATE_ROA_WS<RT, any, REL>;
 
 export type STATE_RXS<RT, REL extends STATE_RELATED = {}> =
   | STATE_RES<RT, REL>
-  | STATE_ROS<RT, REL>;
+  | STATE_RES_WA<RT, any, REL>
+  | STATE_RES_WS<RT, any, REL>
+  | STATE_ROS_WA<RT, any, REL>
+  | STATE_ROS_WS<RT, any, REL>;
 
 //###########################################################################################################################################################
-export type STATE_RXX_XX<RT, WT = RT, REL extends STATE_RELATED = {}> =
-  | STATE_RXX<RT, REL>
-  | STATE_REA_WA<RT, WT, REL>
-  | STATE_REA_WS<RT, WT, REL>
-  | STATE_ROA_WA<RT, WT, REL>
-  | STATE_ROA_WS<RT, WT, REL>
-  | STATE_RES_WA<RT, WT, REL>
-  | STATE_RES_WS<RT, WT, REL>
-  | STATE_ROS_WA<RT, WT, REL>
-  | STATE_ROS_WS<RT, WT, REL>;
-
 export type STATE_RXX_WX<RT, WT = RT, REL extends STATE_RELATED = {}> =
   | STATE_REA_WA<RT, WT, REL>
   | STATE_REA_WS<RT, WT, REL>
@@ -620,14 +620,6 @@ export type STATE_RXX_WS<RT, WT = RT, REL extends STATE_RELATED = {}> =
   | STATE_ROS_WS<RT, WT, REL>;
 
 //###########################################################################################################################################################
-export type STATE_REX_XX<RT, WT = RT, REL extends STATE_RELATED = {}> =
-  | STATE_REA<RT, REL>
-  | STATE_RES<RT, REL>
-  | STATE_REA_WA<RT, WT, REL>
-  | STATE_REA_WS<RT, WT, REL>
-  | STATE_RES_WA<RT, WT, REL>
-  | STATE_RES_WS<RT, WT, REL>;
-
 export type STATE_REX_WX<RT, WT = RT, REL extends STATE_RELATED = {}> =
   | STATE_REA_WA<RT, WT, REL>
   | STATE_REA_WS<RT, WT, REL>
@@ -643,14 +635,6 @@ export type STATE_REX_WS<RT, WT = RT, REL extends STATE_RELATED = {}> =
   | STATE_RES_WS<RT, WT, REL>;
 
 //###########################################################################################################################################################
-export type STATE_ROX_XX<RT, WT = RT, REL extends STATE_RELATED = {}> =
-  | STATE_ROA<RT, REL>
-  | STATE_ROS<RT, REL>
-  | STATE_ROA_WA<RT, WT, REL>
-  | STATE_ROA_WS<RT, WT, REL>
-  | STATE_ROS_WA<RT, WT, REL>
-  | STATE_ROS_WS<RT, WT, REL>;
-
 export type STATE_ROX_WX<RT, WT = RT, REL extends STATE_RELATED = {}> =
   | STATE_ROA_WA<RT, WT, REL>
   | STATE_ROA_WS<RT, WT, REL>
@@ -666,14 +650,6 @@ export type STATE_ROX_WS<RT, WT = RT, REL extends STATE_RELATED = {}> =
   | STATE_ROS_WS<RT, WT, REL>;
 
 //###########################################################################################################################################################
-export type STATE_RXA_XX<RT, WT = RT, REL extends STATE_RELATED = {}> =
-  | STATE_REA<RT, REL>
-  | STATE_ROA<RT, REL>
-  | STATE_REA_WA<RT, WT, REL>
-  | STATE_REA_WS<RT, WT, REL>
-  | STATE_ROA_WA<RT, WT, REL>
-  | STATE_ROA_WS<RT, WT, REL>;
-
 export type STATE_RXA_WX<RT, WT = RT, REL extends STATE_RELATED = {}> =
   | STATE_REA_WA<RT, WT, REL>
   | STATE_REA_WS<RT, WT, REL>
@@ -689,12 +665,6 @@ export type STATE_RXA_WS<RT, WT = RT, REL extends STATE_RELATED = {}> =
   | STATE_ROA_WS<RT, WT, REL>;
 
 //###########################################################################################################################################################
-export type STATE_RXS_XX<RT, WT = RT, REL extends STATE_RELATED = {}> =
-  | STATE_RES_WA<RT, WT, REL>
-  | STATE_RES_WS<RT, WT, REL>
-  | STATE_ROS_WA<RT, WT, REL>
-  | STATE_ROS_WS<RT, WT, REL>;
-
 export type STATE_RXS_WX<RT, WT = RT, REL extends STATE_RELATED = {}> =
   | STATE_RES_WA<RT, WT, REL>
   | STATE_RES_WS<RT, WT, REL>
@@ -706,8 +676,6 @@ export type STATE_RXS_WA<RT, WT = RT, REL extends STATE_RELATED = {}> =
   | STATE_ROS_WA<RT, WT, REL>;
 
 export type STATE_RXS_WS<RT, WT = RT, REL extends STATE_RELATED = {}> =
-  | STATE_RES<RT, REL>
-  | STATE_ROS<RT, REL>
   | STATE_RES_WS<RT, WT, REL>
   | STATE_ROS_WS<RT, WT, REL>;
 

@@ -1,6 +1,6 @@
 import { Base, defineElement } from "@libBase";
 import { Err, Ok, type Result } from "@libResult";
-import type { STATE_RXX_WX, STATE_SUB } from "@libState";
+import type { STATE, STATE_SUB } from "@libState";
 import type { SVGFunc } from "@libSVG";
 import "./common.scss";
 
@@ -63,7 +63,7 @@ export abstract class ValueComponent<T> extends Component {
     this.#warnInput.setCustomValidity("YOYO");
   }
 
-  #state?: STATE_RXX_WX<T>;
+  #state?: STATE<T>;
   #func?: STATE_SUB<Result<T, string>>;
   #changed: boolean = false;
   #buffer?: T;
@@ -78,8 +78,8 @@ export abstract class ValueComponent<T> extends Component {
   }
 
   /**This sets the value of the component*/
-  set valueByState(state: STATE_RXX_WX<T> | undefined) {
-    if (this.#func) this.dettachState(this.#func);
+  set valueByState(state: STATE<T> | undefined) {
+    if (this.#func) this.dettachSTATE(this.#func);
     if (state) {
       this.attachSTATE(state, (val) => {
         if (val.ok) this.value = val.value;
