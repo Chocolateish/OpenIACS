@@ -1,19 +1,19 @@
 import { Err, Ok, Some, type Option, type Result } from "@libResult";
 import type { SVGFunc } from "@libSVG";
 import {
+  REA,
+  REA_WA,
+  REA_WS,
+  RES,
+  RES_WA,
+  RES_WS,
+  ROA,
+  ROA_WA,
+  ROA_WS,
+  ROS,
+  ROS_WA,
+  ROS_WS,
   STATE_IS,
-  STATE_REA_BASE,
-  STATE_REA_WA,
-  STATE_REA_WS,
-  STATE_RES_BASE,
-  STATE_RES_WA,
-  STATE_RES_WS,
-  STATE_ROA_BASE,
-  STATE_ROA_WA,
-  STATE_ROA_WS,
-  STATE_ROS_BASE,
-  STATE_ROS_WA,
-  STATE_ROS_WS,
   type STATE,
   type STATE_HELPER_WRITE,
   type STATE_RELATED,
@@ -349,51 +349,51 @@ const is = {
     return s instanceof STATE_RES_BASE || s instanceof STATE_ROS_BASE;
   },
   /**Checks if something is a STATE_REA */
-  rea<T = any>(s: any): s is STATE_REA_BASE<T> {
+  rea<T = any>(s: any): s is REA<T> {
     return s instanceof STATE_REA_BASE;
   },
   /**Checks if something is a STATE_ROA */
-  roa<T = any>(s: any): s is STATE_ROA_BASE<T> {
+  roa<T = any>(s: any): s is ROA<T> {
     return s instanceof STATE_ROA_BASE;
   },
   /**Checks if something is a STATE_RES */
-  res<T = any>(s: any): s is STATE_RES_BASE<T> {
+  res<T = any>(s: any): s is RES<T> {
     return s instanceof STATE_RES_BASE;
   },
   /**Checks if something is a STATE_ROS */
-  ros<T = any>(s: any): s is STATE_ROS_BASE<T> {
+  ros<T = any>(s: any): s is ROS<T> {
     return s instanceof STATE_ROS_BASE;
   },
   /**Checks if something is a STATE_REA_WA */
-  rea_wa<T = any>(s: any): s is STATE_REA_WA<T> {
+  rea_wa<T = any>(s: any): s is REA_WA<T> {
     return s instanceof STATE_REA_WA;
   },
   /**Checks if something is a STATE_ROA_WA */
-  roa_wa<T = any>(s: any): s is STATE_ROA_WA<T> {
+  roa_wa<T = any>(s: any): s is ROA_WA<T> {
     return s instanceof STATE_ROA_WA;
   },
   /**Checks if something is a STATE_RES_WA */
-  res_wa<T = any>(s: any): s is STATE_RES_WA<T> {
+  res_wa<T = any>(s: any): s is RES_WA<T> {
     return s instanceof STATE_RES_WA;
   },
   /**Checks if something is a STATE_ROS_WA */
-  ros_wa<T = any>(s: any): s is STATE_ROS_WA<T> {
+  ros_wa<T = any>(s: any): s is ROS_WA<T> {
     return s instanceof STATE_ROS_WA;
   },
   /**Checks if something is a STATE_REA_WS */
-  rea_ws<T = any>(s: any): s is STATE_REA_WS<T> {
+  rea_ws<T = any>(s: any): s is REA_WS<T> {
     return s instanceof STATE_REA_WS;
   },
   /**Checks if something is a STATE_ROA_WS */
-  roa_ws<T = any>(s: any): s is STATE_ROA_WS<T> {
+  roa_ws<T = any>(s: any): s is ROA_WS<T> {
     return s instanceof STATE_ROA_WS;
   },
   /**Checks if something is a STATE_RES_WS */
-  res_ws<T = any>(s: any): s is STATE_RES_WS<T> {
+  res_ws<T = any>(s: any): s is RES_WS<T> {
     return s instanceof STATE_RES_WS;
   },
   /**Checks if something is a STATE_ROS_WS */
-  ros_ws<T = any>(s: any): s is STATE_ROS_WS<T> {
+  ros_ws<T = any>(s: any): s is ROS_WS<T> {
     return s instanceof STATE_ROS_WS;
   },
 };

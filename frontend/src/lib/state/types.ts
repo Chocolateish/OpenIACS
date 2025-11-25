@@ -25,11 +25,8 @@ export type STATE_RELATED = {
   [key: string | symbol | number]: any;
 };
 
-export interface STATE_HELPER<REL extends STATE_RELATED = {}> {
+export interface STATE_HELPER<WT, REL extends STATE_RELATED = {}> {
   related?: () => Option<REL>;
-}
-export interface STATE_HELPER_WRITE<WT, REL extends STATE_RELATED = {}>
-  extends STATE_HELPER<REL> {
   limit?: (value: WT) => Result<WT, string>;
   check?: (value: WT) => Result<WT, string>;
 }
@@ -67,7 +64,7 @@ export type STATE_SET_ROX_WS<RT, S, WT = RT> = (
 //     | | \ \| |____ / ____ \| |__| | |____| | \ \  | |___| |__| | |\  |  | |  | |____ / . \   | |
 //     |_|  \_\______/_/    \_\_____/|______|_|  \_\  \_____\____/|_| \_|  |_|  |______/_/ \_\  |_|
 
-interface STATE_BASE<
+export interface STATE_BASE<
   RT,
   WT,
   REL extends STATE_RELATED,
@@ -116,7 +113,7 @@ interface STATE_BASE<
   check?(value: WT): Result<WT, string>;
 }
 
-export interface STATE_REA<RT, REL extends STATE_RELATED = {}>
+export interface REA<RT, REL extends STATE_RELATED = {}>
   extends STATE_BASE<RT, any, REL, ResultOk<RT>> {
   readonly rsync: false;
   readonly rok: false;
@@ -124,7 +121,7 @@ export interface STATE_REA<RT, REL extends STATE_RELATED = {}>
   readonly wsync: false;
 }
 
-export interface STATE_ROA<RT, REL extends STATE_RELATED = {}>
+export interface ROA<RT, REL extends STATE_RELATED = {}>
   extends STATE_BASE<RT, any, REL, ResultOk<RT>> {
   readonly rsync: false;
   readonly rok: true;
@@ -132,7 +129,7 @@ export interface STATE_ROA<RT, REL extends STATE_RELATED = {}>
   readonly wsync: false;
 }
 
-export interface STATE_RES<RT, REL extends STATE_RELATED = {}>
+export interface RES<RT, REL extends STATE_RELATED = {}>
   extends STATE_BASE<RT, any, REL, Result<RT, string>> {
   readonly rsync: true;
   readonly rok: false;
@@ -141,7 +138,7 @@ export interface STATE_RES<RT, REL extends STATE_RELATED = {}>
   get(): Result<RT, string>;
 }
 
-export interface STATE_ROS<RT, REL extends STATE_RELATED = {}>
+export interface ROS<RT, REL extends STATE_RELATED = {}>
   extends STATE_BASE<RT, any, REL, ResultOk<RT>> {
   readonly rsync: true;
   readonly rok: true;
@@ -271,39 +268,41 @@ export type STATE<RT, WT = RT, REL extends STATE_RELATED = {}> =
   | STATE_ROS_WA<RT, WT, REL>
   | STATE_ROS_WS<RT, WT, REL>;
 
-export type STATE_REX<RT, REL extends STATE_RELATED = {}> =
-  | STATE_REA<RT, REL>
-  | STATE_RES<RT, REL>
+export type STATE_REA<RT, REL extends STATE_RELATED = {}> =
+  | REA<RT, REL>
   | STATE_REA_WA<RT, any, REL>
-  | STATE_REA_WS<RT, any, REL>
-  | STATE_RES_WA<RT, any, REL>
-  | STATE_RES_WS<RT, any, REL>;
+  | STATE_REA_WS<RT, any, REL>;
 
-export type STATE_ROX<RT, REL extends STATE_RELATED = {}> =
-  | STATE_ROA<RT, REL>
-  | STATE_ROS<RT, REL>
-  | STATE_ROA_WA<RT, any, REL>
-  | STATE_ROA_WS<RT, any, REL>
-  | STATE_ROS_WA<RT, any, REL>
-  | STATE_ROS_WS<RT, any, REL>;
-
-export type STATE_RXA<RT, REL extends STATE_RELATED = {}> =
-  | STATE_REA<RT, REL>
-  | STATE_ROA<RT, REL>
-  | STATE_REA_WA<RT, any, REL>
-  | STATE_REA_WS<RT, any, REL>
+export type STATE_ROA<RT, REL extends STATE_RELATED = {}> =
+  | ROA<RT, REL>
   | STATE_ROA_WA<RT, any, REL>
   | STATE_ROA_WS<RT, any, REL>;
 
-export type STATE_RXS<RT, REL extends STATE_RELATED = {}> =
-  | STATE_REA<RT, REL>
-  | STATE_ROA<RT, REL>
-  | STATE_RES<RT, REL>
-  | STATE_ROS<RT, REL>
+export type STATE_RES<RT, REL extends STATE_RELATED = {}> =
+  | RES<RT, REL>
   | STATE_RES_WA<RT, any, REL>
-  | STATE_RES_WS<RT, any, REL>
+  | STATE_RES_WS<RT, any, REL>;
+
+export type STATE_ROS<RT, REL extends STATE_RELATED = {}> =
+  | ROS<RT, REL>
   | STATE_ROS_WA<RT, any, REL>
   | STATE_ROS_WS<RT, any, REL>;
+
+export type STATE_REX<RT, REL extends STATE_RELATED = {}> =
+  | STATE_REA<RT, REL>
+  | STATE_RES<RT, REL>;
+
+export type STATE_ROX<RT, REL extends STATE_RELATED = {}> =
+  | STATE_ROA<RT, REL>
+  | STATE_ROS<RT, REL>;
+
+export type STATE_RXA<RT, REL extends STATE_RELATED = {}> =
+  | STATE_REA<RT, REL>
+  | STATE_ROA<RT, REL>;
+
+export type STATE_RXS<RT, REL extends STATE_RELATED = {}> =
+  | STATE_RES<RT, REL>
+  | STATE_ROS<RT, REL>;
 
 //###########################################################################################################################################################
 export type STATE_RXX_WX<RT, WT = RT, REL extends STATE_RELATED = {}> =
@@ -387,28 +386,3 @@ export type STATE_RXS_WA<RT, WT = RT, REL extends STATE_RELATED = {}> =
 export type STATE_RXS_WS<RT, WT = RT, REL extends STATE_RELATED = {}> =
   | STATE_RES_WS<RT, WT, REL>
   | STATE_ROS_WS<RT, WT, REL>;
-
-//###########################################################################################################################################################
-//       ______          ___   _ ______ _____     _____ ____  _   _ _______ ________   _________
-//      / __ \ \        / / \ | |  ____|  __ \   / ____/ __ \| \ | |__   __|  ____\ \ / /__   __|
-//     | |  | \ \  /\  / /|  \| | |__  | |__) | | |   | |  | |  \| |  | |  | |__   \ V /   | |
-//     | |  | |\ \/  \/ / | . ` |  __| |  _  /  | |   | |  | | . ` |  | |  |  __|   > <    | |
-//     | |__| | \  /\  /  | |\  | |____| | \ \  | |___| |__| | |\  |  | |  | |____ / . \   | |
-//      \____/   \/  \/   |_| \_|______|_|  \_\  \_____\____/|_| \_|  |_|  |______/_/ \_\  |_|
-/** Represents the standard owner interface for a state object.
- * @template OT - The type of the state’s value.*/
-export interface StateOwnerAll<OT> {
-  /** This sets the value of the state to a result and updates all subscribers */
-  set(value: Result<OT, string>): void;
-  /** This sets the value of the state to a ok result and updates all subscribers */
-  setOk(value: OT): void;
-  /** This sets the value of the state to an err result and updates all subscribers */
-  setErr?(err: OT): void;
-}
-
-/** Represents the standard owner interface for a state object.
- * @template OT - The type of the state’s value.*/
-export interface StateOwnerOk<OT> extends StateOwnerAll<OT> {
-  /** This sets the value of the state to an err result and updates all subscribers */
-  setErr(err: OT): void;
-}

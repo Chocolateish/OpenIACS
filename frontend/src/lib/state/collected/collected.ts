@@ -1,9 +1,9 @@
 import { Err, Ok, type Result, type ResultOk } from "@libResult";
 import {
-  STATE_REA_BASE,
-  STATE_RES_BASE,
-  STATE_ROA_BASE,
-  STATE_ROS_BASE,
+  REA,
+  RES,
+  ROA,
+  ROS,
   type STATE,
   type STATE_INFER_RESULT,
   type STATE_REX,
@@ -51,10 +51,7 @@ type STATES<IN extends STATE<any>[]> = {
 //     |  _  /|  __|   / /\ \
 //     | | \ \| |____ / ____ \
 //     |_|  \_\______/_/    \_\
-export class STATE_COLLECTED_REA<
-  RT,
-  IN extends STATE<any>[]
-> extends STATE_REA_BASE<RT> {
+export class STATE_COLLECTED_REA<RT, IN extends STATE<any>[]> extends REA<RT> {
   constructor(
     transform: ((values: TRANS_VAL<IN>) => Result<RT, string>) | false,
     ...states: IN
@@ -165,7 +162,7 @@ export class STATE_COLLECTED_REA<
 export class STATE_COLLECTED_ROA<
   RT,
   IN extends [STATE<any>, ...STATE<any>[]]
-> extends STATE_ROA_BASE<RT> {
+> extends ROA<RT> {
   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
    * @param transform - Function to translate value of state or states to something else, false means first states values is used.
    * @param states - The other states to be used in the derived state.*/
@@ -277,7 +274,7 @@ export class STATE_COLLECTED_ROA<
 export class STATE_COLLECTED_RES<
   RT,
   IN extends STATE_RXS<any>[]
-> extends STATE_RES_BASE<RT> {
+> extends RES<RT> {
   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
    * @param transform - Function to translate value of state or states to something else, false means first states values is used.
    * @param states - The other states to be used in the derived state.*/
@@ -381,7 +378,7 @@ export class STATE_COLLECTED_RES<
 export class STATE_COLLECTED_ROS<
   RT,
   IN extends [STATE_RXS<any>, ...STATE_RXS<any>[]]
-> extends STATE_ROS_BASE<RT> {
+> extends ROS<RT> {
   constructor(
     transform: ((values: TRANS_VAL<IN>) => ResultOk<RT>) | false,
     ...states: IN
@@ -589,7 +586,7 @@ class NUMBER_SUM_RES<S extends STATE_RXS<number>[]> extends STATE_COLLECTED_RES<
 }
 //##################################################################################################################################################
 class NUMBER_SUM_ROS<
-  S extends [STATE_ROS_BASE<number>, ...STATE_ROS_BASE<number>[]]
+  S extends [ROS<number>, ...ROS<number>[]]
 > extends STATE_COLLECTED_ROS<number, S> {
   constructor(...states: S) {
     super(false, ...states);
@@ -610,9 +607,7 @@ const number = {
     res<S extends STATE_RXS<number>[]>(...states: S) {
       return new NUMBER_SUM_RES(...states);
     },
-    ros<S extends [STATE_ROS_BASE<number>, ...STATE_ROS_BASE<number>[]]>(
-      ...states: S
-    ) {
+    ros<S extends [ROS<number>, ...ROS<number>[]]>(...states: S) {
       return new NUMBER_SUM_ROS(...states);
     },
   },

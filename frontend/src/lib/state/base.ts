@@ -1,14 +1,16 @@
 import { None, type Option, type Result } from "@libResult";
-import type { STATE_RELATED, STATE_SUB } from "./types";
+import type { STATE_BASE as BASE, STATE_RELATED, STATE_SUB } from "./types";
 
-export abstract class STATE_IS<
+export abstract class STATE_BASE<
   RT,
   WT = RT,
   REL extends STATE_RELATED = {},
   RRT extends Result<RT, string> = Result<RT, string>
-> {
+> implements BASE<RT, WT, REL, RRT>
+{
   #subscribers: Set<STATE_SUB<RRT>> = new Set();
   #readPromises?: ((val: RRT) => void)[];
+  #writePromises?: ((val: Result<void, string>) => void)[];
 
   //#Reader Context
   /**Can state value be retrieved syncronously*/
@@ -115,8 +117,19 @@ export abstract class STATE_IS<
     return value;
   }
 
+  //Promises
   /**Creates a promise which can be fulfilled later with fulRProm */
-  protected appendWProm?(): Promise<Result<void, string>>;
+  protected appendWProm(): Promise<Result<void, string>> {
+    return new Promise<Result<void, string>>((a) => {
+      (this.#writePromises ??= []).push(a);
+    });
+  }
   /**Fulfills all write promises with given value */
-  protected fulWProm?(value: Result<void, string>): typeof value;
+  protected fulWProm(value: Result<void, string>): typeof value {
+    if (this.#writePromises)
+      for (let i = 0; i < this.#writePromises.length; i++)
+        this.#writePromises[i](value);
+    this.#writePromises = [];
+    return value;
+  }
 }

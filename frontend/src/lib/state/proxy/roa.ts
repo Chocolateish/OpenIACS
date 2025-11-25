@@ -1,8 +1,8 @@
 import { Err, None, ResultOk, type Option, type Result } from "@libResult";
 import {
-  STATE_ROA_BASE,
-  STATE_ROA_WA,
-  STATE_ROA_WS,
+  ROA,
+  ROA_WA,
+  ROA_WS,
   type STATE,
   type STATE_REX,
   type STATE_REX_WA,
@@ -34,7 +34,7 @@ export class STATE_PROXY_ROA<
   S extends STATE<IN>,
   IN = S extends STATE<infer RT> ? RT : never,
   OUT = IN
-> extends STATE_ROA_BASE<OUT> {
+> extends ROA<OUT> {
   constructor(
     state: STATE_ROX<IN>,
     transform?: (value: ResultOk<IN>) => ResultOk<OUT>
@@ -137,7 +137,7 @@ export class STATE_PROXY_ROA_WS<
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> extends STATE_ROA_WS<ROUT, WOUT> {
+> extends ROA_WS<ROUT, WOUT> {
   constructor(
     state: STATE_ROX_WS<RIN, WIN>,
     transformRead?: (value: ResultOk<RIN>) => ResultOk<ROUT>,
@@ -293,7 +293,7 @@ export class STATE_PROXY_ROA_WA<
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> extends STATE_ROA_WA<ROUT, WOUT> {
+> extends ROA_WA<ROUT, WOUT> {
   constructor(
     state: STATE_ROX_WA<RIN, WIN>,
     transformRead?: (value: ResultOk<RIN>) => ResultOk<ROUT>,

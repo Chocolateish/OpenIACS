@@ -2,18 +2,18 @@ import { sleep } from "@libCommon";
 import { Err, Ok, ResultOk, type Result } from "@libResult";
 import { expect, it } from "vitest";
 import type {
-  STATE_REA_BASE,
-  STATE_REA_WA,
-  STATE_REA_WS,
-  STATE_RES_BASE,
-  STATE_RES_WA,
-  STATE_RES_WS,
-  STATE_ROA_BASE,
-  STATE_ROA_WA,
-  STATE_ROA_WS,
-  STATE_ROS_BASE,
-  STATE_ROS_WA,
-  STATE_ROS_WS,
+  REA,
+  REA_WA,
+  REA_WS,
+  RES,
+  RES_WA,
+  RES_WS,
+  ROA,
+  ROA_WA,
+  ROA_WS,
+  ROS,
+  ROS_WA,
+  ROS_WS,
   STATE_SUB,
 } from "../types";
 
@@ -35,55 +35,55 @@ type ROK = ResultOk<number>;
 export type TEST_STATE_ALL = (
   setter?: (w: number) => void
 ) =>
-  | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
-  | STATE_TYPE<true, true, true, false, STATE_ROS_WA<number>, ROK>
-  | STATE_TYPE<true, true, false, false, STATE_ROS_BASE<number>, ROK>
-  | STATE_TYPE<true, false, false, false, STATE_ROA_BASE<number>, ROK>
-  | STATE_TYPE<true, false, true, false, STATE_ROA_WA<number>, ROK>
-  | STATE_TYPE<true, false, true, true, STATE_ROA_WS<number>, ROK>
-  | STATE_TYPE<false, true, true, true, STATE_RES_WS<number>, RERR>
-  | STATE_TYPE<false, true, true, false, STATE_RES_WA<number>, RERR>
-  | STATE_TYPE<false, true, false, false, STATE_RES_BASE<number>, RERR>
-  | STATE_TYPE<false, false, true, false, STATE_REA_WA<number>, RERR>
-  | STATE_TYPE<false, false, true, true, STATE_REA_WS<number>, RERR>
-  | STATE_TYPE<false, false, false, false, STATE_REA_BASE<number>, RERR>;
+  | STATE_TYPE<true, true, true, true, ROS_WS<number>, ROK>
+  | STATE_TYPE<true, true, true, false, ROS_WA<number>, ROK>
+  | STATE_TYPE<true, true, false, false, ROS<number>, ROK>
+  | STATE_TYPE<true, false, false, false, ROA<number>, ROK>
+  | STATE_TYPE<true, false, true, false, ROA_WA<number>, ROK>
+  | STATE_TYPE<true, false, true, true, ROA_WS<number>, ROK>
+  | STATE_TYPE<false, true, true, true, RES_WS<number>, RERR>
+  | STATE_TYPE<false, true, true, false, RES_WA<number>, RERR>
+  | STATE_TYPE<false, true, false, false, RES<number>, RERR>
+  | STATE_TYPE<false, false, true, false, REA_WA<number>, RERR>
+  | STATE_TYPE<false, false, true, true, REA_WS<number>, RERR>
+  | STATE_TYPE<false, false, false, false, REA<number>, RERR>;
 
 export type TEST_STATE_OK = () =>
-  | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
-  | STATE_TYPE<true, true, true, false, STATE_ROS_WA<number>, ROK>
-  | STATE_TYPE<true, true, false, false, STATE_ROS_BASE<number>, ROK>
-  | STATE_TYPE<true, false, true, false, STATE_ROA_WA<number>, ROK>
-  | STATE_TYPE<true, false, true, true, STATE_ROA_WS<number>, ROK>
-  | STATE_TYPE<true, false, false, false, STATE_ROA_BASE<number>, ROK>;
+  | STATE_TYPE<true, true, true, true, ROS_WS<number>, ROK>
+  | STATE_TYPE<true, true, true, false, ROS_WA<number>, ROK>
+  | STATE_TYPE<true, true, false, false, ROS<number>, ROK>
+  | STATE_TYPE<true, false, true, false, ROA_WA<number>, ROK>
+  | STATE_TYPE<true, false, true, true, ROA_WS<number>, ROK>
+  | STATE_TYPE<true, false, false, false, ROA<number>, ROK>;
 
 export type TEST_STATE_SYNC = () =>
-  | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
-  | STATE_TYPE<true, true, true, false, STATE_ROS_WA<number>, ROK>
-  | STATE_TYPE<true, true, false, false, STATE_ROS_BASE<number>, ROK>
-  | STATE_TYPE<false, true, true, true, STATE_RES_WS<number>, RERR>
-  | STATE_TYPE<false, true, true, false, STATE_RES_WA<number>, RERR>
-  | STATE_TYPE<false, true, false, false, STATE_RES_BASE<number>, RERR>;
+  | STATE_TYPE<true, true, true, true, ROS_WS<number>, ROK>
+  | STATE_TYPE<true, true, true, false, ROS_WA<number>, ROK>
+  | STATE_TYPE<true, true, false, false, ROS<number>, ROK>
+  | STATE_TYPE<false, true, true, true, RES_WS<number>, RERR>
+  | STATE_TYPE<false, true, true, false, RES_WA<number>, RERR>
+  | STATE_TYPE<false, true, false, false, RES<number>, RERR>;
 
 export type TEST_STATE_OK_SYNC = () =>
-  | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
-  | STATE_TYPE<true, true, true, false, STATE_ROS_WA<number>, ROK>
-  | STATE_TYPE<true, true, false, false, STATE_ROS_BASE<number>, ROK>;
+  | STATE_TYPE<true, true, true, true, ROS_WS<number>, ROK>
+  | STATE_TYPE<true, true, true, false, ROS_WA<number>, ROK>
+  | STATE_TYPE<true, true, false, false, ROS<number>, ROK>;
 
 export type TEST_STATE_WRITE = () =>
-  | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
-  | STATE_TYPE<true, true, true, false, STATE_ROS_WA<number>, ROK>
-  | STATE_TYPE<true, false, true, true, STATE_ROA_WS<number>, ROK>
-  | STATE_TYPE<true, false, true, false, STATE_ROA_WA<number>, ROK>
-  | STATE_TYPE<false, true, true, true, STATE_RES_WS<number>, RERR>
-  | STATE_TYPE<false, true, true, false, STATE_RES_WA<number>, RERR>
-  | STATE_TYPE<false, false, true, true, STATE_REA_WS<number>, RERR>
-  | STATE_TYPE<false, false, true, false, STATE_REA_WA<number>, RERR>;
+  | STATE_TYPE<true, true, true, true, ROS_WS<number>, ROK>
+  | STATE_TYPE<true, true, true, false, ROS_WA<number>, ROK>
+  | STATE_TYPE<true, false, true, true, ROA_WS<number>, ROK>
+  | STATE_TYPE<true, false, true, false, ROA_WA<number>, ROK>
+  | STATE_TYPE<false, true, true, true, RES_WS<number>, RERR>
+  | STATE_TYPE<false, true, true, false, RES_WA<number>, RERR>
+  | STATE_TYPE<false, false, true, true, REA_WS<number>, RERR>
+  | STATE_TYPE<false, false, true, false, REA_WA<number>, RERR>;
 
 export type TEST_STATE_WRITESYNC = () =>
-  | STATE_TYPE<true, true, true, true, STATE_ROS_WS<number>, ROK>
-  | STATE_TYPE<true, false, true, true, STATE_ROA_WS<number>, ROK>
-  | STATE_TYPE<false, true, true, true, STATE_RES_WS<number>, RERR>
-  | STATE_TYPE<false, false, true, true, STATE_REA_WS<number>, RERR>;
+  | STATE_TYPE<true, true, true, true, ROS_WS<number>, ROK>
+  | STATE_TYPE<true, false, true, true, ROA_WS<number>, ROK>
+  | STATE_TYPE<false, true, true, true, RES_WS<number>, RERR>
+  | STATE_TYPE<false, false, true, true, REA_WS<number>, RERR>;
 
 //       _____ _    _ ____   _____  _____ _____  _____ ____  ______
 //      / ____| |  | |  _ \ / ____|/ ____|  __ \|_   _|  _ \|  ____|

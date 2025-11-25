@@ -1,11 +1,11 @@
 import { Err, None, ResultOk, type Option, type Result } from "@libResult";
 import {
-  STATE_RES_BASE,
-  STATE_RES_WA,
-  STATE_RES_WS,
-  STATE_ROS_BASE,
-  STATE_ROS_WA,
-  STATE_ROS_WS,
+  RES,
+  RES_WA,
+  RES_WS,
+  ROS,
+  ROS_WA,
+  ROS_WS,
   type STATE,
   type STATE_REX_WA,
   type STATE_REX_WS,
@@ -27,13 +27,13 @@ export class STATE_PROXY_RES<
   S extends STATE_RXS<IN>,
   IN = S extends STATE<infer RT> ? RT : never,
   OUT = IN
-> extends STATE_RES_BASE<OUT> {
+> extends RES<OUT> {
   constructor(
-    state: STATE_ROS_BASE<IN>,
+    state: ROS<IN>,
     transform?: (value: ResultOk<IN>) => Result<OUT, string>
   );
   constructor(
-    state: STATE_RES_BASE<IN>,
+    state: RES<IN>,
     transform?: (value: Result<IN, string>) => Result<OUT, string>
   );
   constructor(state: S, transform: any) {
@@ -102,11 +102,11 @@ export class STATE_PROXY_RES<
  * @param state - state to proxy.
  * @param transform - Function to transform value of proxy*/
 function res_from<S extends STATE_RXS<IN>, IN, OUT = IN>(
-  state: STATE_ROS_BASE<IN>,
+  state: ROS<IN>,
   transform?: (value: ResultOk<IN>) => Result<OUT, string>
 ): STATE_PROXY_RES<S, IN, OUT>;
 function res_from<S extends STATE_RXS<IN>, IN, OUT = IN>(
-  state: STATE_RES_BASE<IN>,
+  state: RES<IN>,
   transform?: (value: Result<IN, string>) => Result<OUT, string>
 ): STATE_PROXY_RES<S, IN, OUT>;
 function res_from<S extends STATE_RXS<IN>, IN, OUT = IN>(
@@ -134,14 +134,14 @@ export class STATE_PROXY_RES_WS<
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> extends STATE_RES_WS<ROUT, WOUT> {
+> extends RES_WS<ROUT, WOUT> {
   constructor(
-    state: STATE_ROS_WS<RIN, WIN>,
+    state: ROS_WS<RIN, WIN>,
     transformRead?: (value: ResultOk<RIN>) => Result<ROUT, string>,
     transformWrite?: (value: WOUT) => WIN
   );
   constructor(
-    state: STATE_RES_WS<RIN, WIN>,
+    state: RES_WS<RIN, WIN>,
     transformRead?: (value: Result<RIN, string>) => Result<ROUT, string>,
     transformWrite?: (value: WOUT) => WIN
   );
@@ -297,14 +297,14 @@ export class STATE_PROXY_RES_WA<
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> extends STATE_RES_WA<ROUT, WOUT> {
+> extends RES_WA<ROUT, WOUT> {
   constructor(
-    state: STATE_ROS_WA<RIN, WIN>,
+    state: ROS_WA<RIN, WIN>,
     transformRead?: (value: ResultOk<RIN>) => Result<ROUT, string>,
     transformWrite?: (value: WOUT) => WIN
   );
   constructor(
-    state: STATE_RES_WA<RIN, WIN>,
+    state: RES_WA<RIN, WIN>,
     transformRead?: (value: Result<RIN, string>) => Result<ROUT, string>,
     transformWrite?: (value: WOUT) => WIN
   );
