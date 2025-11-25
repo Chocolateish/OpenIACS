@@ -34,25 +34,25 @@ export interface STATE_HELPER_WRITE<WT, REL extends STATE_RELATED = {}>
   check?: (value: WT) => Result<WT, string>;
 }
 
-export type STATE_SET_REX_WA<RT, S, WT = RT> = (
+export type STATE_SET_REX_WA<RT, S extends STATE<any>, WT = RT> = (
   value: WT,
   state: S,
   old?: Result<RT, string>
 ) => Promise<Result<void, string>>;
 
-export type STATE_SET_ROX_WA<RT, S, WT = RT> = (
+export type STATE_SET_ROX_WA<RT, S extends STATE<any>, WT = RT> = (
   value: WT,
   state: S,
   old?: ResultOk<RT>
 ) => Promise<Result<void, string>>;
 
-export type STATE_SET_REX_WS<RT, S, WT = RT> = (
+export type STATE_SET_REX_WS<RT, S extends STATE<any>, WT = RT> = (
   value: WT,
   state: S,
   old?: Result<RT, string>
 ) => Result<void, string>;
 
-export type STATE_SET_ROX_WS<RT, S, WT = RT> = (
+export type STATE_SET_ROX_WS<RT, S extends STATE<any>, WT = RT> = (
   value: WT,
   state: S,
   old?: ResultOk<RT>
