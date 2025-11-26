@@ -16,12 +16,10 @@ import {
 describe("Initialize lazy states", function () {
   describe("ROS", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.l.ros.ok(() => 1);
-      expect(init).instanceOf(st.l.ros.class);
+      st.l.ros.ok(() => 1);
     });
     it("result ok", async function () {
-      let init = st.l.ros.result(() => Ok(1));
-      expect(init).instanceOf(st.l.ros.class);
+      st.l.ros.result(() => Ok(1));
     });
     it("cleanup successfull", async function () {
       let init = st.l.ros.result(() => Ok(1));
@@ -52,16 +50,13 @@ describe("Initialize lazy states", function () {
   //##################################################################################################################################################
   describe("RES", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.l.res.ok(() => 1);
-      expect(init).instanceOf(st.l.res.class);
+      st.l.res.ok(() => 1);
     });
     it("err", async function () {
-      let init = st.l.res.err(() => "1");
-      expect(init).instanceOf(st.l.res.class);
+      st.l.res.err(() => "1");
     });
     it("result ok", async function () {
-      let init = st.l.res.result(() => Ok(1));
-      expect(init).instanceOf(st.l.res.class);
+      st.l.res.result(() => Ok(1));
     });
     it("cleanup successfull", async function () {
       let init = st.l.res.result(() => Ok(1));
@@ -89,12 +84,10 @@ describe("Initialize lazy states", function () {
   //##################################################################################################################################################
   describe("ROS_WS", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.l.ros_ws.ok(() => 1);
-      expect(init).instanceOf(st.l.ros_ws.class);
+      st.l.ros_ws.ok(() => 1);
     });
     it("result ok", async function () {
-      let init = st.l.ros_ws.result(() => Ok(1));
-      expect(init).instanceOf(st.l.ros_ws.class);
+      st.l.ros_ws.result(() => Ok(1));
     });
     it("cleanup successfull", async function () {
       let init = st.l.ros_ws.ok(() => 1);
@@ -136,16 +129,13 @@ describe("Initialize lazy states", function () {
   //##################################################################################################################################################
   describe("RES_WS", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.l.res_ws.ok(() => 1);
-      expect(init).instanceOf(st.l.res_ws.class);
+      st.l.res_ws.ok(() => 1);
     });
     it("err", async function () {
-      let init = st.l.res_ws.err(() => "1");
-      expect(init).instanceOf(st.l.res_ws.class);
+      st.l.res_ws.err(() => "1");
     });
     it("result ok", async function () {
-      let init = st.l.res_ws.result(() => Ok(1));
-      expect(init).instanceOf(st.l.res_ws.class);
+      st.l.res_ws.result(() => Ok(1));
     });
     it("cleanup successfull", async function () {
       let init = st.l.res_ws.ok(() => 1);

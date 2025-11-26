@@ -1,6 +1,6 @@
 import { ResultOk, type Result } from "@libResult";
 import st from "@libState";
-import { describe, expect, it } from "vitest";
+import { describe, it } from "vitest";
 import {
   test_state_get,
   test_state_get_ok,
@@ -13,12 +13,11 @@ import {
 describe("Proxy with sync states", function () {
   describe("ROS", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.p.ros.from(st.s.ros.ok(1));
-      expect(init).instanceOf(st.p.ros.class);
+      st.p.ros(st.s.ros.ok(1));
     });
     let maker: TEST_STATE_OK_SYNC = () => {
       let stat = st.s.ros.ok(1);
-      let state = st.p.ros.from(stat);
+      let state = st.p.ros(stat);
       let set = (val: ResultOk<number>) => stat.set(val);
       return { o: true, s: true, w: false, ws: false, state, set };
     };
@@ -38,12 +37,11 @@ describe("Proxy with sync states", function () {
   //##################################################################################################################################################
   describe("RES", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.p.res.from(st.s.res.ok(1));
-      expect(init).instanceOf(st.p.res.class);
+      st.p.res(st.s.res.ok(1));
     });
     let maker: TEST_STATE_SYNC = () => {
       let stat = st.s.res.ok(1);
-      let state = st.p.res.from(stat);
+      let state = st.p.res(stat);
       let set = (val: Result<number, string>) => stat.set(val);
       return { o: false, s: true, w: false, ws: false, state, set };
     };

@@ -2,7 +2,7 @@ import { Err, None, Ok, ResultOk, type Option, type Result } from "@libResult";
 import { STATE_BASE } from "../base";
 import {
   type STATE_HELPER as Helper,
-  type STATE_RELATED as Related,
+  type STATE_RELATED as RELATED,
   type STATE,
   type STATE_REA,
   type STATE_REA_WA,
@@ -11,6 +11,14 @@ import {
   type STATE_SET_REX_WS,
 } from "../types";
 
+interface OWNER<RT, WT, REL extends RELATED> {
+  set(value: Result<RT, string>): void;
+  setOk(value: RT): void;
+  setErr(err: string): void;
+  get state(): STATE<RT, WT, REL>;
+  get readOnly(): STATE_REA<RT, REL>;
+}
+
 //##################################################################################################################################################
 //      _____  ______
 //     |  __ \|  ____|   /\
@@ -18,11 +26,16 @@ import {
 //     |  _  /|  __|   / /\ \
 //     | | \ \| |____ / ____ \
 //     |_|  \_\______/_/    \_\
-export class STATE_DELAYED_REA<
+export type STATE_DELAYED_REA<
   RT,
-  REL extends Related = {},
+  REL extends RELATED = {},
   WT = any
-> extends STATE_BASE<RT, WT, REL, Result<RT, string>> {
+> = STATE_REA<RT, REL> & OWNER<RT, WT, REL>;
+
+export class REA<RT, REL extends RELATED = {}, WT = any>
+  extends STATE_BASE<RT, WT, REL, Result<RT, string>>
+  implements OWNER<RT, WT, REL>
+{
   constructor(
     init: () => PromiseLike<Result<RT, string>>,
     helper?: Helper<WT, REL>
@@ -69,8 +82,8 @@ export class STATE_DELAYED_REA<
   }
 
   #value?: Result<RT, string>;
-  setterAsync?: STATE_SET_REX_WA<RT, STATE_DELAYED_REA<RT, REL, WT>, WT>;
-  setterSync?: STATE_SET_REX_WS<RT, STATE_DELAYED_REA<RT, REL, WT>, WT>;
+  setterAsync?: STATE_SET_REX_WA<RT, OWNER<RT, WT, REL>, WT>;
+  setterSync?: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -137,37 +150,36 @@ const rea = {
   /**Creates a delayed state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, REL extends Related = {}, WT = any>(
+  ok<RT, REL extends RELATED = {}, WT = any>(
     init: () => PromiseLike<RT>,
     helper?: Helper<WT, REL>
   ) {
-    return new STATE_DELAYED_REA<RT, REL, WT>(
+    return new REA<RT, REL, WT>(
       async () => Ok(await init()),
       helper
-    );
+    ) as STATE_DELAYED_REA<RT, REL, WT>;
   },
   /**Creates a delayed state from an initial error, delayed meaning the value is a promise evaluated on first access.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  err<RT, REL extends Related = {}, WT = any>(
+  err<RT, REL extends RELATED = {}, WT = any>(
     init: () => PromiseLike<string>,
     helper?: Helper<WT, REL>
   ) {
-    return new STATE_DELAYED_REA<RT, REL, WT>(
+    return new REA<RT, REL, WT>(
       async () => Err(await init()),
       helper
-    );
+    ) as STATE_DELAYED_REA<RT, REL, WT>;
   },
   /**Creates a delayed state from an initial result, delayed meaning the value is a promise evaluated on first access.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, REL extends Related = {}, WT = any>(
+  result<RT, REL extends RELATED = {}, WT = any>(
     init: () => PromiseLike<Result<RT, string>>,
     helper?: Helper<WT, REL>
   ) {
-    return new STATE_DELAYED_REA<RT, REL, WT>(init, helper);
+    return new REA<RT, REL, WT>(init, helper) as STATE_DELAYED_REA<RT, REL, WT>;
   },
-  class: STATE_DELAYED_REA,
 };
 
 //##################################################################################################################################################
@@ -178,14 +190,19 @@ const rea = {
 //     | | \ \| |____ / ____ \     \  /\  /  ____) |
 //     |_|  \_\______/_/    \_\     \/  \/  |_____/
 
-export class STATE_DELAYED_REA_WS<
+export type STATE_DELAYED_REA_WS<
   RT,
   WT = RT,
-  REL extends Related = {}
-> extends STATE_BASE<RT, WT, REL, Result<RT, string>> {
+  REL extends RELATED = {}
+> = STATE_REA_WS<RT, WT, REL> & OWNER<RT, WT, REL>;
+
+export class REA_WS<RT, WT = RT, REL extends RELATED = {}>
+  extends STATE_BASE<RT, WT, REL, Result<RT, string>>
+  implements OWNER<RT, WT, REL>
+{
   constructor(
     init: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WS<RT, STATE_DELAYED_REA_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -236,7 +253,7 @@ export class STATE_DELAYED_REA_WS<
   }
 
   #value?: Result<RT, string>;
-  #setter: STATE_SET_REX_WS<RT, STATE_DELAYED_REA_WS<RT, WT, REL>, WT>;
+  #setter: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -304,42 +321,45 @@ const rea_ws = {
   /**Creates a writable delayed state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, WT = RT, REL extends Related = {}>(
+  ok<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<RT>,
-    setter: STATE_SET_REX_WS<RT, STATE_DELAYED_REA_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
-    return new STATE_DELAYED_REA_WS<RT, WT, REL>(
+    return new REA_WS<RT, WT, REL>(
       async () => Ok(await init()),
       setter,
       helper
-    );
+    ) as STATE_DELAYED_REA_WS<RT, WT, REL>;
   },
   /**Creates a writable delayed state from an initial error, delayed meaning the value is a promise evaluated on first access.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  err<RT, WT = RT, REL extends Related = {}>(
+  err<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<string>,
-    setter: STATE_SET_REX_WS<RT, STATE_DELAYED_REA_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
-    return new STATE_DELAYED_REA_WS<RT, WT, REL>(
+    return new REA_WS<RT, WT, REL>(
       async () => Err(await init()),
       setter,
       helper
-    );
+    ) as STATE_DELAYED_REA_WS<RT, WT, REL>;
   },
   /**Creates a writable delayed state from an initial result, delayed meaning the value is a promise evaluated on first access.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, WT = RT, REL extends Related = {}>(
+  result<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WS<RT, STATE_DELAYED_REA_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
-    return new STATE_DELAYED_REA_WS<RT, WT, REL>(init, setter, helper);
+    return new REA_WS<RT, WT, REL>(
+      init,
+      setter,
+      helper
+    ) as STATE_DELAYED_REA_WS<RT, WT, REL>;
   },
-  class: STATE_DELAYED_REA_WS,
 };
 
 //##################################################################################################################################################
@@ -350,14 +370,19 @@ const rea_ws = {
 //     | | \ \| |____ / ____ \     \  /\  / ____ \
 //     |_|  \_\______/_/    \_\     \/  \/_/    \_\
 
-export class STATE_DELAYED_REA_WA<
+export type STATE_DELAYED_REA_WA<
   RT,
   WT = RT,
-  REL extends Related = {}
-> extends STATE_BASE<RT, WT, REL, Result<RT, string>> {
+  REL extends RELATED = {}
+> = STATE_REA_WA<RT, WT, REL> & OWNER<RT, WT, REL>;
+
+export class REA_WA<RT, WT = RT, REL extends RELATED = {}>
+  extends STATE_BASE<RT, WT, REL, Result<RT, string>>
+  implements OWNER<RT, WT, REL>
+{
   constructor(
     init: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WA<RT, STATE_DELAYED_REA_WA<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WA<RT, OWNER<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -408,7 +433,7 @@ export class STATE_DELAYED_REA_WA<
   }
 
   #value?: Result<RT, string>;
-  #setter: STATE_SET_REX_WA<RT, STATE_DELAYED_REA_WA<RT, WT, REL>, WT>;
+  #setter: STATE_SET_REX_WA<RT, OWNER<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -473,42 +498,45 @@ const rea_wa = {
   /**Creates a writable delayed state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, WT = RT, REL extends Related = {}>(
+  ok<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<RT>,
-    setter: STATE_SET_REX_WA<RT, STATE_DELAYED_REA_WA<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WA<RT, OWNER<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
-    return new STATE_DELAYED_REA_WA<RT, WT, REL>(
+    return new REA_WA<RT, WT, REL>(
       async () => Ok(await init()),
       setter,
       helper
-    );
+    ) as STATE_DELAYED_REA_WA<RT, WT, REL>;
   },
   /**Creates a writable delayed state from an initial error, delayed meaning the value is a promise evaluated on first access.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  err<RT, WT = RT, REL extends Related = {}>(
+  err<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<string>,
-    setter: STATE_SET_REX_WA<RT, STATE_DELAYED_REA_WA<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WA<RT, OWNER<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
-    return new STATE_DELAYED_REA_WA<RT, WT, REL>(
+    return new REA_WA<RT, WT, REL>(
       async () => Err(await init()),
       setter,
       helper
-    );
+    ) as STATE_DELAYED_REA_WA<RT, WT, REL>;
   },
   /**Creates a writable delayed state from an initial result, delayed meaning the value is a promise evaluated on first access.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, WT = RT, REL extends Related = {}>(
+  result<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WA<RT, STATE_DELAYED_REA_WA<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WA<RT, OWNER<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
-    return new STATE_DELAYED_REA_WA<RT, WT, REL>(init, setter, helper);
+    return new REA_WA<RT, WT, REL>(
+      init,
+      setter,
+      helper
+    ) as STATE_DELAYED_REA_WA<RT, WT, REL>;
   },
-  class: STATE_DELAYED_REA_WA,
 };
 
 //##################################################################################################################################################

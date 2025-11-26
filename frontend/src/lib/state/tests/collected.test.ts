@@ -154,11 +154,14 @@ describe("Collected states", function () {
   //     |_|  \_\\____/_/    \_\
   describe("ROA", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.c.roa.from((val) => val[0], st.d.roa.ok(sleep(1, 1)));
+      let init = st.c.roa.from(
+        (val) => val[0],
+        st.d.roa.ok(() => sleep(1, 1))
+      );
       expect(init).instanceOf(st.c.roa.class);
     });
     let makerSingle: TEST_STATE_OK = () => {
-      let stat1 = st.d.roa.ok(sleep(1, 1));
+      let stat1 = st.d.roa.ok(() => sleep(1, 1));
       let state = st.c.roa.from((val) => val[0], stat1);
       let set = (val: ResultOk<number>) => {
         stat1.setOk(val.value);
@@ -172,10 +175,10 @@ describe("Collected states", function () {
       await test_state_then(makerSingle, 0);
     });
     let makerMultiple: TEST_STATE_OK = () => {
-      let stat1 = st.d.roa.ok(sleep(1, 0.25));
-      let stat2 = st.d.roa.ok(sleep(1, 0.25));
-      let stat3 = st.d.roa.ok(sleep(1, 0.25));
-      let stat4 = st.d.roa.ok(sleep(1, 0.25));
+      let stat1 = st.d.roa.ok(() => sleep(1, 0.25));
+      let stat2 = st.d.roa.ok(() => sleep(1, 0.25));
+      let stat3 = st.d.roa.ok(() => sleep(1, 0.25));
+      let stat4 = st.d.roa.ok(() => sleep(1, 0.25));
       let state = st.c.roa.from(
         (val) => Ok(val[0].value + val[1].value + val[2].value + val[3].value),
         stat1,
@@ -207,11 +210,14 @@ describe("Collected states", function () {
   //     |_|  \_\______/_/    \_\
   describe("REA", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.c.rea.from((val) => val[0], st.d.rea.ok(sleep(1, 1)));
+      let init = st.c.rea.from(
+        (val) => val[0],
+        st.d.rea.ok(() => sleep(1, 1))
+      );
       expect(init).instanceOf(st.c.rea.class);
     });
     let makerSingle: TEST_STATE_ALL = () => {
-      let stat1 = st.d.rea.ok(sleep(1, 1));
+      let stat1 = st.d.rea.ok(() => sleep(1, 1));
       let state = st.c.rea.from((values) => values[0], stat1);
       let set = (val: Result<number, string>) => {
         stat1.set(val.map((v) => v));
@@ -225,10 +231,10 @@ describe("Collected states", function () {
       await test_state_then(makerSingle, 0);
     });
     let makerMultiple: TEST_STATE_ALL = () => {
-      let stat1 = st.d.rea.ok(sleep(1, 0.25));
-      let stat2 = st.d.rea.ok(sleep(1, 0.25));
-      let stat3 = st.d.rea.ok(sleep(1, 0.25));
-      let stat4 = st.d.rea.ok(sleep(1, 0.25));
+      let stat1 = st.d.rea.ok(() => sleep(1, 0.25));
+      let stat2 = st.d.rea.ok(() => sleep(1, 0.25));
+      let stat3 = st.d.rea.ok(() => sleep(1, 0.25));
+      let stat4 = st.d.rea.ok(() => sleep(1, 0.25));
       let state = st.c.rea.from(
         (values) => {
           let sum = 0;

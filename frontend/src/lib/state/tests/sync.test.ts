@@ -1,6 +1,6 @@
 import { Ok, ResultOk, type Result } from "@libResult";
 import st from "@libState";
-import { describe, expect, it } from "vitest";
+import { describe, it } from "vitest";
 import {
   test_state_get,
   test_state_get_ok,
@@ -16,12 +16,10 @@ import {
 describe("Sync states", function () {
   describe("ROS", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.s.ros.ok(1);
-      expect(init).instanceOf(st.s.ros.class);
+      st.s.ros.ok(1);
     });
     it("result ok", async function () {
-      let init = st.s.ros.result(Ok(1));
-      expect(init).instanceOf(st.s.ros.class);
+      st.s.ros.result(Ok(1));
     });
     let maker: TEST_STATE_OK_SYNC = () => {
       let state = st.s.ros.ok(1);
@@ -44,16 +42,13 @@ describe("Sync states", function () {
   //##################################################################################################################################################
   describe("RES", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.s.res.ok(1);
-      expect(init).instanceOf(st.s.res.class);
+      st.s.res.ok(1);
     });
     it("err", async function () {
-      let init = st.s.res.err("1");
-      expect(init).instanceOf(st.s.res.class);
+      st.s.res.err("1");
     });
     it("result ok", async function () {
-      let init = st.s.res.result(Ok(1));
-      expect(init).instanceOf(st.s.res.class);
+      st.s.res.result(Ok(1));
     });
     let maker: TEST_STATE_SYNC = () => {
       let state = st.s.res.ok(1);
@@ -73,15 +68,13 @@ describe("Sync states", function () {
   //##################################################################################################################################################
   describe("ROS_WS", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.s.ros_ws.ok(1);
-      expect(init).instanceOf(st.s.ros_ws.class);
+      st.s.ros_ws.ok(1, true);
     });
     it("result ok", async function () {
-      let init = st.s.ros_ws.result(Ok(1));
-      expect(init).instanceOf(st.s.ros_ws.class);
+      st.s.ros_ws.result(Ok(1), true);
     });
     let maker: TEST_STATE_OK_SYNC = () => {
-      let state = st.s.ros_ws.ok(1);
+      let state = st.s.ros_ws.ok(1, true);
       let set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: true, w: true, ws: true, state, set };
     };
@@ -112,19 +105,16 @@ describe("Sync states", function () {
   //##################################################################################################################################################
   describe("RES_WS", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.s.res_ws.ok(1);
-      expect(init).instanceOf(st.s.res_ws.class);
+      st.s.res_ws.ok(1, true);
     });
     it("err", async function () {
-      let init = st.s.res_ws.err("1");
-      expect(init).instanceOf(st.s.res_ws.class);
+      st.s.res_ws.err("1", true);
     });
     it("result ok", async function () {
-      let init = st.s.res_ws.result(Ok(1));
-      expect(init).instanceOf(st.s.res_ws.class);
+      st.s.res_ws.result(Ok(1), true);
     });
     let maker: TEST_STATE_SYNC = () => {
-      let state = st.s.res_ws.ok(1);
+      let state = st.s.res_ws.ok(1, true);
       let set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: true, w: true, ws: true, state, set };
     };

@@ -14,12 +14,10 @@ import {
 describe("Initialize delayed states", function () {
   describe("ROA", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.d.roa.ok((async () => 1)());
-      expect(init).instanceOf(st.d.roa.class);
+      st.d.roa.ok(() => sleep(1, 1));
     });
     it("result ok", async function () {
-      let init = st.d.roa.result((async () => Ok(1))());
-      expect(init).instanceOf(st.d.roa.class);
+      st.d.roa.result(() => sleep(1, 1));
     });
     it("cleanup successfull", async function () {
       let init = st.d.roa.result((async () => Ok(1))());

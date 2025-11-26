@@ -2,7 +2,7 @@ import { Err, None, Ok, ResultOk, type Option, type Result } from "@libResult";
 import { STATE_BASE } from "../base";
 import {
   type STATE_HELPER as Helper,
-  type STATE_RELATED as Related,
+  type STATE_RELATED as RELATED,
   type STATE,
   type STATE_ROA,
   type STATE_ROA_WA,
@@ -11,6 +11,13 @@ import {
   type STATE_SET_ROX_WS,
 } from "../types";
 
+interface OWNER<RT, WT, REL extends RELATED> {
+  set(value: ResultOk<RT>): void;
+  setOk(value: RT): void;
+  get state(): STATE<RT, WT, REL>;
+  get readOnly(): STATE_ROA<RT, REL>;
+}
+
 //##################################################################################################################################################
 //      _____   ____
 //     |  __ \ / __ \   /\
@@ -18,12 +25,16 @@ import {
 //     |  _  /| |  | |/ /\ \
 //     | | \ \| |__| / ____ \
 //     |_|  \_\\____/_/    \_\
-
-export class STATE_DELAYED_ROA<
+export type STATE_DELAYED_ROA<
   RT,
-  REL extends Related = {},
+  REL extends RELATED = {},
   WT = any
-> extends STATE_BASE<RT, WT, REL, ResultOk<RT>> {
+> = STATE_ROA<RT, REL> & OWNER<RT, WT, REL>;
+
+export class ROA<RT, REL extends RELATED = {}, WT = any>
+  extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
+  implements OWNER<RT, WT, REL>
+{
   constructor(init: () => PromiseLike<ResultOk<RT>>, helper?: Helper<WT, REL>) {
     super();
     if (helper) this.#helper = helper;
@@ -67,8 +78,8 @@ export class STATE_DELAYED_ROA<
   }
 
   #value?: ResultOk<RT>;
-  setterAsync?: STATE_SET_ROX_WA<RT, STATE_DELAYED_ROA<RT, REL, WT>, WT>;
-  setterSync?: STATE_SET_ROX_WS<RT, STATE_DELAYED_ROA<RT, REL, WT>, WT>;
+  setterAsync?: STATE_SET_ROX_WA<RT, OWNER<RT, WT, REL>, WT>;
+  setterSync?: STATE_SET_ROX_WS<RT, OWNER<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -135,25 +146,24 @@ const roa = {
   /**Creates a delayed ok state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, REL extends Related = {}, WT = any>(
+  ok<RT, REL extends RELATED = {}, WT = any>(
     init: () => PromiseLike<RT>,
     helper?: Helper<WT, REL>
   ) {
-    return new STATE_DELAYED_ROA<RT, REL, WT>(
+    return new ROA<RT, REL, WT>(
       async () => Ok(await init()),
       helper
-    );
+    ) as STATE_DELAYED_ROA<RT, REL, WT>;
   },
   /**Creates a delayed ok state from an initial result, delayed meaning the value is a promise evaluated on first access.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, REL extends Related = {}, WT = any>(
+  result<RT, REL extends RELATED = {}, WT = any>(
     init: () => PromiseLike<ResultOk<RT>>,
     helper?: Helper<WT, REL>
   ) {
-    return new STATE_DELAYED_ROA<RT, REL, WT>(init, helper);
+    return new ROA<RT, REL, WT>(init, helper) as STATE_DELAYED_ROA<RT, REL, WT>;
   },
-  class: STATE_DELAYED_ROA,
 };
 
 //##################################################################################################################################################
@@ -164,14 +174,19 @@ const roa = {
 //     | | \ \| |__| / ____ \     \  /\  /  ____) |
 //     |_|  \_\\____/_/    \_\     \/  \/  |_____/
 
-export class STATE_DELAYED_ROA_WS<
+export type STATE_DELAYED_ROA_WS<
   RT,
   WT = RT,
-  REL extends Related = {}
-> extends STATE_BASE<RT, WT, REL, ResultOk<RT>> {
+  REL extends RELATED = {}
+> = STATE_ROA_WS<RT, WT, REL> & OWNER<RT, WT, REL>;
+
+export class ROA_WS<RT, WT = RT, REL extends RELATED = {}>
+  extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
+  implements OWNER<RT, WT, REL>
+{
   constructor(
     init: () => PromiseLike<ResultOk<RT>>,
-    setter: STATE_SET_ROX_WS<RT, STATE_DELAYED_ROA_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_ROX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -221,7 +236,7 @@ export class STATE_DELAYED_ROA_WS<
   }
 
   #value?: ResultOk<RT>;
-  #setter: STATE_SET_ROX_WS<RT, STATE_DELAYED_ROA_WS<RT, WT, REL>, WT>;
+  #setter: STATE_SET_ROX_WS<RT, OWNER<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -289,28 +304,31 @@ const roa_ws = {
   /**Creates a delayed ok state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, WT = RT, REL extends Related = {}>(
+  ok<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<RT>,
-    setter: STATE_SET_ROX_WS<RT, STATE_DELAYED_ROA_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_ROX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
-    return new STATE_DELAYED_ROA_WS<RT, WT, REL>(
+    return new ROA_WS<RT, WT, REL>(
       async () => Ok(await init()),
       setter,
       helper
-    );
+    ) as STATE_DELAYED_ROA_WS<RT, WT, REL>;
   },
   /**Creates a delayed ok state from an initial result, delayed meaning the value is a promise evaluated on first access.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, WT = RT, REL extends Related = {}>(
+  result<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<ResultOk<RT>>,
-    setter: STATE_SET_ROX_WS<RT, STATE_DELAYED_ROA_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_ROX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
-    return new STATE_DELAYED_ROA_WS<RT, WT, REL>(init, setter, helper);
+    return new ROA_WS<RT, WT, REL>(
+      init,
+      setter,
+      helper
+    ) as STATE_DELAYED_ROA_WS<RT, WT, REL>;
   },
-  class: STATE_DELAYED_ROA_WS,
 };
 
 //##################################################################################################################################################
@@ -321,14 +339,19 @@ const roa_ws = {
 //     | | \ \| |__| / ____ \     \  /\  / ____ \
 //     |_|  \_\\____/_/    \_\     \/  \/_/    \_\
 
-export class STATE_DELAYED_ROA_WA<
+export type STATE_DELAYED_ROA_WA<
   RT,
   WT = RT,
-  REL extends Related = {}
-> extends STATE_BASE<RT, WT, REL, ResultOk<RT>> {
+  REL extends RELATED = {}
+> = STATE_ROA_WA<RT, WT, REL> & OWNER<RT, WT, REL>;
+
+export class ROA_WA<RT, WT = RT, REL extends RELATED = {}>
+  extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
+  implements OWNER<RT, WT, REL>
+{
   constructor(
     init: () => PromiseLike<ResultOk<RT>>,
-    setter: STATE_SET_ROX_WA<RT, STATE_DELAYED_ROA_WA<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_ROX_WA<RT, OWNER<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -378,7 +401,7 @@ export class STATE_DELAYED_ROA_WA<
   }
 
   #value?: ResultOk<RT>;
-  #setter: STATE_SET_ROX_WA<RT, STATE_DELAYED_ROA_WA<RT, WT, REL>, WT>;
+  #setter: STATE_SET_ROX_WA<RT, OWNER<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -443,28 +466,31 @@ const roa_wa = {
   /**Creates a delayed ok state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, WT = RT, REL extends Related = {}>(
+  ok<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<RT>,
-    setter: STATE_SET_ROX_WA<RT, STATE_DELAYED_ROA_WA<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_ROX_WA<RT, OWNER<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
-    return new STATE_DELAYED_ROA_WA<RT, WT, REL>(
+    return new ROA_WA<RT, WT, REL>(
       async () => Ok(await init()),
       setter,
       helper
-    );
+    ) as STATE_DELAYED_ROA_WA<RT, WT, REL>;
   },
   /**Creates a delayed ok state from an initial result, delayed meaning the value is a promise evaluated on first access.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, WT = RT, REL extends Related = {}>(
+  result<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<ResultOk<RT>>,
-    setter: STATE_SET_ROX_WA<RT, STATE_DELAYED_ROA_WA<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_ROX_WA<RT, OWNER<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
-    return new STATE_DELAYED_ROA_WA<RT, WT, REL>(init, setter, helper);
+    return new ROA_WA<RT, WT, REL>(
+      init,
+      setter,
+      helper
+    ) as STATE_DELAYED_ROA_WA<RT, WT, REL>;
   },
-  class: STATE_DELAYED_ROA_WA,
 };
 
 //##################################################################################################################################################
