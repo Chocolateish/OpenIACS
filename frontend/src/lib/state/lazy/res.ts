@@ -178,22 +178,21 @@ class RES_WS<RT, WT, REL extends Related>
 {
   constructor(
     init: () => Result<RT, string>,
-    setter?: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
-    if (setter)
-      if (setter === true)
-        this.#setter = (value, state, old) => {
-          if (old && !old.err && (value as unknown as RT) === old.value)
-            return Ok(undefined);
-          return this.#helper?.limit
-            ? this.#helper
-                ?.limit(value)
-                .map((e) => state.setOk(e as unknown as RT))
-            : Ok(state.setOk(value as unknown as RT));
-        };
-      else this.#setter = setter;
+    if (setter === true)
+      this.#setter = (value, state, old) => {
+        if (old && !old.err && (value as unknown as RT) === old.value)
+          return Ok(undefined);
+        return this.#helper?.limit
+          ? this.#helper
+              ?.limit(value)
+              .map((e) => state.setOk(e as unknown as RT))
+          : Ok(state.setOk(value as unknown as RT));
+      };
+    else this.#setter = setter;
     if (helper) this.#helper = helper;
     this.get = () => this.#clean() ?? (this.#value = init());
     this.set = (value) => this.set(this.#clean() ?? value);
@@ -207,7 +206,7 @@ class RES_WS<RT, WT, REL extends Related>
   }
 
   #value?: Result<RT, string>;
-  #setter?: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT>;
+  #setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -260,8 +259,7 @@ class RES_WS<RT, WT, REL extends Related>
     return this.writeSync(value);
   }
   writeSync(value: WT): Result<void, string> {
-    if (this.#setter) return this.#setter(value, this, this.#value);
-    return Err("State not writable");
+    return this.#setter(value, this, this.#value);
   }
   limit(value: WT): Result<WT, string> {
     return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
@@ -276,7 +274,7 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Related = {}>(
     init: () => RT,
-    setter?: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new RES_WS<RT, WT, REL>(() => Ok(init()), setter, helper);
@@ -286,7 +284,7 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends Related = {}>(
     init: () => string,
-    setter?: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new RES_WS<RT, WT, REL>(() => Err(init()), setter, helper);
@@ -296,7 +294,7 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Related = {}>(
     init: () => Result<RT, string>,
-    setter?: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new RES_WS<RT, WT, REL>(init, setter, helper);

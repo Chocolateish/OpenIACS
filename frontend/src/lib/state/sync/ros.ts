@@ -155,7 +155,7 @@ export class ROS_WS<RT, WT = RT, REL extends RELATED = {}>
 {
   constructor(
     init: ResultOk<RT>,
-    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -243,7 +243,7 @@ const ros_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends RELATED = {}>(
     init: RT,
-    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new ROS_WS<RT, WT, REL>(
@@ -257,7 +257,7 @@ const ros_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends RELATED = {}>(
     init: ResultOk<RT>,
-    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new ROS_WS<RT, WT, REL>(init, setter, helper) as STATE_SYNC_ROS_WS<

@@ -35,7 +35,10 @@ export class ROA<RT, REL extends RELATED = {}, WT = any>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
   implements OWNER<RT, WT, REL>
 {
-  constructor(init: () => PromiseLike<ResultOk<RT>>, helper?: Helper<WT, REL>) {
+  constructor(
+    init?: () => PromiseLike<ResultOk<RT>>,
+    helper?: Helper<WT, REL>
+  ) {
     super();
     if (helper) this.#helper = helper;
 
@@ -44,18 +47,19 @@ export class ROA<RT, REL extends RELATED = {}, WT = any>
     this.then = async <TResult1 = ResultOk<RT>>(
       func: (value: ResultOk<RT>) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
-      if (!initializing) {
-        initializing = true;
-        (async () => {
-          try {
-            this.#value = await init();
-            this.fulRProm(this.#value);
-          } catch (e) {
-            console.error("Failed to initialize delayed RO state: ", e, this);
-          }
-          this.#clean();
-        })();
-      }
+      if (init)
+        if (!initializing) {
+          initializing = true;
+          (async () => {
+            try {
+              this.#value = await init();
+              this.fulRProm(this.#value);
+            } catch (e) {
+              console.error("Failed to initialize delayed RO state: ", e, this);
+            }
+            this.#clean();
+          })();
+        }
       return this.appendRProm(func);
     };
     this.set = (value) => {
@@ -147,11 +151,11 @@ const roa = {
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, REL extends RELATED = {}, WT = any>(
-    init: () => PromiseLike<RT>,
+    init?: () => PromiseLike<RT>,
     helper?: Helper<WT, REL>
   ) {
     return new ROA<RT, REL, WT>(
-      async () => Ok(await init()),
+      init ? async () => Ok(await init()) : undefined,
       helper
     ) as STATE_DELAYED_ROA<RT, REL, WT>;
   },
@@ -159,7 +163,7 @@ const roa = {
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, REL extends RELATED = {}, WT = any>(
-    init: () => PromiseLike<ResultOk<RT>>,
+    init?: () => PromiseLike<ResultOk<RT>>,
     helper?: Helper<WT, REL>
   ) {
     return new ROA<RT, REL, WT>(init, helper) as STATE_DELAYED_ROA<RT, REL, WT>;
@@ -192,8 +196,8 @@ export class ROA_WS<RT, WT = RT, REL extends RELATED = {}>
   implements OWNER_WS<RT, WT, REL>
 {
   constructor(
-    init: () => PromiseLike<ResultOk<RT>>,
-    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    init?: () => PromiseLike<ResultOk<RT>>,
+    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -215,18 +219,19 @@ export class ROA_WS<RT, WT = RT, REL extends RELATED = {}>
     this.then = async <TResult1 = ResultOk<RT>>(
       func: (value: ResultOk<RT>) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
-      if (!initializing) {
-        initializing = true;
-        (async () => {
-          try {
-            this.#value = await init();
-            this.fulRProm(this.#value);
-          } catch (e) {
-            console.error("Failed to initialize delayed RO state: ", e, this);
-          }
-          this.#clean();
-        })();
-      }
+      if (init)
+        if (!initializing) {
+          initializing = true;
+          (async () => {
+            try {
+              this.#value = await init();
+              this.fulRProm(this.#value);
+            } catch (e) {
+              console.error("Failed to initialize delayed RO state: ", e, this);
+            }
+            this.#clean();
+          })();
+        }
       return this.appendRProm(func);
     };
     this.set = (value) => {
@@ -312,12 +317,12 @@ const roa_ws = {
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends RELATED = {}>(
-    init: () => PromiseLike<RT>,
-    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    init?: () => PromiseLike<RT>,
+    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new ROA_WS<RT, WT, REL>(
-      async () => Ok(await init()),
+      init ? async () => Ok(await init()) : undefined,
       setter,
       helper
     ) as STATE_DELAYED_ROA_WS<RT, WT, REL>;
@@ -326,8 +331,8 @@ const roa_ws = {
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends RELATED = {}>(
-    init: () => PromiseLike<ResultOk<RT>>,
-    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    init?: () => PromiseLike<ResultOk<RT>>,
+    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new ROA_WS<RT, WT, REL>(
@@ -364,8 +369,8 @@ export class ROA_WA<RT, WT = RT, REL extends RELATED = {}>
   implements OWNER_WA<RT, WT, REL>
 {
   constructor(
-    init: () => PromiseLike<ResultOk<RT>>,
-    setter: STATE_SET_ROX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true,
+    init?: () => PromiseLike<ResultOk<RT>>,
+    setter: STATE_SET_ROX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -387,18 +392,19 @@ export class ROA_WA<RT, WT = RT, REL extends RELATED = {}>
     this.then = async <TResult1 = ResultOk<RT>>(
       func: (value: ResultOk<RT>) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
-      if (!initializing) {
-        initializing = true;
-        (async () => {
-          try {
-            this.#value = await init();
-            this.fulRProm(this.#value);
-          } catch (e) {
-            console.error("Failed to initialize delayed RO state: ", e, this);
-          }
-          this.#clean();
-        })();
-      }
+      if (init)
+        if (!initializing) {
+          initializing = true;
+          (async () => {
+            try {
+              this.#value = await init();
+              this.fulRProm(this.#value);
+            } catch (e) {
+              console.error("Failed to initialize delayed RO state: ", e, this);
+            }
+            this.#clean();
+          })();
+        }
       return this.appendRProm(func);
     };
     this.set = (value) => {
@@ -481,12 +487,12 @@ const roa_wa = {
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends RELATED = {}>(
-    init: () => PromiseLike<RT>,
-    setter: STATE_SET_ROX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true,
+    init?: () => PromiseLike<RT>,
+    setter: STATE_SET_ROX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new ROA_WA<RT, WT, REL>(
-      async () => Ok(await init()),
+      init ? async () => Ok(await init()) : undefined,
       setter,
       helper
     ) as STATE_DELAYED_ROA_WA<RT, WT, REL>;
@@ -495,8 +501,8 @@ const roa_wa = {
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends RELATED = {}>(
-    init: () => PromiseLike<ResultOk<RT>>,
-    setter: STATE_SET_ROX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true,
+    init?: () => PromiseLike<ResultOk<RT>>,
+    setter: STATE_SET_ROX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new ROA_WA<RT, WT, REL>(

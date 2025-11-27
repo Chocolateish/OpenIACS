@@ -162,22 +162,21 @@ class ROS_WS<RT, WT, REL extends RELATED>
 {
   constructor(
     init: () => ResultOk<RT>,
-    setter?: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
-    if (setter)
-      if (setter === true)
-        this.#setter = (value, state, old) => {
-          if (old && !old.err && (value as unknown as RT) === old.value)
-            return Ok(undefined);
-          return this.#helper?.limit
-            ? this.#helper
-                ?.limit(value)
-                .map((e) => state.setOk(e as unknown as RT))
-            : Ok(state.setOk(value as unknown as RT));
-        };
-      else this.#setter = setter;
+    if (setter === true)
+      this.#setter = (value, state, old) => {
+        if (old && !old.err && (value as unknown as RT) === old.value)
+          return Ok(undefined);
+        return this.#helper?.limit
+          ? this.#helper
+              ?.limit(value)
+              .map((e) => state.setOk(e as unknown as RT))
+          : Ok(state.setOk(value as unknown as RT));
+      };
+    else this.#setter = setter;
     if (helper) this.#helper = helper;
     this.get = () => this.#clean() ?? (this.#value = init());
     this.set = (value) => this.set(this.#clean() ?? value);
@@ -191,7 +190,7 @@ class ROS_WS<RT, WT, REL extends RELATED>
   }
 
   #value?: ResultOk<RT>;
-  #setter?: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT>;
+  #setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -244,8 +243,7 @@ class ROS_WS<RT, WT, REL extends RELATED>
     return this.writeSync(value);
   }
   writeSync(value: WT): Result<void, string> {
-    if (this.#setter) return this.#setter(value, this, this.#value);
-    return Err("State not writable");
+    return this.#setter(value, this, this.#value);
   }
   limit(value: WT): Result<WT, string> {
     return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
@@ -260,7 +258,7 @@ const ros_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends RELATED = {}>(
     init: () => RT,
-    setter?: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new ROS_WS<RT, WT, REL>(
@@ -274,7 +272,7 @@ const ros_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends RELATED = {}>(
     init: () => ResultOk<RT>,
-    setter?: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new ROS_WS<RT, WT, REL>(init, setter, helper) as STATE_LAZY_ROS_WS<

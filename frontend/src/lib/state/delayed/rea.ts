@@ -37,7 +37,7 @@ export class REA<RT, REL extends RELATED = {}, WT = any>
   implements OWNER<RT, WT, REL>
 {
   constructor(
-    init: () => PromiseLike<Result<RT, string>>,
+    init?: () => PromiseLike<Result<RT, string>>,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -48,18 +48,19 @@ export class REA<RT, REL extends RELATED = {}, WT = any>
     this.then = async <TResult1 = Result<RT, string>>(
       func: (value: Result<RT, string>) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
-      if (!initializing) {
-        initializing = true;
-        (async () => {
-          try {
-            this.#value = await init();
-          } catch (e) {
-            this.#value = Err(String(e));
-          }
-          this.fulRProm(this.#value);
-          this.#clean();
-        })();
-      }
+      if (init)
+        if (!initializing) {
+          initializing = true;
+          (async () => {
+            try {
+              this.#value = await init();
+            } catch (e) {
+              this.#value = Err(String(e));
+            }
+            this.fulRProm(this.#value);
+            this.#clean();
+          })();
+        }
       return this.appendRProm(func);
     };
     this.set = (value) => {
@@ -151,11 +152,11 @@ const rea = {
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, REL extends RELATED = {}, WT = any>(
-    init: () => PromiseLike<RT>,
+    init?: () => PromiseLike<RT>,
     helper?: Helper<WT, REL>
   ) {
     return new REA<RT, REL, WT>(
-      async () => Ok(await init()),
+      init ? async () => Ok(await init()) : undefined,
       helper
     ) as STATE_DELAYED_REA<RT, REL, WT>;
   },
@@ -163,11 +164,11 @@ const rea = {
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, REL extends RELATED = {}, WT = any>(
-    init: () => PromiseLike<string>,
+    init?: () => PromiseLike<string>,
     helper?: Helper<WT, REL>
   ) {
     return new REA<RT, REL, WT>(
-      async () => Err(await init()),
+      init ? async () => Err(await init()) : undefined,
       helper
     ) as STATE_DELAYED_REA<RT, REL, WT>;
   },
@@ -175,7 +176,7 @@ const rea = {
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, REL extends RELATED = {}, WT = any>(
-    init: () => PromiseLike<Result<RT, string>>,
+    init?: () => PromiseLike<Result<RT, string>>,
     helper?: Helper<WT, REL>
   ) {
     return new REA<RT, REL, WT>(init, helper) as STATE_DELAYED_REA<RT, REL, WT>;
@@ -209,8 +210,8 @@ export class REA_WS<RT, WT = RT, REL extends RELATED = {}>
   implements OWNER_WS<RT, WT, REL>
 {
   constructor(
-    init: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    init?: () => PromiseLike<Result<RT, string>>,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -232,18 +233,19 @@ export class REA_WS<RT, WT = RT, REL extends RELATED = {}>
     this.then = async <TResult1 = ResultOk<RT>>(
       func: (value: ResultOk<RT>) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
-      if (!initializing) {
-        initializing = true;
-        (async () => {
-          try {
-            this.#value = await init();
-          } catch (e) {
-            this.#value = Err(String(e));
-          }
-          this.fulRProm(this.#value);
-          this.#clean();
-        })();
-      }
+      if (init)
+        if (!initializing) {
+          initializing = true;
+          (async () => {
+            try {
+              this.#value = await init();
+            } catch (e) {
+              this.#value = Err(String(e));
+            }
+            this.fulRProm(this.#value);
+            this.#clean();
+          })();
+        }
       return this.appendRProm(func);
     };
     this.set = (value) => {
@@ -330,12 +332,12 @@ const rea_ws = {
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends RELATED = {}>(
-    init: () => PromiseLike<RT>,
-    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    init?: () => PromiseLike<RT>,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new REA_WS<RT, WT, REL>(
-      async () => Ok(await init()),
+      init ? async () => Ok(await init()) : undefined,
       setter,
       helper
     ) as STATE_DELAYED_REA_WS<RT, WT, REL>;
@@ -344,12 +346,12 @@ const rea_ws = {
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends RELATED = {}>(
-    init: () => PromiseLike<string>,
-    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    init?: () => PromiseLike<string>,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new REA_WS<RT, WT, REL>(
-      async () => Err(await init()),
+      init ? async () => Err(await init()) : undefined,
       setter,
       helper
     ) as STATE_DELAYED_REA_WS<RT, WT, REL>;
@@ -358,8 +360,8 @@ const rea_ws = {
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends RELATED = {}>(
-    init: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    init?: () => PromiseLike<Result<RT, string>>,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new REA_WS<RT, WT, REL>(
@@ -397,8 +399,8 @@ export class REA_WA<RT, WT = RT, REL extends RELATED = {}>
   implements OWNER_WA<RT, WT, REL>
 {
   constructor(
-    init: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true,
+    init?: () => PromiseLike<Result<RT, string>>,
+    setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -420,18 +422,19 @@ export class REA_WA<RT, WT = RT, REL extends RELATED = {}>
     this.then = async <TResult1 = ResultOk<RT>>(
       func: (value: ResultOk<RT>) => TResult1 | PromiseLike<TResult1>
     ): Promise<TResult1> => {
-      if (!initializing) {
-        initializing = true;
-        (async () => {
-          try {
-            this.#value = await init();
-          } catch (e) {
-            this.#value = Err(String(e));
-          }
-          this.fulRProm(this.#value);
-          this.#clean();
-        })();
-      }
+      if (init)
+        if (!initializing) {
+          initializing = true;
+          (async () => {
+            try {
+              this.#value = await init();
+            } catch (e) {
+              this.#value = Err(String(e));
+            }
+            this.fulRProm(this.#value);
+            this.#clean();
+          })();
+        }
       return this.appendRProm(func);
     };
     this.set = (value) => {
@@ -515,12 +518,12 @@ const rea_wa = {
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends RELATED = {}>(
-    init: () => PromiseLike<RT>,
-    setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true,
+    init?: () => PromiseLike<RT>,
+    setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new REA_WA<RT, WT, REL>(
-      async () => Ok(await init()),
+      init ? async () => Ok(await init()) : undefined,
       setter,
       helper
     ) as STATE_DELAYED_REA_WA<RT, WT, REL>;
@@ -529,12 +532,12 @@ const rea_wa = {
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends RELATED = {}>(
-    init: () => PromiseLike<string>,
-    setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true,
+    init?: () => PromiseLike<string>,
+    setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new REA_WA<RT, WT, REL>(
-      async () => Err(await init()),
+      init ? async () => Err(await init()) : undefined,
       setter,
       helper
     ) as STATE_DELAYED_REA_WA<RT, WT, REL>;
@@ -543,8 +546,8 @@ const rea_wa = {
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends RELATED = {}>(
-    init: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true,
+    init?: () => PromiseLike<Result<RT, string>>,
+    setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new REA_WA<RT, WT, REL>(

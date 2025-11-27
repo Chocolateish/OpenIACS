@@ -168,7 +168,7 @@ class RES_WS<RT, WT, REL extends RELATED>
 {
   constructor(
     init: Result<RT, string>,
-    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -256,7 +256,7 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends RELATED = {}>(
     init: RT,
-    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new RES_WS<RT, WT, REL>(
@@ -270,7 +270,7 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends RELATED = {}>(
     init: string,
-    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new RES_WS<RT, WT, REL>(
@@ -284,7 +284,7 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends RELATED = {}>(
     init: Result<RT, string>,
-    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new RES_WS<RT, WT, REL>(init, setter, helper) as STATE_SYNC_RES_WS<
