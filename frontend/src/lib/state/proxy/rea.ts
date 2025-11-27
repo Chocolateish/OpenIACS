@@ -151,7 +151,7 @@ export class REA<
  * @param state - state to proxy.
  * @param transform - Function to transform value of proxy*/
 function rea_from<
-  S extends STATE<RIN, WIN>,
+  S extends STATE_ROA<RIN, any, WIN>,
   RIN = S extends STATE<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends STATE<any, infer RT> ? RT : any,
@@ -161,7 +161,7 @@ function rea_from<
   transform?: (value: ResultOk<RIN>) => Result<ROUT, string>
 ): STATE_PROXY_REA<S, RIN, ROUT, WIN, WOUT>;
 function rea_from<
-  S extends STATE<RIN, WIN>,
+  S extends STATE_REA<RIN, any, WIN>,
   RIN = S extends STATE<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends STATE<any, infer RT> ? RT : any,
@@ -171,7 +171,7 @@ function rea_from<
   transform?: (value: Result<RIN, string>) => Result<ROUT, string>
 ): STATE_PROXY_REA<S, RIN, ROUT, WIN, WOUT>;
 function rea_from<
-  S extends STATE<RIN, WIN>,
+  S extends STATE_REA<RIN, any, WIN>,
   RIN = S extends STATE<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends STATE<any, infer RT> ? RT : any,
@@ -337,7 +337,7 @@ export class REA_WS<
  * @param state - state to proxy.
  * @param transformRead - Function to transform value of proxy*/
 function rea_ws_from<
-  S extends STATE_REA_WS<RIN, WIN>,
+  S extends STATE_ROA_WS<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
@@ -526,7 +526,7 @@ export class REA_WA<
  * @param state - state to proxy.
  * @param transformRead - Function to transform value of proxy*/
 function rea_wa_from<
-  S extends STATE_REA_WA<RIN, WIN>,
+  S extends STATE_ROA_WA<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
@@ -576,6 +576,6 @@ function rea_wa_from<
 /**Proxy state redirecting another state */
 export const state_proxy_rea = {
   rea: rea_from,
-  rea_ws: rea_wa_from,
-  rea_wa: rea_ws_from,
+  rea_ws: rea_ws_from,
+  rea_wa: rea_wa_from,
 };

@@ -2,12 +2,9 @@ import { Err, None, ResultOk, type Option, type Result } from "@libResult";
 import { STATE_BASE } from "../base";
 import {
   type STATE,
-  type STATE_REA_WS,
   type STATE_RES,
   type STATE_RES_WA,
   type STATE_RES_WS,
-  type STATE_ROA_WA,
-  type STATE_ROA_WS,
   type STATE_ROS,
   type STATE_ROS_WA,
   type STATE_ROS_WS,
@@ -164,7 +161,7 @@ export class ROS<
  * @param state - state to proxy.
  * @param transform - Function to transform value of proxy*/
 function ros_from<
-  S extends STATE_RES<RIN, any, WIN>,
+  S extends STATE_ROS<RIN, any, WIN>,
   RIN = S extends STATE<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends STATE<any, infer RT> ? RT : any,
@@ -355,13 +352,13 @@ export class ROS_WS<
  * @param state - state to proxy.
  * @param transformRead - Function to transform value of proxy*/
 function ros_ws_from<
-  S extends STATE_RES_WS<RIN, WIN>,
+  S extends STATE_ROS_WS<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
   WOUT = WIN
 >(
-  state: STATE_ROA_WS<RIN, WIN>,
+  state: STATE_ROS_WS<RIN, WIN>,
   transformRead?: (value: ResultOk<RIN>) => ResultOk<ROUT>,
   transformWrite?: (value: WOUT) => WIN
 ): STATE_PROXY_ROS_WS<S, RIN, WIN, ROUT, WOUT>;
@@ -372,7 +369,7 @@ function ros_ws_from<
   ROUT = RIN,
   WOUT = WIN
 >(
-  state: STATE_REA_WS<RIN, WIN>,
+  state: STATE_RES_WS<RIN, WIN>,
   transformRead?: (value: Result<RIN, string>) => ResultOk<ROUT>,
   transformWrite?: (value: WOUT) => WIN
 ): STATE_PROXY_ROS_WS<S, RIN, WIN, ROUT, WOUT>;
@@ -546,13 +543,13 @@ export class ROS_WA<
  * @param state - state to proxy.
  * @param transformRead - Function to transform value of proxy*/
 function ros_wa_from<
-  S extends STATE_RES_WA<RIN, WIN>,
+  S extends STATE_ROS_WA<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
   WOUT = WIN
 >(
-  state: STATE_ROA_WA<RIN, WIN>,
+  state: STATE_ROS_WA<RIN, WIN>,
   transformRead?: (value: ResultOk<RIN>) => ResultOk<ROUT>,
   transformWrite?: (value: WOUT) => WIN
 ): STATE_PROXY_ROS_WA<S, RIN, WIN, ROUT, WOUT>;

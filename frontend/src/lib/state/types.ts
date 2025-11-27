@@ -84,7 +84,7 @@ export interface STATE_BASE<
    * @param update set true to update subscriber immediatly*/
   sub<T = STATE_SUB<RRT>>(func: STATE_SUB<RRT>, update?: boolean): T;
   /**This removes a function as a subscriber to the state*/
-  unsub<T = STATE_SUB<RRT>>(func: STATE_SUB<RRT>): T;
+  unsub<T = STATE_SUB<RRT>>(func: T): T;
   /**This returns related states if any*/
   related(): Option<REL>;
 

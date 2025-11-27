@@ -202,13 +202,13 @@ class RES_WS<RT, WT, REL extends RELATED>
     this.set(Err(err));
   }
   get state(): STATE<RT, WT, REL> {
-    return this;
+    return this as STATE<RT, WT, REL>;
   }
   get readOnly(): STATE_RES<RT, REL, WT> {
-    return this;
+    return this as STATE_RES<RT, REL, WT>;
   }
   get readWrite(): STATE_RES_WS<RT, WT, REL> {
-    return this;
+    return this as STATE_RES_WS<RT, WT, REL>;
   }
 
   //#Reader Context

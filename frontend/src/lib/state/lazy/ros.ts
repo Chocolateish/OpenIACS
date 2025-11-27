@@ -201,13 +201,13 @@ class ROS_WS<RT, WT, REL extends RELATED>
     this.set(Ok(value));
   }
   get state(): STATE<RT, WT, REL> {
-    return this;
+    return this as STATE<RT, WT, REL>;
   }
   get readOnly(): STATE_ROS<RT, REL, WT> {
-    return this;
+    return this as STATE_ROS<RT, REL, WT>;
   }
   get readWrite(): STATE_ROS_WS<RT, WT, REL> {
-    return this;
+    return this as STATE_ROS_WS<RT, WT, REL>;
   }
 
   //#Reader Context

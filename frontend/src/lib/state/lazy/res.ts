@@ -220,13 +220,13 @@ class RES_WS<RT, WT, REL extends Related>
     this.set(Err(err));
   }
   get state(): STATE<RT, WT, REL> {
-    return this;
+    return this as STATE<RT, WT, REL>;
   }
   get readOnly(): STATE_RES<RT, REL, WT> {
-    return this;
+    return this as STATE_RES<RT, REL, WT>;
   }
   get readWrite(): STATE_RES_WS<RT, WT, REL> {
-    return this;
+    return this as STATE_RES_WS<RT, WT, REL>;
   }
 
   //#Reader Context
@@ -277,7 +277,11 @@ const res_ws = {
     setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
-    return new RES_WS<RT, WT, REL>(() => Ok(init()), setter, helper);
+    return new RES_WS<RT, WT, REL>(
+      () => Ok(init()),
+      setter,
+      helper
+    ) as STATE_LAZY_RES_WS<RT, WT, REL>;
   },
   /**Creates a writable lazy state from an initial error, lazy meaning the value is only evaluated on first access.
    * @param init initial error for state.
@@ -287,7 +291,11 @@ const res_ws = {
     setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
-    return new RES_WS<RT, WT, REL>(() => Err(init()), setter, helper);
+    return new RES_WS<RT, WT, REL>(
+      () => Err(init()),
+      setter,
+      helper
+    ) as STATE_LAZY_RES_WS<RT, WT, REL>;
   },
   /**Creates a writable lazy state from an initial result, lazy meaning the value is only evaluated on first access.
    * @param init initial result for state.
@@ -297,7 +305,11 @@ const res_ws = {
     setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
-    return new RES_WS<RT, WT, REL>(init, setter, helper);
+    return new RES_WS<RT, WT, REL>(init, setter, helper) as STATE_LAZY_RES_WS<
+      RT,
+      WT,
+      REL
+    >;
   },
 };
 

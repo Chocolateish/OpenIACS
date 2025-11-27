@@ -10,7 +10,6 @@ export abstract class STATE_BASE<
 {
   #subscribers: Set<STATE_SUB<RRT>> = new Set();
   #readPromises?: ((val: RRT) => void)[];
-  #writePromises?: ((val: Result<void, string>) => void)[];
 
   //#Reader Context
   /**Can state value be retrieved syncronously*/
@@ -38,8 +37,8 @@ export abstract class STATE_BASE<
     return func as T;
   }
   /**This removes a function as a subscriber to the state*/
-  unsub<T = STATE_SUB<RRT>>(func: STATE_SUB<RRT>): T {
-    if (this.#subscribers.delete(func))
+  unsub<T = STATE_SUB<RRT>>(func: T): T {
+    if (this.#subscribers.delete(func as STATE_SUB<RRT>))
       this.onUnsubscribe(this.#subscribers.size == 0);
     else console.error("Subscriber not found with state", this, func);
     return func as T;
@@ -114,22 +113,6 @@ export abstract class STATE_BASE<
       for (let i = 0; i < this.#readPromises.length; i++)
         this.#readPromises[i](value);
     this.#readPromises = [];
-    return value;
-  }
-
-  //Promises
-  /**Creates a promise which can be fulfilled later with fulRProm */
-  protected appendWProm(): Promise<Result<void, string>> {
-    return new Promise<Result<void, string>>((a) => {
-      (this.#writePromises ??= []).push(a);
-    });
-  }
-  /**Fulfills all write promises with given value */
-  protected fulWProm(value: Result<void, string>): typeof value {
-    if (this.#writePromises)
-      for (let i = 0; i < this.#writePromises.length; i++)
-        this.#writePromises[i](value);
-    this.#writePromises = [];
     return value;
   }
 }

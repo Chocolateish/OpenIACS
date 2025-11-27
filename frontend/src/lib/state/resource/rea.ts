@@ -293,6 +293,7 @@ export abstract class STATE_RESOURCE_REA_WA<
   #debounceTimout: number = 0;
   #writeBuffer?: WT;
   #writeDebounceTimout: number = 0;
+  #writePromises: ((val: Result<void, string>) => void)[] = [];
 
   /**Debounce delaying one time value retrival*/
   abstract get debounce(): number;
@@ -412,16 +413,21 @@ export abstract class STATE_RESOURCE_REA_WA<
   get wsync(): false {
     return false;
   }
-  write(value: WT): Promise<Result<void, string>> {
+  async write(value: WT): Promise<Result<void, string>> {
     this.#writeBuffer = value;
     if (this.writebounce === 0) return this.writeAction(value, this);
     else if (this.#writeDebounceTimout === 0)
       this.#writeDebounceTimout = window.setTimeout(async () => {
-        this.writeAction(this.#writeBuffer!, this);
         this.#writeDebounceTimout = 0;
         this.#writeBuffer = undefined;
+        let promises = this.#writePromises;
+        this.#writePromises = [];
+        let res = await this.writeAction(this.#writeBuffer!, this);
+        for (let i = 0; i < promises.length; i++) promises[i](res);
       }, this.writebounce);
-    return this.appendWProm();
+    return new Promise<Result<void, string>>((a) => {
+      this.#writePromises.push(a);
+    });
   }
 
   abstract limit(value: WT): Result<WT, string>;
@@ -504,11 +510,6 @@ class FUNC_REA_WA<RT, WT = RT, REL extends RELATED = {}>
 
   related(): Option<REL> {
     return this.#helper?.related ? this.#helper.related() : None();
-  }
-
-  /**Call this to fullfill any promises waiting for result of a write.*/
-  fullfillWrite(value: Result<void, string>) {
-    this.fulWProm(value);
   }
 }
 

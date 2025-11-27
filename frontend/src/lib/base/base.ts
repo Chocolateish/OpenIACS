@@ -1,9 +1,9 @@
 import { EventHandler } from "@libEvent";
-import { Ok, ResultOk, type Result } from "@libResult";
+import { Some, type Option } from "@libResult";
 import state, {
   type STATE,
-  type STATE_INFER_RESULT,
   type STATE_INFER_SUB,
+  type STATE_REA,
   type STATE_ROA,
   type STATE_SUB,
 } from "@libState";
@@ -32,7 +32,7 @@ export interface BaseEvents {
 /**Base options for base class */
 export interface BaseOptions {
   /**Access for element, default is write access */
-  access?: AccessTypes | STATE<AccessTypes>;
+  access?: AccessTypes | STATE_ROA<AccessTypes>;
 }
 
 // Helpers for opts
@@ -136,8 +136,7 @@ export abstract class Base<
   /**Sets options for the element*/
   options(options: Options): this {
     let acc = options.access;
-    if (state.is(acc))
-      this.attachSTATEToProp("access", acc, () => AccessTypes.WRITE, false);
+    if (state.is(acc)) this.attachSTATEROAToProp("access", acc);
     else this.access = acc ?? AccessTypes.WRITE;
     return this;
   }
@@ -146,7 +145,7 @@ export abstract class Base<
   opts(opts: WithStateROA<DataProps<this>>): this {
     for (let key in opts) {
       let opt = opts[key] as this[typeof key] | STATE_ROA<this[typeof key]>;
-      if (state.h.is.roa(opt)) this.attachSTATEROAToProp(key, opt, false);
+      if (state.h.is.roa(opt)) this.attachSTATEROAToProp(key, opt);
       else this[key] = opt;
     }
     return this;
@@ -202,9 +201,7 @@ export abstract class Base<
     if (state) {
       if (state[1] ? this.isVisible : this.#isConnected) state[0].unsub(func);
       this.#states.delete(func);
-    } else {
-      console.error("Function not registered with element", func, this);
-    }
+    } else console.error("Function not registered with element", func, this);
     return func;
   }
 
@@ -213,16 +210,32 @@ export abstract class Base<
    * @param state the state to attach to the property
    * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element
    * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
-  attachSTATEROAToProp<T extends keyof this>(
-    prop: T,
-    state: STATE_ROA<this[T]>,
+  attachSTATEROAToProp<K extends keyof this>(
+    prop: K,
+    state: STATE_ROA<this[K]>,
+    ok?: (val: this[K]) => Option<this[K]>,
+    visible?: boolean
+  ): this;
+  attachSTATEROAToProp<K extends keyof this, T = this[K]>(
+    prop: K,
+    state: STATE_ROA<T>,
+    ok: (val: T) => Option<this[K]>,
+    visible?: boolean
+  ): this;
+  attachSTATEROAToProp<K extends keyof this, T = this[K]>(
+    prop: K,
+    state: STATE_ROA<T>,
+    ok?: (val: T) => Option<this[K]>,
     visible?: boolean
   ): this {
     this.dettachSTATEFromProp(prop).#props.set(
       prop,
       this.attachSTATE(
         state,
-        (val: ResultOk<this[T]>) => (this[prop] = val.value),
+        (val) => {
+          let o = ok ? ok(val.value) : Some(val.value as this[K]);
+          if (o.some) this[prop] = o.value;
+        },
         visible
       )
     );
@@ -232,43 +245,40 @@ export abstract class Base<
   /**Attaches a state to a property, so that the property is updated when the state changes
    * @param prop the property to attach the state to
    * @param state the state to attach to the property
-   * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element
-   * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
-  attachSTATEToProp<T extends keyof this>(
-    prop: T,
-    state: STATE<this[T]>,
-    fallback: (error: string) => this[T],
+   * @param error function called when state gives a ResultErr,
+   * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element*/
+  attachSTATEToProp<K extends keyof this>(
+    prop: K,
+    state: STATE_REA<this[K]>,
+    error: (error: string) => Option<this[K]>,
+    ok?: (val: this[K]) => Option<this[K]>,
+    visible?: boolean
+  ): this;
+  attachSTATEToProp<K extends keyof this, T = this[K]>(
+    prop: K,
+    state: STATE_REA<T>,
+    error: (error: string) => Option<this[K]>,
+    ok: (val: T) => Option<this[K]>,
+    visible?: boolean
+  ): this;
+  attachSTATEToProp<K extends keyof this, T = this[K]>(
+    prop: K,
+    state: STATE_REA<T>,
+    error: (error: string) => Option<this[K]>,
+    ok?: (val: T) => Option<this[K]>,
     visible?: boolean
   ): this {
     this.dettachSTATEFromProp(prop).#props.set(
       prop,
       this.attachSTATE(
         state,
-        (val: Result<this[T], string>) =>
-          (this[prop] = val.orElse((e) => Ok(fallback(e))).value),
-        visible
-      )
-    );
-    return this;
-  }
-
-  /**Attaches a state to a property, so that the property is updated when the state changes
-   * @param prop the property to attach the state to
-   * @param state the state to attach to the property
-   * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element
-   * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
-  attachSTATEToPropTransform<T extends keyof this, S extends STATE<any>>(
-    prop: T,
-    state: S,
-    transform: (val: STATE_INFER_RESULT<S>) => (typeof this)[T],
-    visible?: boolean
-  ): this {
-    this.dettachSTATEFromProp(prop).#props.set(
-      prop,
-      this.attachSTATE(
-        state,
-        (val: STATE_INFER_RESULT<S>) => {
-          this[prop] = transform(val);
+        (v) => {
+          let o = v.ok
+            ? ok
+              ? ok(v.value)
+              : Some(v.value as this[K])
+            : error(v.error);
+          if (o.some) this[prop] = o.value;
         },
         visible
       )
@@ -286,13 +296,29 @@ export abstract class Base<
   attachSTATEROAToAttribute(
     qualifiedName: string,
     state: STATE_ROA<string>,
+    ok?: (val: string) => Option<string>,
+    visible?: boolean
+  ): this;
+  attachSTATEROAToAttribute<U>(
+    qualifiedName: string,
+    state: STATE_ROA<U>,
+    ok: (val: U) => Option<string>,
+    visible?: boolean
+  ): this;
+  attachSTATEROAToAttribute<U>(
+    qualifiedName: string,
+    state: STATE_ROA<U>,
+    ok?: (val: U) => Option<string>,
     visible?: boolean
   ): this {
     this.dettachSTATEFromAttribute(qualifiedName).#attr.set(
       qualifiedName,
       this.attachSTATE(
         state,
-        (val: ResultOk<string>) => this.setAttribute(qualifiedName, val.value),
+        (val) => {
+          let o = ok ? ok(val.value) : Some(val.value as string);
+          if (o.some) this.setAttribute(qualifiedName, o.value);
+        },
         visible
       )
     );
@@ -301,41 +327,36 @@ export abstract class Base<
 
   attachSTATEToAttribute(
     qualifiedName: string,
-    state: STATE<string>,
-    fallback: (error: string) => string,
+    state: STATE_REA<string>,
+    error: (error: string) => Option<string>,
+    ok?: (val: string) => Option<string>,
     visible?: boolean
-  ): this {
-    this.dettachSTATEFromAttribute(qualifiedName).#attr.set(
-      qualifiedName,
-      this.attachSTATE(
-        state,
-        (val: Result<string, string>) =>
-          this.setAttribute(
-            qualifiedName,
-            val.orElse((e) => Ok(fallback(e))).value
-          ),
-        visible
-      )
-    );
-    return this;
-  }
-
-  /**Attaches a state to a property, so that the property is updated when the state changes
-   * @param state the state to attach to the property
-   * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok
-   * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element*/
-  attachSTATEToAttributeTransform<S extends STATE<any>>(
+  ): this;
+  attachSTATEToAttribute<U>(
     qualifiedName: string,
-    state: S,
-    transform: (val: STATE_INFER_RESULT<S>) => string,
+    state: STATE_REA<U>,
+    error: (error: string) => Option<string>,
+    ok: (val: U) => Option<string>,
+    visible?: boolean
+  ): this;
+  attachSTATEToAttribute<U>(
+    qualifiedName: string,
+    state: STATE_REA<U>,
+    error: (error: string) => Option<string>,
+    ok?: (val: U) => Option<string>,
     visible?: boolean
   ): this {
     this.dettachSTATEFromAttribute(qualifiedName).#attr.set(
       qualifiedName,
       this.attachSTATE(
         state,
-        (val: STATE_INFER_RESULT<S>) => {
-          this.setAttribute(qualifiedName, transform(val));
+        (v) => {
+          let o = v.ok
+            ? ok
+              ? ok(v.value)
+              : Some(v.value as string)
+            : error(v.error);
+          if (o.some) this.setAttribute(qualifiedName, o.value);
         },
         visible
       )
