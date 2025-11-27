@@ -38,11 +38,11 @@ export abstract class STATE_BASE<
     return func as T;
   }
   /**This removes a function as a subscriber to the state*/
-  unsub(func: STATE_SUB<RRT>): STATE_SUB<RRT> {
+  unsub<T = STATE_SUB<RRT>>(func: STATE_SUB<RRT>): T {
     if (this.#subscribers.delete(func))
       this.onUnsubscribe(this.#subscribers.size == 0);
     else console.error("Subscriber not found with state", this, func);
-    return func;
+    return func as T;
   }
   /**This returns related states if any*/
   related(): Option<REL> {

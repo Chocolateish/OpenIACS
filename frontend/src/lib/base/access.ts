@@ -1,4 +1,4 @@
-import type { StateEnumHelperList } from "@libState";
+import state from "@libState";
 
 /**Enum of possible access types for base element*/
 export const AccessTypes = {
@@ -9,11 +9,11 @@ export const AccessTypes = {
 export type AccessTypes = (typeof AccessTypes)[keyof typeof AccessTypes];
 
 /**List for access type*/
-export const ACCESSTYPESINFO = {
+export const ACCESSTYPESINFO = state.h.enums.list<AccessTypes>({
   [AccessTypes.WRITE]: {
     name: "Write",
     description: "Write access to element",
   },
   [AccessTypes.READ]: { name: "Read", description: "Read access to element" },
   [AccessTypes.NONE]: { name: "None", description: "No access to element" },
-} satisfies StateEnumHelperList;
+});

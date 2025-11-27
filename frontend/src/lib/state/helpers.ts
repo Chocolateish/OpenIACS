@@ -1,26 +1,22 @@
 import { Err, Ok, Some, type Option, type Result } from "@libResult";
 import type { SVGFunc } from "@libSVG";
+import { STATE_BASE } from "./base";
 import {
-  REA,
-  REA_WA,
-  REA_WS,
-  RES,
-  RES_WA,
-  RES_WS,
-  ROA,
-  ROA_WA,
-  ROA_WS,
-  ROS,
-  ROS_WA,
-  ROS_WS,
-  STATE_IS,
   type STATE,
-  type STATE_HELPER_WRITE,
+  type STATE_HELPER,
+  type STATE_REA,
+  type STATE_REA_WA,
+  type STATE_REA_WS,
   type STATE_RELATED,
-  type STATE_REX,
-  type STATE_ROX,
-  type STATE_RXA,
-  type STATE_RXS,
+  type STATE_RES,
+  type STATE_RES_WA,
+  type STATE_RES_WS,
+  type STATE_ROA,
+  type STATE_ROA_WA,
+  type STATE_ROA_WS,
+  type STATE_ROS,
+  type STATE_ROS_WA,
+  type STATE_ROS_WS,
   type STATE_SUB,
 } from "./types";
 
@@ -32,9 +28,7 @@ export interface STATE_NUMBER_RELATED extends STATE_RELATED {
 }
 
 export class STATE_NUMBER_HELPER
-  implements
-    STATE_NUMBER_RELATED,
-    STATE_HELPER_WRITE<number, STATE_NUMBER_RELATED>
+  implements STATE_NUMBER_RELATED, STATE_HELPER<number, STATE_NUMBER_RELATED>
 {
   min: number | undefined;
   max: number | undefined;
@@ -148,9 +142,7 @@ export interface STATE_STRING_RELATED extends STATE_RELATED {
 }
 
 export class STATE_STRING_HELPER
-  implements
-    STATE_STRING_RELATED,
-    STATE_HELPER_WRITE<string, STATE_STRING_RELATED>
+  implements STATE_STRING_RELATED, STATE_HELPER<string, STATE_STRING_RELATED>
 {
   maxLength: number | undefined;
   maxLengthBytes: number | undefined;
@@ -219,7 +211,7 @@ export class STATE_ENUM_HELPER<
   L extends STATE_ENUM_HELPER_LIST<any>,
   K extends PropertyKey = keyof L,
   R extends STATE_RELATED = STATE_ENUM_RELATED<L>
-> implements STATE_HELPER_WRITE<K, R>, STATE_ENUM_RELATED<L>
+> implements STATE_HELPER<K, R>, STATE_ENUM_RELATED<L>
 {
   list: L;
 
@@ -312,89 +304,49 @@ async function compare(
  * @param state1 first state
  * @param state2 second state
  * @returns true if states are equal*/
-function compare_sync(state1: STATE_RXS<any>, state2: STATE_RXS<any>): boolean {
+function compare_sync(state1: STATE_RES<any>, state2: STATE_RES<any>): boolean {
   let res1 = state1.get();
   let res2 = state2.get();
   if (res1.err || res2.err) return true;
   return res1.value !== res2.value;
 }
 
-//##################################################################################################################################################
-//      _____  _____    _____ _______    _______ ______    _____ _    _ ______ _____ _  __ _____
-//     |_   _|/ ____|  / ____|__   __|/\|__   __|  ____|  / ____| |  | |  ____/ ____| |/ // ____|
-//       | | | (___   | (___    | |  /  \  | |  | |__    | |    | |__| | |__ | |    | ' /| (___
-//       | |  \___ \   \___ \   | | / /\ \ | |  |  __|   | |    |  __  |  __|| |    |  <  \___ \
-//      _| |_ ____) |  ____) |  | |/ ____ \| |  | |____  | |____| |  | | |___| |____| . \ ____) |
-//     |_____|_____/  |_____/   |_/_/    \_\_|  |______|  \_____|_|  |_|______\_____|_|\_\_____/
-/**Functions to check if something is a state */
 const is = {
-  /**Checks if something is a STATE */
-  state<T = any>(s: any): s is STATE<T> {
-    return s instanceof STATE_IS;
+  rea(s: any): s is STATE_REA<any> {
+    return s instanceof STATE_BASE;
   },
-  /**Checks if something is a STATE_REX */
-  rex<T = any>(s: any): s is STATE_REX<T> {
-    return s instanceof STATE_REA_BASE || s instanceof STATE_RES_BASE;
+  roa(s: any): s is STATE_ROA<any> {
+    return s instanceof STATE_BASE && s.rok;
   },
-  /**Checks if something is a STATE_ROX */
-  rox<T = any>(s: any): s is STATE_ROX<T> {
-    return s instanceof STATE_ROA_BASE || s instanceof STATE_ROS_BASE;
+  res(s: any): s is STATE_RES<any> {
+    return s instanceof STATE_BASE && s.rsync;
   },
-  /**Checks if something is a STATE_RXA */
-  rxa<T = any>(s: any): s is STATE_RXA<T> {
-    return s instanceof STATE_REA_BASE || s instanceof STATE_ROA_BASE;
+  ros(s: any): s is STATE_ROS<any> {
+    return s instanceof STATE_BASE && s.rsync && s.rok;
   },
-  /**Checks if something is a STATE_RXS */
-  rxs<T = any>(s: any): s is STATE_RXS<T> {
-    return s instanceof STATE_RES_BASE || s instanceof STATE_ROS_BASE;
+  rea_wa(s: any): s is STATE_REA_WA<any> {
+    return s instanceof STATE_BASE && s.writable;
   },
-  /**Checks if something is a STATE_REA */
-  rea<T = any>(s: any): s is REA<T> {
-    return s instanceof STATE_REA_BASE;
+  rea_ws(s: any): s is STATE_REA_WS<any> {
+    return s instanceof STATE_BASE && s.writable && s.wsync;
   },
-  /**Checks if something is a STATE_ROA */
-  roa<T = any>(s: any): s is ROA<T> {
-    return s instanceof STATE_ROA_BASE;
+  roa_wa(s: any): s is STATE_ROA_WA<any> {
+    return s instanceof STATE_BASE && s.writable && s.rok;
   },
-  /**Checks if something is a STATE_RES */
-  res<T = any>(s: any): s is RES<T> {
-    return s instanceof STATE_RES_BASE;
+  roa_ws(s: any): s is STATE_ROA_WS<any> {
+    return s instanceof STATE_BASE && s.writable && s.wsync && s.rok;
   },
-  /**Checks if something is a STATE_ROS */
-  ros<T = any>(s: any): s is ROS<T> {
-    return s instanceof STATE_ROS_BASE;
+  res_wa(s: any): s is STATE_RES_WA<any> {
+    return s instanceof STATE_BASE && s.writable && s.rsync;
   },
-  /**Checks if something is a STATE_REA_WA */
-  rea_wa<T = any>(s: any): s is REA_WA<T> {
-    return s instanceof STATE_REA_WA;
+  res_ws(s: any): s is STATE_RES_WS<any> {
+    return s instanceof STATE_BASE && s.writable && s.wsync && s.rsync;
   },
-  /**Checks if something is a STATE_ROA_WA */
-  roa_wa<T = any>(s: any): s is ROA_WA<T> {
-    return s instanceof STATE_ROA_WA;
+  ros_wa(s: any): s is STATE_ROS_WA<any> {
+    return s instanceof STATE_BASE && s.writable && s.rsync && s.rok;
   },
-  /**Checks if something is a STATE_RES_WA */
-  res_wa<T = any>(s: any): s is RES_WA<T> {
-    return s instanceof STATE_RES_WA;
-  },
-  /**Checks if something is a STATE_ROS_WA */
-  ros_wa<T = any>(s: any): s is ROS_WA<T> {
-    return s instanceof STATE_ROS_WA;
-  },
-  /**Checks if something is a STATE_REA_WS */
-  rea_ws<T = any>(s: any): s is REA_WS<T> {
-    return s instanceof STATE_REA_WS;
-  },
-  /**Checks if something is a STATE_ROA_WS */
-  roa_ws<T = any>(s: any): s is ROA_WS<T> {
-    return s instanceof STATE_ROA_WS;
-  },
-  /**Checks if something is a STATE_RES_WS */
-  res_ws<T = any>(s: any): s is RES_WS<T> {
-    return s instanceof STATE_RES_WS;
-  },
-  /**Checks if something is a STATE_ROS_WS */
-  ros_ws<T = any>(s: any): s is ROS_WS<T> {
-    return s instanceof STATE_ROS_WS;
+  ros_ws(s: any): s is STATE_ROS_WS<any> {
+    return s instanceof STATE_BASE && s.writable && s.wsync && s.rsync && s.rok;
   },
 };
 

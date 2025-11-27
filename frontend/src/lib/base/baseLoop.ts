@@ -1,10 +1,10 @@
 import type { Result } from "@libResult";
 import {
   default as st,
-  STATE_ARRAY_RES,
   type STATE_ARRAY_READ,
   type STATE_SUB,
 } from "@libState";
+import type { STATE_ARRAY_RES } from "../state/array/res";
 import { Base } from "./base";
 
 interface A<T, E extends Node> {

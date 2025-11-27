@@ -1,6 +1,7 @@
 import { state_array_res } from "./array/res";
 import { state_array_ros } from "./array/ros";
 import { state_array_shared } from "./array/shared";
+import { STATE_BASE } from "./base";
 import { state_collects_number } from "./collected/number";
 import { state_collected_rea } from "./collected/rea";
 import { state_collected_res } from "./collected/res";
@@ -19,7 +20,7 @@ import { state_resource_rea } from "./resource/rea";
 import { state_resource_roa } from "./resource/roa";
 import { state_sync_res } from "./sync/res";
 import { state_sync_ros } from "./sync/ros";
-import type { STATE_ROA_WA, STATE_ROS_WA } from "./types";
+import type { STATE } from "./types";
 
 export default {
   a: { ...state_array_res, ...state_array_ros, ...state_array_shared },
@@ -42,6 +43,10 @@ export default {
   },
   r: { ...state_resource_rea, ...state_resource_roa },
   s: { ...state_sync_res, ...state_sync_ros },
+  is(s: any): s is STATE<any, any> {
+    return s instanceof STATE_BASE;
+  },
+  class: STATE_BASE,
   ok: state_sync_ros.ros.ok,
   err: state_sync_res.res.err,
   from: state_sync_res.res.ok,
@@ -51,6 +56,7 @@ export default {
 };
 
 export { type STATE_ARRAY_READ, type STATE_ARRAY_WRITE } from "./array/shared";
+export { STATE_BASE } from "./base";
 export { type STATE_COLLECTED_REA } from "./collected/rea";
 export { type STATE_COLLECTED_RES } from "./collected/res";
 export { type STATE_COLLECTED_ROA } from "./collected/roa";
@@ -136,20 +142,3 @@ export type {
   STATE_ROS_WS,
   STATE_SUB,
 } from "./types";
-
-//      ________   _________ ______ _   _  _____ _____ ____  _   _    _____ _                _____ _____ ______  _____
-//     |  ____\ \ / /__   __|  ____| \ | |/ ____|_   _/ __ \| \ | |  / ____| |        /\    / ____/ ____|  ____|/ ____|
-//     | |__   \ V /   | |  | |__  |  \| | (___   | || |  | |  \| | | |    | |       /  \  | (___| (___ | |__  | (___
-//     |  __|   > <    | |  |  __| | . ` |\___ \  | || |  | | . ` | | |    | |      / /\ \  \___ \\___ \|  __|  \___ \
-//     | |____ / . \   | |  | |____| |\  |____) |_| || |__| | |\  | | |____| |____ / ____ \ ____) |___) | |____ ____) |
-//     |______/_/ \_\  |_|  |______|_| \_|_____/|_____\____/|_| \_|  \_____|______/_/    \_\_____/_____/|______|_____/
-export type { STATE_BASE } from "./base";
-
-async function name(s: STATE_ROA_WA<number>) {
-  const v = await s;
-  if (s.rsync) {
-    let w = s.get();
-  }
-}
-
-name({} as STATE_ROS_WA<number>);

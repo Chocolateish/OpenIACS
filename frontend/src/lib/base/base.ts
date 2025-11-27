@@ -4,7 +4,7 @@ import state, {
   type STATE,
   type STATE_INFER_RESULT,
   type STATE_INFER_SUB,
-  type STATE_ROX,
+  type STATE_ROA,
   type STATE_SUB,
 } from "@libState";
 import { AccessTypes } from "./access";
@@ -39,8 +39,8 @@ export interface BaseOptions {
 type DataProps<T> = {
   [K in keyof T as T[K] extends Function ? never : K]: T[K];
 };
-type WithStateROX<T> = {
-  [K in keyof T]?: T[K] | STATE_ROX<T[K]>;
+type WithStateROA<T> = {
+  [K in keyof T]?: T[K] | STATE_ROA<T[K]>;
 };
 
 /**Shared class for elements to extend
@@ -136,18 +136,18 @@ export abstract class Base<
   /**Sets options for the element*/
   options(options: Options): this {
     let acc = options.access;
-    if (state.h.is.state<AccessTypes>(acc))
-      this.attachSTATEREXToProp("access", acc, () => AccessTypes.WRITE, false);
+    if (state.is(acc))
+      this.attachSTATEToProp("access", acc, () => AccessTypes.WRITE, false);
     else this.access = acc ?? AccessTypes.WRITE;
     return this;
   }
 
   /**Sets any attribute on the base element, to either a fixed value or a state value */
-  opts(opts: WithStateROX<DataProps<this>>): this {
+  opts(opts: WithStateROA<DataProps<this>>): this {
     for (let key in opts) {
-      let opt = opts[key];
-      if (state.h.is.rox(opt)) this.attachSTATEROXToProp(key, opt, false);
-      else this[key] = opt as any;
+      let opt = opts[key] as this[typeof key] | STATE_ROA<this[typeof key]>;
+      if (state.h.is.roa(opt)) this.attachSTATEROAToProp(key, opt, false);
+      else this[key] = opt;
     }
     return this;
   }
@@ -213,9 +213,9 @@ export abstract class Base<
    * @param state the state to attach to the property
    * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element
    * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
-  attachSTATEROXToProp<T extends keyof this>(
+  attachSTATEROAToProp<T extends keyof this>(
     prop: T,
-    state: STATE_ROX<this[T]>,
+    state: STATE_ROA<this[T]>,
     visible?: boolean
   ): this {
     this.dettachSTATEFromProp(prop).#props.set(
@@ -234,7 +234,7 @@ export abstract class Base<
    * @param state the state to attach to the property
    * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element
    * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
-  attachSTATEREXToProp<T extends keyof this>(
+  attachSTATEToProp<T extends keyof this>(
     prop: T,
     state: STATE<this[T]>,
     fallback: (error: string) => this[T],
@@ -283,9 +283,9 @@ export abstract class Base<
     return this;
   }
 
-  attachSTATEROXToAttribute(
+  attachSTATEROAToAttribute(
     qualifiedName: string,
-    state: STATE_ROX<string>,
+    state: STATE_ROA<string>,
     visible?: boolean
   ): this {
     this.dettachSTATEFromAttribute(qualifiedName).#attr.set(
@@ -299,7 +299,7 @@ export abstract class Base<
     return this;
   }
 
-  attachSTATEREXToAttribute(
+  attachSTATEToAttribute(
     qualifiedName: string,
     state: STATE<string>,
     fallback: (error: string) => string,

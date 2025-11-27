@@ -64,7 +64,7 @@ export type STATE_SET_ROX_WS<RT, S, WT = RT> = (
 //     | | \ \| |____ / ____ \| |__| | |____| | \ \  | |___| |__| | |\  |  | |  | |____ / . \   | |
 //     |_|  \_\______/_/    \_\_____/|______|_|  \_\  \_____\____/|_| \_|  |_|  |______/_/ \_\  |_|
 
-interface STATE_BASE<
+export interface STATE_BASE<
   RT,
   WT,
   REL extends STATE_RELATED,
@@ -84,7 +84,7 @@ interface STATE_BASE<
    * @param update set true to update subscriber immediatly*/
   sub<T = STATE_SUB<RRT>>(func: STATE_SUB<RRT>, update?: boolean): T;
   /**This removes a function as a subscriber to the state*/
-  unsub(func: STATE_SUB<RRT>): STATE_SUB<RRT>;
+  unsub<T = STATE_SUB<RRT>>(func: STATE_SUB<RRT>): T;
   /**This returns related states if any*/
   related(): Option<REL>;
 

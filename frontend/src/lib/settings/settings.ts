@@ -1,5 +1,5 @@
 import type { ResultOk } from "@libResult";
-import type { STATE_ROX_WX } from "@libState";
+import type { STATE_ROA_WA } from "@libState";
 
 let nameTransformer: ((name: string) => string) | undefined;
 export let settingsSetNameTransform = (transform: (name: string) => string) => {
@@ -48,10 +48,10 @@ export let settingsInit = (
 };
 
 class Setting {
-  readonly state: STATE_ROX_WX<any>;
+  readonly state: STATE_ROA_WA<any>;
   readonly name: string;
   readonly description: string;
-  constructor(state: STATE_ROX_WX<any>, name: string, description: string) {
+  constructor(state: STATE_ROA_WA<any>, name: string, description: string) {
     this.state = state;
     this.name = name;
     this.description = description;
@@ -138,7 +138,7 @@ export class SettingsGroup {
     id: string,
     name: string,
     description: string,
-    state: STATE_ROX_WX<READ>
+    state: STATE_ROA_WA<READ>
   ) {
     if (id in this.settings)
       throw new Error("Settings already registered " + this.pathID + "/" + id);
@@ -158,7 +158,7 @@ export class SettingsGroup {
     id: string,
     name: string,
     description: string,
-    state: STATE_ROX_WX<READ>,
+    state: STATE_ROA_WA<READ>,
     transform: (state: ResultOk<READ>) => TYPE
   ) {
     if (id in this.settings)
