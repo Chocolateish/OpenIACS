@@ -9,14 +9,6 @@ import {
   type STATE_SET_REX_WS,
 } from "../types";
 
-interface OWNER<RT, WT, REL extends RELATED> {
-  set(value: Result<RT, string>): void;
-  setOk(value: RT): void;
-  setErr(err: string): void;
-  get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_RES<RT, REL>;
-}
-
 //##################################################################################################################################################
 //      _____  ______  _____
 //     |  __ \|  ____|/ ____|
@@ -24,14 +16,21 @@ interface OWNER<RT, WT, REL extends RELATED> {
 //     |  _  /|  __|  \___ \
 //     | | \ \| |____ ____) |
 //     |_|  \_\______|_____/
-
+interface OWNER<RT, WT, REL extends RELATED> {
+  set(value: Result<RT, string>): void;
+  setOk(value: RT): void;
+  setErr(err: string): void;
+  get state(): STATE<RT, WT, REL>;
+  get readOnly(): STATE_RES<RT, REL, WT>;
+}
 export type STATE_SYNC_RES<RT, REL extends RELATED = {}, WT = any> = STATE_RES<
   RT,
-  REL
+  REL,
+  WT
 > &
   OWNER<RT, WT, REL>;
 
-class RES<RT, REL extends RELATED = {}, WT = any>
+class RES<RT, REL extends RELATED, WT>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
   implements OWNER<RT, WT, REL>
 {
@@ -58,8 +57,8 @@ class RES<RT, REL extends RELATED = {}, WT = any>
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_RES<RT, REL> {
-    return this as STATE_RES<RT, REL>;
+  get readOnly(): STATE_RES<RT, REL, WT> {
+    return this as STATE_RES<RT, REL, WT>;
   }
 
   //#Reader Context
@@ -148,19 +147,28 @@ const res = {
 //     | | \ \| |____ ____) |    \  /\  /  ____) |
 //     |_|  \_\______|_____/      \/  \/  |_____/
 
+interface OWNER_WS<RT, WT, REL extends RELATED> {
+  set(value: Result<RT, string>): void;
+  setOk(value: RT): void;
+  setErr(err: string): void;
+  get state(): STATE<RT, WT, REL>;
+  get readOnly(): STATE_RES<RT, REL, WT>;
+  get readWrite(): STATE_RES_WS<RT, WT, REL>;
+}
+
 export type STATE_SYNC_RES_WS<
   RT,
   WT = RT,
   REL extends RELATED = {}
-> = STATE_RES_WS<RT, WT, REL> & OWNER<RT, WT, REL>;
+> = STATE_RES_WS<RT, WT, REL> & OWNER_WS<RT, WT, REL>;
 
-class RES_WS<RT, WT = RT, REL extends RELATED = {}>
+class RES_WS<RT, WT, REL extends RELATED>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
-  implements OWNER<RT, WT, REL>
+  implements OWNER_WS<RT, WT, REL>
 {
   constructor(
     init: Result<RT, string>,
-    setter: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -180,7 +188,7 @@ class RES_WS<RT, WT = RT, REL extends RELATED = {}>
   }
 
   #value: Result<RT, string>;
-  #setter: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT>;
+  #setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -196,10 +204,10 @@ class RES_WS<RT, WT = RT, REL extends RELATED = {}>
   get state(): STATE<RT, WT, REL> {
     return this;
   }
-  get readOnly(): STATE_RES<RT, REL> {
+  get readOnly(): STATE_RES<RT, REL, WT> {
     return this;
   }
-  get writeOnly(): STATE_RES_WS<RT, WT, REL> {
+  get readWrite(): STATE_RES_WS<RT, WT, REL> {
     return this;
   }
 
@@ -248,7 +256,7 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends RELATED = {}>(
     init: RT,
-    setter: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     return new RES_WS<RT, WT, REL>(
@@ -262,7 +270,7 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends RELATED = {}>(
     init: string,
-    setter: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     return new RES_WS<RT, WT, REL>(
@@ -276,7 +284,7 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends RELATED = {}>(
     init: Result<RT, string>,
-    setter: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     return new RES_WS<RT, WT, REL>(init, setter, helper) as STATE_SYNC_RES_WS<

@@ -155,7 +155,7 @@ function res_from<S extends STATE_RES<IN>, IN, OUT = IN>(
 //     |  _  /|  __|  \___ \    \ \/  \/ / \___ \
 //     | | \ \| |____ ____) |    \  /\  /  ____) |
 //     |_|  \_\______|_____/      \/  \/  |_____/
-interface OWNER_WX<
+interface OWNER_WS<
   S,
   RIN = S extends STATE<infer RT> ? RT : never,
   WIN = S extends STATE<any, infer WT> ? WT : never,
@@ -171,7 +171,8 @@ interface OWNER_WX<
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   setTransformWrite(transform: (val: WOUT) => WIN): void;
   get state(): STATE<ROUT, WOUT, any>;
-  get readOnly(): STATE_RES<ROUT, any>;
+  get readOnly(): STATE_RES<ROUT, any, WOUT>;
+  get readWrite(): STATE_RES_WS<ROUT, WOUT>;
 }
 
 export type STATE_PROXY_RES_WS<
@@ -180,15 +181,18 @@ export type STATE_PROXY_RES_WS<
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_RES_WS<ROUT, WOUT> & OWNER_WX<S, RIN, WIN, ROUT, WOUT>;
+> = STATE_RES_WS<ROUT, WOUT> & OWNER_WS<S, RIN, WIN, ROUT, WOUT>;
 
 export class RES_WS<
-  S extends STATE_RES_WS<RIN, WIN>,
-  RIN = S extends STATE<infer RT> ? RT : never,
-  WIN = S extends STATE<any, infer WT> ? WT : never,
-  ROUT = RIN,
-  WOUT = WIN
-> extends STATE_BASE<ROUT, WOUT, any, Result<ROUT, string>> {
+    S extends STATE_RES_WS<RIN, WIN>,
+    RIN = S extends STATE<infer RT> ? RT : never,
+    WIN = S extends STATE<any, infer WT> ? WT : never,
+    ROUT = RIN,
+    WOUT = WIN
+  >
+  extends STATE_BASE<ROUT, WOUT, any, Result<ROUT, string>>
+  implements OWNER_WS<S, RIN, WIN, ROUT, WOUT>
+{
   constructor(
     state: S,
     transformRead?: (value: Result<RIN, string>) => Result<ROUT, string>,
@@ -249,8 +253,11 @@ export class RES_WS<
   get state(): STATE<ROUT, WOUT> {
     return this as STATE<ROUT, WOUT>;
   }
-  get readOnly(): STATE_RES<ROUT, any> {
-    return this as STATE_RES<ROUT, any>;
+  get readOnly(): STATE_RES<ROUT, any, WOUT> {
+    return this as STATE_RES<ROUT, any, WOUT>;
+  }
+  get readWrite(): STATE_RES_WS<ROUT, WOUT> {
+    return this as STATE_RES_WS<ROUT, WOUT>;
   }
 
   //#Reader Context
@@ -345,6 +352,25 @@ function res_ws_from<
 //     |  _  /|  __|  \___ \    \ \/  \/ / /\ \
 //     | | \ \| |____ ____) |    \  /\  / ____ \
 //     |_|  \_\______|_____/      \/  \/_/    \_\
+interface OWNER_WA<
+  S,
+  RIN = S extends STATE<infer RT> ? RT : never,
+  WIN = S extends STATE<any, infer WT> ? WT : never,
+  ROUT = RIN,
+  WOUT = WIN
+> {
+  /**Sets the state that is being proxied, and updates subscribers with new value*/
+  setState(state: S): void;
+  /**Changes the transform function of the proxy, and updates subscribers with new value*/
+  setTransformRead(
+    transform: (val: Result<RIN, string>) => Result<ROUT, string>
+  ): void;
+  /**Changes the transform function of the proxy, and updates subscribers with new value*/
+  setTransformWrite(transform: (val: WOUT) => WIN): void;
+  get state(): STATE<ROUT, WOUT, any>;
+  get readOnly(): STATE_RES<ROUT, any, WOUT>;
+  get readWrite(): STATE_RES_WA<ROUT, WOUT>;
+}
 
 export type STATE_PROXY_RES_WA<
   S extends STATE_RES_WA<RIN, WIN>,
@@ -352,7 +378,7 @@ export type STATE_PROXY_RES_WA<
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_RES_WA<ROUT, WOUT> & OWNER_WX<S, RIN, WIN, ROUT, WOUT>;
+> = STATE_RES_WA<ROUT, WOUT> & OWNER_WA<S, RIN, WIN, ROUT, WOUT>;
 
 export class RES_WA<
     S extends STATE_RES_WA<RIN, WIN>,
@@ -362,7 +388,7 @@ export class RES_WA<
     WOUT = WIN
   >
   extends STATE_BASE<ROUT, WOUT, any, Result<ROUT, string>>
-  implements OWNER_WX<S, RIN, WIN, ROUT, WOUT>
+  implements OWNER_WA<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
     state: S,
@@ -424,8 +450,11 @@ export class RES_WA<
   get state(): STATE<ROUT, WOUT> {
     return this as STATE<ROUT, WOUT>;
   }
-  get readOnly(): STATE_RES<ROUT, any> {
-    return this as STATE_RES<ROUT, any>;
+  get readOnly(): STATE_RES<ROUT, any, WOUT> {
+    return this as STATE_RES<ROUT, any, WOUT>;
+  }
+  get readWrite(): STATE_RES_WA<ROUT, WOUT> {
+    return this as STATE_RES_WA<ROUT, WOUT>;
   }
 
   //#Reader Context

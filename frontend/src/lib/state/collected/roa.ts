@@ -8,7 +8,14 @@ import type {
   STATE_COLLECTED_TRANS_VAL_UNK,
 } from "./shared";
 
-interface OWNER<RT, IN extends [STATE<any>, ...STATE<any>[]]> {
+//##################################################################################################################################################
+//      _____   ____
+//     |  __ \ / __ \   /\
+//     | |__) | |  | | /  \
+//     |  _  /| |  | |/ /\ \
+//     | | \ \| |__| / ____ \
+//     |_|  \_\\____/_/    \_\
+interface OWNER<RT, IN extends [STATE<any>, ...STATE<any>[]], WT> {
   /**The `setStates` method is used to update the states used by the `StateDerived` class.
    * @param states - The new states. This function should accept an array of states and return the derived state.*/
   setStates(...states: STATE_COLLECTED_STATES<IN>): void;
@@ -18,26 +25,18 @@ interface OWNER<RT, IN extends [STATE<any>, ...STATE<any>[]]> {
   setGetter(
     getter: (values: STATE_COLLECTED_TRANS_VAL<IN>) => ResultOk<RT>
   ): void;
-  get state(): STATE<RT, any, any>;
-  get readOnly(): STATE_ROA<RT, any>;
+  get state(): STATE<RT, WT, any>;
+  get readOnly(): STATE_ROA<RT, any, WT>;
 }
-
-//##################################################################################################################################################
-//      _____   ____
-//     |  __ \ / __ \   /\
-//     | |__) | |  | | /  \
-//     |  _  /| |  | |/ /\ \
-//     | | \ \| |__| / ____ \
-//     |_|  \_\\____/_/    \_\
-
 export type STATE_COLLECTED_ROA<
   RT,
-  IN extends [STATE<any>, ...STATE<any>[]]
-> = STATE_ROA<RT, any> & OWNER<RT, IN>;
+  IN extends [STATE<any>, ...STATE<any>[]],
+  WT = any
+> = STATE_ROA<RT, any, WT> & OWNER<RT, IN, WT>;
 
-export class ROA<RT, IN extends [STATE<any>, ...STATE<any>[]]>
-  extends STATE_BASE<RT, any, any, ResultOk<RT>>
-  implements OWNER<RT, IN>
+export class ROA<RT, IN extends [STATE<any>, ...STATE<any>[]], WT>
+  extends STATE_BASE<RT, WT, any, ResultOk<RT>>
+  implements OWNER<RT, IN, WT>
 {
   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
    * @param transform - Function to translate value of state or states to something else, false means first states values is used.
@@ -127,11 +126,11 @@ export class ROA<RT, IN extends [STATE<any>, ...STATE<any>[]]>
       this.onSubscribe(true);
     } else this.getter = getter;
   }
-  get state(): STATE<RT, any, any> {
-    return this as STATE<RT, any, any>;
+  get state(): STATE<RT, WT, any> {
+    return this as STATE<RT, WT, any>;
   }
-  get readOnly(): STATE_ROA<RT, any> {
-    return this as STATE_ROA<RT, any>;
+  get readOnly(): STATE_ROA<RT, any, WT> {
+    return this as STATE_ROA<RT, any, WT>;
   }
 
   //#Reader Context
@@ -167,13 +166,17 @@ export const state_collected_roa = {
   /**Creates a guarenteed ok state that collects multiple states values and reduces it to one.
    * @param transform - Function to translate value of collected states, false means first states values is used.
    * @param states - The states to collect.*/
-  from<RT, IN extends [STATE<any>, ...STATE<any>[]]>(
+  from<RT, IN extends [STATE<any>, ...STATE<any>[]], WT = any>(
     transform:
       | ((values: STATE_COLLECTED_TRANS_VAL<IN>) => ResultOk<RT>)
       | false,
     ...states: IN
   ) {
-    return new ROA<RT, IN>(transform, ...states) as STATE_COLLECTED_ROA<RT, IN>;
+    return new ROA<RT, IN, WT>(transform, ...states) as STATE_COLLECTED_ROA<
+      RT,
+      IN,
+      WT
+    >;
   },
   class: ROA,
 };

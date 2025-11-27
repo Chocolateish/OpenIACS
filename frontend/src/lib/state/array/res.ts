@@ -2,6 +2,7 @@ import { Err, None, Ok, type Option, type Result } from "@libResult";
 import { STATE_BASE } from "../base";
 import {
   type STATE_HELPER as HELPER,
+  type STATE_RELATED as RELATED,
   type STATE,
   type STATE_RES,
   type STATE_RES_WS,
@@ -22,20 +23,33 @@ import type {
 //     | | \ \| |____ ____) |
 //     |_|  \_\______|_____/
 
-export class STATE_ARRAY_RES<AT, REL extends {} = {}>
+interface OWNER<AT, REL extends RELATED> extends STATE_ARRAY<AT> {
+  set(value: Result<AT[], string>): void;
+  get state(): STATE<SAR<AT>, SAW<AT>, REL>;
+  get readOnly(): STATE_RES<SAR<AT>, REL, SAW<AT>>;
+}
+export type STATE_ARRAY_RES<AT, REL extends RELATED = {}> = STATE_RES<
+  SAR<AT>,
+  REL,
+  SAW<AT>
+> &
+  OWNER<AT, REL>;
+
+export class RES<AT, REL extends RELATED>
   extends STATE_BASE<SAR<AT>, SAW<AT>, REL, Result<SAR<AT>, string>>
-  implements STATE_ARRAY<AT>
+  implements OWNER<AT, REL>
 {
   constructor(init: Result<AT[], string>, helper?: HELPER<SAW<AT>, REL>) {
     super();
-    if (helper) this.#h = helper;
+    if (helper) this.#helper = helper;
     this.set(init);
   }
 
   //Internal Context
   #e?: string;
   #a: AT[] = [];
-  #h?: HELPER<SAW<AT>, REL>;
+  #helper?: HELPER<SAW<AT>, REL>;
+  setter?: STATE_SET_REX_WS<SAR<AT>, OWNER<AT, REL>, SAW<AT>>;
 
   #mr(type: READ_TYPE, index: number, items: AT[]): SAR<AT> {
     return { array: this.#a, type, index, items };
@@ -44,8 +58,8 @@ export class STATE_ARRAY_RES<AT, REL extends {} = {}>
   get state(): STATE<SAR<AT>, SAW<AT>, REL> {
     return this as STATE<SAR<AT>, SAW<AT>, REL>;
   }
-  get readOnly(): STATE_RES<SAR<AT>, REL> {
-    return this as STATE_RES<SAR<AT>, REL>;
+  get readOnly(): STATE_RES<SAR<AT>, REL, SAW<AT>> {
+    return this as STATE_RES<SAR<AT>, REL, SAW<AT>>;
   }
 
   //#Reader Context
@@ -65,15 +79,28 @@ export class STATE_ARRAY_RES<AT, REL extends {} = {}>
     return Ok(this.#mr("none", 0, this.#a));
   }
   related(): Option<REL> {
-    return this.#h?.related ? this.#h.related() : None();
+    return this.#helper?.related ? this.#helper.related() : None();
   }
 
   //#Writer Context
   get writable(): boolean {
-    return false;
+    return this.setter !== undefined;
   }
   get wsync(): boolean {
-    return false;
+    return this.writable;
+  }
+  async write(value: SAW<AT>): Promise<Result<void, string>> {
+    return this.writeSync(value);
+  }
+  writeSync(value: SAW<AT>): Result<void, string> {
+    if (this.setter) return this.setter(value, this, this.get());
+    return Err("State not writable");
+  }
+  limit(value: SAW<AT>): Result<SAW<AT>, string> {
+    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
+  }
+  check(value: SAW<AT>): Result<SAW<AT>, string> {
+    return this.#helper?.check ? this.#helper.check(value) : Ok(value);
   }
 
   //Array/Owner Context
@@ -154,9 +181,14 @@ const res = {
    * @param init initial array, leave empty for empty array
    * @param helper functions to make related*/
   ok<AT, REL extends {} = {}>(init: AT[] = [], helper?: HELPER<SAW<AT>, REL>) {
-    return new STATE_ARRAY_RES<AT, REL>(Ok(init), helper);
+    return new RES<AT, REL>(Ok(init), helper) as STATE_ARRAY_RES<AT, REL>;
   },
-  class: STATE_ARRAY_RES,
+  /**Creates a state representing an array
+   * @param init initial error
+   * @param helper functions to make related*/
+  err<AT, REL extends {} = {}>(err: string, helper?: HELPER<SAW<AT>, REL>) {
+    return new RES<AT, REL>(Err(err), helper) as STATE_ARRAY_RES<AT, REL>;
+  },
 };
 
 //##################################################################################################################################################
@@ -166,10 +198,22 @@ const res = {
 //     |  _  /|  __|  \___ \    \ \/  \/ / \___ \
 //     | | \ \| |____ ____) |    \  /\  /  ____) |
 //     |_|  \_\______|_____/      \/  \/  |_____/
+interface OWNER_WS<AT, REL extends RELATED> extends STATE_ARRAY<AT> {
+  set(value: Result<AT[], string>): void;
+  get state(): STATE<SAR<AT>, SAW<AT>, REL>;
+  get readOnly(): STATE_RES<SAR<AT>, REL, SAW<AT>>;
+  get readWrite(): STATE_RES_WS<SAR<AT>, SAW<AT>, REL>;
+}
+export type STATE_ARRAY_RES_WS<AT, REL extends RELATED = {}> = STATE_RES_WS<
+  SAR<AT>,
+  SAW<AT>,
+  REL
+> &
+  OWNER<AT, REL>;
 
-export class STATE_ARRAY_RES_WS<AT, REL extends {} = {}>
+export class RES_WS<AT, REL extends RELATED>
   extends STATE_BASE<SAR<AT>, SAW<AT>, REL, Result<SAR<AT>, string>>
-  implements STATE_ARRAY<AT>
+  implements OWNER_WS<AT, REL>
 {
   /**Creates a state which holds a value
    * @param init initial value for state, use a promise for an eager async value, use a function returning a promise for a lazy async value
@@ -177,13 +221,14 @@ export class STATE_ARRAY_RES_WS<AT, REL extends {} = {}>
    * @param helper functions to check and limit*/
   constructor(
     init: Result<AT[], string>,
-    setter: STATE_SET_REX_WS<SAR<AT>, STATE_ARRAY_RES_WS<AT, REL>> | true,
+    setter: STATE_SET_REX_WS<SAR<AT>, OWNER_WS<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>
   ) {
     super();
     if (setter === true)
-      this.#s = (val) => Ok(this.applyRead(Ok(val), (v) => [...v]));
-    else this.#s = setter;
+      this.#setter = (val) =>
+        Ok(this.applyRead(Ok(val as SAR<AT>), (v) => [...v]));
+    else this.#setter = setter;
     if (helper) this.#h = helper;
     this.set(init);
   }
@@ -192,7 +237,7 @@ export class STATE_ARRAY_RES_WS<AT, REL extends {} = {}>
   #e?: string;
   #a: AT[] = [];
   #h?: HELPER<SAW<AT>, REL>;
-  #s: STATE_SET_REX_WS<SAR<AT>, STATE_ARRAY_RES_WS<AT, REL>>;
+  #setter: STATE_SET_REX_WS<SAR<AT>, OWNER_WS<AT, REL>, SAW<AT>>;
 
   #mr(type: READ_TYPE, index: number, items: AT[]): SAR<AT> {
     return { array: this.#a, type, index, items };
@@ -201,10 +246,10 @@ export class STATE_ARRAY_RES_WS<AT, REL extends {} = {}>
   get state(): STATE<SAR<AT>, SAW<AT>, REL> {
     return this;
   }
-  get readOnly(): STATE_RES<SAR<AT>, REL> {
+  get readOnly(): STATE_RES<SAR<AT>, REL, SAW<AT>> {
     return this;
   }
-  get writeOnly(): STATE_RES_WS<SAR<AT>, SAW<AT>, REL> {
+  get readWrite(): STATE_RES_WS<SAR<AT>, SAW<AT>, REL> {
     return this;
   }
 
@@ -239,7 +284,7 @@ export class STATE_ARRAY_RES_WS<AT, REL extends {} = {}>
     return this.writeSync(value);
   }
   writeSync(value: SAW<AT>): Result<void, string> {
-    return this.#s(value as SAR<AT>, this);
+    return this.#setter(value, this, this.get());
   }
   limit(value: SAW<AT>): Result<SAW<AT>, string> {
     return this.#h?.limit ? this.#h.limit(value) : Ok(value);
@@ -326,14 +371,30 @@ const res_ws = {
    * @param init initial array, leave empty for empty array
    * @param setter function called when state value is set via setter, set true let write set it's value
    * @param helper functions to check and limit*/
-  ok<AT, RELATED extends {} = {}>(
+  ok<AT, REL extends RELATED = {}>(
     init: AT[] = [],
-    setter: STATE_SET_REX_WS<SAR<AT>, STATE_ARRAY_RES_WS<AT, RELATED>> | true,
-    helper?: HELPER<SAW<AT>, RELATED>
+    setter: STATE_SET_REX_WS<SAR<AT>, OWNER_WS<AT, REL>, SAW<AT>> | true,
+    helper?: HELPER<SAW<AT>, REL>
   ) {
-    return new STATE_ARRAY_RES_WS<AT, RELATED>(Ok(init), setter, helper);
+    return new RES_WS<AT, REL>(Ok(init), setter, helper) as STATE_ARRAY_RES_WS<
+      AT,
+      REL
+    >;
   },
-  class: STATE_ARRAY_RES_WS,
+  /**Creates a state representing an array
+   * @param err initial error
+   * @param setter function called when state value is set via setter, set true let write set it's value
+   * @param helper functions to check and limit*/
+  err<AT, REL extends RELATED = {}>(
+    err: string,
+    setter: STATE_SET_REX_WS<SAR<AT>, OWNER_WS<AT, REL>, SAW<AT>> | true,
+    helper?: HELPER<SAW<AT>, REL>
+  ) {
+    return new RES_WS<AT, REL>(Err(err), setter, helper) as STATE_ARRAY_RES_WS<
+      AT,
+      REL
+    >;
+  },
 };
 
 //##################################################################################################################################################

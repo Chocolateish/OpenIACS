@@ -1,6 +1,6 @@
 import { Err, type Result } from "@libResult";
 import { STATE_BASE } from "../base";
-import { type STATE, type STATE_RES, type STATE_RXS } from "../types";
+import { type STATE, type STATE_RES } from "../types";
 import type {
   STATE_COLLECTED_STATES,
   STATE_COLLECTED_SUBS,
@@ -8,7 +8,14 @@ import type {
   STATE_COLLECTED_TRANS_VAL_UNK,
 } from "./shared";
 
-interface OWNER<RT, IN extends STATE_RXS<any>[]> {
+//##################################################################################################################################################
+//      _____  ______  _____
+//     |  __ \|  ____|/ ____|
+//     | |__) | |__  | (___
+//     |  _  /|  __|  \___ \
+//     | | \ \| |____ ____) |
+//     |_|  \_\______|_____/
+interface OWNER<RT, IN extends STATE_RES<any>[], WT> {
   /**The `setStates` method is used to update the states used by the `StateDerived` class.
    * @param states - The new states. This function should accept an array of states and return the derived state.*/
   setStates(...states: STATE_COLLECTED_STATES<IN>): void;
@@ -18,27 +25,18 @@ interface OWNER<RT, IN extends STATE_RXS<any>[]> {
   setGetter(
     getter: (values: STATE_COLLECTED_TRANS_VAL<IN>) => Result<RT, string>
   ): void;
-  get state(): STATE<RT, any, any>;
-  get readOnly(): STATE_RES<RT, any>;
+  get state(): STATE<RT, WT, any>;
+  get readOnly(): STATE_RES<RT, any, WT>;
 }
-
-//##################################################################################################################################################
-//      _____  ______  _____
-//     |  __ \|  ____|/ ____|
-//     | |__) | |__  | (___
-//     |  _  /|  __|  \___ \
-//     | | \ \| |____ ____) |
-//     |_|  \_\______|_____/
-
-export type STATE_COLLECTED_RES<RT, IN extends STATE_RXS<any>[]> = STATE_RES<
+export type STATE_COLLECTED_RES<
   RT,
-  any
-> &
-  OWNER<RT, IN>;
+  IN extends STATE_RES<any>[],
+  WT = any
+> = STATE_RES<RT, any, WT> & OWNER<RT, IN, WT>;
 
-export class RES<RT, IN extends STATE_RXS<any>[]>
-  extends STATE_BASE<RT, any, any, Result<RT, string>>
-  implements OWNER<RT, IN>
+export class RES<RT, IN extends STATE_RES<any>[], WT>
+  extends STATE_BASE<RT, WT, any, Result<RT, string>>
+  implements OWNER<RT, IN, WT>
 {
   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
    * @param transform - Function to translate value of state or states to something else, false means first states values is used.
@@ -120,11 +118,11 @@ export class RES<RT, IN extends STATE_RXS<any>[]>
       this.onSubscribe(true);
     } else this.getter = getter;
   }
-  get state(): STATE<RT, any, any> {
-    return this as STATE<RT, any, any>;
+  get state(): STATE<RT, WT, any> {
+    return this as STATE<RT, WT, any>;
   }
-  get readOnly(): STATE_RES<RT, any> {
-    return this as STATE_RES<RT, any>;
+  get readOnly(): STATE_RES<RT, any, WT> {
+    return this as STATE_RES<RT, any, WT>;
   }
 
   //#Reader Context
@@ -162,13 +160,17 @@ export const state_collected_res = {
   /**Creates a state that collects multiple states values and reduces it to one.
    * @param transform - Function to translate value of collected states, false means first states values is used.
    * @param states - The states to collect.*/
-  from<RT, IN extends STATE_RXS<any>[]>(
+  from<RT, IN extends STATE_RES<any>[], WT = any>(
     transform:
       | ((values: STATE_COLLECTED_TRANS_VAL<IN>) => Result<RT, string>)
       | false,
     ...states: IN
   ) {
-    return new RES<RT, IN>(transform, ...states) as STATE_COLLECTED_RES<RT, IN>;
+    return new RES<RT, IN, WT>(transform, ...states) as STATE_COLLECTED_RES<
+      RT,
+      IN,
+      WT
+    >;
   },
   class: RES,
 };

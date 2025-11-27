@@ -16,7 +16,7 @@ interface OWNER<RT, WT, REL extends RELATED> {
   setOk(value: RT): void;
   setErr(err: string): void;
   get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_REA<RT, REL>;
+  get readOnly(): STATE_REA<RT, REL, WT>;
 }
 
 //##################################################################################################################################################
@@ -30,7 +30,7 @@ export type STATE_DELAYED_REA<
   RT,
   REL extends RELATED = {},
   WT = any
-> = STATE_REA<RT, REL> & OWNER<RT, WT, REL>;
+> = STATE_REA<RT, REL, WT> & OWNER<RT, WT, REL>;
 
 export class REA<RT, REL extends RELATED = {}, WT = any>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
@@ -99,8 +99,8 @@ export class REA<RT, REL extends RELATED = {}, WT = any>
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_REA<RT, REL> {
-    return this as STATE_REA<RT, REL>;
+  get readOnly(): STATE_REA<RT, REL, WT> {
+    return this as STATE_REA<RT, REL, WT>;
   }
 
   //#Reader Context
@@ -189,20 +189,28 @@ const rea = {
 //     |  _  /|  __|   / /\ \     \ \/  \/ / \___ \
 //     | | \ \| |____ / ____ \     \  /\  /  ____) |
 //     |_|  \_\______/_/    \_\     \/  \/  |_____/
+interface OWNER_WS<RT, WT, REL extends RELATED> {
+  set(value: Result<RT, string>): void;
+  setOk(value: RT): void;
+  setErr(err: string): void;
+  get state(): STATE<RT, WT, REL>;
+  get readOnly(): STATE_REA<RT, REL, WT>;
+  get readWrite(): STATE_REA_WS<RT, WT, REL>;
+}
 
 export type STATE_DELAYED_REA_WS<
   RT,
   WT = RT,
   REL extends RELATED = {}
-> = STATE_REA_WS<RT, WT, REL> & OWNER<RT, WT, REL>;
+> = STATE_REA_WS<RT, WT, REL> & OWNER_WS<RT, WT, REL>;
 
 export class REA_WS<RT, WT = RT, REL extends RELATED = {}>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
-  implements OWNER<RT, WT, REL>
+  implements OWNER_WS<RT, WT, REL>
 {
   constructor(
     init: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -253,7 +261,7 @@ export class REA_WS<RT, WT = RT, REL extends RELATED = {}>
   }
 
   #value?: Result<RT, string>;
-  #setter: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT>;
+  #setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -269,10 +277,10 @@ export class REA_WS<RT, WT = RT, REL extends RELATED = {}>
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_REA<RT, REL> {
-    return this as STATE_REA<RT, REL>;
+  get readOnly(): STATE_REA<RT, REL, WT> {
+    return this as STATE_REA<RT, REL, WT>;
   }
-  get writeOnly(): STATE_REA_WS<RT, WT, REL> {
+  get readWrite(): STATE_REA_WS<RT, WT, REL> {
     return this as STATE_REA_WS<RT, WT, REL>;
   }
 
@@ -323,7 +331,7 @@ const rea_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<RT>,
-    setter: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     return new REA_WS<RT, WT, REL>(
@@ -337,7 +345,7 @@ const rea_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<string>,
-    setter: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     return new REA_WS<RT, WT, REL>(
@@ -351,7 +359,7 @@ const rea_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     return new REA_WS<RT, WT, REL>(
@@ -369,20 +377,28 @@ const rea_ws = {
 //     |  _  /|  __|   / /\ \     \ \/  \/ / /\ \
 //     | | \ \| |____ / ____ \     \  /\  / ____ \
 //     |_|  \_\______/_/    \_\     \/  \/_/    \_\
+interface OWNER_WA<RT, WT, REL extends RELATED> {
+  set(value: Result<RT, string>): void;
+  setOk(value: RT): void;
+  setErr(err: string): void;
+  get state(): STATE<RT, WT, REL>;
+  get readOnly(): STATE_REA<RT, REL, WT>;
+  get readWrite(): STATE_REA_WA<RT, WT, REL>;
+}
 
 export type STATE_DELAYED_REA_WA<
   RT,
   WT = RT,
   REL extends RELATED = {}
-> = STATE_REA_WA<RT, WT, REL> & OWNER<RT, WT, REL>;
+> = STATE_REA_WA<RT, WT, REL> & OWNER_WA<RT, WT, REL>;
 
 export class REA_WA<RT, WT = RT, REL extends RELATED = {}>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
-  implements OWNER<RT, WT, REL>
+  implements OWNER_WA<RT, WT, REL>
 {
   constructor(
     init: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WA<RT, OWNER<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -433,7 +449,7 @@ export class REA_WA<RT, WT = RT, REL extends RELATED = {}>
   }
 
   #value?: Result<RT, string>;
-  #setter: STATE_SET_REX_WA<RT, OWNER<RT, WT, REL>, WT>;
+  #setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -449,10 +465,10 @@ export class REA_WA<RT, WT = RT, REL extends RELATED = {}>
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_REA<RT, REL> {
-    return this as STATE_REA<RT, REL>;
+  get readOnly(): STATE_REA<RT, REL, WT> {
+    return this as STATE_REA<RT, REL, WT>;
   }
-  get writeOnly(): STATE_REA_WA<RT, WT, REL> {
+  get readWrite(): STATE_REA_WA<RT, WT, REL> {
     return this as STATE_REA_WA<RT, WT, REL>;
   }
 
@@ -500,7 +516,7 @@ const rea_wa = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<RT>,
-    setter: STATE_SET_REX_WA<RT, OWNER<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     return new REA_WA<RT, WT, REL>(
@@ -514,7 +530,7 @@ const rea_wa = {
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<string>,
-    setter: STATE_SET_REX_WA<RT, OWNER<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     return new REA_WA<RT, WT, REL>(
@@ -528,7 +544,7 @@ const rea_wa = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends RELATED = {}>(
     init: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WA<RT, OWNER<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     return new REA_WA<RT, WT, REL>(

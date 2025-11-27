@@ -1,5 +1,5 @@
 import { Ok, ResultOk, type Result } from "@libResult";
-import type { STATE, STATE_ROS, STATE_ROX, STATE_RXS } from "../types";
+import type { STATE, STATE_RES, STATE_ROA, STATE_ROS } from "../types";
 import { state_collected_rea, type STATE_COLLECTED_REA } from "./rea";
 import { state_collected_res, type STATE_COLLECTED_RES } from "./res";
 import { state_collected_roa, type STATE_COLLECTED_ROA } from "./roa";
@@ -23,7 +23,7 @@ class NUMBER_SUM_REA<
 
 //##################################################################################################################################################
 class NUMBER_SUM_ROA<
-  S extends [STATE_ROX<number>, ...STATE_ROX<number>[]]
+  S extends [STATE_ROA<number>, ...STATE_ROA<number>[]]
 > extends state_collected_roa.class<number, S> {
   constructor(...states: S) {
     super(false, ...states);
@@ -35,7 +35,7 @@ class NUMBER_SUM_ROA<
 
 //##################################################################################################################################################
 class NUMBER_SUM_RES<
-  S extends STATE_RXS<number>[]
+  S extends STATE_RES<number>[]
 > extends state_collected_res.class<number, S> {
   constructor(...states: S) {
     super(false, ...states);
@@ -67,10 +67,10 @@ export const state_collects_number = {
     rea<S extends STATE<number>[]>(...states: S) {
       return new NUMBER_SUM_REA(...states) as STATE_COLLECTED_REA<number, S>;
     },
-    roa<S extends [STATE_ROX<number>, ...STATE_ROX<number>[]]>(...states: S) {
+    roa<S extends [STATE_ROA<number>, ...STATE_ROA<number>[]]>(...states: S) {
       return new NUMBER_SUM_ROA(...states) as STATE_COLLECTED_ROA<number, S>;
     },
-    res<S extends STATE_RXS<number>[]>(...states: S) {
+    res<S extends STATE_RES<number>[]>(...states: S) {
       return new NUMBER_SUM_RES(...states) as STATE_COLLECTED_RES<number, S>;
     },
     ros<S extends [STATE_ROS<number>, ...STATE_ROS<number>[]]>(...states: S) {

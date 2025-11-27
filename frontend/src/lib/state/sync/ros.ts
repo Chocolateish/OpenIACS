@@ -10,13 +10,6 @@ import {
   type STATE_SET_ROX_WS,
 } from "../types";
 
-interface OWNER<RT, WT, REL extends RELATED> {
-  set(value: ResultOk<RT>): void;
-  setOk(value: RT): void;
-  get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_ROS<RT, REL>;
-}
-
 //##################################################################################################################################################
 //      _____   ____   _____
 //     |  __ \ / __ \ / ____|
@@ -24,10 +17,17 @@ interface OWNER<RT, WT, REL extends RELATED> {
 //     |  _  /| |  | |\___ \
 //     | | \ \| |__| |____) |
 //     |_|  \_\\____/|_____/
+interface OWNER<RT, WT, REL extends RELATED> {
+  set(value: ResultOk<RT>): void;
+  setOk(value: RT): void;
+  get state(): STATE<RT, WT, REL>;
+  get readOnly(): STATE_ROS<RT, REL, WT>;
+}
 
 export type STATE_SYNC_ROS<RT, REL extends RELATED = {}, WT = any> = STATE_ROS<
   RT,
-  REL
+  REL,
+  WT
 > &
   OWNER<RT, WT, REL>;
 
@@ -55,8 +55,8 @@ export class ROS<RT, REL extends RELATED = {}, WT = any>
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_ROS<RT, REL> {
-    return this as STATE_ROS<RT, REL>;
+  get readOnly(): STATE_ROS<RT, REL, WT> {
+    return this as STATE_ROS<RT, REL, WT>;
   }
 
   //#Reader Context
@@ -135,19 +135,27 @@ const ros = {
 //     | | \ \| |__| |____) |    \  /\  /  ____) |
 //     |_|  \_\\____/|_____/      \/  \/  |_____/
 
+interface OWNER_WS<RT, WT, REL extends RELATED> {
+  set(value: ResultOk<RT>): void;
+  setOk(value: RT): void;
+  get state(): STATE<RT, WT, REL>;
+  get readOnly(): STATE_ROS<RT, REL, WT>;
+  get readWrite(): STATE_ROS_WS<RT, WT, REL>;
+}
+
 export type STATE_SYNC_ROS_WS<
   RT,
   WT = RT,
   REL extends RELATED = {}
-> = STATE_ROS_WS<RT, WT, REL> & OWNER<RT, WT, REL>;
+> = STATE_ROS_WS<RT, WT, REL> & OWNER_WS<RT, WT, REL>;
 
 export class ROS_WS<RT, WT = RT, REL extends RELATED = {}>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
-  implements OWNER<RT, WT, REL>
+  implements OWNER_WS<RT, WT, REL>
 {
   constructor(
     init: ResultOk<RT>,
-    setter: STATE_SET_ROX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -167,7 +175,7 @@ export class ROS_WS<RT, WT = RT, REL extends RELATED = {}>
   }
 
   #value: ResultOk<RT>;
-  #setter: STATE_SET_ROX_WS<RT, OWNER<RT, WT, REL>, WT>;
+  #setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -180,10 +188,10 @@ export class ROS_WS<RT, WT = RT, REL extends RELATED = {}>
   get state(): STATE<RT, WT, REL> {
     return this;
   }
-  get readOnly(): STATE_ROS<RT, REL> {
+  get readOnly(): STATE_ROS<RT, REL, WT> {
     return this;
   }
-  get writeOnly(): STATE_ROS_WS<RT, WT, REL> {
+  get readWrite(): STATE_ROS_WS<RT, WT, REL> {
     return this;
   }
 
@@ -235,7 +243,7 @@ const ros_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends RELATED = {}>(
     init: RT,
-    setter: STATE_SET_ROX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     return new ROS_WS<RT, WT, REL>(
@@ -249,7 +257,7 @@ const ros_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends RELATED = {}>(
     init: ResultOk<RT>,
-    setter: STATE_SET_ROX_WS<RT, OWNER<RT, WT, REL>, WT> | true,
+    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true,
     helper?: Helper<WT, REL>
   ) {
     return new ROS_WS<RT, WT, REL>(init, setter, helper) as STATE_SYNC_ROS_WS<

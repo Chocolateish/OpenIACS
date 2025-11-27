@@ -8,7 +8,14 @@ import type {
   STATE_COLLECTED_TRANS_VAL_UNK,
 } from "./shared";
 
-interface OWNER<RT, IN extends STATE<any>[]> {
+//##################################################################################################################################################
+//      _____  ______
+//     |  __ \|  ____|   /\
+//     | |__) | |__     /  \
+//     |  _  /|  __|   / /\ \
+//     | | \ \| |____ / ____ \
+//     |_|  \_\______/_/    \_\
+interface OWNER<RT, IN extends STATE<any>[], WT> {
   /**The `setStates` method is used to update the states used by the `StateDerived` class.
    * @param states - The new states. This function should accept an array of states and return the derived state.*/
   setStates(...states: STATE_COLLECTED_STATES<IN>): void;
@@ -18,27 +25,19 @@ interface OWNER<RT, IN extends STATE<any>[]> {
   setGetter(
     getter: (values: STATE_COLLECTED_TRANS_VAL<IN>) => Result<RT, string>
   ): void;
-  get state(): STATE<RT, any, any>;
-  get readOnly(): STATE_REA<RT, any>;
+  get state(): STATE<RT, WT, any>;
+  get readOnly(): STATE_REA<RT, any, WT>;
 }
 
-//##################################################################################################################################################
-//      _____  ______
-//     |  __ \|  ____|   /\
-//     | |__) | |__     /  \
-//     |  _  /|  __|   / /\ \
-//     | | \ \| |____ / ____ \
-//     |_|  \_\______/_/    \_\
-
-export type STATE_COLLECTED_REA<RT, IN extends STATE<any>[]> = STATE_REA<
+export type STATE_COLLECTED_REA<
   RT,
-  any
-> &
-  OWNER<RT, IN>;
+  IN extends STATE<any>[],
+  WT = any
+> = STATE_REA<RT, any, WT> & OWNER<RT, IN, WT>;
 
-export class REA<RT, IN extends STATE<any>[]>
-  extends STATE_BASE<RT, any, any, Result<RT, string>>
-  implements OWNER<RT, IN>
+export class REA<RT, IN extends STATE<any>[], WT>
+  extends STATE_BASE<RT, WT, any, Result<RT, string>>
+  implements OWNER<RT, IN, WT>
 {
   constructor(
     transform:
@@ -129,11 +128,11 @@ export class REA<RT, IN extends STATE<any>[]>
       this.onSubscribe(true);
     } else this.getter = getter;
   }
-  get state(): STATE<RT, any, any> {
-    return this as STATE<RT, any, any>;
+  get state(): STATE<RT, WT, any> {
+    return this as STATE<RT, WT, any>;
   }
-  get readOnly(): STATE_REA<RT, any> {
-    return this as STATE_REA<RT, any>;
+  get readOnly(): STATE_REA<RT, any, WT> {
+    return this as STATE_REA<RT, any, WT>;
   }
 
   //#Reader Context
@@ -169,13 +168,17 @@ export const state_collected_rea = {
   /**Creates a state that collects multiple states values and reduces it to one.
    * @param transform - Function to translate value of collected states, false means first states values is used.
    * @param states - The states to collect.*/
-  from<RT, IN extends STATE<any>[]>(
+  from<RT, IN extends STATE<any>[], WT = any>(
     transform:
       | ((values: STATE_COLLECTED_TRANS_VAL<IN>) => Result<RT, string>)
       | false,
     ...states: IN
   ) {
-    return new REA<RT, IN>(transform, ...states) as STATE_COLLECTED_REA<RT, IN>;
+    return new REA<RT, IN, WT>(transform, ...states) as STATE_COLLECTED_REA<
+      RT,
+      IN,
+      WT
+    >;
   },
   class: REA,
 };

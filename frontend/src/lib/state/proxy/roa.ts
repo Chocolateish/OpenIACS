@@ -155,7 +155,7 @@ function roa_from<S extends STATE<IN>, IN, OUT = IN>(
 //     | | \ \| |__| / ____ \     \  /\  /  ____) |
 //     |_|  \_\\____/_/    \_\     \/  \/  |_____/
 
-interface OWNER_WX<
+interface OWNER_WS<
   S,
   RIN = S extends STATE<infer RT> ? RT : never,
   WIN = S extends STATE<any, infer WT> ? WT : never,
@@ -171,7 +171,8 @@ interface OWNER_WX<
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   setTransformWrite(transform: (val: WOUT) => WIN): void;
   get state(): STATE<ROUT, WOUT, any>;
-  get readOnly(): STATE_ROA<ROUT, any>;
+  get readOnly(): STATE_ROA<ROUT, any, WOUT>;
+  get readWrite(): STATE_ROA_WS<ROUT, WOUT>;
 }
 
 export type STATE_PROXY_ROA_WS<
@@ -180,7 +181,7 @@ export type STATE_PROXY_ROA_WS<
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_ROA_WS<ROUT, WOUT> & OWNER_WX<S, RIN, WIN, ROUT, WOUT>;
+> = STATE_ROA_WS<ROUT, WOUT> & OWNER_WS<S, RIN, WIN, ROUT, WOUT>;
 
 export class ROA_WS<
     S extends STATE_REA_WS<RIN, WIN>,
@@ -190,7 +191,7 @@ export class ROA_WS<
     WOUT = WIN
   >
   extends STATE_BASE<ROUT, WOUT, any, ResultOk<ROUT>>
-  implements OWNER_WX<S, RIN, WIN, ROUT, WOUT>
+  implements OWNER_WS<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
     state: S,
@@ -247,8 +248,11 @@ export class ROA_WS<
   get state(): STATE<ROUT, WOUT> {
     return this as STATE<ROUT, WOUT>;
   }
-  get readOnly(): STATE_ROA<ROUT, any> {
-    return this as STATE_ROA<ROUT, any>;
+  get readOnly(): STATE_ROA<ROUT, any, WOUT> {
+    return this as STATE_ROA<ROUT, any, WOUT>;
+  }
+  get readWrite(): STATE_ROA_WS<ROUT, WOUT> {
+    return this as STATE_ROA_WS<ROUT, WOUT>;
   }
 
   //#Reader Context
@@ -340,13 +344,33 @@ function roa_ws_from<
 //     | | \ \| |__| / ____ \     \  /\  / ____ \
 //     |_|  \_\\____/_/    \_\     \/  \/_/    \_\
 
+interface OWNER_WA<
+  S,
+  RIN = S extends STATE<infer RT> ? RT : never,
+  WIN = S extends STATE<any, infer WT> ? WT : never,
+  ROUT = RIN,
+  WOUT = WIN
+> {
+  /**Sets the state that is being proxied, and updates subscribers with new value*/
+  setState(state: S): void;
+  /**Changes the transform function of the proxy, and updates subscribers with new value*/
+  setTransformRead(
+    transform: (val: Result<RIN, string>) => Result<ROUT, string>
+  ): void;
+  /**Changes the transform function of the proxy, and updates subscribers with new value*/
+  setTransformWrite(transform: (val: WOUT) => WIN): void;
+  get state(): STATE<ROUT, WOUT, any>;
+  get readOnly(): STATE_ROA<ROUT, any, WOUT>;
+  get readWrite(): STATE_ROA_WA<ROUT, WOUT>;
+}
+
 export type STATE_PROXY_ROA_WA<
   S extends STATE_REA_WA<RIN, WIN>,
   RIN = S extends STATE<infer RT> ? RT : never,
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_ROA_WA<ROUT, WOUT> & OWNER_WX<S, RIN, WIN, ROUT, WOUT>;
+> = STATE_ROA_WA<ROUT, WOUT> & OWNER_WA<S, RIN, WIN, ROUT, WOUT>;
 
 export class ROA_WA<
     S extends STATE_REA_WA<RIN, WIN>,
@@ -356,7 +380,7 @@ export class ROA_WA<
     WOUT = WIN
   >
   extends STATE_BASE<ROUT, WOUT, any, ResultOk<ROUT>>
-  implements OWNER_WX<S, RIN, WIN, ROUT, WOUT>
+  implements OWNER_WA<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
     state: S,
@@ -413,8 +437,11 @@ export class ROA_WA<
   get state(): STATE<ROUT, WOUT> {
     return this as STATE<ROUT, WOUT>;
   }
-  get readOnly(): STATE_ROA<ROUT, any> {
-    return this as STATE_ROA<ROUT, any>;
+  get readOnly(): STATE_ROA<ROUT, any, WOUT> {
+    return this as STATE_ROA<ROUT, any, WOUT>;
+  }
+  get readWrite(): STATE_ROA_WA<ROUT, WOUT> {
+    return this as STATE_ROA_WA<ROUT, WOUT>;
   }
 
   //#Reader Context

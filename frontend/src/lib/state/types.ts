@@ -251,10 +251,10 @@ interface ROS_WS<RT, WT = RT, REL extends STATE_RELATED = {}>
 //        |_|     |_|  |_|    |______|_____/
 
 export type STATE<RT, WT = RT, REL extends STATE_RELATED = {}> =
-  | STATE_REA<RT, REL>
-  | STATE_ROA<RT, REL>
-  | STATE_RES<RT, REL>
-  | STATE_ROS<RT, REL>
+  | STATE_REA<RT, REL, WT>
+  | STATE_ROA<RT, REL, WT>
+  | STATE_RES<RT, REL, WT>
+  | STATE_ROS<RT, REL, WT>
   | STATE_REA_WA<RT, WT, REL>
   | STATE_REA_WS<RT, WT, REL>
   | STATE_ROA_WA<RT, WT, REL>
@@ -264,27 +264,27 @@ export type STATE<RT, WT = RT, REL extends STATE_RELATED = {}> =
   | STATE_ROS_WA<RT, WT, REL>
   | STATE_ROS_WS<RT, WT, REL>;
 
-export type STATE_REA<RT, REL extends STATE_RELATED = {}> =
+export type STATE_REA<RT, REL extends STATE_RELATED = {}, WT> =
   | REA<RT, REL>
   | STATE_REA_WA<RT, any, REL>
   | STATE_REA_WS<RT, any, REL>
-  | STATE_ROA<RT, REL>
-  | STATE_ROS<RT, REL>
-  | STATE_RES<RT, REL>;
+  | STATE_ROA<RT, REL, WT>
+  | STATE_ROS<RT, REL, WT>
+  | STATE_RES<RT, REL, WT>;
 
-export type STATE_ROA<RT, REL extends STATE_RELATED = {}> =
+export type STATE_ROA<RT, REL extends STATE_RELATED = {}, WT> =
   | ROA<RT, REL>
   | STATE_ROA_WA<RT, any, REL>
   | STATE_ROA_WS<RT, any, REL>
-  | STATE_ROS<RT, REL>;
+  | STATE_ROS<RT, REL, WT>;
 
-export type STATE_RES<RT, REL extends STATE_RELATED = {}> =
+export type STATE_RES<RT, REL extends STATE_RELATED = {}, WT> =
   | RES<RT, REL>
   | STATE_RES_WA<RT, any, REL>
   | STATE_RES_WS<RT, any, REL>
-  | STATE_ROS<RT, REL>;
+  | STATE_ROS<RT, REL, WT>;
 
-export type STATE_ROS<RT, REL extends STATE_RELATED = {}> =
+export type STATE_ROS<RT, REL extends STATE_RELATED = {}, WT> =
   | ROS<RT, REL>
   | STATE_ROS_WA<RT, any, REL>
   | STATE_ROS_WS<RT, any, REL>;

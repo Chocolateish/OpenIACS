@@ -54,7 +54,7 @@ const themeInternal = st.s.ros_ws.ok(
   st.h.enums.helper(themesInternal)
 );
 settings.register(ThemeID, "Theme", "Theme to use for the UI", themeInternal);
-export const theme = themeInternal.readwrite;
+export const theme = themeInternal.readWrite;
 
 //Sets up automatic theme change based on operating system
 window
@@ -76,7 +76,7 @@ const scaleInternal = st.s.ros_ws.ok(
   st.h.nums.helper(50, 400, "%", 0, 1)
 );
 settings.register(ScaleID, "Scale", "UI scale", scaleInternal);
-export const scale = scaleInternal.readwrite;
+export const scale = scaleInternal.readWrite;
 
 //       _____  _____ _____   ____  _      _      ____          _____
 //      / ____|/ ____|  __ \ / __ \| |    | |    |  _ \   /\   |  __ \
@@ -116,7 +116,7 @@ settings.register(
   "Size of the scrollbar to use",
   scrollBarModeInternal
 );
-export const scrollBarMode = scrollBarModeInternal.readwrite;
+export const scrollBarMode = scrollBarModeInternal.readWrite;
 
 //      _____ _   _ _____  _    _ _______   __  __  ____  _____  ______
 //     |_   _| \ | |  __ \| |  | |__   __| |  \/  |/ __ \|  __ \|  ____|
@@ -166,7 +166,7 @@ settings.register(
   "Setting for preffered input mode, changes UI elements to be more optimized for the selected input mode",
   inputModeInternal
 );
-export const inputMode = inputModeInternal.readwrite;
+export const inputMode = inputModeInternal.readWrite;
 
 //               _   _ _____ __  __       _______ _____ ____  _   _   _      ________      ________ _
 //         /\   | \ | |_   _|  \/  |   /\|__   __|_   _/ __ \| \ | | | |    |  ____\ \    / /  ____| |
@@ -208,4 +208,4 @@ settings.register(
   "Setting for animation level, changes the amount of animations used in the UI",
   animationLevelInternal
 );
-export const animationLevel = animationLevelInternal.readwrite;
+export const animationLevel = animationLevelInternal.readWrite;

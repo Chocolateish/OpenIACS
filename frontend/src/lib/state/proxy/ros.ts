@@ -97,11 +97,11 @@ export class ROS<
       this.onSubscribe(true);
     } else this.transform = transform;
   }
-  get state(): STATE<ROUT, any, any> {
-    return this as STATE<ROUT, any, any>;
+  get state(): STATE<ROUT, WOUT, any> {
+    return this as STATE<ROUT, WOUT, any>;
   }
-  get readOnly(): STATE_ROS<ROUT, any> {
-    return this as STATE_ROS<ROUT, any>;
+  get readOnly(): STATE_ROS<ROUT, any, WOUT> {
+    return this as STATE_ROS<ROUT, any, WOUT>;
   }
 
   //#Reader Context
@@ -161,7 +161,7 @@ function ros_from<S extends STATE_RES<IN>, IN, OUT = IN>(
 //     |  _  /| |  | |\___ \    \ \/  \/ / \___ \
 //     | | \ \| |__| |____) |    \  /\  /  ____) |
 //     |_|  \_\\____/|_____/      \/  \/  |_____/
-interface OWNER_WX<
+interface OWNER_WS<
   S,
   RIN = S extends STATE<infer RT> ? RT : never,
   WIN = S extends STATE<any, infer WT> ? WT : never,
@@ -177,7 +177,8 @@ interface OWNER_WX<
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   setTransformWrite(transform: (val: WOUT) => WIN): void;
   get state(): STATE<ROUT, WOUT, any>;
-  get readOnly(): STATE_ROS<ROUT, any>;
+  get readOnly(): STATE_ROS<ROUT, any, WOUT>;
+  get readWrite(): STATE_ROS_WS<ROUT, WOUT>;
 }
 
 export type STATE_PROXY_ROS_WS<
@@ -186,7 +187,7 @@ export type STATE_PROXY_ROS_WS<
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_ROS_WS<ROUT, WOUT> & OWNER_WX<S, RIN, WIN, ROUT, WOUT>;
+> = STATE_ROS_WS<ROUT, WOUT> & OWNER_WS<S, RIN, WIN, ROUT, WOUT>;
 
 export class ROS_WS<
     S extends STATE_RES_WS<RIN, WIN>,
@@ -196,7 +197,7 @@ export class ROS_WS<
     WOUT = WIN
   >
   extends STATE_BASE<ROUT, WOUT, any, ResultOk<ROUT>>
-  implements OWNER_WX<S, RIN, WIN, ROUT, WOUT>
+  implements OWNER_WS<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
     state: S,
@@ -253,8 +254,11 @@ export class ROS_WS<
   get state(): STATE<ROUT, WOUT, any> {
     return this as STATE<ROUT, WOUT, any>;
   }
-  get readOnly(): STATE_ROS<ROUT, any> {
-    return this as STATE_ROS<ROUT, any>;
+  get readOnly(): STATE_ROS<ROUT, any, WOUT> {
+    return this as STATE_ROS<ROUT, any, WOUT>;
+  }
+  get readWrite(): STATE_ROS_WS<ROUT, WOUT> {
+    return this as STATE_ROS_WS<ROUT, WOUT>;
   }
 
   //#Reader Context
@@ -352,13 +356,32 @@ function ros_ws_from<
 //     |  _  /| |  | |\___ \    \ \/  \/ / /\ \
 //     | | \ \| |__| |____) |    \  /\  / ____ \
 //     |_|  \_\\____/|_____/      \/  \/_/    \_\
+interface OWNER_WA<
+  S,
+  RIN = S extends STATE<infer RT> ? RT : never,
+  WIN = S extends STATE<any, infer WT> ? WT : never,
+  ROUT = RIN,
+  WOUT = WIN
+> {
+  /**Sets the state that is being proxied, and updates subscribers with new value*/
+  setState(state: S): void;
+  /**Changes the transform function of the proxy, and updates subscribers with new value*/
+  setTransformRead(
+    transform: (val: Result<RIN, string>) => Result<ROUT, string>
+  ): void;
+  /**Changes the transform function of the proxy, and updates subscribers with new value*/
+  setTransformWrite(transform: (val: WOUT) => WIN): void;
+  get state(): STATE<ROUT, WOUT, any>;
+  get readOnly(): STATE_ROS<ROUT, any, WOUT>;
+  get readWrite(): STATE_ROS_WA<ROUT, WOUT>;
+}
 export type STATE_PROXY_ROS_WA<
   S extends STATE_RES_WA<RIN, WIN>,
   RIN = S extends STATE<infer RT> ? RT : never,
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_ROS_WA<ROUT, WOUT> & OWNER_WX<S, RIN, WIN, ROUT, WOUT>;
+> = STATE_ROS_WA<ROUT, WOUT> & OWNER_WA<S, RIN, WIN, ROUT, WOUT>;
 
 export class ROS_WA<
     S extends STATE_RES_WA<RIN, WIN>,
@@ -368,7 +391,7 @@ export class ROS_WA<
     WOUT = WIN
   >
   extends STATE_BASE<ROUT, WOUT, any, ResultOk<ROUT>>
-  implements OWNER_WX<S, RIN, WIN, ROUT, WOUT>
+  implements OWNER_WA<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
     state: S,
@@ -425,8 +448,11 @@ export class ROS_WA<
   get state(): STATE<ROUT, WOUT, any> {
     return this as STATE<ROUT, WOUT, any>;
   }
-  get readOnly(): STATE_ROS<ROUT, any> {
-    return this as STATE_ROS<ROUT, any>;
+  get readOnly(): STATE_ROS<ROUT, any, WOUT> {
+    return this as STATE_ROS<ROUT, any, WOUT>;
+  }
+  get readWrite(): STATE_ROS_WA<ROUT, WOUT> {
+    return this as STATE_ROS_WA<ROUT, WOUT>;
   }
 
   //#Reader Context
