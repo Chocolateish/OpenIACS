@@ -17,14 +17,7 @@ import {
 //     |  _  /|  __|   / /\ \
 //     | | \ \| |____ / ____ \
 //     |_|  \_\______/_/    \_\
-
-interface OWNER<
-  S,
-  RIN = S extends STATE<infer RT> ? RT : never,
-  ROUT = RIN,
-  WIN = S extends STATE<any, infer WT> ? WT : never,
-  WOUT = WIN
-> {
+interface OWNER<S, RIN, ROUT, WIN, WOUT> {
   /**Sets the state that is being proxied, and updates subscribers with new value*/
   setState(state: S): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
@@ -32,7 +25,7 @@ interface OWNER<
     transform: (val: Result<RIN, string>) => Result<ROUT, string>
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
-  setTransformWrite?(transform: (val: WOUT) => WIN): void;
+  setTransformWrite(transform: (val: WOUT) => WIN): void;
   get state(): STATE<ROUT, WOUT, any>;
   get readOnly(): STATE_REA<ROUT, any, WOUT>;
 }
@@ -158,7 +151,7 @@ export class REA<
  * @param state - state to proxy.
  * @param transform - Function to transform value of proxy*/
 function rea_from<
-  S extends STATE<RIN>,
+  S extends STATE<RIN, WIN>,
   RIN = S extends STATE<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends STATE<any, infer RT> ? RT : any,
@@ -168,7 +161,7 @@ function rea_from<
   transform?: (value: ResultOk<RIN>) => Result<ROUT, string>
 ): STATE_PROXY_REA<S, RIN, ROUT, WIN, WOUT>;
 function rea_from<
-  S extends STATE<RIN>,
+  S extends STATE<RIN, WIN>,
   RIN = S extends STATE<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends STATE<any, infer RT> ? RT : any,
@@ -178,7 +171,7 @@ function rea_from<
   transform?: (value: Result<RIN, string>) => Result<ROUT, string>
 ): STATE_PROXY_REA<S, RIN, ROUT, WIN, WOUT>;
 function rea_from<
-  S extends STATE<RIN>,
+  S extends STATE<RIN, WIN>,
   RIN = S extends STATE<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends STATE<any, infer RT> ? RT : any,

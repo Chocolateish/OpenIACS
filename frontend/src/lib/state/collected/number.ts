@@ -7,7 +7,7 @@ import { state_collected_ros, type STATE_COLLECTED_ROS } from "./ros";
 
 class NUMBER_SUM_REA<
   S extends STATE<number>[]
-> extends state_collected_rea.class<number, S> {
+> extends state_collected_rea.class<number, S, number> {
   constructor(...states: S) {
     super(false, ...states);
   }
@@ -24,7 +24,7 @@ class NUMBER_SUM_REA<
 //##################################################################################################################################################
 class NUMBER_SUM_ROA<
   S extends [STATE_ROA<number>, ...STATE_ROA<number>[]]
-> extends state_collected_roa.class<number, S> {
+> extends state_collected_roa.class<number, S, number> {
   constructor(...states: S) {
     super(false, ...states);
   }
@@ -36,7 +36,7 @@ class NUMBER_SUM_ROA<
 //##################################################################################################################################################
 class NUMBER_SUM_RES<
   S extends STATE_RES<number>[]
-> extends state_collected_res.class<number, S> {
+> extends state_collected_res.class<number, S, number> {
   constructor(...states: S) {
     super(false, ...states);
   }
@@ -53,7 +53,7 @@ class NUMBER_SUM_RES<
 //##################################################################################################################################################
 class NUMBER_SUM_ROS<
   S extends [STATE_ROS<number>, ...STATE_ROS<number>[]]
-> extends state_collected_ros.class<number, S> {
+> extends state_collected_ros.class<number, S, number> {
   constructor(...states: S) {
     super(false, ...states);
   }
