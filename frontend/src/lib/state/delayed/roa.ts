@@ -31,7 +31,7 @@ export type STATE_DELAYED_ROA<
   WT = any
 > = STATE_ROA<RT, REL, WT> & OWNER<RT, WT, REL>;
 
-export class ROA<RT, REL extends RELATED = {}, WT = any>
+class ROA<RT, REL extends RELATED = {}, WT = any>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
   implements OWNER<RT, WT, REL>
 {
@@ -191,7 +191,7 @@ export type STATE_DELAYED_ROA_WS<
   REL extends RELATED = {}
 > = STATE_ROA_WS<RT, WT, REL> & OWNER_WS<RT, WT, REL>;
 
-export class ROA_WS<RT, WT = RT, REL extends RELATED = {}>
+class ROA_WS<RT, WT = RT, REL extends RELATED = {}>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
   implements OWNER_WS<RT, WT, REL>
 {

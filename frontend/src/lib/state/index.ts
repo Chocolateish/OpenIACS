@@ -112,10 +112,7 @@ export {
   type STATE_RESOURCE_ROA,
 } from "./resource/roa";
 export { type STATE_SYNC_RES, type STATE_SYNC_RES_WS } from "./sync/res";
-export {
-  type ROS as STATE_SYNC_ROS,
-  type ROS_WS as STATE_SYNC_ROS_WS,
-} from "./sync/ros";
+export { type STATE_SYNC_ROS, type STATE_SYNC_ROS_WS } from "./sync/ros";
 
 //       _____ _______    _______ ______   _________     _______  ______  _____
 //      / ____|__   __|/\|__   __|  ____| |__   __\ \   / /  __ \|  ____|/ ____|

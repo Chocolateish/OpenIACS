@@ -31,7 +31,7 @@ export type STATE_SYNC_ROS<RT, REL extends RELATED = {}, WT = any> = STATE_ROS<
 > &
   OWNER<RT, WT, REL>;
 
-export class ROS<RT, REL extends RELATED = {}, WT = any>
+class ROS<RT, REL extends RELATED = {}, WT = any>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
   implements OWNER<RT, WT, REL>
 {
@@ -149,7 +149,7 @@ export type STATE_SYNC_ROS_WS<
   REL extends RELATED = {}
 > = STATE_ROS_WS<RT, WT, REL> & OWNER_WS<RT, WT, REL>;
 
-export class ROS_WS<RT, WT = RT, REL extends RELATED = {}>
+class ROS_WS<RT, WT = RT, REL extends RELATED = {}>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
   implements OWNER_WS<RT, WT, REL>
 {

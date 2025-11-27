@@ -32,7 +32,7 @@ export type STATE_DELAYED_REA<
   WT = any
 > = STATE_REA<RT, REL, WT> & OWNER<RT, WT, REL>;
 
-export class REA<RT, REL extends RELATED = {}, WT = any>
+class REA<RT, REL extends RELATED = {}, WT = any>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
   implements OWNER<RT, WT, REL>
 {
@@ -205,7 +205,7 @@ export type STATE_DELAYED_REA_WS<
   REL extends RELATED = {}
 > = STATE_REA_WS<RT, WT, REL> & OWNER_WS<RT, WT, REL>;
 
-export class REA_WS<RT, WT = RT, REL extends RELATED = {}>
+class REA_WS<RT, WT = RT, REL extends RELATED = {}>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
   implements OWNER_WS<RT, WT, REL>
 {
