@@ -1,6 +1,12 @@
 import { Err, None, Ok, type Option, type Result } from "@libResult";
 import { STATE_BASE } from "../base";
-import { type STATE_RELATED as Related, type STATE_HELPER } from "../types";
+import {
+  type STATE_RELATED as RELATED,
+  type STATE,
+  type STATE_HELPER,
+  type STATE_REA,
+  type STATE_REA_WA,
+} from "../types";
 
 //##################################################################################################################################################
 //      _____  ______
@@ -24,11 +30,17 @@ import { type STATE_RELATED as Related, type STATE_HELPER } from "../types";
  * this can prevent unneeded calls if the user is switching around quickly between things referencing states
  * @template RT - The type of the state’s value when read.
  * @template REL - The type of related states, defaults to an empty object.*/
-export abstract class STATE_RESOURCE_REA<
-  RT,
-  REL extends Related = {},
-  WT = any
-> extends STATE_BASE<RT, WT, REL, Result<RT, string>> {
+export interface STATE_RESOURCE_REA_OWNER<RT, WT, REL extends RELATED> {
+  updateResource(value: Result<RT, string>): void;
+  get buffer(): Result<RT, string> | undefined;
+  get state(): STATE<RT, WT, REL>;
+  get readOnly(): STATE_REA<RT, REL, WT>;
+}
+
+export abstract class STATE_RESOURCE_REA<RT, REL extends RELATED = {}, WT = any>
+  extends STATE_BASE<RT, WT, REL, Result<RT, string>>
+  implements STATE_RESOURCE_REA_OWNER<RT, WT, REL>
+{
   #valid: number = 0;
   #fetching: boolean = false;
   #buffer?: Result<RT, string>;
@@ -68,23 +80,29 @@ export abstract class STATE_RESOURCE_REA<
     } else {
       if (this.retention > 0) {
         this.#retentionTimout = setTimeout(() => {
-          this.teardownConnection();
+          this.teardownConnection(this);
           this.#retentionTimout = 0;
         }, this.retention) as any;
       } else {
-        this.teardownConnection();
+        this.teardownConnection(this);
       }
     }
   }
 
   /**Called if the state is awaited, returns the value once*/
-  protected abstract singleGet(state: this): void;
+  protected abstract singleGet(
+    state: STATE_RESOURCE_REA_OWNER<RT, WT, REL>
+  ): void;
 
   /**Called when state is subscribed to to setup connection to remote resource*/
-  protected abstract setupConnection(state: this): void;
+  protected abstract setupConnection(
+    state: STATE_RESOURCE_REA_OWNER<RT, WT, REL>
+  ): void;
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
-  protected abstract teardownConnection(): void;
+  protected abstract teardownConnection(
+    state: STATE_RESOURCE_REA_OWNER<RT, WT, REL>
+  ): void;
 
   updateResource(value: Result<RT, string>) {
     this.#valid = Date.now() + this.timeout;
@@ -97,6 +115,13 @@ export abstract class STATE_RESOURCE_REA<
 
   get buffer(): Result<RT, string> | undefined {
     return this.#buffer;
+  }
+
+  get state(): STATE<RT, WT, any> {
+    return this as STATE<RT, WT, any>;
+  }
+  get readOnly(): STATE_REA<RT, any, WT> {
+    return this as STATE_REA<RT, any, WT>;
   }
 
   //#Reader Context
@@ -131,19 +156,29 @@ export abstract class STATE_RESOURCE_REA<
     return false;
   }
 }
+
+//##################################################################################################################################################
+interface OWNER<RT, WT, REL extends RELATED>
+  extends STATE_RESOURCE_REA_OWNER<RT, WT, REL> {}
+export type STATE_RESOURCE_FUNC_REA<
+  RT,
+  REL extends RELATED = {},
+  WT = any
+> = STATE_REA<RT, REL, WT> & OWNER<RT, WT, REL>;
+
 /**Alternative state resource which can be initialized with functions
  * @template RT - The type of the state’s value when read.
  * @template WT - The type which can be written to the state.
  * @template REL - The type of related states, defaults to an empty object.*/
-export class STATE_RESOURCE_FUNC_REA<
+export class FUNC_REA<
   RT,
-  REL extends Related = {},
+  REL extends RELATED = {},
   WT = any
 > extends STATE_RESOURCE_REA<RT, REL, WT> {
   constructor(
-    once: (state: STATE_RESOURCE_FUNC_REA<RT, REL, WT>) => void,
-    setup: (state: STATE_RESOURCE_FUNC_REA<RT, REL, WT>) => void,
-    teardown: () => void,
+    once: (state: OWNER<RT, WT, REL>) => void,
+    setup: (state: OWNER<RT, WT, REL>) => void,
+    teardown: (state: OWNER<RT, WT, REL>) => void,
     debounce: number,
     timeout: number,
     retention: number,
@@ -165,13 +200,13 @@ export class STATE_RESOURCE_FUNC_REA<
   #helper?: STATE_HELPER<WT, REL>;
 
   /**Called if the state is awaited, returns the value once*/
-  protected singleGet(_state: this): void {}
+  protected singleGet(_state: OWNER<RT, WT, REL>): void {}
 
   /**Called when state is subscribed to to setup connection to remote resource*/
-  protected setupConnection(_state: this): void {}
+  protected setupConnection(_state: OWNER<RT, WT, REL>): void {}
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
-  protected teardownConnection(): void {}
+  protected teardownConnection(_state: OWNER<RT, WT, REL>): void {}
 
   related(): Option<REL> {
     return this.#helper?.related ? this.#helper.related() : None();
@@ -189,16 +224,16 @@ const rea = {
    * @param timeout how long the last retrived value is considered valid
    * @param retention delay after last subscriber unsubscribes before teardown is called, to allow quick resubscribe without teardown
    * */
-  from<RT, REL extends Related = {}, WT = any>(
-    once: (state: STATE_RESOURCE_FUNC_REA<RT, REL, WT>) => void,
-    setup: (state: STATE_RESOURCE_FUNC_REA<RT, REL, WT>) => void,
-    teardown: () => void,
+  from<RT, REL extends RELATED = {}, WT = any>(
+    once: (state: OWNER<RT, WT, REL>) => void,
+    setup: (state: OWNER<RT, WT, REL>) => void,
+    teardown: (state: OWNER<RT, WT, REL>) => void,
     debounce: number = 0,
     timeout: number = 0,
     retention: number = 0,
     helper?: STATE_HELPER<WT, REL>
   ) {
-    return new STATE_RESOURCE_FUNC_REA<RT, REL, WT>(
+    return new FUNC_REA<RT, REL, WT>(
       once,
       setup,
       teardown,
@@ -206,10 +241,9 @@ const rea = {
       timeout,
       retention,
       helper
-    );
+    ) as STATE_RESOURCE_FUNC_REA<RT, REL, WT>;
   },
   class: STATE_RESOURCE_REA,
-  func_class: STATE_RESOURCE_FUNC_REA,
 };
 
 //##################################################################################################################################################
@@ -236,11 +270,22 @@ const rea = {
  * @template RT - The type of the state’s value when read.
  * @template WT - The type which can be written to the state.
  * @template REL - The type of related states, defaults to an empty object.*/
+export interface STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL extends RELATED> {
+  updateResource(value: Result<RT, string>): void;
+  get buffer(): Result<RT, string> | undefined;
+  get state(): STATE<RT, WT, REL>;
+  get readOnly(): STATE_REA<RT, REL, WT>;
+  get readWrite(): STATE_REA_WA<RT, WT, REL>;
+}
+
 export abstract class STATE_RESOURCE_REA_WA<
-  RT,
-  WT = RT,
-  REL extends Related = {}
-> extends STATE_BASE<RT, WT, REL, Result<RT, string>> {
+    RT,
+    WT = RT,
+    REL extends RELATED = {}
+  >
+  extends STATE_BASE<RT, WT, REL, Result<RT, string>>
+  implements STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL>
+{
   #valid: number = 0;
   #fetching: boolean = false;
   #buffer?: Result<RT, string>;
@@ -285,28 +330,34 @@ export abstract class STATE_RESOURCE_REA_WA<
     } else {
       if (this.retention > 0) {
         this.#retentionTimout = setTimeout(() => {
-          this.teardownConnection();
+          this.teardownConnection(this);
           this.#retentionTimout = 0;
         }, this.retention) as any;
       } else {
-        this.teardownConnection();
+        this.teardownConnection(this);
       }
     }
   }
 
   /**Called if the state is awaited, returns the value once*/
-  protected abstract singleGet(state: this): void;
+  protected abstract singleGet(
+    state: STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL>
+  ): void;
 
   /**Called when state is subscribed to to setup connection to remote resource*/
-  protected abstract setupConnection(state: this): void;
+  protected abstract setupConnection(
+    state: STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL>
+  ): void;
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
-  protected abstract teardownConnection(): void;
+  protected abstract teardownConnection(
+    state: STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL>
+  ): void;
 
   /**Called after write debounce finished with the last written value*/
   protected abstract writeAction(
     value: WT,
-    state: this
+    state: STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL>
   ): Promise<Result<void, string>>;
 
   updateResource(value: Result<RT, string>) {
@@ -317,9 +368,17 @@ export abstract class STATE_RESOURCE_REA_WA<
       this.updateSubs(value);
     this.#buffer = value;
   }
-
   get buffer(): Result<RT, string> | undefined {
     return this.#buffer;
+  }
+  get state(): STATE<RT, WT, REL> {
+    return this as STATE<RT, WT, REL>;
+  }
+  get readOnly(): STATE_REA<RT, REL, WT> {
+    return this as STATE_REA<RT, REL, WT>;
+  }
+  get readWrite(): STATE_REA_WA<RT, WT, REL> {
+    return this as STATE_REA_WA<RT, WT, REL>;
   }
 
   //Reader Context
@@ -370,26 +429,33 @@ export abstract class STATE_RESOURCE_REA_WA<
   abstract check(value: WT): Result<WT, string>;
 }
 
+//##################################################################################################################################################
+interface OWNER_WA<RT, WT, REL extends RELATED>
+  extends STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL> {}
+export type STATE_RESOURCE_FUNC_REA_WA<
+  RT,
+  REL extends RELATED = {},
+  WT = any
+> = STATE_REA_WA<RT, WT, REL> & OWNER<RT, WT, REL>;
 /**Alternative state resource which can be initialized with functions
  * @template RT - The type of the state’s value when read.
  * @template WT - The type which can be written to the state.
  * @template REL - The type of related states, defaults to an empty object.*/
-export class STATE_RESOURCE_FUNC_REA_WA<
-  RT,
-  WT = RT,
-  REL extends Related = {}
-> extends STATE_RESOURCE_REA_WA<RT, WT, REL> {
+class FUNC_REA_WA<RT, WT = RT, REL extends RELATED = {}>
+  extends STATE_RESOURCE_REA_WA<RT, WT, REL>
+  implements OWNER_WA<RT, WT, REL>
+{
   constructor(
-    once: (state: STATE_RESOURCE_FUNC_REA_WA<RT, WT, REL>) => void,
-    setup: (state: STATE_RESOURCE_FUNC_REA_WA<RT, WT, REL>) => void,
-    teardown: () => void,
+    once: (state: OWNER_WA<RT, WT, REL>) => void,
+    setup: (state: OWNER_WA<RT, WT, REL>) => void,
+    teardown: (state: OWNER_WA<RT, WT, REL>) => void,
     debounce: number,
     timeout: number,
     retention: number,
     writeBounce?: number,
     writeAction?: (
       value: WT,
-      state: STATE_RESOURCE_FUNC_REA_WA<RT, WT, REL>
+      state: OWNER_WA<RT, WT, REL>
     ) => Promise<Result<void, string>>,
     helper?: STATE_HELPER<WT, REL>
   ) {
@@ -412,18 +478,18 @@ export class STATE_RESOURCE_FUNC_REA_WA<
   #helper?: STATE_HELPER<WT, REL>;
 
   /**Called if the state is awaited, returns the value once*/
-  protected singleGet(_state: this): void {}
+  protected singleGet(_state: OWNER_WA<RT, WT, REL>): void {}
 
   /**Called when state is subscribed to to setup connection to remote resource*/
-  protected setupConnection(_state: this): void {}
+  protected setupConnection(_state: OWNER_WA<RT, WT, REL>): void {}
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
-  protected teardownConnection(): void {}
+  protected teardownConnection(_state: OWNER_WA<RT, WT, REL>): void {}
 
   /**Called after write debounce finished with the last written value*/
   protected async writeAction(
     _value: WT,
-    _state: this
+    _state: OWNER_WA<RT, WT, REL>
   ): Promise<Result<void, string>> {
     return Err("State not writable");
   }
@@ -446,7 +512,6 @@ export class STATE_RESOURCE_FUNC_REA_WA<
   }
 }
 
-//##################################################################################################################################################
 const rea_wa = {
   /**Alternative state resource which can be initialized with functions
    * @template READ - The type of the state’s value when read.
@@ -461,9 +526,9 @@ const rea_wa = {
    * @param writeBounce debounce delay for write calls, only the last write within the delay is used
    * @param writeAction function called after write debounce finished with the last written value
    * */
-  from<RT, REL extends Related = {}, WT = RT>(
-    once: (state: STATE_RESOURCE_FUNC_REA_WA<RT, WT, REL>) => void,
-    setup: (state: STATE_RESOURCE_FUNC_REA_WA<RT, WT, REL>) => void,
+  from<RT, REL extends RELATED = {}, WT = RT>(
+    once: (state: OWNER_WA<RT, WT, REL>) => void,
+    setup: (state: OWNER_WA<RT, WT, REL>) => void,
     teardown: () => void,
     debounce: number = 0,
     timeout: number = 0,
@@ -471,11 +536,11 @@ const rea_wa = {
     writeBounce?: number,
     writeAction?: (
       value: WT,
-      state: STATE_RESOURCE_FUNC_REA_WA<RT, WT, REL>
+      state: OWNER_WA<RT, WT, REL>
     ) => Promise<Result<void, string>>,
     helper?: STATE_HELPER<WT, REL>
   ) {
-    return new STATE_RESOURCE_FUNC_REA_WA<RT, WT, REL>(
+    return new FUNC_REA_WA<RT, WT, REL>(
       once,
       setup,
       teardown,
@@ -485,10 +550,9 @@ const rea_wa = {
       writeBounce,
       writeAction,
       helper
-    );
+    ) as STATE_RESOURCE_FUNC_REA_WA<RT, REL, WT>;
   },
   class: STATE_RESOURCE_REA_WA,
-  func_class: STATE_RESOURCE_FUNC_REA_WA,
 };
 
 //##################################################################################################################################################

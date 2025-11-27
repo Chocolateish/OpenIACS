@@ -1,6 +1,6 @@
 import { Ok, type Result } from "@libResult";
-import st from "@libState";
-import { describe, expect, it } from "vitest";
+import st, { type STATE_REA, type STATE_RESOURCE_FUNC_REA } from "@libState";
+import { assertType, describe, it } from "vitest";
 import { test_state_sub, test_state_then, type TEST_STATE_ALL } from "./shared";
 
 describe("Resource states", function () {
@@ -13,7 +13,7 @@ describe("Resource states", function () {
   //     |_|  \_\______/_/    \_\
   describe("REA", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.r.rea.from(
+      let init = st.r.rea.from<number>(
         () => {},
         () => {},
         () => {},
@@ -21,7 +21,8 @@ describe("Resource states", function () {
         50,
         200
       );
-      expect(init).instanceOf(st.r.rea.func_class);
+      assertType<STATE_REA<Number>>(init);
+      assertType<STATE_RESOURCE_FUNC_REA<Number>>(init);
     });
     let maker: TEST_STATE_ALL = () => {
       let val: Result<number, string> = Ok(1);

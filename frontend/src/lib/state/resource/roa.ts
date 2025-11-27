@@ -1,6 +1,11 @@
 import { None, ResultOk, type Option } from "@libResult";
 import { STATE_BASE } from "../base";
-import { type STATE_RELATED as Related, type STATE_HELPER } from "../types";
+import {
+  type STATE_RELATED as RELATED,
+  type STATE,
+  type STATE_HELPER,
+  type STATE_ROA,
+} from "../types";
 
 //##################################################################################################################################################
 //      _____   ____
@@ -24,11 +29,16 @@ import { type STATE_RELATED as Related, type STATE_HELPER } from "../types";
  * this can prevent unneeded calls if the user is switching around quickly between things referencing states
  * @template RT - The type of the state’s value when read.
  * @template REL - The type of related states, defaults to an empty object.*/
-export abstract class STATE_RESOURCE_ROA<
-  RT,
-  REL extends Related = {},
-  WT = any
-> extends STATE_BASE<RT, WT, REL, ResultOk<RT>> {
+export interface STATE_RESOURCE_ROA_OWNER<RT, WT, REL extends RELATED> {
+  updateResource(value: ResultOk<RT>): void;
+  get buffer(): ResultOk<RT> | undefined;
+  get state(): STATE<RT, WT, REL>;
+  get readOnly(): STATE_ROA<RT, REL, WT>;
+}
+export abstract class STATE_RESOURCE_ROA<RT, REL extends RELATED = {}, WT = any>
+  extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
+  implements STATE_RESOURCE_ROA_OWNER<RT, WT, REL>
+{
   #valid: number = 0;
   #fetching: boolean = false;
   #buffer?: ResultOk<RT>;
@@ -68,23 +78,29 @@ export abstract class STATE_RESOURCE_ROA<
     } else {
       if (this.retention > 0) {
         this.#retentionTimout = setTimeout(() => {
-          this.teardownConnection();
+          this.teardownConnection(this);
           this.#retentionTimout = 0;
         }, this.retention) as any;
       } else {
-        this.teardownConnection();
+        this.teardownConnection(this);
       }
     }
   }
 
   /**Called if the state is awaited, returns the value once*/
-  protected abstract singleGet(state: this): void;
+  protected abstract singleGet(
+    state: STATE_RESOURCE_ROA_OWNER<RT, WT, REL>
+  ): void;
 
   /**Called when state is subscribed to to setup connection to remote resource*/
-  protected abstract setupConnection(state: this): void;
+  protected abstract setupConnection(
+    state: STATE_RESOURCE_ROA_OWNER<RT, WT, REL>
+  ): void;
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
-  protected abstract teardownConnection(): void;
+  protected abstract teardownConnection(
+    state: STATE_RESOURCE_ROA_OWNER<RT, WT, REL>
+  ): void;
 
   updateResource(value: ResultOk<RT>) {
     this.#valid = Date.now() + this.timeout;
@@ -94,9 +110,14 @@ export abstract class STATE_RESOURCE_ROA<
       this.updateSubs(value);
     this.#buffer = value;
   }
-
   get buffer(): ResultOk<RT> | undefined {
     return this.#buffer;
+  }
+  get state(): STATE<RT, WT, REL> {
+    return this as STATE<RT, WT, REL>;
+  }
+  get readOnly(): STATE_ROA<RT, REL, WT> {
+    return this as STATE_ROA<RT, REL, WT>;
   }
 
   //#Reader Context
@@ -132,19 +153,27 @@ export abstract class STATE_RESOURCE_ROA<
   }
 }
 
+//##################################################################################################################################################
+interface OWNER<RT, WT, REL extends RELATED>
+  extends STATE_RESOURCE_ROA_OWNER<RT, WT, REL> {}
+export type STATE_RESOURCE_FUNC_ROA<
+  RT,
+  REL extends RELATED = {},
+  WT = any
+> = STATE_ROA<RT, REL, WT> & OWNER<RT, WT, REL>;
+
 /**Alternative state resource which can be initialized with functions
  * @template RT - The type of the state’s value when read.
  * @template WT - The type which can be written to the state.
  * @template REL - The type of related states, defaults to an empty object.*/
-export class STATE_RESOURCE_FUNC_ROA<
-  RT,
-  REL extends Related = {},
-  WT = any
-> extends STATE_RESOURCE_ROA<RT, REL, WT> {
+class FUNC_ROA<RT, REL extends RELATED = {}, WT = any>
+  extends STATE_RESOURCE_ROA<RT, REL, WT>
+  implements OWNER<RT, WT, REL>
+{
   constructor(
-    once: (state: STATE_RESOURCE_FUNC_ROA<RT, REL, WT>) => void,
-    setup: (state: STATE_RESOURCE_FUNC_ROA<RT, REL, WT>) => void,
-    teardown: () => void,
+    once: (state: OWNER<RT, WT, REL>) => void,
+    setup: (state: OWNER<RT, WT, REL>) => void,
+    teardown: (state: OWNER<RT, WT, REL>) => void,
     debounce: number,
     timeout: number,
     retention: number,
@@ -166,13 +195,13 @@ export class STATE_RESOURCE_FUNC_ROA<
   #helper?: STATE_HELPER<WT, REL>;
 
   /**Called if the state is awaited, returns the value once*/
-  protected singleGet(_state: this): void {}
+  protected singleGet(_state: OWNER<RT, WT, REL>): void {}
 
   /**Called when state is subscribed to to setup connection to remote resource*/
-  protected setupConnection(_state: this): void {}
+  protected setupConnection(_state: OWNER<RT, WT, REL>): void {}
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
-  protected teardownConnection(): void {}
+  protected teardownConnection(_state: OWNER<RT, WT, REL>): void {}
 
   related(): Option<REL> {
     return this.#helper?.related ? this.#helper.related() : None();
@@ -190,16 +219,16 @@ const roa = {
    * @param timeout how long the last retrived value is considered valid
    * @param retention delay after last subscriber unsubscribes before teardown is called, to allow quick resubscribe without teardown
    * */
-  from<RT, REL extends Related = {}, WT = any>(
-    once: (state: STATE_RESOURCE_FUNC_ROA<RT, REL, WT>) => void,
-    setup: (state: STATE_RESOURCE_FUNC_ROA<RT, REL, WT>) => void,
-    teardown: () => void,
+  from<RT, REL extends RELATED = {}, WT = any>(
+    once: (state: OWNER<RT, WT, REL>) => void,
+    setup: (state: OWNER<RT, WT, REL>) => void,
+    teardown: (state: OWNER<RT, WT, REL>) => void,
     debounce: number = 0,
     timeout: number = 0,
     retention: number = 0,
     helper?: STATE_HELPER<WT, REL>
   ) {
-    return new STATE_RESOURCE_FUNC_ROA<RT, REL, WT>(
+    return new FUNC_ROA<RT, REL, WT>(
       once,
       setup,
       teardown,
@@ -207,10 +236,9 @@ const roa = {
       timeout,
       retention,
       helper
-    );
+    ) as STATE_RESOURCE_ROA<RT, REL, WT>;
   },
   class: STATE_RESOURCE_ROA,
-  func_class: STATE_RESOURCE_FUNC_ROA,
 };
 
 //##################################################################################################################################################
