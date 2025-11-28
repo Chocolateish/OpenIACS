@@ -1,7 +1,8 @@
 import { AccessTypes, defineElement } from "@libBase";
 import type { SVGFunc } from "@libSVG";
 import "./button.scss";
-import { ValueComponent } from "./common";
+import { FormValue } from "./common";
+import "./shared";
 
 /**Defines all possible background colors for the button*/
 export const ButtonColors = {
@@ -14,19 +15,25 @@ export const ButtonColors = {
 export type ButtonColors = (typeof ButtonColors)[keyof typeof ButtonColors];
 
 /**Button for clicking*/
-export class Button extends ValueComponent<boolean> {
+export class Button extends FormValue<boolean> {
   /**Returns the name used to define the element */
   static elementName() {
     return "button";
   }
 
-  __text?: HTMLDivElement;
+  static elementNameSpace(): string {
+    return "form";
+  }
+
+  #text?: HTMLDivElement;
   #sym?: SVGSVGElement;
 
-  constructor(toggle: boolean = false) {
+  constructor(toggle: boolean = false, text?: string, icon?: SVGFunc) {
     super();
     this.setAttribute("tabindex", "0");
     this.toggle = toggle;
+    if (text) this.text = text;
+    if (icon) this.icon = icon;
   }
 
   /**Overridable click function*/
@@ -43,28 +50,26 @@ export class Button extends ValueComponent<boolean> {
   /**Changes the text description of the button */
   set text(text: string) {
     if (text === "") {
-      if (this.__text) {
-        this.removeChild(this.__text);
-        delete this.__text;
+      if (this.#text) {
+        this.removeChild(this.#text);
+        this.#text = undefined;
       }
     } else {
-      if (!this.__text) {
-        this.__text = document.createElement("div");
-        this.appendChild(this.__text);
+      if (!this.#text) {
+        this.#text = document.createElement("div");
+        this.appendChild(this.#text);
       }
-      this.__text.innerHTML = text;
+      this.#text.innerHTML = text;
     }
   }
 
   /**Changes the symbol of the button*/
   set icon(icon: SVGFunc | undefined) {
-    if (icon instanceof SVGElement) {
-      if (this.#sym) {
-        this.replaceChild(icon, this.#sym);
-        this.#sym = icon();
-      } else {
-        this.#sym = this.insertBefore(icon(), this.firstChild);
-      }
+    if (icon) {
+      let i = icon();
+      if (this.#sym) this.replaceChild(i, this.#sym);
+      else this.insertBefore(i, this.firstChild);
+      this.#sym = i;
     } else if (this.#sym) {
       this.removeChild(this.#sym);
       this.#sym = undefined;
@@ -165,10 +170,10 @@ export class Button extends ValueComponent<boolean> {
 }
 defineElement(Button);
 
-export let component_button = {
-  /**Creates a button component */
-  from(toggle: boolean = false): Button {
-    return new Button(toggle);
+export let form_button = {
+  /**Creates a button form element */
+  from(toggle: boolean = false, text?: string, icon?: SVGFunc): Button {
+    return new Button(toggle, text, icon);
   },
   class: Button,
 };

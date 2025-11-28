@@ -1,8 +1,7 @@
-import { Base, defineElement } from "@libBase";
+import { Base } from "@libBase";
 import { Err, Ok, type Result } from "@libResult";
 import type { STATE, STATE_SUB } from "@libState";
 import type { SVGFunc } from "@libSVG";
-import "./common.scss";
 
 /**This contains the different ways to render an component*/
 export const Way = {
@@ -17,24 +16,27 @@ const wayDir = ["up", "down", "left", "right"];
 const wayHorzVert = ["horz", "horz", "vert", "vert"];
 
 /**Shared component class for other components to inherit from*/
-export abstract class Component extends Base {
+export abstract class FormElement extends Base {
   static elementName() {
-    return "component";
+    return "@abstract@";
+  }
+  static elementNameSpace(): string {
+    return "form";
   }
 
-  protected __way?: Way;
+  protected _way?: Way;
 
   /**Set the way the component is rendered*/
   set way(way: Way) {
-    if (this.__way)
-      this.classList.remove(wayDir[this.__way], wayHorzVert[this.__way]);
+    if (this._way)
+      this.classList.remove(wayDir[this._way], wayHorzVert[this._way]);
     this.classList.add(wayDir[way], wayHorzVert[way]);
-    this.onWay(way, this.__way);
-    this.__way = way;
+    this.onWay(way, this._way);
+    this._way = way;
   }
   /**This retreives the way the compontent is*/
   get way(): Way | undefined {
-    return this.__way;
+    return this._way;
   }
   /**Internal way call*/
   protected onWay(_way: Way, _oldWay?: Way) {}
@@ -44,23 +46,25 @@ export abstract class Component extends Base {
   /**Set the text of the component*/
   abstract get text(): string;
 }
-defineElement(Component);
 
+//##################################################################################################
 /**Shared class for all components with values*/
-export abstract class ValueComponent<T> extends Component {
+export abstract class FormValue<T> extends FormElement {
   static elementName() {
     return "@abstract@";
   }
 
   readonly cid?: string;
-  #warnInput: HTMLInputElement = document.createElement("input");
+  #warnInput: HTMLInputElement = this.appendChild(
+    document.createElement("input")
+  );
 
   /**
    * @param cid Component ID for identifying component instances */
   constructor(cid?: string) {
     super();
     this.cid = cid;
-    this.#warnInput.setCustomValidity("YOYO");
+    this.#warnInput.id = "val";
   }
 
   #state?: STATE<T>;
@@ -129,6 +133,7 @@ export abstract class ValueComponent<T> extends Component {
       }
     } else {
       this.newValue(val);
+      this.#buffer = val;
       this.#changed = true;
     }
     try {
@@ -142,8 +147,9 @@ export abstract class ValueComponent<T> extends Component {
   change(_val: T) {}
 }
 
+//##################################################################################################
 /**This describes how an option object entry should be*/
-export type SelectorComponentOption<T> = {
+export type FormSelectorOption<T> = {
   name: string;
   description?: string;
   icon?: SVGFunc;
@@ -151,7 +157,7 @@ export type SelectorComponentOption<T> = {
 };
 
 /**Shared class for all components with multiple options*/
-export abstract class SelectorComponent<T> extends ValueComponent<T> {
+export abstract class FormSelector<T> extends FormValue<T> {
   /**Returns the name used to define the element */
   static elementName() {
     return "@abstract@";
@@ -170,7 +176,7 @@ export abstract class SelectorComponent<T> extends ValueComponent<T> {
   removeOption(_option: HTMLElement) {}
 
   /**This sets the options of the selector with an array*/
-  set selectorOptions(opts: SelectorComponentOption<T>[]) {
+  set selectorOptions(opts: FormSelectorOption<T>[]) {
     for (let i = 0, m = opts.length; i < m; i++)
       this.addOption(
         opts[i].name,

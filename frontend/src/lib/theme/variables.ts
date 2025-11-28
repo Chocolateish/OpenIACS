@@ -121,7 +121,7 @@ interface VariableType {
   /**Color variable */
   Color: undefined;
   /**Transition type */
-  Transition: undefined;
+  TransitionType: undefined;
   /**Percent type */
   Percent: undefined;
   /**Filter type */

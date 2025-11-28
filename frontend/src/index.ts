@@ -1,10 +1,9 @@
-import { elementList } from "@libBase";
-import { sleep } from "@libCommon";
+import { material_maps_remove_road_rounded } from "@libIcons";
 import { Err, Ok, type Result } from "@libResult";
 import type { STATE_SYNC_ROS_WS } from "@libState";
 import st from "@libState";
 import "./index.scss";
-import { components } from "./lib/components";
+import { form } from "./lib/form";
 
 interface CharacterData {
   uuid: string;
@@ -35,10 +34,9 @@ class Character {
 
 console.warn(Character.deserialize({ uuid: "1234", name: "Hero" }));
 
-await sleep(1000);
-console.warn(elementList);
-for (const element of elementList) {
-  console.warn(element);
-}
-
-document.body.appendChild(components.button.from(true));
+document.body.appendChild(
+  form.button.from(false, "Click Me!").opts({
+    access: "w",
+    icon: material_maps_remove_road_rounded,
+  })
+);

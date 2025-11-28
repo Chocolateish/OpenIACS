@@ -1,7 +1,7 @@
 import { blue, grey } from "@libColors";
 import { themeInitVariableRoot } from "@libTheme";
 
-export let variables = themeInitVariableRoot(
+let variables = themeInitVariableRoot(
   "contextmenu",
   "Context Menu",
   "Right click or touch and hold context menu appearance"

@@ -7,6 +7,11 @@ export default defineConfig({
   server: {
     port: 9999,
   },
+  build: {
+    outDir: path.resolve(__dirname, "dist"),
+    chunkSizeWarningLimit: 2000,
+    emptyOutDir: true,
+  },
   root: path.resolve(__dirname, "src"),
   test: {
     browser: {

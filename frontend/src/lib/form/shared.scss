@@ -1,0 +1,15 @@
+$componentMinWidth: 10rem;
+
+.h {
+  display: none;
+}
+
+:root {
+  --form-shared-text-padding: 0.1rem 0.5rem 0.1rem 0.5rem;
+  --form-shared-shadow-out: 0 0.125rem 0.1875rem 0
+    var(--form-colors-border-normal);
+  --form-shared-shadow-in: inset 0 0.125rem 0.1875rem 0
+    var(--form-colors-border-normal);
+  --form-shared-focus-out: 0 0 0 0.2rem var(--form-colors-outline-focus);
+  --form-shared-focus-in: inset 0 0 0 0.2rem var(--form-colors-outline-focus);
+}
