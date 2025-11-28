@@ -57,19 +57,19 @@ class REA<RT, REL extends RELATED = {}, WT = any>
             } catch (e) {
               this.#value = Err(String(e));
             }
-            this.fulRProm(this.#value);
+            this.ful_R_prom(this.#value);
             this.#clean();
           })();
         }
-      return this.appendRProm(func);
+      return this.append_R_prom(func);
     };
     this.set = (value) => {
       this.#clean();
-      this.set(this.fulRProm(value));
+      this.set(this.ful_R_prom(value));
     };
 
-    let writeSync = this.writeSync.bind(this);
-    this.writeSync = (value) =>
+    let writeSync = this.write_sync.bind(this);
+    this.write_sync = (value) =>
       writeSync(value).map((val) => this.#clean() ?? val);
     let write = this.write.bind(this);
     this.write = async (value) =>
@@ -89,7 +89,7 @@ class REA<RT, REL extends RELATED = {}, WT = any>
 
   //#Owner Context
   set(value: Result<RT, string>) {
-    this.updateSubs((this.#value = value));
+    this.update_subs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -135,7 +135,7 @@ class REA<RT, REL extends RELATED = {}, WT = any>
     if (this.setterAsync) return this.setterAsync(value, this, this.#value);
     return Err("State not writable");
   }
-  writeSync(value: WT): Result<void, string> {
+  write_sync(value: WT): Result<void, string> {
     if (this.setterSync) return this.setterSync(value, this, this.#value);
     return Err("State not writable");
   }
@@ -242,19 +242,19 @@ class REA_WS<RT, WT = RT, REL extends RELATED = {}>
             } catch (e) {
               this.#value = Err(String(e));
             }
-            this.fulRProm(this.#value);
+            this.ful_R_prom(this.#value);
             this.#clean();
           })();
         }
-      return this.appendRProm(func);
+      return this.append_R_prom(func);
     };
     this.set = (value) => {
       this.#clean();
-      this.set(this.fulRProm(value));
+      this.set(this.ful_R_prom(value));
     };
 
-    let writeSync = this.writeSync.bind(this);
-    this.writeSync = (value) =>
+    let writeSync = this.write_sync.bind(this);
+    this.write_sync = (value) =>
       writeSync(value).map((val) => this.#clean() ?? val);
   }
 
@@ -268,7 +268,7 @@ class REA_WS<RT, WT = RT, REL extends RELATED = {}>
 
   //#Owner Context
   set(value: Result<RT, string>) {
-    this.updateSubs((this.#value = value));
+    this.update_subs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -314,9 +314,9 @@ class REA_WS<RT, WT = RT, REL extends RELATED = {}>
     return true;
   }
   async write(value: WT): Promise<Result<void, string>> {
-    return this.writeSync(value);
+    return this.write_sync(value);
   }
-  writeSync(value: WT): Result<void, string> {
+  write_sync(value: WT): Result<void, string> {
     return this.#setter(value, this, this.#value);
   }
   limit(value: WT): Result<WT, string> {
@@ -431,15 +431,15 @@ export class REA_WA<RT, WT = RT, REL extends RELATED = {}>
             } catch (e) {
               this.#value = Err(String(e));
             }
-            this.fulRProm(this.#value);
+            this.ful_R_prom(this.#value);
             this.#clean();
           })();
         }
-      return this.appendRProm(func);
+      return this.append_R_prom(func);
     };
     this.set = (value) => {
       this.#clean();
-      this.set(this.fulRProm(value));
+      this.set(this.ful_R_prom(value));
     };
 
     let write = this.write.bind(this);
@@ -457,7 +457,7 @@ export class REA_WA<RT, WT = RT, REL extends RELATED = {}>
 
   //#Owner Context
   set(value: Result<RT, string>) {
-    this.updateSubs((this.#value = value));
+    this.update_subs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));

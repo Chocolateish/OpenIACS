@@ -5,11 +5,11 @@ import {
   material_hardware_mouse_rounded,
   material_image_edit_rounded,
 } from "@libIcons";
-import { settingsInit } from "@libSettings";
+import { settings_init } from "@libSettings";
 import st from "@libState";
 import { name, version } from "@package";
 
-const settings = settingsInit(
+const settings = settings_init(
   name,
   version,
   "Theme/UI",

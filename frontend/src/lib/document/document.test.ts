@@ -14,7 +14,7 @@ describe("Document", async () => {
         expect(doc.data).toEqual(newDoc);
         a();
       });
-      docs.registerDocument(newDoc);
+      docs.register_document(newDoc);
     });
   });
   it("Attach event listener then deregister document", async () => {
@@ -25,16 +25,16 @@ describe("Document", async () => {
         a();
       });
       newDoc = document.implementation.createHTMLDocument("test");
-      docs.registerDocument(newDoc);
-      docs.deregisterDocument(newDoc);
+      docs.register_document(newDoc);
+      docs.deregister_document(newDoc);
     });
   });
   it("Itterate all existing documents", async () => {
     await new Promise<void>((a) => {
       let newDoc = document.implementation.createHTMLDocument("test");
-      docs.registerDocument(newDoc);
+      docs.register_document(newDoc);
       let prog = 0;
-      docs.forDocuments(() => {
+      docs.for_documents(() => {
         prog++;
         if (prog === 3) {
           a();

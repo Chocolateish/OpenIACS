@@ -148,11 +148,11 @@ describe("Initialize delayed states", function () {
       let init = st.d.roa_ws.ok(() => sleep(1, 1));
       let then = init.then;
       let set = init.set;
-      let writeSync = init.writeSync;
+      let writeSync = init.write_sync;
       await init;
       expect(init.then).not.eq(then, "then");
       expect(init.set).not.eq(set, "set");
-      expect(init.writeSync).not.eq(writeSync, "writeSync");
+      expect(init.write_sync).not.eq(writeSync, "writeSync");
     });
     //# Standard Tests
     let maker: TEST_STATE_ALL = () => {
@@ -216,11 +216,11 @@ describe("Initialize delayed states", function () {
       let init = st.d.roa_ws.ok(() => sleep(1, 1));
       let then = init.then;
       let set = init.set;
-      let writeSync = init.writeSync;
+      let writeSync = init.write_sync;
       await init;
       expect(init.then).not.eq(then, "then");
       expect(init.set).not.eq(set, "set");
-      expect(init.writeSync).not.eq(writeSync, "writeSync");
+      expect(init.write_sync).not.eq(writeSync, "writeSync");
     });
     //# Standard Tests
     let maker: TEST_STATE_ALL = () => {

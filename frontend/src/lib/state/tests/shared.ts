@@ -108,17 +108,17 @@ export async function test_state_sub(
   let sub1 = state.sub(() => {
     count++;
   }, true) as STATE_SUB<any>;
-  expect(state.inUse()).equal(state);
-  expect(state.hasSubscriber(sub1)).equal(state);
-  expect(state.amountSubscriber()).equal(1);
+  expect(state.in_use()).equal(state);
+  expect(state.has(sub1)).equal(state);
+  expect(state.amount()).equal(1);
   await sleep(wait ?? 1);
   expect(count).equal(1);
   let sub2 = state.sub(() => {
     count += 10;
   }) as STATE_SUB<any>;
-  expect(state.inUse()).equal(state);
-  expect(state.hasSubscriber(sub2)).equal(state);
-  expect(state.amountSubscriber()).equal(2);
+  expect(state.in_use()).equal(state);
+  expect(state.has(sub2)).equal(state);
+  expect(state.amount()).equal(2);
   expect(count).equal(1);
   set(Ok(8));
   await sleep(1);
@@ -127,23 +127,23 @@ export async function test_state_sub(
     count += 100;
     throw new Error("Gaurded against crash");
   }) as STATE_SUB<any>;
-  expect(state.inUse()).equal(state);
-  expect(state.hasSubscriber(sub3)).equal(state);
-  expect(state.amountSubscriber()).equal(3);
+  expect(state.in_use()).equal(state);
+  expect(state.has(sub3)).equal(state);
+  expect(state.amount()).equal(3);
   set(Ok(12));
   await sleep(1);
   expect(count).equal(100000123);
   state.unsub(sub1);
   state.unsub(sub2);
-  expect(state.inUse()).equal(state);
-  expect(state.hasSubscriber(sub3)).equal(state);
-  expect(state.amountSubscriber()).equal(1);
+  expect(state.in_use()).equal(state);
+  expect(state.has(sub3)).equal(state);
+  expect(state.amount()).equal(1);
   set(Ok(12));
   await sleep(1);
   expect(count).equal(200000223);
   state.unsub(sub3);
-  expect(state.inUse()).equal(undefined);
-  expect(state.amountSubscriber()).equal(0);
+  expect(state.in_use()).equal(undefined);
+  expect(state.amount()).equal(0);
   let [sub4, val] = await new Promise<[STATE_SUB<any>, Result<number, string>]>(
     (a) => {
       let sub4 = state.sub((val) => {
@@ -304,7 +304,7 @@ export async function test_state_get_ok(
   stateMaker: TEST_STATE_OK_SYNC
 ): Promise<void> {
   let { state } = stateMaker();
-  expect(state.getOk()).toEqual(1);
+  expect(state.ok()).toEqual(1);
 }
 
 //     __          _______  _____ _______ ______
@@ -338,7 +338,7 @@ export async function test_state_writeSync(
   stateMaker: TEST_STATE_WRITESYNC
 ): Promise<void> {
   let { state } = stateMaker();
-  expect(state.writeSync(10)).toEqual(Ok(undefined));
+  expect(state.write_sync(10)).toEqual(Ok(undefined));
   let awaited = await state;
   expect(awaited).toEqual(Ok(10));
 }

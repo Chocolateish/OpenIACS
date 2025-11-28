@@ -41,11 +41,11 @@ export interface EventSubConsumer<Events extends {}, Target> {
     sub?: SubPath
   ): typeof subscriber;
   /**Registers a proxy event handler that recieves all events from this event handler */
-  proxyOn(
+  proxy_on(
     subscriber: ESubSubscriber<keyof Events, Target, Events[keyof Events]>
   ): typeof subscriber;
   /**Deregisters a proxy event handler that recieves all events from this event handler */
-  proxyOff(
+  proxy_off(
     subscriber: ESubSubscriber<keyof Events, Target, Events[keyof Events]>
   ): typeof subscriber;
 }
@@ -67,7 +67,7 @@ export interface EventSubProducer<Events extends {}, Target>
     anyLevel?: boolean
   ): void;
   /**Returns wether the type has listeners, true means it has at least a listener*/
-  inUse<K extends keyof Events>(eventName: K, sub?: SubPath): boolean;
+  in_use<K extends keyof Events>(eventName: K, sub?: SubPath): boolean;
   /**Returns wether the type has a specific listeners, true means it has that listener*/
   has<K extends keyof Events>(
     eventName: K,
@@ -77,7 +77,7 @@ export interface EventSubProducer<Events extends {}, Target>
   /**Returns the amount of listeners on that event*/
   amount<K extends keyof Events>(eventName: K, sub?: SubPath): number;
   /**Generates a proxy function which can be registered with another handlers */
-  proxyFunc(): ESubSubscriber<keyof Events, Target, Events[keyof Events]>;
+  proxy_func(): ESubSubscriber<keyof Events, Target, Events[keyof Events]>;
 }
 
 /**Type for storage of listeners in event handler */
@@ -148,7 +148,7 @@ export class EventHandlerSub<Events extends {}, Target>
     return subscriber;
   }
 
-  proxyOn(
+  proxy_on(
     subscriber: ESubSubscriber<keyof Events, Target, Events[keyof Events]>
   ): typeof subscriber {
     if (!this.#proxies) this.#proxies = new Set([subscriber]);
@@ -156,7 +156,7 @@ export class EventHandlerSub<Events extends {}, Target>
     else console.error("Proxy subscriber already registered");
     return subscriber;
   }
-  proxyOff(
+  proxy_off(
     subscriber: ESubSubscriber<keyof Events, Target, Events[keyof Events]>
   ): typeof subscriber {
     if (this.#proxies?.delete(subscriber) === false)
@@ -257,7 +257,7 @@ export class EventHandlerSub<Events extends {}, Target>
     }
   }
 
-  inUse<K extends keyof Events>(eventName: K, sub?: SubPath): boolean {
+  in_use<K extends keyof Events>(eventName: K, sub?: SubPath): boolean {
     let typeBuff = this.#subStorage[eventName];
     if (typeBuff) {
       if (sub)
@@ -300,7 +300,7 @@ export class EventHandlerSub<Events extends {}, Target>
     } else return 0;
   }
 
-  proxyFunc(): ESubSubscriber<keyof Events, Target, Events[keyof Events]> {
+  proxy_func(): ESubSubscriber<keyof Events, Target, Events[keyof Events]> {
     return (e: ESub<keyof Events, Target, Events[keyof Events]>) => {
       if (e.sub) {
         var subLevel = this.#subStorage[e.type];

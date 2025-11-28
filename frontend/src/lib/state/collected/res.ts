@@ -64,7 +64,7 @@ export class RES<RT, IN extends STATE_RES<any>[], WT>
   }
 
   /**Called when subscriber is added*/
-  protected onSubscribe(first: boolean) {
+  protected on_subscribe(first: boolean) {
     if (!first) return;
     if (!this.#states.length)
       return (this.#buffer = Err("No states registered"));
@@ -79,7 +79,7 @@ export class RES<RT, IN extends STATE_RES<any>[], WT>
             this.#buffer = this.getter(
               this.#stateBuffers as STATE_COLLECTED_TRANS_VAL<IN>
             );
-            this.updateSubs(this.#buffer);
+            this.update_subs(this.#buffer);
             calc = false;
           });
         }
@@ -88,11 +88,11 @@ export class RES<RT, IN extends STATE_RES<any>[], WT>
     this.#buffer = this.getter(
       this.#stateBuffers as STATE_COLLECTED_TRANS_VAL<IN>
     );
-    this.updateSubs(this.#buffer);
+    this.update_subs(this.#buffer);
   }
 
   /**Called when subscriber is removed*/
-  protected onUnsubscribe(last: boolean) {
+  protected on_unsubscribe(last: boolean) {
     if (!last) return;
     for (let i = 0; i < this.#states.length; i++)
       this.#states[i].unsub(this.#stateSubscribers[i] as any);
@@ -103,19 +103,19 @@ export class RES<RT, IN extends STATE_RES<any>[], WT>
 
   //#Owner
   setStates(...states: STATE_COLLECTED_STATES<IN>) {
-    if (this.inUse()) {
-      this.onUnsubscribe(true);
+    if (this.in_use()) {
+      this.on_unsubscribe(true);
       this.#states = [...states] as unknown as IN;
-      this.onSubscribe(true);
+      this.on_subscribe(true);
     } else this.#states = [...states] as unknown as IN;
   }
   setGetter(
     getter: (values: STATE_COLLECTED_TRANS_VAL<IN>) => Result<RT, string>
   ) {
-    if (this.inUse()) {
-      this.onUnsubscribe(true);
+    if (this.in_use()) {
+      this.on_unsubscribe(true);
       this.getter = getter;
-      this.onSubscribe(true);
+      this.on_subscribe(true);
     } else this.getter = getter;
   }
   get state(): STATE<RT, WT, any> {

@@ -16,21 +16,21 @@ declare global {
 let defaultMenu: (ContextMenu | (() => Option<ContextMenu>)) | undefined;
 
 documentHandler.events.on("added", (e) => {
-  applyToDoc(e.data);
+  apply_to_doc(e.data);
 });
-documentHandler.forDocuments((doc) => {
-  applyToDoc(doc);
+documentHandler.for_documents((doc) => {
+  apply_to_doc(doc);
 });
 
-function applyToDoc(doc: Document) {
+function apply_to_doc(doc: Document) {
   let container = new Container();
   doc["@contextmenu"] = container;
   doc.documentElement.appendChild(container);
-  if (defaultMenu) contextMenuAttach(doc.documentElement, defaultMenu);
+  if (defaultMenu) context_menu_attach(doc.documentElement, defaultMenu);
 }
 
 /**Attaches a context menu to the given element*/
-export function contextMenuAttach(
+export function context_menu_attach(
   element: Element,
   lines: ContextMenu | (() => Option<ContextMenu>)
 ) {
@@ -42,9 +42,9 @@ export function contextMenuAttach(
     e.preventDefault();
     e.stopPropagation();
     let lineses =
-      typeof lines === "function" ? lines().unwrapOr(undefined) : lines;
+      typeof lines === "function" ? lines().unwrap_or(undefined) : lines;
     if (!lineses) return;
-    contextMenuSummon(
+    context_menu_summon(
       lineses,
       element,
       (e as MouseEvent).clientX,
@@ -56,7 +56,7 @@ export function contextMenuAttach(
 }
 
 /**Dettaches the context menu from the given element */
-export function contextMenuDettach(element: Element) {
+export function context_menu_dettach(element: Element) {
   if (element["@contextmenu"]) {
     element.removeEventListener("contextmenu", element["@contextmenu"]);
     delete element["@contextmenu"];
@@ -69,7 +69,7 @@ export function contextMenuDettach(element: Element) {
  * @param x x position for context menu, if undefined, will use element middle, if element undefined, will put context menu in the top left corner of the screen
  * @param y y position for context menu, if undefined, will use element middle, if element undefined, will put context menu in the top left corner of the screen
  * @param dontCover when set true */
-export function contextMenuSummon(
+export function context_menu_summon(
   menu: ContextMenu,
   element?: Element,
   x?: number,
@@ -91,25 +91,25 @@ export function contextMenuSummon(
       }
     }
     container
-      .attachMenu(menu)
-      .setPosition(x, y, dontCover ? element : undefined);
+      .attach_menu(menu)
+      .set_position(x, y, dontCover ? element : undefined);
   } else console.error("No context menu container available");
 }
 
 /**Sets the default context menu for the page, the one used if no other context menu has been attached to the element
  * If set to a boolean the operating system context menu is disabled and nothing will appear
  * If set undefined the operating systems context menu will be used*/
-export function contextMenuDefault(
+export function context_menu_default(
   lines: (ContextMenu | (() => Option<ContextMenu>)) | false
 ) {
   if (defaultMenu)
-    documentHandler.forDocuments((doc) => {
-      contextMenuDettach(doc.body);
+    documentHandler.for_documents((doc) => {
+      context_menu_dettach(doc.body);
     });
   if (lines) {
     defaultMenu = lines;
-    documentHandler.forDocuments((doc) => {
-      contextMenuAttach(doc.body, lines);
+    documentHandler.for_documents((doc) => {
+      context_menu_attach(doc.body, lines);
     });
   }
 }

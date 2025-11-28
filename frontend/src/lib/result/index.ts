@@ -23,26 +23,26 @@ export interface OptionBase<T> {
 
   /**Returns the contained value or a provided default.
    * @param value value to use as default*/
-  unwrapOr<T2>(value: T2): T | T2;
+  unwrap_or<T2>(value: T2): T | T2;
 
   /**Calls mapper if the Option is `Some`, otherwise returns `None`.
    * This function can be used for control flow based on `Optional` values.*/
-  andThen<T2>(mapper: (value: T) => OptionSome<T2>): Option<T2>;
-  andThen(mapper: (value: T) => OptionNone): Option<T>;
-  andThen<T2>(mapper: (value: T) => Option<T2>): Option<T2>;
+  and_then<T2>(mapper: (value: T) => OptionSome<T2>): Option<T2>;
+  and_then(mapper: (value: T) => OptionNone): Option<T>;
+  and_then<T2>(mapper: (value: T) => Option<T2>): Option<T2>;
 
   /**Calls mapper if the Option is `None`, otherwise returns `Some`.
    * This function can be used for control flow based on `Optional` values.*/
-  orElse<T2>(mapper: () => OptionSome<T2>): Option<T2>;
-  orElse(mapper: () => OptionNone): Option<T>;
-  orElse<T2>(mapper: () => Option<T2>): Option<T2>;
+  or_else<T2>(mapper: () => OptionSome<T2>): Option<T2>;
+  or_else(mapper: () => OptionNone): Option<T>;
+  or_else<T2>(mapper: () => Option<T2>): Option<T2>;
 
   /**Maps an `Optional<T>` to `Optional<U>` by applying a function to a contained `Some` value, leaving a `None` value untouched.
    * This function can be used to compose the Options of two functions.*/
   map<U>(mapper: (value: T) => U): Option<U>;
 
   /**Maps an `Optional<T>` to a `Result<T, E>`.*/
-  toResult<E>(error: E): Result<T, E>;
+  to_result<E>(error: E): Result<T, E>;
 }
 
 class OptionSome<T> implements OptionBase<T> {
@@ -69,18 +69,18 @@ class OptionSome<T> implements OptionBase<T> {
     return this.value;
   }
 
-  unwrapOr(): T {
+  unwrap_or(): T {
     return this.value;
   }
 
-  andThen<T2>(mapper: (value: T) => OptionSome<T2>): OptionSome<T2>;
-  andThen(mapper: (value: T) => OptionNone): OptionNone;
-  andThen<T2>(mapper: (value: T) => Option<T2>): Option<T2>;
-  andThen<T2>(mapper: (value: T) => Option<T2>) {
+  and_then<T2>(mapper: (value: T) => OptionSome<T2>): OptionSome<T2>;
+  and_then(mapper: (value: T) => OptionNone): OptionNone;
+  and_then<T2>(mapper: (value: T) => Option<T2>): Option<T2>;
+  and_then<T2>(mapper: (value: T) => Option<T2>) {
     return mapper(this.value);
   }
 
-  orElse(): OptionSome<T> {
+  or_else(): OptionSome<T> {
     return this;
   }
 
@@ -88,7 +88,7 @@ class OptionSome<T> implements OptionBase<T> {
     return new OptionSome(mapper(this.value));
   }
 
-  toResult(): ResultOk<T> {
+  to_result(): ResultOk<T> {
     return new ResultOk(this.value);
   }
 }
@@ -112,18 +112,18 @@ export class OptionNone implements OptionBase<never> {
     throw new Error(`Tried to unwrap None`);
   }
 
-  unwrapOr<T2>(val: T2): T2 {
+  unwrap_or<T2>(val: T2): T2 {
     return val;
   }
 
-  andThen(): OptionNone {
+  and_then(): OptionNone {
     return this;
   }
 
-  orElse<T2>(mapper: () => OptionSome<T2>): OptionSome<T2>;
-  orElse(mapper: () => OptionNone): OptionNone;
-  orElse<T2>(mapper: () => Option<T2>): Option<T2>;
-  orElse<T2>(mapper: () => Option<T2>) {
+  or_else<T2>(mapper: () => OptionSome<T2>): OptionSome<T2>;
+  or_else(mapper: () => OptionNone): OptionNone;
+  or_else<T2>(mapper: () => Option<T2>): Option<T2>;
+  or_else<T2>(mapper: () => Option<T2>) {
     return mapper();
   }
 
@@ -131,7 +131,7 @@ export class OptionNone implements OptionBase<never> {
     return this;
   }
 
-  toResult<E>(error: E): ResultErr<E> {
+  to_result<E>(error: E): ResultErr<E> {
     return new ResultErr(error);
   }
 }
@@ -161,26 +161,26 @@ export interface ResultBase<T, E> {
 
   /**Returns the contained valid value, if does not exist. Throws an error if it does.
    * @param msg the message to throw if the value is valid.*/
-  expectErr(msg: string): E;
+  expect_err(msg: string): E;
 
   /**Returns the contained valid value.
    * Throws if the value is invalid, with a message provided by the error's value.*/
   get unwrap(): T;
 
   /**Returns the contained valid value or a provided default.*/
-  unwrapOr<T2>(value: T2): T | T2;
+  unwrap_or<T2>(value: T2): T | T2;
 
   /**Calls mapper function if the result is valid, otherwise returns the error value of self.
    * This function can be used for control flow based on `Result` values.*/
-  andThen<T2>(mapper: (value: T) => ResultOk<T2>): Result<T2, E>;
-  andThen<E2>(mapper: (value: T) => ResultErr<E2>): Result<T, E2>;
-  andThen<T2, E2>(mapper: (value: T) => Result<T2, E2>): Result<T2, E2>;
+  and_then<T2>(mapper: (value: T) => ResultOk<T2>): Result<T2, E>;
+  and_then<E2>(mapper: (value: T) => ResultErr<E2>): Result<T, E2>;
+  and_then<T2, E2>(mapper: (value: T) => Result<T2, E2>): Result<T2, E2>;
 
   /**Calls mapper function if the result is an error, otherwise returns the value self.
    * This function can be used for control flow based on `Result` values.*/
-  orElse<T2>(mapper: (error: E) => ResultOk<T2>): Result<T2, E>;
-  orElse<E2>(mapper: (error: E) => ResultErr<E2>): Result<T, E2>;
-  orElse<T2, E2>(mapper: (error: E) => Result<T2, E2>): Result<T2, E2>;
+  or_else<T2>(mapper: (error: E) => ResultOk<T2>): Result<T2, E>;
+  or_else<E2>(mapper: (error: E) => ResultErr<E2>): Result<T, E2>;
+  or_else<T2, E2>(mapper: (error: E) => Result<T2, E2>): Result<T2, E2>;
 
   /**Maps a `Result<T, E>` to `Result<U, E>` by applying a function to a contained valid value, leaving an error value untouched.
    * This function can be used to compose the results of two functions.*/
@@ -188,10 +188,10 @@ export interface ResultBase<T, E> {
 
   /**Maps a `Result<T, E>` to `Result<T, F>` by applying a function to a contained error value, leaving a valid value untouched.
    * This function can be used to pass through a successful result while handling an error.*/
-  mapErr<F>(mapper: (error: E) => F): Result<T, F>;
+  map_err<F>(mapper: (error: E) => F): Result<T, F>;
 
   /**Converts from `Result<T, E>` to `Optional<T>`, discarding the error if any*/
-  get toOptional(): Option<T>;
+  get to_option(): Option<T>;
 }
 
 export class ResultOk<T> implements ResultBase<T, never> {
@@ -211,7 +211,7 @@ export class ResultOk<T> implements ResultBase<T, never> {
     return this.value;
   }
 
-  expectErr(msg: string): never {
+  expect_err(msg: string): never {
     throw new Error(msg);
   }
 
@@ -219,18 +219,18 @@ export class ResultOk<T> implements ResultBase<T, never> {
     return this.value;
   }
 
-  unwrapOr(): T {
+  unwrap_or(): T {
     return this.value;
   }
 
-  andThen<T2>(mapper: (value: T) => ResultOk<T2>): ResultOk<T2>;
-  andThen<E2>(mapper: (value: T) => ResultErr<E2>): ResultErr<E2>;
-  andThen<T2, E2>(mapper: (value: T) => Result<T2, E2>): Result<T2, E2>;
-  andThen<T2, E2>(mapper: (value: T) => Result<T2, E2>) {
+  and_then<T2>(mapper: (value: T) => ResultOk<T2>): ResultOk<T2>;
+  and_then<E2>(mapper: (value: T) => ResultErr<E2>): ResultErr<E2>;
+  and_then<T2, E2>(mapper: (value: T) => Result<T2, E2>): Result<T2, E2>;
+  and_then<T2, E2>(mapper: (value: T) => Result<T2, E2>) {
     return mapper(this.value);
   }
 
-  orElse(): ResultOk<T> {
+  or_else(): ResultOk<T> {
     return this;
   }
 
@@ -238,20 +238,12 @@ export class ResultOk<T> implements ResultBase<T, never> {
     return new ResultOk(func(this.value));
   }
 
-  mapErr(): ResultOk<T> {
+  map_err(): ResultOk<T> {
     return this;
   }
 
-  get toOptional(): OptionSome<T> {
+  get to_option(): OptionSome<T> {
     return new OptionSome(this.value);
-  }
-
-  /**Returns the contained valid value, but never throws.
-   * Unlike `unwrap()`, this method doesn't throw and is only callable on an Ok<T>
-   * Therefore, it can be used instead of `unwrap()` as a maintainability safeguard
-   * that will fail to compile if the error type of the Result is later changed to an error that can actually occur.*/
-  safeUnwrap(): T {
-    return this.value;
   }
 }
 
@@ -277,7 +269,7 @@ export class ResultErr<E> implements ResultBase<never, E> {
     throw new Error(msg + "\nOriginal " + this.#stack + "\nExpect Error");
   }
 
-  expectErr(): E {
+  expect_err(): E {
     return this.error;
   }
 
@@ -287,18 +279,18 @@ export class ResultErr<E> implements ResultBase<never, E> {
     );
   }
 
-  unwrapOr<T2>(val: T2): T2 {
+  unwrap_or<T2>(val: T2): T2 {
     return val;
   }
 
-  andThen(): ResultErr<E> {
+  and_then(): ResultErr<E> {
     return this;
   }
 
-  orElse<T2>(mapper: (error: E) => ResultOk<T2>): ResultOk<T2>;
-  orElse<E2>(mapper: (error: E) => ResultErr<E2>): ResultErr<E2>;
-  orElse<T2, E2>(mapper: (error: E) => Result<T2, E2>): Result<T2, E2>;
-  orElse<T2, E2>(mapper: (error: E) => Result<T2, E2>) {
+  or_else<T2>(mapper: (error: E) => ResultOk<T2>): ResultOk<T2>;
+  or_else<E2>(mapper: (error: E) => ResultErr<E2>): ResultErr<E2>;
+  or_else<T2, E2>(mapper: (error: E) => Result<T2, E2>): Result<T2, E2>;
+  or_else<T2, E2>(mapper: (error: E) => Result<T2, E2>) {
     return mapper(this.error);
   }
 
@@ -306,11 +298,11 @@ export class ResultErr<E> implements ResultBase<never, E> {
     return this;
   }
 
-  mapErr<F>(mapper: (error: E) => F): ResultErr<F> {
+  map_err<F>(mapper: (error: E) => F): ResultErr<F> {
     return new ResultErr(mapper(this.error));
   }
 
-  get toOptional(): OptionNone {
+  get to_option(): OptionNone {
     return new OptionNone();
   }
 

@@ -29,7 +29,7 @@ describe("Result Ok", function () {
   it("Expect err value from valid result", function () {
     let result = Ok(42);
     expect(() => {
-      result.expectErr("YOYO");
+      result.expect_err("YOYO");
     }).to.throw();
   });
   it("Unwrap value from valid result", function () {
@@ -38,13 +38,13 @@ describe("Result Ok", function () {
   });
   it("UnwrapOr value from valid result", function () {
     let result = Ok(42);
-    expect(result.unwrapOr()).equal(42);
+    expect(result.unwrap_or()).equal(42);
   });
   it("andThen from valid result returning valid result", function () {
     let result = Ok(42);
     expect(
       result
-        .andThen((val) => {
+        .and_then((val) => {
           expect(val).equal(42);
           return Ok("42");
         })
@@ -55,16 +55,16 @@ describe("Result Ok", function () {
     let result = Ok(42);
     expect(
       result
-        .andThen((val) => {
+        .and_then((val) => {
           expect(val).equal(42);
           return Err("42");
         })
-        .expectErr()
+        .expect_err()
     ).equal("42");
   });
   it("orElse from valid result", function () {
     let result = Ok(42);
-    expect(result.orElse().expect()).equal(42);
+    expect(result.or_else().expect()).equal(42);
   });
   it("map from valid result", function () {
     let result = Ok(42);
@@ -79,15 +79,15 @@ describe("Result Ok", function () {
   });
   it("mapErr from valid result", function () {
     let result = Ok(42);
-    expect(result.mapErr().expect()).equal(42);
+    expect(result.map_err().expect()).equal(42);
   });
   it("toOptional from valid result", function () {
     let result = Ok(42);
-    expect(result.toOptional.expect()).equal(42);
+    expect(result.to_option.expect()).equal(42);
   });
   it("safeUnwrap from valid result", function () {
     let result = Ok(42);
-    expect(result.safeUnwrap()).equal(42);
+    expect(result.safe_unwrap()).equal(42);
   });
 });
 
@@ -118,7 +118,7 @@ describe("Result Error", function () {
   });
   it("Expect err value from error result", function () {
     let result = Err(42);
-    expect(result.expectErr()).equal(42);
+    expect(result.expect_err()).equal(42);
   });
   it("Unwrap value from error result", function () {
     let result = Err(42);
@@ -128,17 +128,17 @@ describe("Result Error", function () {
   });
   it("UnwrapOr value from error result", function () {
     let result = Err(42);
-    expect(result.unwrapOr(42)).equal(42);
+    expect(result.unwrap_or(42)).equal(42);
   });
   it("andThen from error result", function () {
     let result = Err(42);
-    expect(result.andThen().expectErr()).equal(42);
+    expect(result.and_then().expect_err()).equal(42);
   });
   it("orElse from error result", function () {
     let result = Err(42);
     expect(
       result
-        .orElse((val) => {
+        .or_else((val) => {
           expect(val).equal(42);
           return Ok("42");
         })
@@ -147,22 +147,22 @@ describe("Result Error", function () {
   });
   it("map from error result", function () {
     let result = Err(42);
-    expect(result.map().expectErr()).equal(42);
+    expect(result.map().expect_err()).equal(42);
   });
   it("mapErr from error result", function () {
     let result = Err(42);
     expect(
       result
-        .mapErr((val) => {
+        .map_err((val) => {
           expect(val).equal(42);
           return "42";
         })
-        .expectErr()
+        .expect_err()
     ).equal("42");
   });
   it("toOptional from error result", function () {
     let result = Err(42);
-    expect(result.toOptional.none).equal(true);
+    expect(result.to_option.none).equal(true);
   });
   it("stack from error result", function () {
     let result = Err(42);
@@ -204,13 +204,13 @@ describe("Option Some", function () {
   });
   it("UnwrapOr value from Some", function () {
     let result = Some(42);
-    expect(result.unwrapOr()).equal(42);
+    expect(result.unwrap_or()).equal(42);
   });
   it("andThen from Some returning Some", function () {
     let result = Some(42);
     expect(
       result
-        .andThen((val) => {
+        .and_then((val) => {
           expect(val).equal(42);
           return Some("42");
         })
@@ -220,7 +220,7 @@ describe("Option Some", function () {
   it("andThen from Some returning error result", function () {
     let result = Some(42);
     expect(
-      result.andThen((val) => {
+      result.and_then((val) => {
         expect(val).equal(42);
         return None();
       }).none
@@ -228,7 +228,7 @@ describe("Option Some", function () {
   });
   it("orElse from Some", function () {
     let result = Some(42);
-    expect(result.orElse().expect()).equal(42);
+    expect(result.or_else().expect()).equal(42);
   });
   it("map from Some", function () {
     let result = Some(42);
@@ -243,7 +243,7 @@ describe("Option Some", function () {
   });
   it("toResult from Some", function () {
     let result = Some(42);
-    expect(result.toResult().expect()).equal(42);
+    expect(result.to_result().expect()).equal(42);
   });
 });
 
@@ -282,17 +282,17 @@ describe("Option None", function () {
   });
   it("UnwrapOr value from None", function () {
     let result = None();
-    expect(result.unwrapOr(42)).equal(42);
+    expect(result.unwrap_or(42)).equal(42);
   });
   it("andThen from None returning error result", function () {
     let result = None();
-    expect(result.andThen().none).equal(true);
+    expect(result.and_then().none).equal(true);
   });
   it("orElse from Some returning Some", function () {
     let result = None();
     expect(
       result
-        .orElse(() => {
+        .or_else(() => {
           return Some("42");
         })
         .expect()
@@ -301,7 +301,7 @@ describe("Option None", function () {
   it("orElse from Some returning error result", function () {
     let result = None();
     expect(
-      result.orElse(() => {
+      result.or_else(() => {
         return None();
       }).none
     ).equal(true);
@@ -312,7 +312,7 @@ describe("Option None", function () {
   });
   it("toResult from None", function () {
     let result = None();
-    expect(result.toResult("YOYO").err).equal(true);
+    expect(result.to_result("YOYO").err).equal(true);
   });
 });
 

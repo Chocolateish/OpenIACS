@@ -92,10 +92,10 @@ describe("Initialize lazy states", function () {
     it("cleanup successfull", async function () {
       let init = st.l.ros_ws.ok(() => 1);
       let set = init.set;
-      let writeSync = init.writeSync;
+      let writeSync = init.write_sync;
       await init;
       expect(init.set).not.eq(set, "set");
-      expect(init.writeSync).not.eq(writeSync, "writeSync");
+      expect(init.write_sync).not.eq(writeSync, "writeSync");
     });
     let maker: TEST_STATE_OK_SYNC = () => {
       let state = st.l.ros_ws.ok(() => 1);
@@ -140,10 +140,10 @@ describe("Initialize lazy states", function () {
     it("cleanup successfull", async function () {
       let init = st.l.res_ws.ok(() => 1);
       let set = init.set;
-      let writeSync = init.writeSync;
+      let writeSync = init.write_sync;
       await init;
       expect(init.set).not.eq(set, "set");
-      expect(init.writeSync).not.eq(writeSync, "writeSync");
+      expect(init.write_sync).not.eq(writeSync, "writeSync");
     });
     let maker: TEST_STATE_SYNC = () => {
       let state = st.l.res_ws.ok(() => 1);

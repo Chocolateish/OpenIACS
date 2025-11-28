@@ -54,8 +54,8 @@ export abstract class STATE_RESOURCE_ROA<RT, REL extends RELATED = {}, WT = any>
   /**Retention delay before resource performs teardown of connection is performed*/
   abstract get retention(): number;
 
-  protected onSubscribe(first: boolean): void {
-    if (!first || this.inUse()) return;
+  protected on_subscribe(first: boolean): void {
+    if (!first || this.in_use()) return;
     if (this.#retentionTimout) {
       clearTimeout(this.#retentionTimout);
       this.#retentionTimout = 0;
@@ -70,7 +70,7 @@ export abstract class STATE_RESOURCE_ROA<RT, REL extends RELATED = {}, WT = any>
     }
   }
 
-  protected onUnsubscribe(last: boolean): void {
+  protected on_unsubscribe(last: boolean): void {
     if (!last) return;
     if (this.#debounceTimout) {
       clearTimeout(this.#debounceTimout);
@@ -104,10 +104,10 @@ export abstract class STATE_RESOURCE_ROA<RT, REL extends RELATED = {}, WT = any>
 
   updateResource(value: ResultOk<RT>) {
     this.#valid = Date.now() + this.timeout;
-    this.fulRProm(value);
+    this.ful_R_prom(value);
     this.#fetching = false;
     if (value.ok && this.#buffer?.ok && value.value !== this.#buffer.value)
-      this.updateSubs(value);
+      this.update_subs(value);
     this.#buffer = value;
   }
   get buffer(): ResultOk<RT> | undefined {
@@ -132,7 +132,7 @@ export abstract class STATE_RESOURCE_ROA<RT, REL extends RELATED = {}, WT = any>
   ): Promise<T> {
     if (this.#valid >= Date.now()) {
       return func(this.#buffer!);
-    } else if (this.#fetching) return this.appendRProm(func);
+    } else if (this.#fetching) return this.append_R_prom(func);
     else {
       this.#fetching = true;
       if (this.debounce > 0)
@@ -140,7 +140,7 @@ export abstract class STATE_RESOURCE_ROA<RT, REL extends RELATED = {}, WT = any>
           setTimeout(a, this.debounce);
         });
       this.singleGet(this);
-      return this.appendRProm(func);
+      return this.append_R_prom(func);
     }
   }
 

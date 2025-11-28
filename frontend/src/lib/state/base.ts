@@ -23,7 +23,7 @@ export abstract class STATE_BASE<
   /**Gets the current value of the state if state is sync*/
   get?(): RRT;
   /**Gets the value of the state without result, only works when state is OK */
-  getOk?(): RT;
+  ok?(): RT;
   /**This adds a function as a subscriber to changes to the state
    * @param update set true to update subscriber immediatly*/
   sub<T = STATE_SUB<RRT>>(func: STATE_SUB<RRT>, update?: boolean): T {
@@ -31,7 +31,7 @@ export abstract class STATE_BASE<
       console.error("Function already registered as subscriber", this, func);
       return func as T;
     }
-    this.onSubscribe(this.#subscribers.size == 0);
+    this.on_subscribe(this.#subscribers.size == 0);
     this.#subscribers.add(func);
     if (update) this.then(func as (value: Result<RT, string>) => void);
     return func as T;
@@ -39,7 +39,7 @@ export abstract class STATE_BASE<
   /**This removes a function as a subscriber to the state*/
   unsub<T = STATE_SUB<RRT>>(func: T): T {
     if (this.#subscribers.delete(func as STATE_SUB<RRT>))
-      this.onUnsubscribe(this.#subscribers.size == 0);
+      this.on_unsubscribe(this.#subscribers.size == 0);
     else console.error("Subscriber not found with state", this, func);
     return func as T;
   }
@@ -49,15 +49,15 @@ export abstract class STATE_BASE<
   }
 
   /**Returns if the state is being used */
-  inUse(): this | undefined {
+  in_use(): this | undefined {
     return this.#subscribers.size > 0 ? this : undefined;
   }
   /**Returns if the state has a subscriber */
-  hasSubscriber(subscriber: STATE_SUB<RRT>): this | undefined {
+  has(subscriber: STATE_SUB<RRT>): this | undefined {
     return this.#subscribers.has(subscriber) ? this : undefined;
   }
   /**Returns if the state has a subscriber */
-  amountSubscriber(): number {
+  amount(): number {
     return this.#subscribers.size;
   }
 
@@ -75,15 +75,15 @@ export abstract class STATE_BASE<
   check?(value: WT): Result<WT, string>;
   /** This attempts a write to the state, write is not guaranteed to succeed, this sync method is available on sync states
    * @returns result with error for the write*/
-  writeSync?(value: WT): Result<void, string>;
+  write_sync?(value: WT): Result<void, string>;
 
   /**Called when subscriber is added*/
-  protected onSubscribe(_first: boolean): void {}
+  protected on_subscribe(_first: boolean): void {}
   /**Called when subscriber is removed*/
-  protected onUnsubscribe(_last: boolean): void {}
+  protected on_unsubscribe(_last: boolean): void {}
 
   /**Updates all subscribers with a value */
-  protected updateSubs(value: RRT): void {
+  protected update_subs(value: RRT): void {
     for (const subscriber of this.#subscribers) {
       try {
         subscriber(value);
@@ -95,7 +95,7 @@ export abstract class STATE_BASE<
 
   //Promises
   /**Creates a promise which can be fulfilled later with fulRProm */
-  protected async appendRProm<
+  protected async append_R_prom<
     T = Result<RT, string>,
     TResult1 = Result<RT, string>
   >(func: (value: T) => TResult1 | PromiseLike<TResult1>): Promise<TResult1> {
@@ -108,7 +108,7 @@ export abstract class STATE_BASE<
     );
   }
   /**Fulfills all read promises with given value */
-  protected fulRProm(value: RRT): RRT {
+  protected ful_R_prom(value: RRT): RRT {
     if (this.#readPromises)
       for (let i = 0; i < this.#readPromises.length; i++)
         this.#readPromises[i](value);

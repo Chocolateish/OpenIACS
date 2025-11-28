@@ -73,9 +73,9 @@ export class ROS<AT, REL extends RELATED = {}>
     return func(this.get());
   }
   get(): ResultOk<SAR<AT>> {
-    return Ok(this.getOk());
+    return Ok(this.ok());
   }
-  getOk(): SAR<AT> {
+  ok(): SAR<AT> {
     return this.#mr("none", 0, this.#a);
   }
   related(): Option<REL> {
@@ -90,9 +90,9 @@ export class ROS<AT, REL extends RELATED = {}>
     return this.writable;
   }
   async write(value: SAW<AT>): Promise<Result<void, string>> {
-    return this.writeSync(value);
+    return this.write_sync(value);
   }
-  writeSync(value: SAW<AT>): Result<void, string> {
+  write_sync(value: SAW<AT>): Result<void, string> {
     if (this.setter) return this.setter(value, this, this.get());
     return Err("State not writable");
   }
@@ -106,7 +106,7 @@ export class ROS<AT, REL extends RELATED = {}>
   //Array/Owner Context
   set(value: ResultOk<AT[]>) {
     this.#a = value.value;
-    this.updateSubs(this.get());
+    this.update_subs(this.get());
   }
 
   get array(): readonly AT[] {
@@ -120,32 +120,32 @@ export class ROS<AT, REL extends RELATED = {}>
   push(...items: AT[]): number {
     let index = this.#a.length;
     let newLen = this.#a.push(...items);
-    this.updateSubs(Ok(this.#mr("added", index, items)));
+    this.update_subs(Ok(this.#mr("added", index, items)));
     return newLen;
   }
 
   pop(): AT | undefined {
     let p = this.#a.pop();
-    if (p) this.updateSubs(Ok(this.#mr("removed", this.#a.length + 1, [p!])));
+    if (p) this.update_subs(Ok(this.#mr("removed", this.#a.length + 1, [p!])));
     return p;
   }
 
   shift(): AT | undefined {
     let shifted = this.#a.shift();
-    if (shifted) this.updateSubs(Ok(this.#mr("removed", 0, [shifted!])));
+    if (shifted) this.update_subs(Ok(this.#mr("removed", 0, [shifted!])));
     return shifted;
   }
 
   unshift(...items: AT[]): number {
     let newLen = this.#a.unshift(...items);
-    this.updateSubs(Ok(this.#mr("added", 0, items)));
+    this.update_subs(Ok(this.#mr("added", 0, items)));
     return newLen;
   }
 
   splice(start: number, deleteCount?: number, ...items: AT[]): AT[] {
     let r = this.#a.splice(start, deleteCount!, ...items);
-    if (r.length > 0) this.updateSubs(Ok(this.#mr("removed", start, r)));
-    if (items.length > 0) this.updateSubs(Ok(this.#mr("added", start, items)));
+    if (r.length > 0) this.update_subs(Ok(this.#mr("removed", start, r)));
+    if (items.length > 0) this.update_subs(Ok(this.#mr("added", start, items)));
     return r;
   }
 
@@ -153,7 +153,7 @@ export class ROS<AT, REL extends RELATED = {}>
   delete(val: AT) {
     for (let i = 0; i < this.#a.length; i++)
       if ((this.#a[i] = val)) {
-        this.updateSubs(Ok(this.#mr("removed", i, [val])));
+        this.update_subs(Ok(this.#mr("removed", i, [val])));
         i--;
       }
   }
@@ -170,7 +170,7 @@ export class ROS<AT, REL extends RELATED = {}>
     else if (type === "removed") this.#a.splice(index, items.length);
     else if (type === "changed")
       for (let i = 0; i < its.length; i++) this.#a[index + i] = items[i];
-    this.updateSubs(Ok(this.#mr(type, index, items)));
+    this.update_subs(Ok(this.#mr(type, index, items)));
   }
 }
 const ros = {
@@ -260,9 +260,9 @@ export class ROS_WS<AT, REL extends RELATED = {}>
     return func(this.get());
   }
   get(): ResultOk<SAR<AT>> {
-    return Ok(this.getOk());
+    return Ok(this.ok());
   }
-  getOk(): SAR<AT> {
+  ok(): SAR<AT> {
     return this.#mr("none", 0, this.#a);
   }
   related(): Option<REL> {
@@ -277,9 +277,9 @@ export class ROS_WS<AT, REL extends RELATED = {}>
     return true;
   }
   async write(value: SAW<AT>): Promise<Result<void, string>> {
-    return this.writeSync(value);
+    return this.write_sync(value);
   }
-  writeSync(value: SAW<AT>): Result<void, string> {
+  write_sync(value: SAW<AT>): Result<void, string> {
     return this.#setter(value, this, this.get());
   }
   limit(value: SAW<AT>): Result<SAW<AT>, string> {
@@ -292,7 +292,7 @@ export class ROS_WS<AT, REL extends RELATED = {}>
   //Array/Owner Context
   set(value: ResultOk<AT[]>) {
     this.#a = value.value;
-    this.updateSubs(Ok(this.#mr("none", 0, this.#a)));
+    this.update_subs(Ok(this.#mr("none", 0, this.#a)));
   }
 
   get array(): readonly AT[] {
@@ -306,32 +306,32 @@ export class ROS_WS<AT, REL extends RELATED = {}>
   push(...items: AT[]): number {
     let index = this.#a.length;
     let newLen = this.#a.push(...items);
-    this.updateSubs(Ok(this.#mr("added", index, items)));
+    this.update_subs(Ok(this.#mr("added", index, items)));
     return newLen;
   }
 
   pop(): AT | undefined {
     let p = this.#a.pop();
-    if (p) this.updateSubs(Ok(this.#mr("removed", this.#a.length + 1, [p!])));
+    if (p) this.update_subs(Ok(this.#mr("removed", this.#a.length + 1, [p!])));
     return p;
   }
 
   shift(): AT | undefined {
     let shifted = this.#a.shift();
-    if (shifted) this.updateSubs(Ok(this.#mr("removed", 0, [shifted!])));
+    if (shifted) this.update_subs(Ok(this.#mr("removed", 0, [shifted!])));
     return shifted;
   }
 
   unshift(...items: AT[]): number {
     let newLen = this.#a.unshift(...items);
-    this.updateSubs(Ok(this.#mr("added", 0, items)));
+    this.update_subs(Ok(this.#mr("added", 0, items)));
     return newLen;
   }
 
   splice(start: number, deleteCount?: number, ...items: AT[]): AT[] {
     let r = this.#a.splice(start, deleteCount!, ...items);
-    if (r.length > 0) this.updateSubs(Ok(this.#mr("removed", start, r)));
-    if (items.length > 0) this.updateSubs(Ok(this.#mr("added", start, items)));
+    if (r.length > 0) this.update_subs(Ok(this.#mr("removed", start, r)));
+    if (items.length > 0) this.update_subs(Ok(this.#mr("added", start, items)));
     return r;
   }
 
@@ -339,7 +339,7 @@ export class ROS_WS<AT, REL extends RELATED = {}>
   delete(val: AT) {
     for (let i = 0; i < this.#a.length; i++)
       if ((this.#a[i] = val)) {
-        this.updateSubs(Ok(this.#mr("removed", i, [val])));
+        this.update_subs(Ok(this.#mr("removed", i, [val])));
         i--;
       }
   }
@@ -356,7 +356,7 @@ export class ROS_WS<AT, REL extends RELATED = {}>
     else if (type === "removed") this.#a.splice(index, items.length);
     else if (type === "changed")
       for (let i = 0; i < its.length; i++) this.#a[index + i] = items[i];
-    this.updateSubs(Ok(this.#mr(type, index, items)));
+    this.update_subs(Ok(this.#mr(type, index, items)));
   }
 }
 

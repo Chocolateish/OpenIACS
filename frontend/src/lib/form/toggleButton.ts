@@ -20,7 +20,7 @@
 // /**Toggle buttons, displays all options in a multi toggler*/
 // export class ToggleButton extends SelectorComponent<ToggleButtonOptions> {
 //   /**Returns the name used to define the element */
-//   static elementName() {
+//   static element_name() {
 //     return "toggle-button";
 //   }
 

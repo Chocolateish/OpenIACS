@@ -18,7 +18,7 @@
 // /**Component for displaying simple text */
 // export class TextBox extends Component<TextBoxComponentOptions> {
 //   /**Returns the name used to define the element */
-//   static elementName() {
+//   static element_name() {
 //     return "textbox";
 //   }
 
@@ -75,7 +75,7 @@
 // /**Component for displaying value text */
 // export class TextBoxValue extends ValueComponent<TextBoxValueComponentOptions> {
 //   /**Returns the name used to define the element */
-//   static elementName() {
+//   static element_name() {
 //     return "textboxvalue";
 //   }
 

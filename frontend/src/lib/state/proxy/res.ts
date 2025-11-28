@@ -60,7 +60,7 @@ export class RES<
   #state: S;
   #subscriber = (value: Result<RIN, string>) => {
     this.#buffer = this.transformRead(value);
-    this.updateSubs(this.#buffer);
+    this.update_subs(this.#buffer);
   };
   #buffer?: Result<ROUT, string>;
 
@@ -68,10 +68,10 @@ export class RES<
     return value as Result<ROUT, string>;
   }
   private transformWrite?: (value: WOUT) => WIN;
-  protected onSubscribe(first: boolean): void {
+  protected on_subscribe(first: boolean): void {
     if (first) this.#state.sub(this.#subscriber, false);
   }
-  protected onUnsubscribe(last: boolean): void {
+  protected on_unsubscribe(last: boolean): void {
     if (last) {
       this.#state.unsub(this.#subscriber);
       this.#buffer = undefined;
@@ -80,19 +80,19 @@ export class RES<
 
   //#Owner Context
   setState(state: S) {
-    if (this.inUse()) {
-      this.onUnsubscribe(true);
+    if (this.in_use()) {
+      this.on_unsubscribe(true);
       this.#state = state;
-      this.onSubscribe(true);
+      this.on_subscribe(true);
     } else this.#state = state;
   }
   setTransformRead(
     transform: (val: Result<RIN, string>) => Result<ROUT, string>
   ) {
-    if (this.inUse()) {
-      this.onUnsubscribe(true);
+    if (this.in_use()) {
+      this.on_unsubscribe(true);
       this.transformRead = transform;
-      this.onSubscribe(true);
+      this.on_subscribe(true);
     } else this.transformRead = transform;
   }
   setTransformWrite(transform: (val: WOUT) => WIN) {
@@ -137,10 +137,10 @@ export class RES<
     if (!this.transformWrite) return Err("State not writable");
     return this.#state.write(this.transformWrite(value));
   }
-  writeSync(value: WOUT): Result<void, string> {
-    if (!this.#state.writeSync) return Err("State not writable");
+  write_sync(value: WOUT): Result<void, string> {
+    if (!this.#state.write_sync) return Err("State not writable");
     if (!this.transformWrite) return Err("State not writable");
-    return this.#state.writeSync(this.transformWrite(value));
+    return this.#state.write_sync(this.transformWrite(value));
   }
   limit(_value: WOUT): Result<WOUT, string> {
     return Err("Limit not supported on proxy states");
@@ -248,7 +248,7 @@ export class RES_WS<
   #state: S;
   #subscriber = (value: Result<RIN, string>) => {
     this.#buffer = this.transformRead(value);
-    this.updateSubs(this.#buffer);
+    this.update_subs(this.#buffer);
   };
   #buffer?: Result<ROUT, string>;
 
@@ -258,10 +258,10 @@ export class RES_WS<
   private transformWrite(value: WOUT): WIN {
     return value as unknown as WIN;
   }
-  protected onSubscribe(first: boolean): void {
+  protected on_subscribe(first: boolean): void {
     if (first) this.#state.sub(this.#subscriber, false);
   }
-  protected onUnsubscribe(last: boolean): void {
+  protected on_unsubscribe(last: boolean): void {
     if (last) {
       this.#state.unsub(this.#subscriber);
       this.#buffer = undefined;
@@ -271,20 +271,20 @@ export class RES_WS<
   //#Owner Context
   /**Sets the state that is being proxied, and updates subscribers with new value*/
   setState(state: S) {
-    if (this.inUse()) {
-      this.onUnsubscribe(true);
+    if (this.in_use()) {
+      this.on_unsubscribe(true);
       this.#state = state;
-      this.onSubscribe(true);
+      this.on_subscribe(true);
     } else this.#state = state;
   }
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   setTransformRead(
     transform: (val: Result<RIN, string>) => Result<ROUT, string>
   ) {
-    if (this.inUse()) {
-      this.onUnsubscribe(true);
+    if (this.in_use()) {
+      this.on_unsubscribe(true);
       this.transformRead = transform;
-      this.onSubscribe(true);
+      this.on_subscribe(true);
     } else this.transformRead = transform;
   }
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
@@ -332,8 +332,8 @@ export class RES_WS<
   write(value: WOUT): Promise<Result<void, string>> {
     return this.#state.write(this.transformWrite(value));
   }
-  writeSync(value: WOUT): Result<void, string> {
-    return this.#state.writeSync(this.transformWrite(value));
+  write_sync(value: WOUT): Result<void, string> {
+    return this.#state.write_sync(this.transformWrite(value));
   }
   limit(_value: WOUT): Result<WOUT, string> {
     return Err("Limit not supported on proxy states");
@@ -445,7 +445,7 @@ export class RES_WA<
   #state: S;
   #subscriber = (value: Result<RIN, string>) => {
     this.#buffer = this.transformRead(value);
-    this.updateSubs(this.#buffer);
+    this.update_subs(this.#buffer);
   };
   #buffer?: Result<ROUT, string>;
 
@@ -455,10 +455,10 @@ export class RES_WA<
   private transformWrite(value: WOUT): WIN {
     return value as unknown as WIN;
   }
-  protected onSubscribe(first: boolean): void {
+  protected on_subscribe(first: boolean): void {
     if (first) this.#state.sub(this.#subscriber, false);
   }
-  protected onUnsubscribe(last: boolean): void {
+  protected on_unsubscribe(last: boolean): void {
     if (last) {
       this.#state.unsub(this.#subscriber);
       this.#buffer = undefined;
@@ -468,20 +468,20 @@ export class RES_WA<
   //#Owner Context
   /**Sets the state that is being proxied, and updates subscribers with new value*/
   setState(state: S) {
-    if (this.inUse()) {
-      this.onUnsubscribe(true);
+    if (this.in_use()) {
+      this.on_unsubscribe(true);
       this.#state = state;
-      this.onSubscribe(true);
+      this.on_subscribe(true);
     } else this.#state = state;
   }
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   setTransformRead(
     transform: (val: Result<RIN, string>) => Result<ROUT, string>
   ) {
-    if (this.inUse()) {
-      this.onUnsubscribe(true);
+    if (this.in_use()) {
+      this.on_unsubscribe(true);
       this.transformRead = transform;
-      this.onSubscribe(true);
+      this.on_subscribe(true);
     } else this.transformRead = transform;
   }
   /**Changes the transform function of the proxy, and updates subscribers with new value*/

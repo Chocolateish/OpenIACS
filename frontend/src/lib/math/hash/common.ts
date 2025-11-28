@@ -11,31 +11,29 @@ export class Hash {
   }
 
   //Returns the MD5 hash as an array of numbers
-  get numberArray() {
+  get number_array() {
     return [...this.result];
   }
 
   //Returns the MD5 hash as an array of numbers
-  get uint8Array() {
+  get uint8_array() {
     return new Uint8Array(this.result);
   }
 
   //Returns the MD5 hash as hex string with big letters
-  get hexBig() {
-    if (!this.hexbuffer) {
-      this.calculateHex();
-    }
+  get hex_big() {
+    if (!this.hexbuffer) this.calculate_hex();
     return this.hexbuffer;
   }
+
   //Returns the MD5 hash as hex string with small letters
-  get hexSmall() {
-    if (!this.hexbuffer) {
-      this.calculateHex();
-    }
+  get hex_small() {
+    if (!this.hexbuffer) this.calculate_hex();
     return this.hexbuffer?.toLowerCase();
   }
+
   //Calculates the hexadecimal string of the hash
-  private calculateHex() {
+  private calculate_hex() {
     this.hexbuffer = "";
     for (let i = 0; i < this.result.length; i++) {
       this.hexbuffer +=

@@ -18,8 +18,8 @@ import {
 //     |_|  \_\______|_____/
 interface OWNER<RT, WT, REL extends RELATED> {
   set(value: Result<RT, string>): void;
-  setOk(value: RT): void;
-  setErr(err: string): void;
+  set_ok(value: RT): void;
+  set_err(err: string): void;
   get state(): STATE<RT, WT, REL>;
   get readOnly(): STATE_RES<RT, REL, WT>;
 }
@@ -46,12 +46,12 @@ class RES<RT, REL extends RELATED, WT>
 
   //#Owner Context
   set(value: Result<RT, string>) {
-    this.updateSubs((this.#value = value));
+    this.update_subs((this.#value = value));
   }
-  setOk(value: RT): void {
+  set_ok(value: RT): void {
     this.set(Ok(value));
   }
-  setErr(err: string): void {
+  set_err(err: string): void {
     this.set(Err(err));
   }
   get state(): STATE<RT, WT, REL> {
@@ -88,9 +88,9 @@ class RES<RT, REL extends RELATED, WT>
     return this.writable;
   }
   async write(value: WT): Promise<Result<void, string>> {
-    return this.writeSync(value);
+    return this.write_sync(value);
   }
-  writeSync(value: WT): Result<void, string> {
+  write_sync(value: WT): Result<void, string> {
     if (this.setter) return this.setter(value, this, this.#value);
     return Err("State not writable");
   }
@@ -149,8 +149,8 @@ const res = {
 
 interface OWNER_WS<RT, WT, REL extends RELATED> {
   set(value: Result<RT, string>): void;
-  setOk(value: RT): void;
-  setErr(err: string): void;
+  set_ok(value: RT): void;
+  set_err(err: string): void;
   get state(): STATE<RT, WT, REL>;
   get readOnly(): STATE_RES<RT, REL, WT>;
   get readWrite(): STATE_RES_WS<RT, WT, REL>;
@@ -179,8 +179,8 @@ class RES_WS<RT, WT, REL extends RELATED>
         return this.#helper?.limit
           ? this.#helper
               ?.limit(value)
-              .map((e) => state.setOk(e as unknown as RT))
-          : Ok(state.setOk(value as unknown as RT));
+              .map((e) => state.set_ok(e as unknown as RT))
+          : Ok(state.set_ok(value as unknown as RT));
       };
     else this.#setter = setter;
     if (helper) this.#helper = helper;
@@ -193,12 +193,12 @@ class RES_WS<RT, WT, REL extends RELATED>
 
   //#Owner Context
   set(value: Result<RT, string>) {
-    this.updateSubs((this.#value = value));
+    this.update_subs((this.#value = value));
   }
-  setOk(value: RT): void {
+  set_ok(value: RT): void {
     this.set(Ok(value));
   }
-  setErr(err: string): void {
+  set_err(err: string): void {
     this.set(Err(err));
   }
   get state(): STATE<RT, WT, REL> {
@@ -238,9 +238,9 @@ class RES_WS<RT, WT, REL extends RELATED>
     return true;
   }
   async write(value: WT): Promise<Result<void, string>> {
-    return this.writeSync(value);
+    return this.write_sync(value);
   }
-  writeSync(value: WT): Result<void, string> {
+  write_sync(value: WT): Result<void, string> {
     return this.#setter(value, this, this.#value);
   }
   limit(value: WT): Result<WT, string> {

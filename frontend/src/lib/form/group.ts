@@ -32,7 +32,7 @@
 //   Options extends GroupComponentOptions = GroupComponentOptions
 // > extends Component<Options> {
 //   /**Returns the name used to define the element */
-//   static elementName() {
+//   static element_name() {
 //     return "group";
 //   }
 
@@ -161,7 +161,7 @@
 
 // export class CollapsibleComponentGroup extends ComponentGroup<CollapsibleGroupComponentOptions> {
 //   /**Returns the name used to define the element */
-//   static elementName() {
+//   static element_name() {
 //     return "collapsible-group";
 //   }
 

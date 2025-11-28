@@ -4,7 +4,7 @@ import type { Radians } from "../shared";
  * @param width width of rectangle
  * @param height height of rectangle
  * @param angle angle of rotation in radians*/
-export let boundingWidthAndHeightOfRotatedRectangle = (
+export let bounding_width_and_height_of_rotated_rectangle = (
   width: number,
   height: number,
   angle: Radians

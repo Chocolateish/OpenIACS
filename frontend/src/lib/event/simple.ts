@@ -34,11 +34,11 @@ export interface EventConsumer<Events extends {}, Target> {
     subscriber: ESubscriber<K, Target, Events[K]>
   ): typeof subscriber;
   /**Registers a proxy event handler that recieves all events from this event handler */
-  proxyOn(
+  proxy_on(
     subscriber: ESubscriber<keyof Events, Target, Events[keyof Events]>
   ): typeof subscriber;
   /**Deregisters a proxy event handler that recieves all events from this event handler */
-  proxyOff(
+  proxy_off(
     subscriber: ESubscriber<keyof Events, Target, Events[keyof Events]>
   ): typeof subscriber;
 }
@@ -52,7 +52,7 @@ export interface EventProducer<Events extends {}, Target>
   /**This removes all listeners of a type from the event handler*/
   clear<K extends keyof Events>(eventName: K): void;
   /**Returns wether the type has listeners, true means it has at least a listener*/
-  inUse<K extends keyof Events>(eventName: K): boolean;
+  in_use<K extends keyof Events>(eventName: K): boolean;
   /**Returns wether the type has a specific listeners, true means it has that listener*/
   has<K extends keyof Events>(
     eventName: K,
@@ -61,7 +61,7 @@ export interface EventProducer<Events extends {}, Target>
   /**Returns the amount of listeners on that event*/
   amount<K extends keyof Events>(eventName: K): number;
   /**Generates a proxy function which can be registered with another handlers */
-  proxyFunc(): ESubscriber<keyof Events, Target, Events[keyof Events]>;
+  proxy_func(): ESubscriber<keyof Events, Target, Events[keyof Events]>;
 }
 
 export class EventHandler<Events extends { [key: string]: any }, Target>
@@ -100,7 +100,7 @@ export class EventHandler<Events extends { [key: string]: any }, Target>
     return subscriber;
   }
 
-  proxyOn(
+  proxy_on(
     subscriber: ESubscriber<keyof Events, Target, Events[keyof Events]>
   ): typeof subscriber {
     if (!this.#proxies) this.#proxies = new Set([subscriber]);
@@ -109,7 +109,7 @@ export class EventHandler<Events extends { [key: string]: any }, Target>
     return subscriber;
   }
 
-  proxyOff(
+  proxy_off(
     subscriber: ESubscriber<keyof Events, Target, Events[keyof Events]>
   ): typeof subscriber {
     if (this.#proxies?.delete(subscriber) === false)
@@ -153,7 +153,7 @@ export class EventHandler<Events extends { [key: string]: any }, Target>
     this.#subscribers[eventName]?.clear();
   }
 
-  inUse<K extends keyof Events>(eventName: K): boolean {
+  in_use<K extends keyof Events>(eventName: K): boolean {
     return Boolean(this.#subscribers[eventName]?.size);
   }
 
@@ -168,7 +168,7 @@ export class EventHandler<Events extends { [key: string]: any }, Target>
     return this.#subscribers[eventName]?.size || 0;
   }
 
-  proxyFunc(): ESubscriber<keyof Events, Target, Events[keyof Events]> {
+  proxy_func(): ESubscriber<keyof Events, Target, Events[keyof Events]> {
     return (e: E<keyof Events, Target, Events[keyof Events]>) => {
       let subs = this.#subscribers[e.type];
       if (subs) this.#emitE(e, subs);

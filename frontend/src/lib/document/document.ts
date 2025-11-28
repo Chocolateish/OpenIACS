@@ -23,7 +23,7 @@ export let documentHandler = new (class DocumentHandler {
   }
 
   /**Itterates a function over all existing documents */
-  forDocuments(func: (document: Document) => void) {
+  for_documents(func: (document: Document) => void) {
     for (const doc of this.#documents) {
       func(doc);
     }
@@ -36,7 +36,7 @@ export let documentHandler = new (class DocumentHandler {
   /**Registers a document with the theme engine, which will be updated with
    * @param document document to register
    * @param styles copies all style from main document if set true */
-  registerDocument(document: Document, styles?: boolean) {
+  register_document(document: Document, styles?: boolean) {
     if (this.#documents.has(document))
       return console.error("Document already registered");
     this.#documents.add(document);
@@ -56,7 +56,7 @@ export let documentHandler = new (class DocumentHandler {
   }
 
   /**Registers a document with the theme engine, which will be updated with */
-  deregisterDocument(document: Document) {
+  deregister_document(document: Document) {
     if (!this.#documents.has(document))
       return console.error("Document not registered");
     if (document === this.main)

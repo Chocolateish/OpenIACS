@@ -40,8 +40,8 @@ class ROS<RT, REL extends RELATED = {}, WT = any>
     if (helper) this.#helper = helper;
     this.get = () => this.#clean() ?? (this.#value = init());
     this.set = (value) => this.set(this.#clean() ?? value);
-    let writeSync = this.writeSync.bind(this);
-    this.writeSync = (value) =>
+    let writeSync = this.write_sync.bind(this);
+    this.write_sync = (value) =>
       writeSync(value).map((val) => this.#clean() ?? val);
   }
 
@@ -55,7 +55,7 @@ class ROS<RT, REL extends RELATED = {}, WT = any>
 
   //#Owner Context
   set(value: ResultOk<RT>) {
-    this.updateSubs((this.#value = value));
+    this.update_subs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -82,7 +82,7 @@ class ROS<RT, REL extends RELATED = {}, WT = any>
   get(): ResultOk<RT> {
     return this.#value!;
   }
-  getOk(): RT {
+  ok(): RT {
     return this.get().value;
   }
   related(): Option<REL> {
@@ -97,9 +97,9 @@ class ROS<RT, REL extends RELATED = {}, WT = any>
     return this.writable;
   }
   async write(value: WT): Promise<Result<void, string>> {
-    return this.writeSync(value);
+    return this.write_sync(value);
   }
-  writeSync(value: WT): Result<void, string> {
+  write_sync(value: WT): Result<void, string> {
     if (this.setter) return this.setter(value, this, this.#value);
     return Err("State not writable");
   }
@@ -180,8 +180,8 @@ class ROS_WS<RT, WT, REL extends RELATED>
     if (helper) this.#helper = helper;
     this.get = () => this.#clean() ?? (this.#value = init());
     this.set = (value) => this.set(this.#clean() ?? value);
-    let writeSync = this.writeSync.bind(this);
-    this.writeSync = (value) =>
+    let writeSync = this.write_sync.bind(this);
+    this.write_sync = (value) =>
       writeSync(value).map((val) => this.#clean() ?? val);
   }
 
@@ -195,7 +195,7 @@ class ROS_WS<RT, WT, REL extends RELATED>
 
   //#Owner Context
   set(value: ResultOk<RT>) {
-    this.updateSubs((this.#value = value));
+    this.update_subs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -225,7 +225,7 @@ class ROS_WS<RT, WT, REL extends RELATED>
   get(): ResultOk<RT> {
     return this.#value!;
   }
-  getOk(): RT {
+  ok(): RT {
     return this.get().value;
   }
   related(): Option<REL> {
@@ -240,9 +240,9 @@ class ROS_WS<RT, WT, REL extends RELATED>
     return true;
   }
   async write(value: WT): Promise<Result<void, string>> {
-    return this.writeSync(value);
+    return this.write_sync(value);
   }
-  writeSync(value: WT): Result<void, string> {
+  write_sync(value: WT): Result<void, string> {
     return this.#setter(value, this, this.#value);
   }
   limit(value: WT): Result<WT, string> {

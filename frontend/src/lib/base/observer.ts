@@ -27,7 +27,7 @@ export class BaseObserver extends IntersectionObserver {
         ) {
           for (let i = 0; i < e.length; i++) {
             //@ts-expect-error
-            (<Base>e[i].target)._setVisible(e[i].isIntersecting);
+            (<Base>e[i].target)._set_visible(e[i].isIntersecting);
           }
           return;
         }
@@ -35,24 +35,20 @@ export class BaseObserver extends IntersectionObserver {
           if (e[i].isIntersecting) {
             this.#_defferedVisibleQueue.push(e[i].target as Base);
             let index = this.#_defferedHiddenQueue.indexOf(e[i].target as Base);
-            if (index !== -1) {
-              this.#_defferedHiddenQueue.splice(index, 1);
-            }
+            if (index !== -1) this.#_defferedHiddenQueue.splice(index, 1);
           } else {
             this.#_defferedHiddenQueue.push(e[i].target as Base);
             let index = this.#_defferedVisibleQueue.indexOf(
               e[i].target as Base
             );
-            if (index !== -1) {
-              this.#_defferedVisibleQueue.splice(index, 1);
-            }
+            if (index !== -1) this.#_defferedVisibleQueue.splice(index, 1);
           }
         }
         if (!this.#_defferedVisibleTimeout) {
           this.#_defferedVisibleTimeout = window.setTimeout(() => {
             for (let i = 0; i < this.#_defferedVisibleQueue.length; i++) {
               //@ts-expect-error
-              this.#_defferedVisibleQueue[i]._setVisible(true);
+              this.#_defferedVisibleQueue[i]._set_visible(true);
             }
             this.#_defferedVisibleQueue = [];
             this.#_defferedVisibleTimeout = null;
@@ -62,7 +58,7 @@ export class BaseObserver extends IntersectionObserver {
           this.#_defferedHiddenTimeout = window.setTimeout(() => {
             for (let i = 0; i < this.#_defferedHiddenQueue.length; i++) {
               //@ts-expect-error
-              this.#_defferedHiddenQueue[i]._setVisible(false);
+              this.#_defferedHiddenQueue[i]._set_visible(false);
             }
             this.#_defferedHiddenQueue = [];
             this.#_defferedHiddenTimeout = null;

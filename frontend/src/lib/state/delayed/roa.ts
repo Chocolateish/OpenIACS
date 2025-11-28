@@ -53,22 +53,22 @@ class ROA<RT, REL extends RELATED = {}, WT = any>
           (async () => {
             try {
               this.#value = await init();
-              this.fulRProm(this.#value);
+              this.ful_R_prom(this.#value);
             } catch (e) {
               console.error("Failed to initialize delayed RO state: ", e, this);
             }
             this.#clean();
           })();
         }
-      return this.appendRProm(func);
+      return this.append_R_prom(func);
     };
     this.set = (value) => {
       this.#clean();
-      this.set(this.fulRProm(value));
+      this.set(this.ful_R_prom(value));
     };
 
-    let writeSync = this.writeSync.bind(this);
-    this.writeSync = (value) =>
+    let writeSync = this.write_sync.bind(this);
+    this.write_sync = (value) =>
       writeSync(value).map((val) => this.#clean() ?? val);
     let write = this.write.bind(this);
     this.write = async (value) =>
@@ -88,7 +88,7 @@ class ROA<RT, REL extends RELATED = {}, WT = any>
 
   //#Owner Context
   set(value: ResultOk<RT>) {
-    this.updateSubs((this.#value = value));
+    this.update_subs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -111,7 +111,7 @@ class ROA<RT, REL extends RELATED = {}, WT = any>
   get(): ResultOk<RT> {
     return this.#value!;
   }
-  getOk(): RT {
+  ok(): RT {
     return this.#value!.value;
   }
   async then<TResult1 = ResultOk<RT>>(
@@ -134,7 +134,7 @@ class ROA<RT, REL extends RELATED = {}, WT = any>
     if (this.setterAsync) return this.setterAsync(value, this, this.#value);
     return Err("State not writable");
   }
-  writeSync(value: WT): Result<void, string> {
+  write_sync(value: WT): Result<void, string> {
     if (this.setterSync) return this.setterSync(value, this, this.#value);
     return Err("State not writable");
   }
@@ -225,21 +225,21 @@ class ROA_WS<RT, WT = RT, REL extends RELATED = {}>
           (async () => {
             try {
               this.#value = await init();
-              this.fulRProm(this.#value);
+              this.ful_R_prom(this.#value);
             } catch (e) {
               console.error("Failed to initialize delayed RO state: ", e, this);
             }
             this.#clean();
           })();
         }
-      return this.appendRProm(func);
+      return this.append_R_prom(func);
     };
     this.set = (value) => {
       this.#clean();
-      this.set(this.fulRProm(value));
+      this.set(this.ful_R_prom(value));
     };
-    let writeSync = this.writeSync.bind(this);
-    this.writeSync = (value) =>
+    let writeSync = this.write_sync.bind(this);
+    this.write_sync = (value) =>
       writeSync(value).map((val) => this.#clean() ?? val);
   }
 
@@ -253,7 +253,7 @@ class ROA_WS<RT, WT = RT, REL extends RELATED = {}>
 
   //#Owner Context
   set(value: ResultOk<RT>) {
-    this.updateSubs((this.#value = value));
+    this.update_subs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -279,7 +279,7 @@ class ROA_WS<RT, WT = RT, REL extends RELATED = {}>
   get(): ResultOk<RT> {
     return this.#value!;
   }
-  getOk(): RT {
+  ok(): RT {
     return this.#value!.value;
   }
   async then<TResult1 = ResultOk<RT>>(
@@ -299,9 +299,9 @@ class ROA_WS<RT, WT = RT, REL extends RELATED = {}>
     return true;
   }
   async write(value: WT): Promise<Result<void, string>> {
-    return this.writeSync(value);
+    return this.write_sync(value);
   }
-  writeSync(value: WT): Result<void, string> {
+  write_sync(value: WT): Result<void, string> {
     return this.#setter(value, this, this.#value);
   }
   limit(value: WT): Result<WT, string> {
@@ -398,18 +398,18 @@ export class ROA_WA<RT, WT = RT, REL extends RELATED = {}>
           (async () => {
             try {
               this.#value = await init();
-              this.fulRProm(this.#value);
+              this.ful_R_prom(this.#value);
             } catch (e) {
               console.error("Failed to initialize delayed RO state: ", e, this);
             }
             this.#clean();
           })();
         }
-      return this.appendRProm(func);
+      return this.append_R_prom(func);
     };
     this.set = (value) => {
       this.#clean();
-      this.set(this.fulRProm(value));
+      this.set(this.ful_R_prom(value));
     };
     let write = this.write.bind(this);
     this.write = async (value) =>
@@ -426,7 +426,7 @@ export class ROA_WA<RT, WT = RT, REL extends RELATED = {}>
 
   //#Owner Context
   set(value: ResultOk<RT>) {
-    this.updateSubs((this.#value = value));
+    this.update_subs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -452,7 +452,7 @@ export class ROA_WA<RT, WT = RT, REL extends RELATED = {}>
   get(): ResultOk<RT> {
     return this.#value!;
   }
-  getOk(): RT {
+  ok(): RT {
     return this.#value!.value;
   }
   async then<TResult1 = ResultOk<RT>>(

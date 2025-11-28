@@ -1,4 +1,4 @@
-import { Base, defineElement } from "../base";
+import { Base, define_element } from "../base";
 import { material_navigation_close_rounded } from "../icons";
 import { Buffer } from "./buffer";
 import { Container } from "./container";
@@ -12,27 +12,29 @@ export type ContextMenuLines = ContextMenuLine[];
 
 export class ContextMenu extends Base {
   /**Returns the name used to define the element */
-  static elementName() {
+  static element_name() {
     return "menu";
   }
   /**Returns the namespace override for the element*/
-  static elementNameSpace() {
+  static element_name_space() {
     return "contextmenu";
   }
 
-  #submenu: ContextMenu | undefined;
+  readonly submenu: ContextMenuSub | undefined;
   #closer: ContextMenuOption | undefined;
   #x: number | undefined;
   #y: number | undefined;
   #element: Element | undefined;
-  #focusOutHandler = (e: FocusEvent) => {
+  #focus_out_handler = (e: FocusEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!e.relatedTarget || !this.contains(e.relatedTarget as Node))
-      this.closeUp();
+    if (!e.relatedTarget || !this.contains(e.relatedTarget as Node)) {
+      this.close_up();
+      this.close_down();
+    }
   };
-  #windowResizeHandler = () => {
-    this.setPosition(this.#x, this.#y, this.#element);
+  #window_resize_handler = () => {
+    this.set_position(this.#x, this.#y, this.#element);
   };
 
   constructor(
@@ -52,28 +54,29 @@ export class ContextMenu extends Base {
       lines.then((line) => {
         buffer.remove();
         this.lines = line;
-        this.setPosition(this.#x, this.#y, this.#element);
+        this.set_position(this.#x, this.#y, this.#element);
       });
     } else this.lines = lines;
     this.tabIndex = 0;
     this.onscroll = () => {
-      this.closeDown();
+      this.close_down();
     };
     this.onkeydown = (e) => {
       switch (e.code) {
         case "Tab":
         case "ArrowUp":
         case "ArrowDown":
-          this.focusNext(e.shiftKey || e.code === "ArrowUp");
+          this.focus_next(e.shiftKey || e.code === "ArrowUp");
           break;
         case "ArrowLeft":
-          if (!(this.parentElement instanceof Container)) {
-            (this.parentElement as any).focus();
-            (this.parentElement as any).closeDown();
+          let parent = this.parentElement as ContextMenuSub | Container;
+          if (!(parent instanceof Container)) {
+            parent.focus();
+            parent.close_down();
           }
           break;
         case "Escape":
-          this.closeUp();
+          this.close_up();
           break;
       }
       e.preventDefault();
@@ -83,10 +86,12 @@ export class ContextMenu extends Base {
 
   protected connectedCallback(): void {
     super.connectedCallback();
-    this.addEventListener("focusout", this.#focusOutHandler, { capture: true });
+    this.addEventListener("focusout", this.#focus_out_handler, {
+      capture: true,
+    });
     this.ownerDocument.defaultView?.addEventListener(
       "resize",
-      this.#windowResizeHandler,
+      this.#window_resize_handler,
       { passive: true }
     );
   }
@@ -95,7 +100,7 @@ export class ContextMenu extends Base {
     super.disconnectedCallback();
     this.ownerDocument.defaultView?.removeEventListener(
       "resize",
-      this.#windowResizeHandler
+      this.#window_resize_handler
     );
   }
 
@@ -111,9 +116,9 @@ export class ContextMenu extends Base {
 
   /**Changes focus to the next line
    * @param direction false is first child, true is last child */
-  focusNext(direction: boolean) {
-    if (direction) (this.lastChild as ContextMenuLine)?.doFocus();
-    else (this.firstChild as any)?.doFocus({});
+  focus_next(direction: boolean) {
+    if (direction) (this.lastChild as ContextMenuLine)?.do_focus();
+    else (this.firstChild as ContextMenuLine)?.do_focus(true);
   }
 
   set closer(closer: boolean) {
@@ -127,9 +132,9 @@ export class ContextMenu extends Base {
       this.#closer.onclick = (e) => {
         e.stopPropagation();
         if (this.parentElement instanceof ContextMenuSub) {
-          this.parentElement.closeDown();
+          this.parentElement.close_down();
         } else {
-          this.closeUp();
+          this.close_up();
         }
       };
       this.prepend(this.#closer);
@@ -153,18 +158,18 @@ export class ContextMenu extends Base {
   }
 
   /**Closes the context menu down the tree*/
-  closeDown() {
-    if (this.#submenu) this.#submenu.closeDown();
-    this.#submenu = undefined;
+  close_down() {
+    if (this.submenu) this.submenu.close_down();
+    //@ts-expect-error
+    this.submenu = undefined;
   }
 
   /**Closes the context menu up the tree to the root*/
-  closeUp() {
-    this.closeDown();
-    this.removeEventListener("focusout", this.#focusOutHandler, {
+  close_up() {
+    this.removeEventListener("focusout", this.#focus_out_handler, {
       capture: true,
     });
-    (this.parentElement as any)?.closeUp(this);
+    (this.parentElement as Container)?.close_up();
     this.remove();
   }
 
@@ -172,7 +177,7 @@ export class ContextMenu extends Base {
    * @param x x coordinate for menu, this will be ignored if needed for contextmenu to fit
    * @param y y coordinate for menu, this will be ignored if needed for contextmenu to fit
    * @param element element to use instead of coordinates, the contextemenu will avoid covering the element if possible*/
-  setPosition(x: number = 0, y: number = 0, element?: Element) {
+  set_position(x: number = 0, y: number = 0, element?: Element) {
     this.#x = x;
     this.#y = y;
     this.#element = element;
@@ -229,9 +234,9 @@ export class ContextMenu extends Base {
     this.focus();
   }
 }
-defineElement(ContextMenu);
+define_element(ContextMenu);
 
-export function contextMenu(
+export function context_menu(
   lines:
     | (
         | (ContextMenuLine | undefined)[]

@@ -1,4 +1,4 @@
-import { AccessTypes, defineElement } from "@libBase";
+import { AccessTypes, define_element } from "@libBase";
 import type { SVGFunc } from "@libSVG";
 import "./button.scss";
 import { FormValue } from "./common";
@@ -17,11 +17,11 @@ export type ButtonColors = (typeof ButtonColors)[keyof typeof ButtonColors];
 /**Button for clicking*/
 export class Button extends FormValue<boolean> {
   /**Returns the name used to define the element */
-  static elementName() {
+  static element_name() {
     return "button";
   }
 
-  static elementNameSpace(): string {
+  static element_name_space(): string {
     return "form";
   }
 
@@ -37,11 +37,11 @@ export class Button extends FormValue<boolean> {
   }
 
   /**Overridable click function*/
-  onClick(): void {}
+  on_click(): void {}
 
-  #doClick() {
+  #do_click() {
     try {
-      this.onClick();
+      this.on_click();
     } catch (error) {
       console.error("Failed while executing button click", error);
     }
@@ -91,8 +91,8 @@ export class Button extends FormValue<boolean> {
                 case "Enter":
                 case " ": {
                   e.stopPropagation();
-                  this.setValue(!this.buffer);
-                  this.#doClick();
+                  this.set_value(!this.buffer);
+                  this.#do_click();
                   break;
                 }
               }
@@ -104,8 +104,8 @@ export class Button extends FormValue<boolean> {
       };
       this.onclick = (e) => {
         e.stopPropagation();
-        this.setValue(!this.buffer);
-        this.#doClick();
+        this.set_value(!this.buffer);
+        this.#do_click();
       };
     } else {
       this.onpointerdown = (e) => {
@@ -114,13 +114,13 @@ export class Button extends FormValue<boolean> {
           e.preventDefault();
         }
         this.setPointerCapture(e.pointerId);
-        this.setValue(true);
+        this.set_value(true);
         this.onpointerup = (ev) => {
           ev.stopPropagation();
           this.focus();
           this.releasePointerCapture(ev.pointerId);
-          this.setValue(false);
-          this.#doClick();
+          this.set_value(false);
+          this.#do_click();
           this.onpointerup = null;
         };
       };
@@ -129,14 +129,14 @@ export class Button extends FormValue<boolean> {
           case "Enter":
           case " ": {
             e.stopPropagation();
-            this.setValue(true);
+            this.set_value(true);
             this.onkeyup = (e) => {
               switch (e.key) {
                 case "Enter":
                 case " ": {
                   e.stopPropagation();
-                  this.setValue(false);
-                  this.#doClick();
+                  this.set_value(false);
+                  this.#do_click();
                   break;
                 }
               }
@@ -156,19 +156,19 @@ export class Button extends FormValue<boolean> {
     else this.setAttribute("color", color);
   }
 
-  protected onAccess(a: AccessTypes) {
+  protected on_access(a: AccessTypes) {
     if (a === AccessTypes.READ) return this.setAttribute("tabindex", "-1");
     else if (a === AccessTypes.WRITE) return this.setAttribute("tabindex", "0");
   }
 
-  protected newValue(val: boolean) {
+  protected new_value(val: boolean) {
     if (val) this.classList.add("active");
     else this.classList.remove("active");
   }
 
-  protected newError(_val: string): void {}
+  protected new_error(_val: string): void {}
 }
-defineElement(Button);
+define_element(Button);
 
 export let form_button = {
   /**Creates a button form element */

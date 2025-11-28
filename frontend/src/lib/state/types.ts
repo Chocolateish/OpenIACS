@@ -79,7 +79,7 @@ export interface STATE_BASE<
   /**Gets the current value of the state if state is sync*/
   get?(): RRT;
   /**Gets the value of the state without result, only works when state is OK */
-  getOk?(): RT;
+  ok?(): RT;
   /**This adds a function as a subscriber to changes to the state
    * @param update set true to update subscriber immediatly*/
   sub<T = STATE_SUB<RRT>>(func: STATE_SUB<RRT>, update?: boolean): T;
@@ -89,11 +89,11 @@ export interface STATE_BASE<
   related(): Option<REL>;
 
   /**Returns if the state is being used */
-  inUse(): this | undefined;
+  in_use(): this | undefined;
   /**Returns if the state has a subscriber */
-  hasSubscriber(subscriber: STATE_SUB<RRT>): this | undefined;
+  has(subscriber: STATE_SUB<RRT>): this | undefined;
   /**Returns if the state has a subscriber */
-  amountSubscriber(): number;
+  amount(): number;
 
   readonly writable: boolean;
   readonly wsync?: boolean;
@@ -102,7 +102,7 @@ export interface STATE_BASE<
   write?(value: WT): Promise<Result<void, string>>;
   /** This attempts a write to the state, write is not guaranteed to succeed, this sync method is available on sync states
    * @returns result with error for the write*/
-  writeSync?(value: WT): Result<void, string>;
+  write_sync?(value: WT): Result<void, string>;
   /**Limits given value to valid range if possible returns None if not possible */
   limit?(value: WT): Result<WT, string>;
   /**Checks if the value is valid and returns reason for invalidity */
@@ -141,7 +141,7 @@ interface ROS<RT, REL extends STATE_RELATED, WT>
   readonly writable: false;
   readonly wsync: false;
   get(): ResultOk<RT>;
-  getOk(): RT;
+  ok(): RT;
 }
 
 interface REA_WA<RT, WT, REL extends STATE_RELATED>
@@ -164,7 +164,7 @@ interface REA_WS<RT, WT = RT, REL extends STATE_RELATED = {}>
   write(value: WT): Promise<Result<void, string>>;
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
-  writeSync(value: WT): Result<void, string>;
+  write_sync(value: WT): Result<void, string>;
 }
 
 interface ROA_WA<RT, WT = RT, REL extends STATE_RELATED = {}>
@@ -187,7 +187,7 @@ interface ROA_WS<RT, WT = RT, REL extends STATE_RELATED = {}>
   write(value: WT): Promise<Result<void, string>>;
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
-  writeSync(value: WT): Result<void, string>;
+  write_sync(value: WT): Result<void, string>;
 }
 
 interface RES_WA<RT, WT = RT, REL extends STATE_RELATED = {}>
@@ -212,7 +212,7 @@ interface RES_WS<RT, WT, REL extends STATE_RELATED>
   write(value: WT): Promise<Result<void, string>>;
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
-  writeSync(value: WT): Result<void, string>;
+  write_sync(value: WT): Result<void, string>;
 }
 
 interface ROS_WA<RT, WT, REL extends STATE_RELATED>
@@ -222,7 +222,7 @@ interface ROS_WA<RT, WT, REL extends STATE_RELATED>
   readonly writable: true;
   readonly wsync: false;
   get(): ResultOk<RT>;
-  getOk(): RT;
+  ok(): RT;
   write(value: WT): Promise<Result<void, string>>;
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
@@ -235,11 +235,11 @@ interface ROS_WS<RT, WT, REL extends STATE_RELATED>
   readonly writable: true;
   readonly wsync: true;
   get(): ResultOk<RT>;
-  getOk(): RT;
+  ok(): RT;
   write(value: WT): Promise<Result<void, string>>;
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
-  writeSync(value: WT): Result<void, string>;
+  write_sync(value: WT): Result<void, string>;
 }
 
 //###########################################################################################################################################################

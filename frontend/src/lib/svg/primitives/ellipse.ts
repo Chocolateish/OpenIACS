@@ -1,4 +1,4 @@
-import { degreesToRadians } from "@libMath";
+import { degrees_to_radians } from "@libMath";
 import { createSVGElement } from "./shared";
 
 /**This creates a svg ellipse
@@ -36,8 +36,8 @@ export function ellipseArc(
   endAngle: number
 ): SVGPathElement {
   let circArc = createSVGElement("path");
-  let startRadian = degreesToRadians(startAngle);
-  endAngle = degreesToRadians(endAngle - startAngle);
+  let startRadian = degrees_to_radians(startAngle);
+  endAngle = degrees_to_radians(endAngle - startAngle);
   let sX = radiusX * Math.cos(startRadian) + centerX;
   let sY = radiusY * Math.sin(startRadian) + centerY;
   let eX = radiusX * Math.cos(startRadian + endAngle) + centerX;

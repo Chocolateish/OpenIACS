@@ -32,7 +32,7 @@
 // /**Toggle Switch, switches between on and off*/
 // export class ToggleSwitch extends ValueComponent<ToggleSwitchOptions> {
 //   /**Returns the name used to define the element */
-//   static elementName() {
+//   static element_name() {
 //     return "toggle-switch";
 //   }
 

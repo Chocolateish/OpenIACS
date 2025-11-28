@@ -30,7 +30,7 @@ describe("Collected states", function () {
       let stat1 = st.s.ros.ok(1);
       let state = st.c.ros.from((val) => val[0], stat1);
       let set = (val: ResultOk<number>) => {
-        stat1.setOk(val.value);
+        stat1.set_ok(val.value);
       };
       return { o: true, s: true, w: false, ws: false, state, set };
     };
@@ -59,10 +59,10 @@ describe("Collected states", function () {
         stat4
       );
       let set = (val: ResultOk<number>) => {
-        stat1.setOk(val.value / 4);
-        stat2.setOk(val.value / 4);
-        stat3.setOk(val.value / 4);
-        stat4.setOk(val.value / 4);
+        stat1.set_ok(val.value / 4);
+        stat2.set_ok(val.value / 4);
+        stat3.set_ok(val.value / 4);
+        stat4.set_ok(val.value / 4);
       };
       return { o: true, s: true, w: false, ws: false, state, set };
     };

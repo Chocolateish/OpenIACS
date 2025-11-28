@@ -1,4 +1,4 @@
-import { Base, defineElement } from "@libBase";
+import { Base, define_element } from "@libBase";
 import { grey } from "@libColors";
 import { svg_primitives } from "@libSVG";
 import { themeInitVariableRoot } from "@libTheme";
@@ -36,11 +36,11 @@ spinnerSVG.appendChild(svg_primitives.circle(19, 9.483, 0));
 
 export class Spinner extends Base {
   /**Returns the name used to define the element */
-  static elementName() {
+  static element_name() {
     return "spinner";
   }
   /**Returns the namespace override for the element*/
-  static elementNameSpace() {
+  static element_name_space() {
     return "spinner";
   }
 
@@ -50,4 +50,4 @@ export class Spinner extends Base {
   }
 }
 
-defineElement(Spinner);
+define_element(Spinner);

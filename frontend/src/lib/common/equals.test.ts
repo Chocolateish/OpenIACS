@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { objectEqualsDeep } from "./equals";
+import { object_equals_deep } from "./equals";
 
 describe("Any Equals", async () => {
   it("Object Equals Deep", async () => {
@@ -28,9 +28,9 @@ describe("Any Equals", async () => {
       b: "3",
       c: "4",
     };
-    expect(objectEqualsDeep(test1, test2)).toEqual(false);
-    expect(objectEqualsDeep(test1, test3)).toEqual(true);
-    expect(objectEqualsDeep(test1, test4)).toEqual(false);
-    expect(objectEqualsDeep(test1, test5)).toEqual(false);
+    expect(object_equals_deep(test1, test2)).toEqual(false);
+    expect(object_equals_deep(test1, test3)).toEqual(true);
+    expect(object_equals_deep(test1, test4)).toEqual(false);
+    expect(object_equals_deep(test1, test5)).toEqual(false);
   });
 });

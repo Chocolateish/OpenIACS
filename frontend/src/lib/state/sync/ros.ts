@@ -19,7 +19,7 @@ import {
 //     |_|  \_\\____/|_____/
 interface OWNER<RT, WT, REL extends RELATED> {
   set(value: ResultOk<RT>): void;
-  setOk(value: RT): void;
+  set_ok(value: RT): void;
   get state(): STATE<RT, WT, REL>;
   get readOnly(): STATE_ROS<RT, REL, WT>;
 }
@@ -47,9 +47,9 @@ class ROS<RT, REL extends RELATED = {}, WT = any>
 
   //#Owner Context
   set(value: ResultOk<RT>) {
-    this.updateSubs((this.#value = value));
+    this.update_subs((this.#value = value));
   }
-  setOk(value: RT): void {
+  set_ok(value: RT): void {
     this.set(Ok(value));
   }
   get state(): STATE<RT, WT, REL> {
@@ -74,7 +74,7 @@ class ROS<RT, REL extends RELATED = {}, WT = any>
   get(): ResultOk<RT> {
     return this.#value;
   }
-  getOk(): RT {
+  ok(): RT {
     return this.#value.value;
   }
   related(): Option<REL> {
@@ -89,9 +89,9 @@ class ROS<RT, REL extends RELATED = {}, WT = any>
     return this.writable;
   }
   async write(value: WT): Promise<Result<void, string>> {
-    return this.writeSync(value);
+    return this.write_sync(value);
   }
-  writeSync(value: WT): Result<void, string> {
+  write_sync(value: WT): Result<void, string> {
     if (this.setter) return this.setter(value, this, this.#value);
     return Err("State not writable");
   }
@@ -137,7 +137,7 @@ const ros = {
 
 interface OWNER_WS<RT, WT, REL extends RELATED> {
   set(value: ResultOk<RT>): void;
-  setOk(value: RT): void;
+  set_ok(value: RT): void;
   get state(): STATE<RT, WT, REL>;
   get readOnly(): STATE_ROS<RT, REL, WT>;
   get readWrite(): STATE_ROS_WS<RT, WT, REL>;
@@ -166,8 +166,8 @@ class ROS_WS<RT, WT = RT, REL extends RELATED = {}>
         return this.#helper?.limit
           ? this.#helper
               ?.limit(value)
-              .map((e) => state.setOk(e as unknown as RT))
-          : Ok(state.setOk(value as unknown as RT));
+              .map((e) => state.set_ok(e as unknown as RT))
+          : Ok(state.set_ok(value as unknown as RT));
       };
     else this.#setter = setter;
     if (helper) this.#helper = helper;
@@ -180,9 +180,9 @@ class ROS_WS<RT, WT = RT, REL extends RELATED = {}>
 
   //#Owner Context
   set(value: ResultOk<RT>) {
-    this.updateSubs((this.#value = value));
+    this.update_subs((this.#value = value));
   }
-  setOk(value: RT): void {
+  set_ok(value: RT): void {
     this.set(Ok(value));
   }
   get state(): STATE<RT, WT, REL> {
@@ -210,7 +210,7 @@ class ROS_WS<RT, WT = RT, REL extends RELATED = {}>
   get(): ResultOk<RT> {
     return this.#value;
   }
-  getOk(): RT {
+  ok(): RT {
     return this.#value.value;
   }
   related(): Option<REL> {
@@ -225,9 +225,9 @@ class ROS_WS<RT, WT = RT, REL extends RELATED = {}>
     return true;
   }
   async write(value: WT): Promise<Result<void, string>> {
-    return this.writeSync(value);
+    return this.write_sync(value);
   }
-  writeSync(value: WT): Result<void, string> {
+  write_sync(value: WT): Result<void, string> {
     return this.#setter(value, this, this.#value);
   }
   limit(value: WT): Result<WT, string> {

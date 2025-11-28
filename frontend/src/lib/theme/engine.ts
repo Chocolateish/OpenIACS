@@ -17,23 +17,23 @@ export let themeEngine = new (class ThemeEngine {
     documentHandler.events.on("added", (e) => {
       this.applyAllToDoc(e.data);
     });
-    documentHandler.forDocuments((doc) => {
+    documentHandler.for_documents((doc) => {
       this.applyAllToDoc(doc);
     });
   }
 
   /**This applies the current theme to a document*/
   private applyAllToDoc(doc: Document) {
-    this.applyScrollbarToDoc(doc, scrollBarMode.getOk());
-    this.applyThemeToDoc(doc, theme.getOk());
-    this.applyInputToDoc(doc, inputMode.getOk());
-    this.applyScaleToDoc(doc, scale.getOk() / 100);
-    this.applyAnimationToDoc(doc, animationLevel.getOk());
+    this.applyScrollbarToDoc(doc, scrollBarMode.ok());
+    this.applyThemeToDoc(doc, theme.ok());
+    this.applyInputToDoc(doc, inputMode.ok());
+    this.applyScaleToDoc(doc, scale.ok() / 100);
+    this.applyAnimationToDoc(doc, animationLevel.ok());
   }
 
   /**This applies the current theme to a document*/
   applyScrollbar(scroll: ScrollbarModes) {
-    documentHandler.forDocuments((doc) => {
+    documentHandler.for_documents((doc) => {
       this.applyScrollbarToDoc(doc, scroll);
     });
   }
@@ -50,7 +50,7 @@ export let themeEngine = new (class ThemeEngine {
 
   /**This applies the current theme to a document*/
   applyAnimation(anim: AnimationLevels) {
-    documentHandler.forDocuments((doc) => {
+    documentHandler.for_documents((doc) => {
       this.applyAnimationToDoc(doc, anim);
     });
   }
@@ -71,7 +71,7 @@ export let themeEngine = new (class ThemeEngine {
 
   /**This applies the current theme to a document*/
   applyTheme(theme: Themes) {
-    documentHandler.forDocuments((doc) => {
+    documentHandler.for_documents((doc) => {
       this.applyThemeToDoc(doc, theme);
     });
   }
@@ -82,7 +82,7 @@ export let themeEngine = new (class ThemeEngine {
 
   /**This applies the current scale to a document*/
   applyScale(scale: number) {
-    documentHandler.forDocuments((doc) => {
+    documentHandler.for_documents((doc) => {
       this.applyScaleToDoc(doc, scale);
     });
   }
@@ -92,7 +92,7 @@ export let themeEngine = new (class ThemeEngine {
 
   /**Auto Input Mode */
   applyInput(mode: InputModes) {
-    documentHandler.forDocuments((doc) => {
+    documentHandler.for_documents((doc) => {
       this.applyInputToDoc(doc, mode);
     });
   }
@@ -119,8 +119,8 @@ export let themeEngine = new (class ThemeEngine {
   }
 
   applySingleProperty(key: string, variable: { [s: string]: string }) {
-    let themeBuff = theme.getOk();
-    documentHandler.forDocuments((doc) => {
+    let themeBuff = theme.ok();
+    documentHandler.for_documents((doc) => {
       doc.documentElement.style.setProperty(key, variable[themeBuff]);
     });
   }

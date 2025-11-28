@@ -1,4 +1,4 @@
-import { Base, defineElement } from "../base";
+import { Base, define_element } from "../base";
 import "./container.scss";
 import { ContextMenu } from "./menu";
 
@@ -8,11 +8,11 @@ export class Container extends Base {
   #activeElementBuffer: HTMLOrSVGElement | null | undefined;
 
   /**Returns the name used to define the element */
-  static elementName() {
+  static element_name() {
     return "container";
   }
   /**Returns the namespace override for the element*/
-  static elementNameSpace() {
+  static element_name_space() {
     return "contextmenu";
   }
 
@@ -37,7 +37,7 @@ export class Container extends Base {
   }
 
   /**Attaches a menu to the container */
-  attachMenu(menu: ContextMenu) {
+  attach_menu(menu: ContextMenu) {
     this.#activeElementBuffer = this.ownerDocument
       .activeElement as HTMLOrSVGElement | null;
     this.replaceChildren(menu);
@@ -45,7 +45,7 @@ export class Container extends Base {
   }
 
   /**Closes open context menu */
-  closeUp() {
+  close_up() {
     if (this.#activeElementBuffer) {
       this.#activeElementBuffer.focus();
       if (
@@ -59,4 +59,4 @@ export class Container extends Base {
     }
   }
 }
-defineElement(Container);
+define_element(Container);

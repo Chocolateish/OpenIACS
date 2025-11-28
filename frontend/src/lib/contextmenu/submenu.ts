@@ -1,9 +1,12 @@
-import { defineElement } from "../base";
+import { define_element } from "../base";
 import { material_navigation_chevron_right_rounded } from "../icons";
 import { ContextMenuLine } from "./line";
 import { ContextMenu } from "./menu";
 import "./submenu.scss";
 
+type Mutable<T> = {
+  -readonly [P in keyof T]: T[P];
+};
 export class ContextMenuSub extends ContextMenuLine {
   #menu: ContextMenu;
   #isOpen?: boolean;
@@ -11,7 +14,7 @@ export class ContextMenuSub extends ContextMenuLine {
   #blockTime?: number;
 
   /**Returns the name used to define the element */
-  static elementName() {
+  static element_name() {
     return "submenu";
   }
 
@@ -38,7 +41,7 @@ export class ContextMenuSub extends ContextMenuLine {
       if (!this.#blockTime) {
         navigator?.vibrate(25);
         if (this.#isOpen) {
-          this.closeDown();
+          this.close_down();
         } else {
           this.open();
         }
@@ -63,13 +66,13 @@ export class ContextMenuSub extends ContextMenuLine {
         case "Tab":
         case "ArrowUp":
         case "ArrowDown":
-          this.focusNext(e.shiftKey || e.code === "ArrowUp");
+          this.focus_next(e.shiftKey || e.code === "ArrowUp");
           break;
         case "ArrowRight":
         case "Enter":
         case "Space":
           this.open();
-          this.#menu.focusNext(false);
+          this.#menu.focus_next(false);
           break;
         case "ArrowLeft":
         case "Escape":
@@ -82,42 +85,41 @@ export class ContextMenuSub extends ContextMenuLine {
 
   /**Opens the sub menu */
   open() {
-    if ((this.parentElement as any).submenu) {
-      (this.parentElement as any).submenu.closeDown();
-    }
-    (this.parentElement as any).submenu = this;
+    let sub = this.parentElement as Mutable<ContextMenu>;
+    if (sub) sub.close_down();
+    (this.parentElement as Mutable<ContextMenu>).submenu = this;
     this.appendChild(this.#menu);
-    this.#menu.setPosition(0, 0, this);
+    this.#menu.set_position(0, 0, this);
     this.#isOpen = true;
   }
 
-  doFocus(): void {
+  do_focus(): void {
     this.focus();
   }
 
   /**Closes menu by calling parent*/
   close() {
     this.focus();
-    (this.parentElement as any).submenu = undefined;
+    (this.parentElement as Mutable<ContextMenu>).submenu = undefined;
     this.removeChild(this.#menu);
     this.#isOpen = false;
   }
 
   /**Closes the context menu down the tree*/
-  closeDown() {
-    this.#menu.closeDown();
+  close_down() {
+    this.#menu.close_down();
     this.close();
   }
 
   /**Closes the context menu up the tree to the root*/
-  closeUp() {
+  close_up() {
     this.close();
-    (this.parentElement as any).closeUp();
+    (this.parentElement as ContextMenu).close_up();
   }
 }
-defineElement(ContextMenuSub);
+define_element(ContextMenuSub);
 
-export function contextSub(
+export function context_sub(
   text: string,
   menu: ContextMenu,
   icon?: SVGSVGElement

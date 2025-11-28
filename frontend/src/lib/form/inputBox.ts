@@ -53,7 +53,7 @@
 // /**Input box, for inputting values*/
 // export class InputBox extends ValueComponent<InputBoxOptions> {
 //   /**Returns the name used to define the element */
-//   static elementName() {
+//   static element_name() {
 //     return "input-box";
 //   }
 

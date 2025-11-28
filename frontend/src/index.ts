@@ -1,3 +1,9 @@
+import {
+  context_line,
+  context_menu,
+  context_menu_default,
+  context_sub,
+} from "@libContextmenu";
 import { material_maps_remove_road_rounded } from "@libIcons";
 import { Err, Ok, type Result } from "@libResult";
 import type { STATE_SYNC_ROS_WS } from "@libState";
@@ -27,7 +33,7 @@ class Character {
   serialize(): CharacterData {
     return {
       uuid: this.uuid,
-      name: this.#name.getOk(),
+      name: this.#name.ok(),
     };
   }
 }
@@ -39,4 +45,31 @@ document.body.appendChild(
     access: "w",
     icon: material_maps_remove_road_rounded,
   })
+);
+
+context_menu_default(
+  context_menu([
+    context_line("Default Option", () => console.warn("Clicked")),
+    context_line("Default Option", () => console.warn("Clicked")),
+    context_sub(
+      "Default Submenu",
+      context_menu([
+        context_line("Sub Option", () => console.warn("Sub Clicked")),
+        context_line("Sub Option", () => console.warn("Sub Clicked")),
+      ])
+    ),
+    context_line("Default Option", () => console.warn("Clicked")),
+    context_line("Default Option", () => console.warn("Clicked")),
+    context_line("Default Option", () => console.warn("Clicked")),
+    context_line("Default Option", () => console.warn("Clicked")),
+    context_line("Default Option", () => console.warn("Clicked")),
+    context_line("Default Option", () => console.warn("Clicked")),
+    context_sub(
+      "Default Submenu",
+      context_menu([
+        context_line("Sub Option", () => console.warn("Sub Clicked")),
+        context_line("Sub Option", () => console.warn("Sub Clicked")),
+      ])
+    ),
+  ])
 );

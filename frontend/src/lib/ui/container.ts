@@ -10,11 +10,11 @@ export class Container extends Base {
   #activePanel: HTMLOrSVGElement | null | undefined;
 
   /**Returns the name used to define the element */
-  static elementName() {
+  static element_name() {
     return "container";
   }
   /**Returns the namespace override for the element*/
-  static elementNameSpace() {
+  static element_name_space() {
     return "panel";
   }
 

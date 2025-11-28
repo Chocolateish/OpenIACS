@@ -29,12 +29,6 @@ export interface BaseEvents {
   visible: Boolean;
 }
 
-/**Base options for base class */
-export interface BaseOptions {
-  /**Access for element, default is write access */
-  access?: AccessTypes | STATE_ROA<AccessTypes>;
-}
-
 // Helpers for opts
 type DataProps<T> = {
   [K in keyof T as T[K] extends Function ? never : K]: T[K];
@@ -51,7 +45,7 @@ type WithStateROA<T> = {
  *
  * If another library defines an abstract base class, it is recommended to change the static elementNameSpace method to the name of the library
  * example for this library '@chocolatelibui/core' becomes 'chocolatelibui-core'
- * static elementNameSpace() { return 'chocolatelibui-core' }
+ * static element_name_space() { return 'chocolatelibui-core' }
  * This resets the nametree to the library name and prevents too long element names
  *
  * Elements have an access propery, which builds on the html inert property
@@ -59,15 +53,13 @@ type WithStateROA<T> = {
  * write = normal interaction and look
  * read = inert attribute is added making the element uninteractable, and add opacity 0.5 to make the element look inaccessible
  * none = adds display:none to element to make it */
-export abstract class Base<
-  Options extends BaseOptions = BaseOptions
-> extends HTMLElement {
+export abstract class Base extends HTMLElement {
   /**Returns the name used to define the element */
-  static elementName() {
+  static element_name() {
     return "@abstract@";
   }
   /**Returns the namespace override for the element*/
-  static elementNameSpace() {
+  static element_name_space() {
     return "lib";
   }
   /**Events for element*/
@@ -98,7 +90,7 @@ export abstract class Base<
       if (!v) s.sub(f, true);
     }
     if (this.#attachedObserver) this.#attachedObserver.observe(this);
-    else this._setVisible(true);
+    else this._set_visible(true);
     this.#isConnected = true;
   }
 
@@ -110,7 +102,7 @@ export abstract class Base<
     }
     if (this.#attachedObserver) {
       this.#attachedObserver.unobserve(this);
-      this._setVisible(false);
+      this._set_visible(false);
     }
     this.#isConnected = false;
   }
@@ -120,7 +112,7 @@ export abstract class Base<
     this.#baseEvents.emit("connect", ConnectEventVal.Adopted);
   }
 
-  private _setVisible(is: boolean) {
+  private _set_visible(is: boolean) {
     if (this.isVisible !== is) {
       //@ts-expect-error
       this.isVisible = is;
@@ -133,19 +125,11 @@ export abstract class Base<
     }
   }
 
-  /**Sets options for the element*/
-  options(options: Options): this {
-    let acc = options.access;
-    if (state.is(acc)) this.attachSTATEROAToProp("access", acc);
-    else this.access = acc ?? AccessTypes.WRITE;
-    return this;
-  }
-
   /**Sets any attribute on the base element, to either a fixed value or a state value */
   opts(opts: WithStateROA<DataProps<this>>): this {
     for (let key in opts) {
       let opt = opts[key] as this[typeof key] | STATE_ROA<this[typeof key]>;
-      if (state.h.is.roa(opt)) this.attachSTATEROAToProp(key, opt);
+      if (state.h.is.roa(opt)) this.attach_STATE_ROA_to_prop(key, opt);
       else this[key] = opt;
     }
     return this;
@@ -163,7 +147,7 @@ export abstract class Base<
   }
 
   /**Attaches the component to an observer, which is needed for the isVisible state and event to work and for the state system to work on visible*/
-  attachToObserver(observer?: BaseObserver): this {
+  attach_to_observer(observer?: BaseObserver): this {
     if (observer) {
       if (this.#isConnected) {
         if (this.#attachedObserver) this.#attachedObserver.unobserve(this);
@@ -172,7 +156,7 @@ export abstract class Base<
       this.#attachedObserver = observer;
     } else if (this.#attachedObserver) {
       if (this.#isConnected) this.#attachedObserver.unobserve(this);
-      if (!this.isVisible) this._setVisible(true);
+      if (!this.isVisible) this._set_visible(true);
       this.#attachedObserver = undefined;
     }
     return this;
@@ -180,7 +164,7 @@ export abstract class Base<
 
   /**Attaches a state to a function, so that the function is subscribed to the state when the component is connected
    * @param visible when set true the function is only subscribed when the element is visible, this requires an observer to be attached to the element*/
-  attachSTATE<S extends STATE<any>>(
+  attach_STATE<S extends STATE<any>>(
     state: S,
     func: STATE_INFER_SUB<S>,
     visible?: boolean
@@ -196,7 +180,7 @@ export abstract class Base<
   }
 
   /**Dettaches the function from the state/component */
-  dettachSTATE(func: STATE_SUB<any>): typeof func {
+  dettach_STATE(func: STATE_SUB<any>): typeof func {
     let state = this.#states.get(func);
     if (state) {
       if (state[1] ? this.isVisible : this.#isConnected) state[0].unsub(func);
@@ -210,27 +194,27 @@ export abstract class Base<
    * @param state the state to attach to the property
    * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element
    * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
-  attachSTATEROAToProp<K extends keyof this>(
+  attach_STATE_ROA_to_prop<K extends keyof this>(
     prop: K,
     state: STATE_ROA<this[K]>,
     ok?: (val: this[K]) => Option<this[K]>,
     visible?: boolean
   ): this;
-  attachSTATEROAToProp<K extends keyof this, T = this[K]>(
+  attach_STATE_ROA_to_prop<K extends keyof this, T = this[K]>(
     prop: K,
     state: STATE_ROA<T>,
     ok: (val: T) => Option<this[K]>,
     visible?: boolean
   ): this;
-  attachSTATEROAToProp<K extends keyof this, T = this[K]>(
+  attach_STATE_ROA_to_prop<K extends keyof this, T = this[K]>(
     prop: K,
     state: STATE_ROA<T>,
     ok?: (val: T) => Option<this[K]>,
     visible?: boolean
   ): this {
-    this.dettachSTATEFromProp(prop).#props.set(
+    this.dettach_STATE_from_prop(prop).#props.set(
       prop,
-      this.attachSTATE(
+      this.attach_STATE(
         state,
         (val) => {
           let o = ok ? ok(val.value) : Some(val.value as this[K]);
@@ -247,30 +231,30 @@ export abstract class Base<
    * @param state the state to attach to the property
    * @param error function called when state gives a ResultErr,
    * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element*/
-  attachSTATEToProp<K extends keyof this>(
+  attach_STATE_to_prop<K extends keyof this>(
     prop: K,
     state: STATE_REA<this[K]>,
     error: (error: string) => Option<this[K]>,
     ok?: (val: this[K]) => Option<this[K]>,
     visible?: boolean
   ): this;
-  attachSTATEToProp<K extends keyof this, T = this[K]>(
+  attach_STATE_to_prop<K extends keyof this, T = this[K]>(
     prop: K,
     state: STATE_REA<T>,
     error: (error: string) => Option<this[K]>,
     ok: (val: T) => Option<this[K]>,
     visible?: boolean
   ): this;
-  attachSTATEToProp<K extends keyof this, T = this[K]>(
+  attach_STATE_to_prop<K extends keyof this, T = this[K]>(
     prop: K,
     state: STATE_REA<T>,
     error: (error: string) => Option<this[K]>,
     ok?: (val: T) => Option<this[K]>,
     visible?: boolean
   ): this {
-    this.dettachSTATEFromProp(prop).#props.set(
+    this.dettach_STATE_from_prop(prop).#props.set(
       prop,
-      this.attachSTATE(
+      this.attach_STATE(
         state,
         (v) => {
           let o = v.ok
@@ -287,33 +271,33 @@ export abstract class Base<
   }
 
   /**Dettaches the state from the property */
-  dettachSTATEFromProp<T extends keyof this>(prop: T): this {
+  dettach_STATE_from_prop<T extends keyof this>(prop: T): this {
     let pro = this.#props.get(prop);
-    if (pro) this.dettachSTATE(pro);
+    if (pro) this.dettach_STATE(pro);
     return this;
   }
 
-  attachSTATEROAToAttribute(
+  attach_STATE_ROA_to_attribute(
     qualifiedName: string,
     state: STATE_ROA<string>,
     ok?: (val: string) => Option<string>,
     visible?: boolean
   ): this;
-  attachSTATEROAToAttribute<U>(
+  attach_STATE_ROA_to_attribute<U>(
     qualifiedName: string,
     state: STATE_ROA<U>,
     ok: (val: U) => Option<string>,
     visible?: boolean
   ): this;
-  attachSTATEROAToAttribute<U>(
+  attach_STATE_ROA_to_attribute<U>(
     qualifiedName: string,
     state: STATE_ROA<U>,
     ok?: (val: U) => Option<string>,
     visible?: boolean
   ): this {
-    this.dettachSTATEFromAttribute(qualifiedName).#attr.set(
+    this.dettach_STATE_from_attribute(qualifiedName).#attr.set(
       qualifiedName,
-      this.attachSTATE(
+      this.attach_STATE(
         state,
         (val) => {
           let o = ok ? ok(val.value) : Some(val.value as string);
@@ -325,30 +309,30 @@ export abstract class Base<
     return this;
   }
 
-  attachSTATEToAttribute(
+  attach_STATE_to_attribute(
     qualifiedName: string,
     state: STATE_REA<string>,
     error: (error: string) => Option<string>,
     ok?: (val: string) => Option<string>,
     visible?: boolean
   ): this;
-  attachSTATEToAttribute<U>(
+  attach_STATE_to_attribute<U>(
     qualifiedName: string,
     state: STATE_REA<U>,
     error: (error: string) => Option<string>,
     ok: (val: U) => Option<string>,
     visible?: boolean
   ): this;
-  attachSTATEToAttribute<U>(
+  attach_STATE_to_attribute<U>(
     qualifiedName: string,
     state: STATE_REA<U>,
     error: (error: string) => Option<string>,
     ok?: (val: U) => Option<string>,
     visible?: boolean
   ): this {
-    this.dettachSTATEFromAttribute(qualifiedName).#attr.set(
+    this.dettach_STATE_from_attribute(qualifiedName).#attr.set(
       qualifiedName,
-      this.attachSTATE(
+      this.attach_STATE(
         state,
         (v) => {
           let o = v.ok
@@ -365,9 +349,9 @@ export abstract class Base<
   }
 
   /**Dettaches the state from the property */
-  dettachSTATEFromAttribute(qualifiedName: string): this {
+  dettach_STATE_from_attribute(qualifiedName: string): this {
     let pro = this.#attr.get(qualifiedName);
-    if (pro) this.dettachSTATE(pro);
+    if (pro) this.dettach_STATE(pro);
     return this;
   }
 
@@ -388,7 +372,7 @@ export abstract class Base<
   }
 
   /**Overrideable function called when access is changed */
-  protected onAccess(_access: AccessTypes) {}
+  protected on_access(_access: AccessTypes) {}
 
   /**Returns the current access of the element */
   get access(): AccessTypes {

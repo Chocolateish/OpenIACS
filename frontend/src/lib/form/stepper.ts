@@ -28,7 +28,7 @@
 // /**Slide Selector, displays all options in a slider*/
 // export class Stepper extends ValueComponent<StepperOptions> {
 //   /**Returns the name used to define the element */
-//   static elementName() {
+//   static element_name() {
 //     return "stepper";
 //   }
 

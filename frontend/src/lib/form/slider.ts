@@ -31,7 +31,7 @@
 // /**Slide Selector, displays all options in a slider*/
 // export class Slider extends ValueComponent<SliderOptions> {
 //   /**Returns the name used to define the element */
-//   static elementName() {
+//   static element_name() {
 //     return "slider";
 //   }
 

@@ -1,9 +1,11 @@
 import type { ResultOk } from "@libResult";
 import type { STATE_ROA_WA } from "@libState";
 
-let nameTransformer: ((name: string) => string) | undefined;
-export let settingsSetNameTransform = (transform: (name: string) => string) => {
-  nameTransformer = transform;
+let name_transformer: ((name: string) => string) | undefined;
+export let settings_set_name_transform = (
+  transform: (name: string) => string
+) => {
+  name_transformer = transform;
 };
 
 let packages = localStorage["settings/packageVersions"] as string | undefined;
@@ -22,13 +24,13 @@ let bottomGroups: { [key: string]: SettingsGroup } = {};
  * @param versionChanged function to call when the version of the package changed
  * @param name name of group formatted for user reading
  * @param description a description of what the setting group is about*/
-export let settingsInit = (
+export let settings_init = (
   packageName: string,
   packageVersion: string,
   name: string,
   description: string
 ) => {
-  if (nameTransformer) packageName = nameTransformer(packageName);
+  if (name_transformer) packageName = name_transformer(packageName);
   let changed: string | undefined;
   if (packageVersions[packageName] !== packageVersion) {
     changed = packageVersions[packageName];
@@ -83,7 +85,7 @@ export class SettingsGroup {
    * @param id unique identifier for this subgroup in the parent group
    * @param name name of group formatted for user reading
    * @param description a description of what the setting group is about formatted for user reading*/
-  makeSubGroup(id: string, name: string, description: string) {
+  make_sub_group(id: string, name: string, description: string) {
     if (id in this.subGroups) throw "Sub group already registered " + id;
     return (this.subGroups[id] = new SettingsGroup(
       this.pathID + "/" + id,
@@ -154,7 +156,7 @@ export class SettingsGroup {
    * @param description a description of what the setting is about formatted for user reading
    * @param state initial value for the setting, use a promise for an eager async value, use a function returning a promise for a lazy async value
    */
-  registerTransform<READ, TYPE>(
+  register_transform<READ, TYPE>(
     id: string,
     name: string,
     description: string,

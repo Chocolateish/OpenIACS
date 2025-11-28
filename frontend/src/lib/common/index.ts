@@ -1,6 +1,6 @@
 export * from "./equals";
 
-export function nodeClone<T extends Node>(node: T): T {
+export function node_clone<T extends Node>(node: T): T {
   return node.cloneNode(true) as T;
 }
 
@@ -9,7 +9,7 @@ export type Prettify<T> = {
 } & {};
 
 /**Checks of the given object is empty only checks for objects own properties*/
-export let objectEmpty = (obj: {}): boolean => {
+export let object_empty = (obj: {}): boolean => {
   for (let key in obj) if (obj.hasOwnProperty(key)) return false;
   return true;
 };
@@ -24,7 +24,7 @@ export let objectEmpty = (obj: {}): boolean => {
 export function sleep<T = void>(ms: number, arg?: T): Promise<T> {
   return new Promise((a) => setTimeout(a, ms, arg));
 }
-export function sleepLazy<T = void>(ms: number, arg?: () => T): Promise<T> {
+export function sleep_lazy<T = void>(ms: number, arg?: () => T): Promise<T> {
   return new Promise((a) => setTimeout((arg: () => T) => a(arg()), ms, arg));
 }
 
@@ -35,7 +35,7 @@ export function sleepLazy<T = void>(ms: number, arg?: () => T): Promise<T> {
 //     | |__| || |_| |    | |     _| |_| |\  | |__| |
 //     |_____/_____|_|    |_|    |_____|_| \_|\_____|
 
-export function arrayDiff<T>(
+export function array_diff<T>(
   main: T[],
   second: T[]
 ): { added: T[]; removed: T[] } {
@@ -44,9 +44,9 @@ export function arrayDiff<T>(
   return { added, removed };
 }
 
-export function objectKeyDiff<T1 extends {}, T2 extends {}>(
+export function object_key_diff<T1 extends {}, T2 extends {}>(
   main: T1,
   second: T2
 ): { added: string[]; removed: string[] } {
-  return arrayDiff(Object.keys(main), Object.keys(second));
+  return array_diff(Object.keys(main), Object.keys(second));
 }

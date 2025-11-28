@@ -22,7 +22,7 @@
 // /**Dropdown box for selecting between multiple choices in a small space*/
 // export class DropDown extends SelectorComponent<DropDownOptions> {
 //   /**Returns the name used to define the element */
-//   static elementName() {
+//   static element_name() {
 //     return "dropdown";
 //   }
 

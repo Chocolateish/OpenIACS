@@ -1,4 +1,4 @@
-import type { Base, BaseOptions } from "./base";
+import type { Base } from "./base";
 
 const reservedNames = new Set([
   "annotation-xml",
@@ -33,8 +33,8 @@ export let validate_element_name = (name: string) => {
 };
 
 /**Defines elements inheriting from the base*/
-export let base_element_name = <T extends BaseOptions>(
-  element: (abstract new (...options: any) => Base<T>) & {
+export let base_element_name = (
+  element: (abstract new (...options: any) => Base) & {
     elementName(): string;
     elementNameSpace(): string;
   }
@@ -61,23 +61,23 @@ export let base_element_name = <T extends BaseOptions>(
 export let elementList: Set<string> = new Set();
 
 /**Defines elements inheriting from the base*/
-export let defineElement = <T extends BaseOptions>(
-  element: (abstract new (...options: any) => Base<T>) & {
-    elementName(): string;
-    elementNameSpace(): string;
+export let define_element = (
+  element: (abstract new (...options: any) => Base) & {
+    element_name(): string;
+    element_name_space(): string;
   }
 ) => {
-  let namespace = element.elementNameSpace();
-  let check = element.elementName;
+  let namespace = element.element_name_space();
+  let check = element.element_name;
   let defineName = "";
   let runner = element;
   // @ts-expect-error
   while (runner !== HTMLElement) {
-    if (namespace !== runner.elementNameSpace()) break;
+    if (namespace !== runner.element_name_space()) break;
 
-    let name = runner.elementName();
+    let name = runner.element_name();
     runner = Object.getPrototypeOf(runner);
-    if (check === runner.elementName)
+    if (check === runner.element_name)
       throw new Error(
         "Element uses same name as ancestor, abstract classes should return '@abstract@'"
       );

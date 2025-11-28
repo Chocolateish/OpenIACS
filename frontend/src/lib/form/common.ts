@@ -17,10 +17,10 @@ const wayHorzVert = ["horz", "horz", "vert", "vert"];
 
 /**Shared component class for other components to inherit from*/
 export abstract class FormElement extends Base {
-  static elementName() {
+  static element_name() {
     return "@abstract@";
   }
-  static elementNameSpace(): string {
+  static element_name_space(): string {
     return "form";
   }
 
@@ -31,7 +31,7 @@ export abstract class FormElement extends Base {
     if (this._way)
       this.classList.remove(wayDir[this._way], wayHorzVert[this._way]);
     this.classList.add(wayDir[way], wayHorzVert[way]);
-    this.onWay(way, this._way);
+    this.on_way(way, this._way);
     this._way = way;
   }
   /**This retreives the way the compontent is*/
@@ -39,7 +39,7 @@ export abstract class FormElement extends Base {
     return this._way;
   }
   /**Internal way call*/
-  protected onWay(_way: Way, _oldWay?: Way) {}
+  protected on_way(_way: Way, _oldWay?: Way) {}
 
   /**Set the text of the component*/
   abstract set text(_text: string);
@@ -50,7 +50,7 @@ export abstract class FormElement extends Base {
 //##################################################################################################
 /**Shared class for all components with values*/
 export abstract class FormValue<T> extends FormElement {
-  static elementName() {
+  static element_name() {
     return "@abstract@";
   }
 
@@ -82,10 +82,10 @@ export abstract class FormValue<T> extends FormElement {
   }
 
   /**This sets the value of the component*/
-  set valueByState(state: STATE<T> | undefined) {
-    if (this.#func) this.dettachSTATE(this.#func);
+  set value_by_state(state: STATE<T> | undefined) {
+    if (this.#func) this.dettach_STATE(this.#func);
     if (state) {
-      this.attachSTATE(state, (val) => {
+      this.attach_STATE(state, (val) => {
         if (val.ok) this.value = val.value;
         else this.error = val.error;
       });
@@ -96,18 +96,18 @@ export abstract class FormValue<T> extends FormElement {
   set value(val: T) {
     this.#changed = false;
     this.#buffer = val;
-    this.newValue(val);
+    this.new_value(val);
   }
 
   set error(err: string) {
-    this.newError(err);
+    this.new_error(err);
   }
 
   /**Called when value is set by value setter or state*/
-  protected abstract newValue(val: T): void;
+  protected abstract new_value(val: T): void;
 
   /**Called when error is set by error or state*/
-  protected abstract newError(val: string): void;
+  protected abstract new_error(val: string): void;
 
   /**Returns value of the component*/
   get value(): Result<T, string> {
@@ -124,15 +124,15 @@ export abstract class FormValue<T> extends FormElement {
   }
 
   /**Function to update value*/
-  protected async setValue(val: T) {
+  protected async set_value(val: T) {
     if (this.#state) {
       if (this.#state.writable) {
         let res = await this.#state.write(val);
-        res.mapErr((e) => this.warn(e));
+        res.map_err((e) => this.warn(e));
         this.#changed = true;
       }
     } else {
-      this.newValue(val);
+      this.new_value(val);
       this.#buffer = val;
       this.#changed = true;
     }
@@ -159,12 +159,12 @@ export type FormSelectorOption<T> = {
 /**Shared class for all components with multiple options*/
 export abstract class FormSelector<T> extends FormValue<T> {
   /**Returns the name used to define the element */
-  static elementName() {
+  static element_name() {
     return "@abstract@";
   }
 
   /**This adds an option to the selector component*/
-  abstract addOption(
+  abstract add_option(
     name: string,
     value: T,
     describtion?: string,
@@ -173,12 +173,12 @@ export abstract class FormSelector<T> extends FormValue<T> {
   ): void;
 
   /**This removes an option to the selector component*/
-  removeOption(_option: HTMLElement) {}
+  remove_option(_option: HTMLElement) {}
 
   /**This sets the options of the selector with an array*/
   set selectorOptions(opts: FormSelectorOption<T>[]) {
     for (let i = 0, m = opts.length; i < m; i++)
-      this.addOption(
+      this.add_option(
         opts[i].name,
         opts[i].value,
         opts[i].description,
@@ -187,5 +187,5 @@ export abstract class FormSelector<T> extends FormValue<T> {
   }
 
   /**Sets the value by using the options element*/
-  setByOption(_elem: HTMLDivElement) {}
+  set_by_option(_elem: HTMLDivElement) {}
 }

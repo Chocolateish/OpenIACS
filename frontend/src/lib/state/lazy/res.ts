@@ -41,8 +41,8 @@ class RES<RT, REL extends Related = {}, WT = any>
     if (helper) this.#helper = helper;
     this.get = () => this.#clean() ?? (this.#value = init());
     this.set = (value) => this.set(this.#clean() ?? value);
-    let writeSync = this.writeSync.bind(this);
-    this.writeSync = (value) =>
+    let writeSync = this.write_sync.bind(this);
+    this.write_sync = (value) =>
       writeSync(value).map((val) => this.#clean() ?? val);
   }
 
@@ -56,7 +56,7 @@ class RES<RT, REL extends Related = {}, WT = any>
 
   //#Owner Context
   set(value: Result<RT, string>) {
-    this.updateSubs((this.#value = value));
+    this.update_subs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -98,9 +98,9 @@ class RES<RT, REL extends Related = {}, WT = any>
     return this.writable;
   }
   async write(value: WT): Promise<Result<void, string>> {
-    return this.writeSync(value);
+    return this.write_sync(value);
   }
-  writeSync(value: WT): Result<void, string> {
+  write_sync(value: WT): Result<void, string> {
     if (this.setter) return this.setter(value, this, this.#value);
     return Err("State not writable");
   }
@@ -196,8 +196,8 @@ class RES_WS<RT, WT, REL extends Related>
     if (helper) this.#helper = helper;
     this.get = () => this.#clean() ?? (this.#value = init());
     this.set = (value) => this.set(this.#clean() ?? value);
-    let writeSync = this.writeSync.bind(this);
-    this.writeSync = (value) =>
+    let writeSync = this.write_sync.bind(this);
+    this.write_sync = (value) =>
       writeSync(value).map((val) => this.#clean() ?? val);
   }
 
@@ -211,7 +211,7 @@ class RES_WS<RT, WT, REL extends Related>
 
   //#Owner Context
   set(value: Result<RT, string>) {
-    this.updateSubs((this.#value = value));
+    this.update_subs((this.#value = value));
   }
   setOk(value: RT): void {
     this.set(Ok(value));
@@ -256,9 +256,9 @@ class RES_WS<RT, WT, REL extends Related>
     return true;
   }
   async write(value: WT): Promise<Result<void, string>> {
-    return this.writeSync(value);
+    return this.write_sync(value);
   }
-  writeSync(value: WT): Result<void, string> {
+  write_sync(value: WT): Result<void, string> {
     return this.#setter(value, this, this.#value);
   }
   limit(value: WT): Result<WT, string> {

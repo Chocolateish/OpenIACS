@@ -23,7 +23,7 @@
 // /**Lamp for clicking*/
 // export class Lamp extends ValueComponent<LampOptions> {
 //   /**Returns the name used to define the element */
-//   static elementName() {
+//   static element_name() {
 //     return "lamp";
 //   }
 

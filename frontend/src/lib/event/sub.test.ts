@@ -20,37 +20,37 @@ describe("Init", { timeout: 50 }, function () {
 describe("Adding and removing listeners", { timeout: 50 }, function () {
   it("Checking if listener is added to handler with single type", function () {
     let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
-    expect(handler.producer.inUse("test")).equal(false);
+    expect(handler.producer.in_use("test")).equal(false);
     handler.consumer.on("test", () => {});
-    expect(handler.producer.inUse("test")).equal(true);
+    expect(handler.producer.in_use("test")).equal(true);
   });
   it("Checking if listener is added to handler with multiple types", function () {
     let handler = new EventHandlerSub<
       { test: number; test2: number; test3: number },
       undefined
     >(undefined);
-    expect(handler.producer.inUse("test")).equal(false);
+    expect(handler.producer.in_use("test")).equal(false);
     handler.consumer.on("test", () => {});
-    expect(handler.producer.inUse("test")).equal(true);
-    expect(handler.producer.inUse("test2")).equal(false);
+    expect(handler.producer.in_use("test")).equal(true);
+    expect(handler.producer.in_use("test2")).equal(false);
     handler.consumer.on("test2", () => {});
-    expect(handler.producer.inUse("test2")).equal(true);
-    expect(handler.producer.inUse("test3")).equal(false);
+    expect(handler.producer.in_use("test2")).equal(true);
+    expect(handler.producer.in_use("test3")).equal(false);
     handler.consumer.on("test3", () => {});
-    expect(handler.producer.inUse("test3")).equal(true);
+    expect(handler.producer.in_use("test3")).equal(true);
   });
   it("Checking if listener is added to handler with single type and specific listener", function () {
     let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
-    expect(handler.producer.inUse("test")).equal(false);
+    expect(handler.producer.in_use("test")).equal(false);
     let lis = handler.consumer.on("test", () => {});
     expect(handler.producer.has("test", lis)).equal(true);
   });
   it("Checking if listener is removed from handler with single type", function () {
     let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
     let lis = handler.consumer.on("test", () => {});
-    expect(handler.producer.inUse("test")).equal(true);
+    expect(handler.producer.in_use("test")).equal(true);
     handler.consumer.off("test", lis);
-    expect(handler.producer.inUse("test")).equal(false);
+    expect(handler.producer.in_use("test")).equal(false);
   });
   it("Checking if listener is removed from handler with multiple types", function () {
     let handler = new EventHandlerSub<
@@ -61,17 +61,17 @@ describe("Adding and removing listeners", { timeout: 50 }, function () {
     let lis2 = handler.consumer.on("test2", () => {});
     let lis3 = handler.consumer.on("test3", () => {});
     expect(
-      handler.producer.inUse("test") &&
-        handler.producer.inUse("test2") &&
-        handler.producer.inUse("test3")
+      handler.producer.in_use("test") &&
+        handler.producer.in_use("test2") &&
+        handler.producer.in_use("test3")
     ).equal(true);
     handler.consumer.off("test", lis1);
     handler.consumer.off("test2", lis2);
     handler.consumer.off("test3", lis3);
     expect(
-      handler.producer.inUse("test") ||
-        handler.producer.inUse("test2") ||
-        handler.producer.inUse("test3")
+      handler.producer.in_use("test") ||
+        handler.producer.in_use("test2") ||
+        handler.producer.in_use("test3")
     ).equal(false);
   });
   it("Clearing listeners from handler", function () {
@@ -83,17 +83,17 @@ describe("Adding and removing listeners", { timeout: 50 }, function () {
     handler.consumer.on("test2", () => {});
     handler.consumer.on("test3", () => {});
     expect(
-      handler.producer.inUse("test") &&
-        handler.producer.inUse("test2") &&
-        handler.producer.inUse("test3")
+      handler.producer.in_use("test") &&
+        handler.producer.in_use("test2") &&
+        handler.producer.in_use("test3")
     ).equal(true);
     handler.producer.clear("test");
     handler.producer.clear("test2");
     handler.producer.clear("test3");
     expect(
-      handler.producer.inUse("test") ||
-        handler.producer.inUse("test2") ||
-        handler.producer.inUse("test3")
+      handler.producer.in_use("test") ||
+        handler.producer.in_use("test2") ||
+        handler.producer.in_use("test3")
     ).equal(false);
   });
 });
@@ -127,37 +127,37 @@ describe("Dispatching event", { timeout: 50 }, function () {
 describe("Adding and removing sub listeners", { timeout: 50 }, function () {
   it("Checking if listener is added to handler with single type", function () {
     let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
-    expect(handler.producer.inUse("test", ["a", "b", "c"])).equal(false);
+    expect(handler.producer.in_use("test", ["a", "b", "c"])).equal(false);
     handler.consumer.on("test", () => {}, ["a", "b", "c"]);
-    expect(handler.producer.inUse("test", ["a", "b", "c"])).equal(true);
+    expect(handler.producer.in_use("test", ["a", "b", "c"])).equal(true);
   });
   it("Checking if listener is added to handler with multiple types", function () {
     let handler = new EventHandlerSub<
       { test: number; test2: number; test3: number },
       undefined
     >(undefined);
-    expect(handler.producer.inUse("test", ["a", "b", "c"])).equal(false);
+    expect(handler.producer.in_use("test", ["a", "b", "c"])).equal(false);
     handler.consumer.on("test", () => {}, ["a", "b", "c"]);
-    expect(handler.producer.inUse("test", ["a", "b", "c"])).equal(true);
-    expect(handler.producer.inUse("test2", ["a", "b", "c"])).equal(false);
+    expect(handler.producer.in_use("test", ["a", "b", "c"])).equal(true);
+    expect(handler.producer.in_use("test2", ["a", "b", "c"])).equal(false);
     handler.consumer.on("test2", () => {}, ["a", "b", "c"]);
-    expect(handler.producer.inUse("test2", ["a", "b", "c"])).equal(true);
-    expect(handler.producer.inUse("test3", ["a", "b", "c"])).equal(false);
+    expect(handler.producer.in_use("test2", ["a", "b", "c"])).equal(true);
+    expect(handler.producer.in_use("test3", ["a", "b", "c"])).equal(false);
     handler.consumer.on("test3", () => {}, ["a", "b", "c"]);
-    expect(handler.producer.inUse("test3", ["a", "b", "c"])).equal(true);
+    expect(handler.producer.in_use("test3", ["a", "b", "c"])).equal(true);
   });
   it("Checking if listener is added to handler with single type and specific listener", function () {
     let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
-    expect(handler.producer.inUse("test", ["a", "b", "c"])).equal(false);
+    expect(handler.producer.in_use("test", ["a", "b", "c"])).equal(false);
     let lis = handler.consumer.on("test", () => {}, ["a", "b", "c"]);
     expect(handler.producer.has("test", lis, ["a", "b", "c"])).equal(true);
   });
   it("Checking if listener is removed from handler with single type", function () {
     let handler = new EventHandlerSub<{ test: number }, undefined>(undefined);
     let lis = handler.consumer.on("test", () => {}, ["a", "b", "c"]);
-    expect(handler.producer.inUse("test", ["a", "b", "c"])).equal(true);
+    expect(handler.producer.in_use("test", ["a", "b", "c"])).equal(true);
     handler.consumer.off("test", lis, ["a", "b", "c"]);
-    expect(handler.producer.inUse("test", ["a", "b", "c"])).equal(false);
+    expect(handler.producer.in_use("test", ["a", "b", "c"])).equal(false);
   });
   it("Checking if listener is removed from handler with multiple types", function () {
     let handler = new EventHandlerSub<
@@ -168,17 +168,17 @@ describe("Adding and removing sub listeners", { timeout: 50 }, function () {
     let lis2 = handler.consumer.on("test2", () => {}, ["a", "b", "c"]);
     let lis3 = handler.consumer.on("test3", () => {}, ["a", "b", "c"]);
     expect(
-      handler.producer.inUse("test", ["a", "b", "c"]) &&
-        handler.producer.inUse("test2", ["a", "b", "c"]) &&
-        handler.producer.inUse("test3", ["a", "b", "c"])
+      handler.producer.in_use("test", ["a", "b", "c"]) &&
+        handler.producer.in_use("test2", ["a", "b", "c"]) &&
+        handler.producer.in_use("test3", ["a", "b", "c"])
     ).equal(true);
     handler.consumer.off("test", lis1, ["a", "b", "c"]);
     handler.consumer.off("test2", lis2, ["a", "b", "c"]);
     handler.consumer.off("test3", lis3, ["a", "b", "c"]);
     expect(
-      handler.producer.inUse("test", ["a", "b", "c"]) ||
-        handler.producer.inUse("test2", ["a", "b", "c"]) ||
-        handler.producer.inUse("test3", ["a", "b", "c"])
+      handler.producer.in_use("test", ["a", "b", "c"]) ||
+        handler.producer.in_use("test2", ["a", "b", "c"]) ||
+        handler.producer.in_use("test3", ["a", "b", "c"])
     ).equal(false);
   });
   it("Clearing listeners from handler", function () {
@@ -190,17 +190,17 @@ describe("Adding and removing sub listeners", { timeout: 50 }, function () {
     handler.consumer.on("test2", () => {}, ["a", "b", "c"]);
     handler.consumer.on("test3", () => {}, ["a", "b", "c"]);
     expect(
-      handler.producer.inUse("test", ["a", "b", "c"]) &&
-        handler.producer.inUse("test2", ["a", "b", "c"]) &&
-        handler.producer.inUse("test3", ["a", "b", "c"])
+      handler.producer.in_use("test", ["a", "b", "c"]) &&
+        handler.producer.in_use("test2", ["a", "b", "c"]) &&
+        handler.producer.in_use("test3", ["a", "b", "c"])
     ).equal(true);
     handler.producer.clear("test", ["a", "b", "c"]);
     handler.producer.clear("test2", ["a", "b", "c"]);
     handler.producer.clear("test3", ["a", "b", "c"]);
     expect(
-      handler.producer.inUse("test", ["a", "b", "c"]) ||
-        handler.producer.inUse("test2", ["a", "b", "c"]) ||
-        handler.producer.inUse("test3", ["a", "b", "c"])
+      handler.producer.in_use("test", ["a", "b", "c"]) ||
+        handler.producer.in_use("test2", ["a", "b", "c"]) ||
+        handler.producer.in_use("test3", ["a", "b", "c"])
     ).equal(false);
   });
   it("Clearing all listeners from handler in once", function () {
@@ -212,15 +212,15 @@ describe("Adding and removing sub listeners", { timeout: 50 }, function () {
     handler.consumer.on("test", () => {}, ["a", "b", "b"]);
     handler.consumer.on("test", () => {}, ["a", "b", "c"]);
     expect(
-      handler.producer.inUse("test", ["a", "b", "a"]) &&
-        handler.producer.inUse("test", ["a", "b", "b"]) &&
-        handler.producer.inUse("test", ["a", "b", "c"])
+      handler.producer.in_use("test", ["a", "b", "a"]) &&
+        handler.producer.in_use("test", ["a", "b", "b"]) &&
+        handler.producer.in_use("test", ["a", "b", "c"])
     ).equal(true);
     handler.producer.clear("test", undefined, true);
     expect(
-      handler.producer.inUse("test", ["a", "b", "a"]) ||
-        handler.producer.inUse("test", ["a", "b", "b"]) ||
-        handler.producer.inUse("test", ["a", "b", "c"])
+      handler.producer.in_use("test", ["a", "b", "a"]) ||
+        handler.producer.in_use("test", ["a", "b", "b"]) ||
+        handler.producer.in_use("test", ["a", "b", "c"])
     ).equal(false);
   });
 });
@@ -288,7 +288,7 @@ describe("Proxy Event Handler", { timeout: 5000 }, function () {
     let target = {};
     let handler = new EventHandlerSub<{ test: number }, {}>(target);
     let proxyHandler = new EventHandlerSub<{ test: number }, {}>(target);
-    let proxFunc = handler.proxyOn(proxyHandler.proxyFunc());
+    let proxFunc = handler.proxy_on(proxyHandler.proxy_func());
     let e = await new Promise<ESub<"test", {}, number>>((done) => {
       proxyHandler.on("test", async (e) => {
         done(e);
@@ -298,7 +298,7 @@ describe("Proxy Event Handler", { timeout: 5000 }, function () {
     expect(e.type).equal("test");
     expect(e.target).equal(target);
     expect(e.data).equal(10);
-    handler.proxyOff(proxFunc);
+    handler.proxy_off(proxFunc);
     let f = await Promise.race([
       new Promise<ESub<"test", {}, number>>((done) => {
         proxyHandler.on("test", (e) => {
@@ -314,7 +314,7 @@ describe("Proxy Event Handler", { timeout: 5000 }, function () {
     let target = {};
     let handler = new EventHandlerSub<{ test: number }, {}>(target);
     let proxyHandler = new EventHandlerSub<{ test: number }, {}>(target);
-    let proxFunc = handler.proxyOn(proxyHandler.proxyFunc());
+    let proxFunc = handler.proxy_on(proxyHandler.proxy_func());
     let e = await new Promise<ESub<"test", {}, number>>((done) => {
       proxyHandler.on(
         "test",
@@ -328,7 +328,7 @@ describe("Proxy Event Handler", { timeout: 5000 }, function () {
     expect(e.type).equal("test");
     expect(e.target).equal(target);
     expect(e.data).equal(10);
-    handler.proxyOff(proxFunc);
+    handler.proxy_off(proxFunc);
     let f = await Promise.race([
       new Promise<ESub<"test", {}, number>>((done) => {
         proxyHandler.on("test", (e) => {

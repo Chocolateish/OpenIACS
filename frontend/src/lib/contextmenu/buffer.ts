@@ -1,11 +1,11 @@
-import { defineElement } from "@libBase";
+import { define_element } from "@libBase";
 import { Spinner } from "@libSpinners";
 import "./buffer.scss";
 import { ContextMenuLine } from "./line";
 
 export class Buffer extends ContextMenuLine {
   /**Returns the name used to define the element */
-  static elementName() {
+  static element_name() {
     return "buffer";
   }
 
@@ -14,8 +14,8 @@ export class Buffer extends ContextMenuLine {
     this.appendChild(new Spinner());
   }
 
-  doFocus(dir: boolean) {
-    this.focusNext(dir);
+  do_focus(dir: boolean) {
+    this.focus_next(dir);
   }
 }
-defineElement(Buffer);
+define_element(Buffer);

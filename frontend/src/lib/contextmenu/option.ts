@@ -1,4 +1,4 @@
-import { defineElement } from "../base";
+import { define_element } from "../base";
 import { ContextMenuLine } from "./line";
 import { ContextMenu } from "./menu";
 import "./option.scss";
@@ -7,7 +7,7 @@ export class ContextMenuOption extends ContextMenuLine {
   readonly func: () => void;
 
   /**Returns the name used to define the element */
-  static elementName() {
+  static element_name() {
     return "option";
   }
 
@@ -44,7 +44,7 @@ export class ContextMenuOption extends ContextMenuLine {
       e.stopPropagation();
       this.func();
       navigator?.vibrate(25);
-      (this.parentElement as ContextMenu).closeUp();
+      (this.parentElement as ContextMenu).close_up();
     };
 
     this.onkeydown = (e) => {
@@ -52,12 +52,12 @@ export class ContextMenuOption extends ContextMenuLine {
         case "Tab":
         case "ArrowUp":
         case "ArrowDown":
-          this.focusNext(e.shiftKey || e.code === "ArrowUp");
+          this.focus_next(e.shiftKey || e.code === "ArrowUp");
           break;
         case "Enter":
         case "Space":
           this.func();
-          (this.parentElement as ContextMenu).closeUp();
+          (this.parentElement as ContextMenu).close_up();
           break;
         case "ArrowLeft":
         case "Escape":
@@ -68,13 +68,13 @@ export class ContextMenuOption extends ContextMenuLine {
     };
   }
 
-  doFocus(): void {
+  do_focus(): void {
     this.focus();
   }
 }
-defineElement(ContextMenuOption);
+define_element(ContextMenuOption);
 
-export function contextLine(
+export function context_line(
   text: string,
   func: () => void,
   icon?: SVGSVGElement,

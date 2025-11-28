@@ -1,19 +1,19 @@
-import { defineElement } from "../base";
+import { define_element } from "../base";
 import "./devider.scss";
 import { ContextMenuLine } from "./line";
 
 export class Devider extends ContextMenuLine {
   /**Returns the name used to define the element */
-  static elementName() {
+  static element_name() {
     return "devider";
   }
 
-  doFocus(dir?: boolean) {
-    this.focusNext(dir);
+  do_focus(dir?: boolean) {
+    this.focus_next(dir);
   }
 }
-defineElement(Devider);
+define_element(Devider);
 
-export function contextDevider() {
+export function context_devider() {
   return new Devider();
 }

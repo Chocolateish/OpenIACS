@@ -14,7 +14,7 @@ export function sha1(msg: string) {
   let C: number;
   let D: number;
   let E: number;
-  msg = Utf8Encode(msg);
+  msg = utf8_encode(msg);
   let msg_len = msg.length;
   let word_array = new Array();
   for (let i = 0; i < msg_len - 3; i += 4) {
@@ -129,7 +129,7 @@ function rotate_left(n: number, s: number) {
   return t4;
 }
 
-function Utf8Encode(string: string) {
+function utf8_encode(string: string) {
   string = string.replace(/\r\n/g, "\n");
   var utftext = "";
   for (var n = 0; n < string.length; n++) {
