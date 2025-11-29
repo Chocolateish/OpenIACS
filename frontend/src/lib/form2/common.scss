@@ -1,0 +1,17 @@
+@mixin form-colors {
+  &[color="green"] {
+    background-color: var(--form-colors-basic-green);
+  }
+
+  &[color="red"] {
+    background-color: var(--form-colors-basic-red);
+  }
+
+  &[color="blue"] {
+    background-color: var(--form-colors-basic-blue);
+  }
+
+  &[color="yellow"] {
+    background-color: var(--form-colors-basic-yellow);
+  }
+}

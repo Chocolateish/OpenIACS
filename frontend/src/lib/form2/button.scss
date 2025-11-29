@@ -1,16 +1,18 @@
+@use "common";
+
 form-button {
   $textPadding: 0.5rem;
 
+  border: 1px solid var(--form-colors-border-normal);
+  min-height: var(--form-size-height);
+  box-shadow: var(--form-shared-shadow-out);
+  border-radius: var(--form-size-cornerRadius);
+  background-color: var(--form-colors-background-normal);
   display: flex;
   box-sizing: border-box;
-  box-shadow: var(--form-shared-shadow-out);
   -webkit-user-select: none;
   user-select: none;
-  border-radius: var(--form-size-cornerRadius);
-  border: 1px solid var(--form-colors-border-normal);
-  background-color: var(--form-colors-background-normal);
   position: relative;
-  min-height: var(--form-size-height);
   flex-direction: row;
   justify-content: center;
   align-items: center;
@@ -23,6 +25,24 @@ form-button {
 
   &:focus {
     outline: none;
+  }
+
+  &[inert] {
+    filter: var(--form-read-filter);
+    pointer-events: none;
+  }
+
+  &.active {
+    box-shadow: 0px 0px 3px 0px var(--form-colors-border-normal);
+  }
+
+  > input {
+    all: unset;
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
   }
 
   @media (pointer: fine) {
@@ -42,20 +62,7 @@ form-button {
     }
   }
 
-  &[inert] {
-    filter: var(--form-read-filter);
-    pointer-events: none;
-  }
-
-  &.NONE {
-    display: none;
-  }
-
-  &.active {
-    box-shadow: 0px 0px 3px 0px var(--form-colors-border-normal);
-  }
-
-  .anim-all & {
+  .anim-some & {
     transition: min-height var(--form-animation-transitionType)
         var(--form-animation-transitionDuration),
       box-shadow ease 200ms,
@@ -65,22 +72,14 @@ form-button {
         var(--form-animation-transitionDuration);
   }
 
-  > input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    width: 100%;
-    height: 100%;
-  }
-
   > svg {
     height: calc(var(--form-size-height) - 0.5rem);
-    width: auto;
     max-width: calc(var(--form-size-height) + 1rem);
+    fill: var(--form-colors-icon-normal);
+    width: auto;
     padding: 0.3rem;
     flex-shrink: 0;
     background-color: initial;
-    fill: var(--form-colors-icon-normal);
 
     .touch & {
       height: var(--form-size-touchHeight);
@@ -88,7 +87,7 @@ form-button {
       padding: 0.6rem;
     }
 
-    .anim-all & {
+    .anim-some & {
       transition: fill var(--form-animation-transitionType)
           var(--form-animation-transitionDuration),
         height var(--form-animation-transitionType)
@@ -99,10 +98,11 @@ form-button {
   }
 
   > div {
-    flex-grow: 1;
     color: var(--form-colors-text-normal);
-    text-align: center;
     min-width: calc(--form-size-height - $textPadding);
+    flex-grow: 1;
+    text-align: center;
+
     .touch & {
       min-width: calc(--form-size-touchHeight - $textPadding);
     }
@@ -117,19 +117,5 @@ form-button {
     }
   }
 
-  &[color="green"] {
-    background-color: var(--form-colors-basic-green);
-  }
-
-  &[color="red"] {
-    background-color: var(--form-colors-basic-red);
-  }
-
-  &[color="blue"] {
-    background-color: var(--form-colors-basic-blue);
-  }
-
-  &[color="yellow"] {
-    background-color: var(--form-colors-basic-yellow);
-  }
+  @include common.form-colors;
 }

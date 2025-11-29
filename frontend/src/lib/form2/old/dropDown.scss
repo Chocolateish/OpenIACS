@@ -1,6 +1,6 @@
 @use "../components/common.scss";
 
-lib-component-dropdown {
+form-dropdown {
   $height: 2rem;
   $touchHeight: 3rem;
 
@@ -12,10 +12,6 @@ lib-component-dropdown {
   &.READ {
     filter: var(--libOldCommon-readOpacityFilter);
     pointer-events: none;
-  }
-
-  &.NONE {
-    display: none;
   }
 
   > span {

@@ -79,7 +79,13 @@ export let define_element = (
     runner = Object.getPrototypeOf(runner);
     if (check === runner.element_name)
       throw new Error(
-        "Element uses same name as ancestor, abstract classes should return '@abstract@'"
+        'Failed to define element "' +
+          namespace +
+          "-" +
+          name +
+          define_name +
+          '" ' +
+          "Element uses same name as ancestor, abstract classes should return '@abstract@'"
       );
     if (!name.length) throw new Error("Element doesn't define element name");
     if (name !== "@abstract@") define_name = "-" + name + define_name;

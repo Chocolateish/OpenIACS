@@ -1,0 +1,108 @@
+@import "../base.scss";
+
+chocolatelibui-form-lamp {
+  @include base;
+
+  > div {
+    display: flex;
+    box-sizing: border-box;
+    min-height: $size_height;
+    min-width: min-content;
+    background-color: $color_background;
+    border: 1px solid $color_border;
+    border-radius: $size_height;
+    box-shadow: $shadow_out;
+    -webkit-user-select: none;
+    user-select: none;
+    align-items: center;
+
+    .touch & {
+      border-radius: $size_touchHeight;
+      min-height: $size_touchHeight;
+    }
+
+    .anim & {
+      transition: min-height var(--sizeTransitionType) var(--sizeTransitionTime),
+        box-shadow ease 200ms,
+        border-color var(--colorTransitionType) var(--colorTransitionTime),
+        background-color var(--colorTransitionType) var(--colorTransitionTime);
+    }
+
+    > svg {
+      box-sizing: border-box;
+      height: calc($size_height - 2px);
+      width: auto;
+      flex-shrink: 0;
+      background-color: initial;
+      fill: $color_text;
+      padding: 0.2rem;
+      padding-left: 0.4rem;
+
+      .touch & {
+        height: calc($size_touchHeight - 2px);
+        padding: 0.5rem;
+      }
+
+      .anim & {
+        transition: fill var(--colorTransitionType) var(--colorTransitionTime),
+          height var(--sizeTransitionType) var(--sizeTransitionTime),
+          max-width var(--sizeTransitionType) var(--sizeTransitionTime);
+      }
+    }
+
+    > span {
+      display: flex;
+      justify-content: center;
+      color: $color_text;
+      padding-inline: 0.8rem;
+      padding-block: 0.2rem;
+      min-width: 10rem;
+
+      &:empty {
+        display: none;
+      }
+
+      .touch & {
+        padding-inline: 1.6rem;
+        padding-block: 0.5rem;
+        font-size: 1.4rem;
+      }
+
+      .anim & {
+        transition: color var(--colorTransitionType) var(--colorTransitionTime);
+      }
+    }
+
+    > svg + span {
+      padding-left: 0.4rem !important;
+    }
+
+    &[color="black"] {
+      background-color: $color_basic_black;
+
+      > span {
+        color: $color_text_black;
+      }
+
+      > svg {
+        fill: $color_text_black;
+      }
+    }
+
+    &[color="green"] {
+      background-color: $color_basic_green;
+    }
+
+    &[color="red"] {
+      background-color: $color_basic_red;
+    }
+
+    &[color="blue"] {
+      background-color: $color_basic_blue;
+    }
+
+    &[color="yellow"] {
+      background-color: $color_basic_yellow;
+    }
+  }
+}

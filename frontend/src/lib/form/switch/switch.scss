@@ -1,0 +1,124 @@
+@import "../base.scss";
+
+chocolatelibui-form-switch {
+  @include base;
+
+  > div {
+    display: flex;
+    align-items: center;
+    -webkit-user-select: none;
+    user-select: none;
+
+    @media (pointer: fine) {
+      &:hover > div::after {
+        background-color: $color_background_hover;
+      }
+    }
+
+    > div {
+      touch-action: none;
+      flex-shrink: 0;
+      position: relative;
+      background-color: $color_background;
+      box-shadow: $shadow_in;
+      border-radius: $size_height;
+      width: $size_height * 2;
+      height: $size_height;
+      outline: none;
+      cursor: grab;
+
+      &.on {
+        background-color: $color_basic_green;
+
+        &::after {
+          left: $size_height;
+
+          .touch & {
+            left: $size_touchHeight;
+          }
+        }
+      }
+
+      &.active {
+        cursor: grabbing;
+      }
+
+      &::after {
+        touch-action: none;
+        content: "";
+        left: 0rem;
+        position: absolute;
+        background-color: $color_background;
+        box-shadow: inset 0 0 0px 2px $color_border, $shadow_out;
+        width: $size_height;
+        height: $size_height;
+        border-radius: $size_height;
+
+        .touch & {
+          width: $size_touchHeight;
+          height: $size_touchHeight;
+        }
+
+        .anim & {
+          transition: width var(--sizeTransitionType) var(--sizeTransitionTime),
+            height var(--sizeTransitionType) var(--sizeTransitionTime),
+            left var(--sizeTransitionType) var(--sizeTransitionTime),
+            border-radius var(--sizeTransitionType) var(--sizeTransitionTime),
+            background-color var(--colorTransitionType)
+              var(--colorTransitionTime),
+            box-shadow var(--colorTransitionType) var(--colorTransitionTime);
+        }
+      }
+
+      .touch & {
+        width: $size_touchHeight * 2;
+        height: $size_touchHeight;
+      }
+
+      &:focus-visible {
+        box-shadow: $shadow_in_focus_out;
+        z-index: 2;
+      }
+    }
+
+    > svg {
+      box-sizing: border-box;
+      fill: $color_text;
+      height: $size_height;
+      max-width: $size_height;
+      width: auto;
+      padding: 0.2rem;
+      flex-shrink: 0;
+
+      .touch & {
+        height: $size_touchHeight;
+        max-width: $size_touchHeight;
+        padding: 0.4rem;
+      }
+
+      .anim & {
+        transition: fill var(--colorTransitionType) var(--colorTransitionTime),
+          height var(--sizeTransitionType) var(--sizeTransitionTime),
+          max-width var(--sizeTransitionType) var(--sizeTransitionTime);
+      }
+    }
+
+    > span {
+      display: block;
+      padding: 0.1rem 0.1rem 0.1rem 0.1rem;
+      color: $color_text;
+
+      &:empty {
+        display: none;
+      }
+
+      .anim & {
+        transition: color var(--colorTransitionType) var(--colorTransitionTime);
+      }
+
+      .touch & {
+        font-size: 1.1rem;
+      }
+    }
+  }
+}

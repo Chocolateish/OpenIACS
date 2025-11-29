@@ -1,65 +1,61 @@
 import { AccessTypes, define_element } from "@libBase";
 import type { SVGFunc } from "@libSVG";
 import "./button.scss";
-import { FormValue } from "./common";
+import { FormColors, FormValueWrite } from "./common";
 import "./shared";
 
-/**Defines all possible background colors for the button*/
-export const ButtonColors = {
-  NONE: "none",
-  GREEN: "green",
-  RED: "red",
-  BLUE: "blue",
-  YELLOW: "yellow",
-} as const;
-export type ButtonColors = (typeof ButtonColors)[keyof typeof ButtonColors];
-
 /**Button for clicking*/
-export class Button extends FormValue<boolean> {
-  /**Returns the name used to define the element */
+export class Button extends FormValueWrite<boolean> {
   static element_name() {
     return "button";
   }
-
   static element_name_space(): string {
     return "form";
   }
 
   #text?: HTMLDivElement;
-  #sym?: SVGSVGElement;
+  #icon?: SVGSVGElement;
+  #func?: () => void;
 
-  constructor(toggle: boolean = false, text?: string, icon?: SVGFunc) {
-    super();
+  constructor(
+    cid?: string,
+    label?: string,
+    toggle: boolean = false,
+    icon?: SVGFunc
+  ) {
+    super(cid);
+    this.appendChild(this.warn_input);
     this.setAttribute("tabindex", "0");
     this.toggle = toggle;
-    if (text) this.text = text;
+    if (label) this.label = label;
     if (icon) this.icon = icon;
   }
 
   /**Overridable click function*/
-  on_click(): void {}
+  set on_click(click: () => void) {
+    this.#func = click;
+  }
 
   #do_click() {
+    if (!this.#func) return;
     try {
-      this.on_click();
+      this.#func();
     } catch (error) {
       console.error("Failed while executing button click", error);
     }
   }
 
   /**Changes the text description of the button */
-  set text(text: string) {
-    if (text === "") {
+  set label(text: string) {
+    if (text) {
+      if (!this.#text)
+        this.#text = this.appendChild(document.createElement("div"));
+      this.#text.textContent = text;
+    } else {
       if (this.#text) {
         this.removeChild(this.#text);
         this.#text = undefined;
       }
-    } else {
-      if (!this.#text) {
-        this.#text = document.createElement("div");
-        this.appendChild(this.#text);
-      }
-      this.#text.innerHTML = text;
     }
   }
 
@@ -67,12 +63,12 @@ export class Button extends FormValue<boolean> {
   set icon(icon: SVGFunc | undefined) {
     if (icon) {
       let i = icon();
-      if (this.#sym) this.replaceChild(i, this.#sym);
+      if (this.#icon) this.replaceChild(i, this.#icon);
       else this.insertBefore(i, this.firstChild);
-      this.#sym = i;
-    } else if (this.#sym) {
-      this.removeChild(this.#sym);
-      this.#sym = undefined;
+      this.#icon = i;
+    } else if (this.#icon) {
+      this.removeChild(this.#icon);
+      this.#icon = undefined;
     }
   }
 
@@ -151,8 +147,8 @@ export class Button extends FormValue<boolean> {
   }
 
   /** Sets the background color of the button*/
-  set color(color: ButtonColors) {
-    if (color === ButtonColors.NONE) this.removeAttribute("color");
+  set color(color: FormColors) {
+    if (color === FormColors.None) this.removeAttribute("color");
     else this.setAttribute("color", color);
   }
 
@@ -172,8 +168,7 @@ define_element(Button);
 
 export let form_button = {
   /**Creates a button form element */
-  from(toggle: boolean = false, text?: string, icon?: SVGFunc): Button {
-    return new Button(toggle, text, icon);
+  from(toggle?: boolean, label?: string, icon?: SVGFunc, cid?: string): Button {
+    return new Button(cid, label, toggle, icon);
   },
-  class: Button,
 };

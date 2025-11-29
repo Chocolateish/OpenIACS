@@ -1,0 +1,92 @@
+@use "common";
+
+form-lamp {
+  $textPadding: 0.5rem;
+
+  border: 1px solid var(--form-colors-border-normal);
+  min-height: var(--form-size-height);
+  box-shadow: var(--form-shared-shadow-out);
+  background-color: var(--form-colors-background-normal);
+  display: flex;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+  border-radius: 1.5rem;
+  position: relative;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 0rem;
+  min-width: min-content;
+
+  .touch & {
+    min-height: var(--form-size-touchHeight);
+  }
+
+  .anim-all & {
+    transition: min-height var(--form-animation-transitionType)
+        var(--form-animation-transitionDuration),
+      box-shadow ease 200ms,
+      border-color var(--form-animation-transitionType)
+        var(--form-animation-transitionDuration),
+      background-color var(--form-animation-transitionType)
+        var(--form-animation-transitionDuration);
+  }
+
+  > input {
+    all: unset;
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+  }
+
+  > svg {
+    height: calc(var(--form-size-height) - 0.5rem);
+    max-width: calc(var(--form-size-height) + 1rem);
+    fill: var(--form-colors-icon-normal);
+    width: auto;
+    padding: 0.4rem;
+    flex-shrink: 0;
+    background-color: initial;
+
+    .touch & {
+      height: var(--form-size-touchHeight);
+      max-width: calc(var(--form-size-touchHeight) + 1rem);
+      padding: 0.6rem;
+    }
+
+    .anim-all & {
+      transition: fill var(--form-animation-transitionType)
+          var(--form-animation-transitionDuration),
+        height var(--form-animation-transitionType)
+          var(--form-animation-transitionDuration),
+        max-width var(--form-animation-transitionType)
+          var(--form-animation-transitionDuration);
+    }
+  }
+
+  > div {
+    color: var(--form-colors-text-normal);
+    min-width: calc(--form-size-height - $textPadding);
+    flex-grow: 1;
+    text-align: center;
+
+    .touch & {
+      min-width: calc(--form-size-touchHeight - $textPadding);
+    }
+
+    &:not(:empty) {
+      padding-inline: $textPadding;
+    }
+
+    .anim-some & {
+      transition: color var(--form-animation-transitionType)
+        var(--form-animation-transitionDuration);
+    }
+  }
+
+  @include common.form-colors;
+}

@@ -1,0 +1,151 @@
+@import "../stepperBase.scss";
+
+chocolatelibui-form-slider {
+  @include base;
+  @include number-base;
+  $textPadding: 0.2rem;
+  $thumbWidth: $unit_width + 0.4rem + $textPadding;
+  $touchThumbWidth: $touch_unit_width + 0.4rem + $textPadding;
+
+  > div {
+    -webkit-user-select: none;
+    user-select: none;
+    box-sizing: border-box;
+    height: $size_height;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    background-color: $color_background;
+    border-radius: $size_cornerRadius;
+    border: $border;
+    box-shadow: $shadow_in;
+    touch-action: none;
+
+    .touch & {
+      height: $size_touchHeight;
+    }
+
+    > div {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 100%;
+      width: calc(
+        100% - (($thumbWidth + ($size_height * 2)) - ($border_thickness * 4))
+      );
+      position: relative;
+      left: -$border_thickness * 2;
+      z-index: 1;
+
+      .touch & {
+        width: calc(
+          100% -
+            (
+              ($touchThumbWidth + ($size_touchHeight * 2)) -
+                ($border_thickness * 4)
+            )
+        );
+      }
+
+      > div {
+        box-sizing: border-box;
+        background-color: $color_background;
+        border-radius: $size_cornerRadius;
+        border: $border;
+        box-shadow: $shadow_out;
+        height: $size_height;
+        width: $thumbWidth;
+        top: -$border_thickness;
+        left: 50%;
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding-inline: 0.2rem;
+        outline: none;
+        cursor: grab;
+
+        &.active {
+          cursor: grabbing;
+        }
+
+        &:focus-visible {
+          box-shadow: $shadow_out_focus_out;
+          z-index: 2;
+        }
+
+        @media (pointer: fine) {
+          &:hover {
+            background-color: $color_background_hover;
+          }
+        }
+
+        .touch & {
+          height: $size_touchHeight;
+          width: $touchThumbWidth;
+        }
+
+        > span:first-child {
+          @include valueFont;
+          box-sizing: border-box;
+          line-height: $value_font_size;
+          text-align: center;
+          max-width: $thumbWidth - $textPadding * 2;
+          overflow: hidden;
+
+          .touch & {
+            line-height: $touch_value_font_size;
+            max-width: $touchThumbWidth;
+          }
+        }
+
+        > span:last-child {
+          @include unitContainer;
+          line-height: $unit_font_size;
+          text-align: center;
+
+          .touch & {
+            line-height: $touch_unit_font_size;
+          }
+        }
+      }
+    }
+
+    > svg {
+      @include svgStepperButton;
+      z-index: 1;
+
+      &:nth-child(2) {
+        left: -$border_thickness;
+      }
+
+      &:nth-child(4) {
+        position: absolute;
+        right: -$border_thickness;
+      }
+    }
+
+    > span {
+      position: absolute;
+      inset: 0;
+      padding-left: $size_height + 0.4rem;
+      padding-right: $size_height + 0.4rem;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.4rem;
+      display: flex;
+
+      .touch & {
+        padding-left: $size_touchHeight + 0.4rem;
+        padding-right: $size_touchHeight + 0.4rem;
+      }
+
+      > * {
+        @include limit-legend;
+        overflow: hidden;
+      }
+    }
+  }
+}

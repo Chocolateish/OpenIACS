@@ -4,12 +4,13 @@ import {
   context_menu_default,
   context_sub,
 } from "@libContextmenu";
-import { material_maps_remove_road_rounded } from "@libIcons";
+import { material_av_add_to_queue_rounded } from "@libIcons";
 import { Err, Ok, type Result } from "@libResult";
 import type { STATE_SYNC_ROS_WS } from "@libState";
-import st from "@libState";
+import { default as st, default as state } from "@libState";
 import "./index.scss";
 import { form } from "./lib/form";
+import { FormColors } from "./lib/form/base";
 
 interface CharacterData {
   uuid: string;
@@ -40,12 +41,23 @@ class Character {
 
 console.warn(Character.deserialize({ uuid: "1234", name: "Hero" }));
 
-document.body.appendChild(
-  form.button.from(false, "Click Me!").opts({
-    access: "w",
-    icon: material_maps_remove_road_rounded,
-  })
-);
+let bool = state.s.ros_ws.ok(false);
+
+let formCont = document.body.appendChild(document.createElement("div"));
+formCont.style.flexGrow = "1";
+
+formCont.appendChild(
+  form.button
+    .from({
+      label: "YOYOYOY",
+      text: "YOYOYOYO",
+      icon: material_av_add_to_queue_rounded,
+      color: FormColors.Yellow,
+    })
+    .opts({
+      access: "w",
+    })
+).value_by_state = bool;
 
 context_menu_default(
   context_menu([

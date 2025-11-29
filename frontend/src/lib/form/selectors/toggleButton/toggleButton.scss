@@ -1,0 +1,110 @@
+@import "../selectorBase.scss";
+
+chocolatelibui-form-togglebutton {
+  @include base;
+
+  > div {
+    overflow-x: auto;
+    -webkit-user-select: none;
+    user-select: none;
+    display: grid;
+    grid-template-rows: auto auto;
+    grid-auto-columns: 1fr;
+
+    .touch & {
+      font-size: $touch_font_size;
+    }
+
+    > div {
+      color: $unselectedTextColor;
+      fill: $unselectedTextColor;
+      display: flex;
+      justify-content: center;
+      text-align: center;
+      box-sizing: border-box;
+
+      &.selected {
+        color: $selectedTextColor;
+        fill: $selectedTextColor;
+      }
+
+      &:nth-child(odd) {
+        position: relative;
+        grid-row: 1;
+        align-items: center;
+        background-color: $color_background;
+        padding: $padding;
+        border-block: $border_thickness solid $color_border;
+        outline: none;
+        min-height: $size_height;
+
+        &.selected {
+          background-color: $color_background_hover;
+        }
+
+        .touch & {
+          min-height: $size_touchHeight - $border_thickness * 2;
+        }
+
+        &:focus-visible {
+          z-index: 1;
+
+          &::after {
+            box-shadow: $focus_out;
+          }
+        }
+
+        &::after {
+          content: "";
+          position: absolute;
+          box-shadow: $shadow_out;
+          inset: -$border_thickness;
+          z-index: -1;
+        }
+
+        @media (pointer: fine) {
+          &:hover {
+            background-color: $color_background_hover;
+          }
+        }
+
+        > svg {
+          height: $size_height - $padding * 2 - $border_thickness * 2;
+          width: auto;
+
+          .touch & {
+            height: $size_touchHeight - $padding * 2 - $border_thickness * 2;
+          }
+        }
+      }
+
+      &:nth-child(even) {
+        grid-row: 2;
+        padding: $padding;
+        padding-bottom: 0;
+
+        &:empty {
+          padding: 0rem;
+        }
+      }
+
+      &:first-child {
+        border-radius: $size_cornerRadius 0 0 $size_cornerRadius;
+        border-left: $border_thickness solid $color_border;
+
+        &::after {
+          border-radius: $size_cornerRadius 0 0 $size_cornerRadius;
+        }
+      }
+
+      &:nth-last-child(2) {
+        border-radius: 0 $size_cornerRadius $size_cornerRadius 0;
+        border-right: $border_thickness solid $color_border;
+
+        &::after {
+          border-radius: 0 $size_cornerRadius $size_cornerRadius 0;
+        }
+      }
+    }
+  }
+}

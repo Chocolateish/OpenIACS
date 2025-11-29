@@ -1,0 +1,175 @@
+.h {
+  display: none;
+}
+
+//Colors
+///Text
+$color_text: var(--form-colors-text-normal);
+$color_text_selected: var(--form-colors-text-selected);
+$color_text_unselected: var(--form-colors-text-unselected);
+//Text Black
+$color_text_black: var(--form-colors-textBlack-normal);
+$color_text_black_selected: var(--form-colors-textBlack-selected);
+$color_text_black_unselected: var(--form-colors-textBlack-unselected);
+//Icon
+$color_icon: var(--form-colors-icon-normal);
+$color_icon_selected: var(--form-colors-icon-selected);
+$color_icon_unselected: var(--form-colors-icon-unselected);
+///Background
+$color_background: var(--form-colors-background-normal);
+$color_background_hover: var(--form-colors-background-hover);
+$color_background_unselected: var(--form-colors-background-unselected);
+//Border
+$color_border: var(--form-colors-border-normal);
+$color_border_unselected: var(--form-colors-border-unselected);
+//Focus
+$color_focus: var(--form-colors-focus-normal);
+//Basic Colors
+$color_basic_black: var(--form-colors-basic-black);
+$color_basic_green: var(--form-colors-basic-green);
+$color_basic_red: var(--form-colors-basic-red);
+$color_basic_blue: var(--form-colors-basic-blue);
+$color_basic_yellow: var(--form-colors-basic-yellow);
+
+//Sizes
+$size_cornerRadius: var(--form-size-cornerRadius);
+$size_height: var(--form-size-height);
+$size_touchHeight: var(--form-size-touchHeight);
+
+//Animation
+$animation_transitionType: var(--form-animation-transitionType);
+$animation_transitionDuration: var(--form-animation-transitionDuration);
+
+$border_thickness: 0.0625rem;
+$border: $border_thickness solid $color_border;
+$min_width: 14rem;
+$min_width_touch: $min_width * 1.6;
+$scrollbar_width: 0.5rem;
+
+//Padding
+$padding: 0.2rem;
+
+//Font
+$font_size: 1rem;
+$touch_font_size: 1.6rem;
+
+//Mixins
+@mixin base {
+  display: flex;
+  flex-direction: column;
+  min-width: $min_width;
+  position: relative;
+
+  .touch & {
+    min-width: $min_width_touch;
+  }
+
+  > span {
+    @include label;
+  }
+}
+
+//Shadows
+$shadow_out: 0 0.125rem 0.1875rem 0 $color_border;
+$shadow_out_active: 0 0 0.1875rem 0 $color_border;
+$shadow_in: inset 0 0.125rem 0.1875rem 0 $color_border;
+$focus_out: 0 0 0 0.2rem $color_focus;
+$focus_in: inset 0 0 0 0.2rem $color_focus;
+$shadow_out_focus_out: $shadow_out, $focus_out;
+$shadow_out_active_focus_out: $shadow_out_active, $focus_out;
+$shadow_in_focus_out: $focus_out, $shadow_in;
+$shadow_out_focus_in: $focus_in, $shadow_out;
+$shadow_in_focus_in: $focus_in, $shadow_in;
+
+//Mixins
+@mixin label {
+  display: block;
+  padding: 0rem 0.1rem 0.1rem 0.4rem;
+  color: $color_text;
+
+  &:empty {
+    display: none;
+  }
+
+  .anim & {
+    transition: color $animation_transitionType $animation_transitionDuration;
+  }
+
+  .touch & {
+    font-size: 1.3rem;
+  }
+}
+
+$value_font_size: 1rem;
+$touch_value_font_size: $value_font_size * 1.4;
+$unit_font_size: 0.75rem;
+$touch_unit_font_size: $unit_font_size * 1.4;
+$value_unit_font_height: max($value_font_size, $unit_font_size) + 0.4rem;
+$touch_value_unit_font_height: max(
+    $touch_value_font_size,
+    $touch_unit_font_size
+  ) + 0.4rem;
+
+@mixin valueFont {
+  color: $color_text;
+  font-size: $value_font_size;
+  line-height: $value_unit_font_height;
+
+  .touch & {
+    font-size: $touch_value_font_size;
+    line-height: $touch_value_unit_font_height;
+  }
+}
+
+@mixin unitFont {
+  color: $color_text;
+  font-size: $unit_font_size;
+  line-height: $value_unit_font_height;
+
+  .touch & {
+    font-size: $touch_unit_font_size;
+    line-height: $touch_value_unit_font_height;
+  }
+}
+
+$unit_width: $unit_font_size * 5.6;
+$touch_unit_width: $touch_unit_font_size * 5.6;
+
+@mixin unitContainer {
+  @include unitFont;
+  display: block;
+  max-width: $unit_width;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  &:empty {
+    width: 0px !important;
+  }
+
+  .touch & {
+    max-width: $touch_unit_width;
+  }
+}
+
+@mixin form-colors {
+  &[color="black"] {
+    background-color: $color_basic_black;
+  }
+
+  &[color="green"] {
+    background-color: $color_basic_green;
+  }
+
+  &[color="red"] {
+    background-color: $color_basic_red;
+  }
+
+  &[color="blue"] {
+    background-color: $color_basic_blue;
+  }
+
+  &[color="yellow"] {
+    background-color: $color_basic_yellow;
+  }
+}
