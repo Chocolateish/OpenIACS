@@ -1,8 +1,8 @@
-import { createSVGElement } from "./shared";
+import { create_SVG_element } from "./shared";
 
 /**This creates a path element*/
 export function path(path: string): SVGPathElement {
-  let node = createSVGElement("path");
+  let node = create_SVG_element("path");
   node.setAttribute("d", path);
   return node;
 }
@@ -12,13 +12,13 @@ export function path(path: string): SVGPathElement {
  * @param startY start point on y axis
  * @param endX end point on x axis
  * @param endY end point on y axis*/
-export function pathLine(
+export function path_line(
   startX: number,
   startY: number,
   endX: number,
   endY: number
 ): SVGPathElement {
-  let line = createSVGElement("path");
+  let line = create_SVG_element("path");
   line.setAttribute("d", `M ${startX} ${startY} L ${endX} ${endY}`);
   return line;
 }

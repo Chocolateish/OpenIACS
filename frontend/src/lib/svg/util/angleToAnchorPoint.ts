@@ -2,7 +2,7 @@ import { SVGAnchorPoint } from "./anchorPoint";
 
 /**Converts an angle to an anchor point
  * @param angle angle in radians*/
-export let angleToAnchorPoint = (angle: number) => {
+export let angle_to_anchor_point = (angle: number) => {
   let sec =
     angle >= 0
       ? angle % 6.283185307179586476925286766559

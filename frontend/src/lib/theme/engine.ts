@@ -1,43 +1,43 @@
-import { documentHandler } from "@libDocument";
+import { DOCUMENT_HANDLER } from "@libDocument";
 import {
+  ANIMATION_LEVEL,
   AnimationLevels,
+  INPUT_MODE,
   InputModes,
+  SCALE,
+  SCROLLBAR_MODE,
   ScrollbarModes,
+  THEME,
   Themes,
-  animationLevel,
-  inputMode,
-  scale,
-  scrollBarMode,
-  theme,
 } from "./settings";
-import { bottomGroups } from "./shared";
+import { BOTTOM_GROUPS } from "./shared";
 
-export let themeEngine = new (class ThemeEngine {
+export let theme_engine = new (class ThemeEngine {
   constructor() {
-    documentHandler.events.on("added", (e) => {
-      this.applyAllToDoc(e.data);
+    DOCUMENT_HANDLER.events.on("added", (e) => {
+      this.apply_all_to_doc(e.data);
     });
-    documentHandler.for_documents((doc) => {
-      this.applyAllToDoc(doc);
+    DOCUMENT_HANDLER.for_documents((doc) => {
+      this.apply_all_to_doc(doc);
     });
   }
 
   /**This applies the current theme to a document*/
-  private applyAllToDoc(doc: Document) {
-    this.applyScrollbarToDoc(doc, scrollBarMode.ok());
-    this.applyThemeToDoc(doc, theme.ok());
-    this.applyInputToDoc(doc, inputMode.ok());
-    this.applyScaleToDoc(doc, scale.ok() / 100);
-    this.applyAnimationToDoc(doc, animationLevel.ok());
+  private apply_all_to_doc(doc: Document) {
+    this.apply_scrollbar_to_doc(doc, SCROLLBAR_MODE.ok());
+    this.apply_theme_to_doc(doc, THEME.ok());
+    this.apply_input_to_doc(doc, INPUT_MODE.ok());
+    this.apply_scale_to_doc(doc, SCALE.ok() / 100);
+    this.apply_animation_to_doc(doc, ANIMATION_LEVEL.ok());
   }
 
   /**This applies the current theme to a document*/
-  applyScrollbar(scroll: ScrollbarModes) {
-    documentHandler.for_documents((doc) => {
-      this.applyScrollbarToDoc(doc, scroll);
+  apply_scrollbar(scroll: ScrollbarModes) {
+    DOCUMENT_HANDLER.for_documents((doc) => {
+      this.apply_scrollbar_to_doc(doc, scroll);
     });
   }
-  private applyScrollbarToDoc(doc: Document, scroll: ScrollbarModes) {
+  private apply_scrollbar_to_doc(doc: Document, scroll: ScrollbarModes) {
     doc.documentElement.style.setProperty(
       "--scrollbar",
       {
@@ -49,12 +49,12 @@ export let themeEngine = new (class ThemeEngine {
   }
 
   /**This applies the current theme to a document*/
-  applyAnimation(anim: AnimationLevels) {
-    documentHandler.for_documents((doc) => {
-      this.applyAnimationToDoc(doc, anim);
+  apply_animation(anim: AnimationLevels) {
+    DOCUMENT_HANDLER.for_documents((doc) => {
+      this.apply_animation_to_doc(doc, anim);
     });
   }
-  private applyAnimationToDoc(doc: Document, anim: AnimationLevels) {
+  private apply_animation_to_doc(doc: Document, anim: AnimationLevels) {
     doc.documentElement.classList.remove("anim-all", "anim-most", "anim-some");
     switch (anim) {
       //@ts-ignore
@@ -70,33 +70,33 @@ export let themeEngine = new (class ThemeEngine {
   }
 
   /**This applies the current theme to a document*/
-  applyTheme(theme: Themes) {
-    documentHandler.for_documents((doc) => {
-      this.applyThemeToDoc(doc, theme);
+  apply_theme(theme: Themes) {
+    DOCUMENT_HANDLER.for_documents((doc) => {
+      this.apply_theme_to_doc(doc, theme);
     });
   }
-  private applyThemeToDoc(doc: Document, theme: Themes) {
-    for (const key in bottomGroups)
-      bottomGroups[key].applyThemes(doc.documentElement.style, theme);
+  private apply_theme_to_doc(doc: Document, theme: Themes) {
+    for (const key in BOTTOM_GROUPS)
+      BOTTOM_GROUPS[key].apply_themes(doc.documentElement.style, theme);
   }
 
   /**This applies the current scale to a document*/
-  applyScale(scale: number) {
-    documentHandler.for_documents((doc) => {
-      this.applyScaleToDoc(doc, scale);
+  apply_scale(scale: number) {
+    DOCUMENT_HANDLER.for_documents((doc) => {
+      this.apply_scale_to_doc(doc, scale);
     });
   }
-  private applyScaleToDoc(doc: Document, scale: number) {
+  private apply_scale_to_doc(doc: Document, scale: number) {
     doc.documentElement.style.fontSize = scale * 16 + "px";
   }
 
   /**Auto Input Mode */
-  applyInput(mode: InputModes) {
-    documentHandler.for_documents((doc) => {
-      this.applyInputToDoc(doc, mode);
+  apply_input(mode: InputModes) {
+    DOCUMENT_HANDLER.for_documents((doc) => {
+      this.apply_input_to_doc(doc, mode);
     });
   }
-  private applyInputToDoc(doc: Document, mode: InputModes) {
+  private apply_input_to_doc(doc: Document, mode: InputModes) {
     let style = doc.documentElement.style;
     style.setProperty("--mouse", "0");
     style.setProperty("--pen", "0");
@@ -118,38 +118,38 @@ export let themeEngine = new (class ThemeEngine {
     }
   }
 
-  applySingleProperty(key: string, variable: { [s: string]: string }) {
-    let themeBuff = theme.ok();
-    documentHandler.for_documents((doc) => {
+  apply_single_property(key: string, variable: { [s: string]: string }) {
+    let themeBuff = THEME.ok();
+    DOCUMENT_HANDLER.for_documents((doc) => {
       doc.documentElement.style.setProperty(key, variable[themeBuff]);
     });
   }
 })();
 
-theme.sub((val) => {
-  themeEngine.applyTheme(val.value);
+THEME.sub((val) => {
+  theme_engine.apply_theme(val.value);
 });
-let scaleValue = 16;
-let scaleRem = 16;
-scale.sub((val) => {
-  scaleValue = val.value / 100;
-  scaleRem = scaleValue * 16;
-  themeEngine.applyScale(scaleValue);
+let scale_value = 16;
+let scale_rem = 16;
+SCALE.sub((val) => {
+  scale_value = val.value / 100;
+  scale_rem = scale_value * 16;
+  theme_engine.apply_scale(scale_value);
 });
 /**Converts the given rems to pixels */
-export const remToPx = (rem: number) => {
-  return rem * scaleRem;
-};
+export function rem_to_px(rem: number) {
+  return rem * scale_rem;
+}
 /**Converts the given pixels to rems */
-export const pxToRem = (px: number) => {
-  return px / scaleRem;
-};
-scrollBarMode.sub((val) => {
-  themeEngine.applyScrollbar(val.value);
+export function px_to_rem(px: number) {
+  return px / scale_rem;
+}
+SCROLLBAR_MODE.sub((val) => {
+  theme_engine.apply_scrollbar(val.value);
 });
-inputMode.sub((val) => {
-  themeEngine.applyInput(val.value);
+INPUT_MODE.sub((val) => {
+  theme_engine.apply_input(val.value);
 });
-animationLevel.sub((val) => {
-  themeEngine.applyAnimation(val.value);
+ANIMATION_LEVEL.sub((val) => {
+  theme_engine.apply_animation(val.value);
 });

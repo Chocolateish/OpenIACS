@@ -3,27 +3,27 @@ import type { Base } from "./base";
 export type BaseObserverOptions = {
   /**Deffers updating visible state for so many milliseconds
    * this will also batch updates if they are constantly coming*/
-  defferedVisible?: number;
+  deffered_visible?: number;
   /**Deffers updating visible state for so many milliseconds
    * this will also batch updates if they are constantly coming*/
-  defferedHidden?: number;
+  deffered_hidden?: number;
 } & IntersectionObserverInit;
 
 let V2 = "delay" in new IntersectionObserver(() => {});
 export class BaseObserver extends IntersectionObserver {
-  #_defferedVisibleTime: number;
-  #_defferedHiddenTime: number;
-  #_defferedVisibleTimeout: number | null = null;
-  #_defferedHiddenTimeout: number | null = null;
-  #_defferedVisibleQueue: Base[] = [];
-  #_defferedHiddenQueue: Base[] = [];
+  #deffered_visible_time: number;
+  #deffered_visible_timeout: number | null = null;
+  #deffered_visible_queue: Base[] = [];
+  #deffered_hidden_time: number;
+  #deffered_hidden_timeout: number | null = null;
+  #deffered_hidden_queue: Base[] = [];
 
   constructor(options: BaseObserverOptions) {
     super(
       (e) => {
         if (
-          this.#_defferedHiddenTime === 0 &&
-          this.#_defferedVisibleTime === 0
+          this.#deffered_hidden_time === 0 &&
+          this.#deffered_visible_time === 0
         ) {
           for (let i = 0; i < e.length; i++) {
             //@ts-expect-error
@@ -33,48 +33,50 @@ export class BaseObserver extends IntersectionObserver {
         }
         for (let i = 0; i < e.length; i++) {
           if (e[i].isIntersecting) {
-            this.#_defferedVisibleQueue.push(e[i].target as Base);
-            let index = this.#_defferedHiddenQueue.indexOf(e[i].target as Base);
-            if (index !== -1) this.#_defferedHiddenQueue.splice(index, 1);
-          } else {
-            this.#_defferedHiddenQueue.push(e[i].target as Base);
-            let index = this.#_defferedVisibleQueue.indexOf(
+            this.#deffered_visible_queue.push(e[i].target as Base);
+            let index = this.#deffered_hidden_queue.indexOf(
               e[i].target as Base
             );
-            if (index !== -1) this.#_defferedVisibleQueue.splice(index, 1);
+            if (index !== -1) this.#deffered_hidden_queue.splice(index, 1);
+          } else {
+            this.#deffered_hidden_queue.push(e[i].target as Base);
+            let index = this.#deffered_visible_queue.indexOf(
+              e[i].target as Base
+            );
+            if (index !== -1) this.#deffered_visible_queue.splice(index, 1);
           }
         }
-        if (!this.#_defferedVisibleTimeout) {
-          this.#_defferedVisibleTimeout = window.setTimeout(() => {
-            for (let i = 0; i < this.#_defferedVisibleQueue.length; i++) {
+        if (!this.#deffered_visible_timeout) {
+          this.#deffered_visible_timeout = window.setTimeout(() => {
+            for (let i = 0; i < this.#deffered_visible_queue.length; i++) {
               //@ts-expect-error
-              this.#_defferedVisibleQueue[i]._set_visible(true);
+              this.#deffered_visible_queue[i]._set_visible(true);
             }
-            this.#_defferedVisibleQueue = [];
-            this.#_defferedVisibleTimeout = null;
-          }, this.#_defferedVisibleTime);
+            this.#deffered_visible_queue = [];
+            this.#deffered_visible_timeout = null;
+          }, this.#deffered_visible_time);
         }
-        if (!this.#_defferedHiddenTimeout) {
-          this.#_defferedHiddenTimeout = window.setTimeout(() => {
-            for (let i = 0; i < this.#_defferedHiddenQueue.length; i++) {
+        if (!this.#deffered_hidden_timeout) {
+          this.#deffered_hidden_timeout = window.setTimeout(() => {
+            for (let i = 0; i < this.#deffered_hidden_queue.length; i++) {
               //@ts-expect-error
-              this.#_defferedHiddenQueue[i]._set_visible(false);
+              this.#deffered_hidden_queue[i]._set_visible(false);
             }
-            this.#_defferedHiddenQueue = [];
-            this.#_defferedHiddenTimeout = null;
-          }, this.#_defferedHiddenTime);
+            this.#deffered_hidden_queue = [];
+            this.#deffered_hidden_timeout = null;
+          }, this.#deffered_hidden_time);
         }
       },
-      V2 && options.defferedVisible === options.defferedHidden
-        ? ({ delay: options.defferedVisible, ...options } as any)
+      V2 && options.deffered_visible === options.deffered_hidden
+        ? ({ delay: options.deffered_visible, ...options } as any)
         : options
     );
-    if (V2 && options.defferedVisible === options.defferedHidden) {
-      this.#_defferedVisibleTime = 0;
-      this.#_defferedHiddenTime = 0;
+    if (V2 && options.deffered_visible === options.deffered_hidden) {
+      this.#deffered_visible_time = 0;
+      this.#deffered_hidden_time = 0;
     } else {
-      this.#_defferedVisibleTime = options.defferedVisible ?? 250;
-      this.#_defferedHiddenTime = options.defferedHidden ?? 250;
+      this.#deffered_visible_time = options.deffered_visible ?? 250;
+      this.#deffered_hidden_time = options.deffered_hidden ?? 250;
     }
   }
 }

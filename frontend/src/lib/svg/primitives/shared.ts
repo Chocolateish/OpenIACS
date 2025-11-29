@@ -12,7 +12,7 @@ type SVGElements = {
   foreignObject: SVGForeignObjectElement;
 };
 
-export function createSVGElement<K extends keyof SVGElements>(
+export function create_SVG_element<K extends keyof SVGElements>(
   name: K
 ): SVGElements[K] {
   return document.createElementNS(nameSpace, name) as SVGElements[K];

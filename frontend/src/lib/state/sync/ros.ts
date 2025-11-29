@@ -21,7 +21,7 @@ interface OWNER<RT, WT, REL extends RELATED> {
   set(value: ResultOk<RT>): void;
   set_ok(value: RT): void;
   get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_ROS<RT, REL, WT>;
+  get read_only(): STATE_ROS<RT, REL, WT>;
 }
 
 export type STATE_SYNC_ROS<RT, REL extends RELATED = {}, WT = any> = STATE_ROS<
@@ -55,7 +55,7 @@ class ROS<RT, REL extends RELATED = {}, WT = any>
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_ROS<RT, REL, WT> {
+  get read_only(): STATE_ROS<RT, REL, WT> {
     return this as STATE_ROS<RT, REL, WT>;
   }
 
@@ -139,8 +139,8 @@ interface OWNER_WS<RT, WT, REL extends RELATED> {
   set(value: ResultOk<RT>): void;
   set_ok(value: RT): void;
   get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_ROS<RT, REL, WT>;
-  get readWrite(): STATE_ROS_WS<RT, WT, REL>;
+  get read_only(): STATE_ROS<RT, REL, WT>;
+  get read_write(): STATE_ROS_WS<RT, WT, REL>;
 }
 
 export type STATE_SYNC_ROS_WS<
@@ -188,10 +188,10 @@ class ROS_WS<RT, WT = RT, REL extends RELATED = {}>
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_ROS<RT, REL, WT> {
+  get read_only(): STATE_ROS<RT, REL, WT> {
     return this as STATE_ROS<RT, REL, WT>;
   }
-  get readWrite(): STATE_ROS_WS<RT, WT, REL> {
+  get read_write(): STATE_ROS_WS<RT, WT, REL> {
     return this as STATE_ROS_WS<RT, WT, REL>;
   }
 

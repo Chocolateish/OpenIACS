@@ -18,15 +18,15 @@ import type {
 interface OWNER<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT> {
   /**The `setStates` method is used to update the states used by the `StateDerived` class.
    * @param states - The new states. This function should accept an array of states and return the derived state.*/
-  setStates(...states: STATE_COLLECTED_STATES<IN>): void;
+  set_states(...states: STATE_COLLECTED_STATES<IN>): void;
   /**The `setGetter` method is used to update the getter function used by the `StateDerived` class.
    * This function is used to compute the derived state based on the current states.
    * @param getter - The new getter function. This function should accept an array of states and return the derived state.*/
-  setGetter(
+  set_getter(
     getter: (values: STATE_COLLECTED_TRANS_VAL<IN>) => ResultOk<RT>
   ): void;
   get state(): STATE<RT, WT, any>;
-  get readOnly(): STATE_ROS<RT, any, WT>;
+  get read_only(): STATE_ROS<RT, any, WT>;
 }
 export type STATE_COLLECTED_ROS<
   RT,
@@ -97,14 +97,14 @@ export class ROS<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
   }
 
   //#Owner
-  setStates(...states: STATE_COLLECTED_STATES<IN>) {
+  set_states(...states: STATE_COLLECTED_STATES<IN>) {
     if (this.in_use()) {
       this.on_unsubscribe(true);
       this.#states = [...states] as unknown as IN;
       this.on_subscribe(true);
     } else this.#states = [...states] as unknown as IN;
   }
-  setGetter(getter: (values: STATE_COLLECTED_TRANS_VAL<IN>) => ResultOk<RT>) {
+  set_getter(getter: (values: STATE_COLLECTED_TRANS_VAL<IN>) => ResultOk<RT>) {
     if (this.in_use()) {
       this.on_unsubscribe(true);
       this.getter = getter;
@@ -114,7 +114,7 @@ export class ROS<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
   get state(): STATE<RT, WT, any> {
     return this as STATE<RT, WT, any>;
   }
-  get readOnly(): STATE_ROS<RT, any, WT> {
+  get read_only(): STATE_ROS<RT, any, WT> {
     return this as STATE_ROS<RT, any, WT>;
   }
 

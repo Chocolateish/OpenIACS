@@ -140,7 +140,7 @@ export abstract class Base extends HTMLElement {
     options: BaseObserverOptions = {
       root: this,
       threshold: 0,
-      defferedHidden: 1000,
+      deffered_hidden: 1000,
     }
   ): BaseObserver {
     return (this.#observer ??= new BaseObserver(options));
@@ -359,13 +359,13 @@ export abstract class Base extends HTMLElement {
   set access(access: AccessTypes) {
     this.#access = access;
     switch (access) {
-      case AccessTypes.WRITE:
+      case AccessTypes.Write:
         this.inert = false;
         break;
-      case AccessTypes.READ:
+      case AccessTypes.Read:
         this.inert = true;
         break;
-      case AccessTypes.NONE:
+      case AccessTypes.None:
         this.setAttribute("inert", "none");
         break;
     }
@@ -376,6 +376,6 @@ export abstract class Base extends HTMLElement {
 
   /**Returns the current access of the element */
   get access(): AccessTypes {
-    return this.#access ?? AccessTypes.WRITE;
+    return this.#access ?? AccessTypes.Write;
   }
 }

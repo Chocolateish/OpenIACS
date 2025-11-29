@@ -157,8 +157,8 @@ export class Button extends FormValue<boolean> {
   }
 
   protected on_access(a: AccessTypes) {
-    if (a === AccessTypes.READ) return this.setAttribute("tabindex", "-1");
-    else if (a === AccessTypes.WRITE) return this.setAttribute("tabindex", "0");
+    if (a === AccessTypes.Read) return this.setAttribute("tabindex", "-1");
+    else if (a === AccessTypes.Write) return this.setAttribute("tabindex", "0");
   }
 
   protected new_value(val: boolean) {

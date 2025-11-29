@@ -1,3 +1,3 @@
-export { pxToRem, remToPx } from "./engine";
+export { px_to_rem, rem_to_px } from "./engine";
 export * from "./settings";
-export { themeInitVariableRoot, ThemeVariableGroup } from "./variables";
+export { theme_init_variable_root, ThemeVariableGroup } from "./variables";

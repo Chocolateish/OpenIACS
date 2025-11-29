@@ -1,4 +1,4 @@
-import { Base } from "@libBase";
+import { Base, define_element } from "@libBase";
 
 declare global {
   interface Document {
@@ -7,7 +7,7 @@ declare global {
 }
 
 export class Container extends Base {
-  #activePanel: HTMLOrSVGElement | null | undefined;
+  #active_panel: HTMLOrSVGElement | null | undefined;
 
   /**Returns the name used to define the element */
   static element_name() {
@@ -35,30 +35,6 @@ export class Container extends Base {
     this.onpointerout = preventer;
     this.onpointerout = preventer;
     this.onclick = preventer;
-    this.style.zIndex = containerZIndex;
-  }
-
-  /**Attaches a menu to the container */
-  attachMenu(menu: ContextMenu) {
-    this.#activeElementBuffer = this.ownerDocument
-      .activeElement as HTMLOrSVGElement | null;
-    this.replaceChildren(menu);
-    return menu;
-  }
-
-  /**Closes open context menu */
-  closeUp() {
-    if (this.#activeElementBuffer) {
-      this.#activeElementBuffer.focus();
-      if (
-        (this.ownerDocument.activeElement as any) !== this.#activeElementBuffer
-      ) {
-        this.focus();
-      }
-      this.#activeElementBuffer = undefined;
-    } else {
-      this.focus();
-    }
   }
 }
-defineElement(Container);
+define_element(Container);

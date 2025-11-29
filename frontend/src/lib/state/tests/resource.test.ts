@@ -27,7 +27,7 @@ describe("Resource states", function () {
     let maker: TEST_STATE_ALL = () => {
       let val: Result<number, string> = Ok(1);
       let state = st.r.rea.from<number>(
-        (state) => state.updateResource(val),
+        (state) => state.update_resource(val),
         () => {},
         () => {},
         25,

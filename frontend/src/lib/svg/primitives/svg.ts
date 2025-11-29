@@ -1,4 +1,4 @@
-import { createSVGElement } from "./shared";
+import { create_SVG_element } from "./shared";
 
 /** This returns an empty svg element
  * @param  width width of svg
@@ -9,7 +9,7 @@ export function svg(
   height: number,
   viewbox: string = `0 0 ${width} ${height}`
 ): SVGSVGElement {
-  let svg = createSVGElement("svg");
+  let svg = create_SVG_element("svg");
   svg.setAttribute("width", String(width));
   svg.setAttribute("height", String(height));
   svg.setAttribute("viewBox", String(viewbox));

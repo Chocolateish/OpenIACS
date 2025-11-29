@@ -137,41 +137,46 @@ const nums = {
 //##################################################################################################################################################
 
 export interface STATE_STRING_RELATED extends STATE_RELATED {
-  maxLength?: number;
-  maxLengthBytes?: number;
+  max_length?: number;
+  max_length_bytes?: number;
 }
 
 export class STATE_STRING_HELPER
   implements STATE_STRING_RELATED, STATE_HELPER<string, STATE_STRING_RELATED>
 {
-  maxLength: number | undefined;
-  maxLengthBytes: number | undefined;
-  constructor(maxLength?: number, maxLengthBytes?: number) {
-    if (maxLength !== undefined) this.maxLength = maxLength;
-    if (maxLengthBytes !== undefined) this.maxLengthBytes = maxLengthBytes;
+  max_length: number | undefined;
+  max_length_bytes: number | undefined;
+  constructor(max_length?: number, max_length_bytes?: number) {
+    if (max_length !== undefined) this.max_length = max_length;
+    if (max_length_bytes !== undefined)
+      this.max_length_bytes = max_length_bytes;
   }
   limit(value: string): Result<string, string> {
-    if (this.maxLength && value.length > this.maxLength)
-      value = value.slice(0, this.maxLength);
-    if (this.maxLengthBytes) {
+    if (this.max_length && value.length > this.max_length)
+      value = value.slice(0, this.max_length);
+    if (this.max_length_bytes) {
       value = new TextDecoder().decode(
-        new TextEncoder().encode(value).slice(0, this.maxLengthBytes)
+        new TextEncoder().encode(value).slice(0, this.max_length_bytes)
       );
       if (value.at(-1)?.charCodeAt(0) === 65533) value = value.slice(0, -1);
     }
     return Ok(value);
   }
   check(value: string): Result<string, string> {
-    if ("maxLength" in this && value.length > this.maxLength!)
+    if ("maxLength" in this && value.length > this.max_length!)
       return Err(
-        "the text is longer than the limit of " + this.maxLength + " characters"
+        "the text is longer than the limit of " +
+          this.max_length +
+          " characters"
       );
     if (
       "maxLengthBytes" in this &&
-      new TextEncoder().encode(value).length > this.maxLengthBytes!
+      new TextEncoder().encode(value).length > this.max_length_bytes!
     )
       return Err(
-        "the text is longer than the limit of " + this.maxLengthBytes + " bytes"
+        "the text is longer than the limit of " +
+          this.max_length_bytes +
+          " bytes"
       );
     return Ok(value);
   }
@@ -182,10 +187,10 @@ export class STATE_STRING_HELPER
 
 const strings = {
   /**String limiter struct
-   * @param maxLength max length for string
-   * @param maxLengthBytes max byte length for string*/
-  helper(maxLength?: number, maxLengthBytes?: number) {
-    return new STATE_STRING_HELPER(maxLength, maxLengthBytes);
+   * @param max_length max length for string
+   * @param max_length_bytes max byte length for string*/
+  helper(max_length?: number, max_length_bytes?: number) {
+    return new STATE_STRING_HELPER(max_length, max_length_bytes);
   },
 };
 
@@ -311,6 +316,8 @@ function compare_sync(state1: STATE_RES<any>, state2: STATE_RES<any>): boolean {
   return res1.value !== res2.value;
 }
 
+//##################################################################################################################################################
+//##################################################################################################################################################
 const is = {
   rea(s: any): s is STATE_REA<any> {
     return s instanceof STATE_BASE;

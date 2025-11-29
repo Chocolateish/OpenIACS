@@ -31,10 +31,10 @@ import {
  * @template RT - The type of the state’s value when read.
  * @template REL - The type of related states, defaults to an empty object.*/
 export interface STATE_RESOURCE_REA_OWNER<RT, WT, REL extends RELATED> {
-  updateResource(value: Result<RT, string>): void;
+  update_resource(value: Result<RT, string>): void;
   get buffer(): Result<RT, string> | undefined;
   get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_REA<RT, REL, WT>;
+  get read_only(): STATE_REA<RT, REL, WT>;
 }
 
 export abstract class STATE_RESOURCE_REA<RT, REL extends RELATED = {}, WT = any>
@@ -44,8 +44,8 @@ export abstract class STATE_RESOURCE_REA<RT, REL extends RELATED = {}, WT = any>
   #valid: number = 0;
   #fetching: boolean = false;
   #buffer?: Result<RT, string>;
-  #retentionTimout: number = 0;
-  #debounceTimout: number = 0;
+  #retention_timout: number = 0;
+  #debounce_timout: number = 0;
 
   /**Debounce delaying one time value retrival*/
   abstract get debounce(): number;
@@ -58,53 +58,53 @@ export abstract class STATE_RESOURCE_REA<RT, REL extends RELATED = {}, WT = any>
 
   protected on_subscribe(first: boolean): void {
     if (!first || this.in_use()) return;
-    if (this.#retentionTimout) {
-      clearTimeout(this.#retentionTimout);
-      this.#retentionTimout = 0;
+    if (this.#retention_timout) {
+      clearTimeout(this.#retention_timout);
+      this.#retention_timout = 0;
     } else {
       this.#fetching = true;
       if (this.debounce > 0)
-        this.#debounceTimout = setTimeout(() => {
-          this.setupConnection(this);
-          this.#debounceTimout = 0;
+        this.#debounce_timout = setTimeout(() => {
+          this.setup_connection(this);
+          this.#debounce_timout = 0;
         }, this.debounce) as any;
-      else this.setupConnection(this);
+      else this.setup_connection(this);
     }
   }
 
   protected on_unsubscribe(last: boolean): void {
     if (!last) return;
-    if (this.#debounceTimout) {
-      clearTimeout(this.#debounceTimout);
-      this.#debounceTimout = 0;
+    if (this.#debounce_timout) {
+      clearTimeout(this.#debounce_timout);
+      this.#debounce_timout = 0;
     } else {
       if (this.retention > 0) {
-        this.#retentionTimout = setTimeout(() => {
-          this.teardownConnection(this);
-          this.#retentionTimout = 0;
+        this.#retention_timout = setTimeout(() => {
+          this.teardown_connection(this);
+          this.#retention_timout = 0;
         }, this.retention) as any;
       } else {
-        this.teardownConnection(this);
+        this.teardown_connection(this);
       }
     }
   }
 
   /**Called if the state is awaited, returns the value once*/
-  protected abstract singleGet(
+  protected abstract single_get(
     state: STATE_RESOURCE_REA_OWNER<RT, WT, REL>
   ): void;
 
   /**Called when state is subscribed to to setup connection to remote resource*/
-  protected abstract setupConnection(
+  protected abstract setup_connection(
     state: STATE_RESOURCE_REA_OWNER<RT, WT, REL>
   ): void;
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
-  protected abstract teardownConnection(
+  protected abstract teardown_connection(
     state: STATE_RESOURCE_REA_OWNER<RT, WT, REL>
   ): void;
 
-  updateResource(value: Result<RT, string>) {
+  update_resource(value: Result<RT, string>) {
     this.#valid = Date.now() + this.timeout;
     this.ful_R_prom(value);
     this.#fetching = false;
@@ -120,7 +120,7 @@ export abstract class STATE_RESOURCE_REA<RT, REL extends RELATED = {}, WT = any>
   get state(): STATE<RT, WT, any> {
     return this as STATE<RT, WT, any>;
   }
-  get readOnly(): STATE_REA<RT, any, WT> {
+  get read_only(): STATE_REA<RT, any, WT> {
     return this as STATE_REA<RT, any, WT>;
   }
 
@@ -143,7 +143,7 @@ export abstract class STATE_RESOURCE_REA<RT, REL extends RELATED = {}, WT = any>
         await new Promise((a) => {
           setTimeout(a, this.debounce);
         });
-      this.singleGet(this);
+      this.single_get(this);
       return this.append_R_prom(func);
     }
   }
@@ -185,9 +185,9 @@ export class FUNC_REA<
     helper?: STATE_HELPER<WT, REL>
   ) {
     super();
-    this.singleGet = once;
-    this.setupConnection = setup;
-    this.teardownConnection = teardown;
+    this.single_get = once;
+    this.setup_connection = setup;
+    this.teardown_connection = teardown;
     this.debounce = debounce;
     this.timeout = timeout;
     this.retention = retention;
@@ -200,13 +200,13 @@ export class FUNC_REA<
   #helper?: STATE_HELPER<WT, REL>;
 
   /**Called if the state is awaited, returns the value once*/
-  protected singleGet(_state: OWNER<RT, WT, REL>): void {}
+  protected single_get(_state: OWNER<RT, WT, REL>): void {}
 
   /**Called when state is subscribed to to setup connection to remote resource*/
-  protected setupConnection(_state: OWNER<RT, WT, REL>): void {}
+  protected setup_connection(_state: OWNER<RT, WT, REL>): void {}
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
-  protected teardownConnection(_state: OWNER<RT, WT, REL>): void {}
+  protected teardown_connection(_state: OWNER<RT, WT, REL>): void {}
 
   related(): Option<REL> {
     return this.#helper?.related ? this.#helper.related() : None();
@@ -271,11 +271,11 @@ const rea = {
  * @template WT - The type which can be written to the state.
  * @template REL - The type of related states, defaults to an empty object.*/
 export interface STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL extends RELATED> {
-  updateResource(value: Result<RT, string>): void;
+  update_resource(value: Result<RT, string>): void;
   get buffer(): Result<RT, string> | undefined;
   get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_REA<RT, REL, WT>;
-  get readWrite(): STATE_REA_WA<RT, WT, REL>;
+  get read_only(): STATE_REA<RT, REL, WT>;
+  get read_write(): STATE_REA_WA<RT, WT, REL>;
 }
 
 export abstract class STATE_RESOURCE_REA_WA<
@@ -289,11 +289,11 @@ export abstract class STATE_RESOURCE_REA_WA<
   #valid: number = 0;
   #fetching: boolean = false;
   #buffer?: Result<RT, string>;
-  #retentionTimout: number = 0;
-  #debounceTimout: number = 0;
-  #writeBuffer?: WT;
-  #writeDebounceTimout: number = 0;
-  #writePromises: ((val: Result<void, string>) => void)[] = [];
+  #retention_timout: number = 0;
+  #debounce_timout: number = 0;
+  #write_buffer?: WT;
+  #write_debounce_timout: number = 0;
+  #write_promises: ((val: Result<void, string>) => void)[] = [];
 
   /**Debounce delaying one time value retrival*/
   abstract get debounce(): number;
@@ -305,63 +305,63 @@ export abstract class STATE_RESOURCE_REA_WA<
   abstract get retention(): number;
 
   /**How long to debounce write calls, before the last write call is used*/
-  abstract get writebounce(): number;
+  abstract get write_debounce(): number;
 
   protected on_subscribe(first: boolean) {
     if (!first || this.in_use()) return;
-    if (this.#retentionTimout) {
-      clearTimeout(this.#retentionTimout);
-      this.#retentionTimout = 0;
+    if (this.#retention_timout) {
+      clearTimeout(this.#retention_timout);
+      this.#retention_timout = 0;
     } else {
       this.#fetching = true;
       if (this.debounce > 0)
-        this.#debounceTimout = setTimeout(() => {
-          this.setupConnection(this);
-          this.#debounceTimout = 0;
+        this.#debounce_timout = setTimeout(() => {
+          this.setup_connection(this);
+          this.#debounce_timout = 0;
         }, this.debounce) as any;
-      else this.setupConnection(this);
+      else this.setup_connection(this);
     }
   }
 
   protected on_unsubscribe(last: boolean) {
     if (!last) return;
-    if (this.#debounceTimout) {
-      clearTimeout(this.#debounceTimout);
-      this.#debounceTimout = 0;
+    if (this.#debounce_timout) {
+      clearTimeout(this.#debounce_timout);
+      this.#debounce_timout = 0;
     } else {
       if (this.retention > 0) {
-        this.#retentionTimout = setTimeout(() => {
-          this.teardownConnection(this);
-          this.#retentionTimout = 0;
+        this.#retention_timout = setTimeout(() => {
+          this.teardown_connection(this);
+          this.#retention_timout = 0;
         }, this.retention) as any;
       } else {
-        this.teardownConnection(this);
+        this.teardown_connection(this);
       }
     }
   }
 
   /**Called if the state is awaited, returns the value once*/
-  protected abstract singleGet(
+  protected abstract single_get(
     state: STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL>
   ): void;
 
   /**Called when state is subscribed to to setup connection to remote resource*/
-  protected abstract setupConnection(
+  protected abstract setup_connection(
     state: STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL>
   ): void;
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
-  protected abstract teardownConnection(
+  protected abstract teardown_connection(
     state: STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL>
   ): void;
 
   /**Called after write debounce finished with the last written value*/
-  protected abstract writeAction(
+  protected abstract write_action(
     value: WT,
     state: STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL>
   ): Promise<Result<void, string>>;
 
-  updateResource(value: Result<RT, string>) {
+  update_resource(value: Result<RT, string>) {
     this.#valid = Date.now() + this.timeout;
     this.ful_R_prom(value);
     this.#fetching = false;
@@ -375,10 +375,10 @@ export abstract class STATE_RESOURCE_REA_WA<
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_REA<RT, REL, WT> {
+  get read_only(): STATE_REA<RT, REL, WT> {
     return this as STATE_REA<RT, REL, WT>;
   }
-  get readWrite(): STATE_REA_WA<RT, WT, REL> {
+  get read_write(): STATE_REA_WA<RT, WT, REL> {
     return this as STATE_REA_WA<RT, WT, REL>;
   }
 
@@ -401,7 +401,7 @@ export abstract class STATE_RESOURCE_REA_WA<
         await new Promise((a) => {
           setTimeout(a, this.debounce);
         });
-      this.singleGet(this);
+      this.single_get(this);
       return this.append_R_prom(func);
     }
   }
@@ -414,19 +414,19 @@ export abstract class STATE_RESOURCE_REA_WA<
     return false;
   }
   async write(value: WT): Promise<Result<void, string>> {
-    this.#writeBuffer = value;
-    if (this.writebounce === 0) return this.writeAction(value, this);
-    else if (this.#writeDebounceTimout === 0)
-      this.#writeDebounceTimout = window.setTimeout(async () => {
-        this.#writeDebounceTimout = 0;
-        this.#writeBuffer = undefined;
-        let promises = this.#writePromises;
-        this.#writePromises = [];
-        let res = await this.writeAction(this.#writeBuffer!, this);
+    this.#write_buffer = value;
+    if (this.write_debounce === 0) return this.write_action(value, this);
+    else if (this.#write_debounce_timout === 0)
+      this.#write_debounce_timout = window.setTimeout(async () => {
+        this.#write_debounce_timout = 0;
+        this.#write_buffer = undefined;
+        let promises = this.#write_promises;
+        this.#write_promises = [];
+        let res = await this.write_action(this.#write_buffer!, this);
         for (let i = 0; i < promises.length; i++) promises[i](res);
-      }, this.writebounce);
+      }, this.write_debounce);
     return new Promise<Result<void, string>>((a) => {
-      this.#writePromises.push(a);
+      this.#write_promises.push(a);
     });
   }
 
@@ -442,7 +442,7 @@ export type STATE_RESOURCE_FUNC_REA_WA<
   RT,
   REL extends RELATED = {},
   WT = any
-> = STATE_REA_WA<RT, WT, REL> & OWNER<RT, WT, REL>;
+> = STATE_REA_WA<RT, WT, REL> & OWNER_WA<RT, WT, REL>;
 /**Alternative state resource which can be initialized with functions
  * @template RT - The type of the state’s value when read.
  * @template WT - The type which can be written to the state.
@@ -458,42 +458,42 @@ class FUNC_REA_WA<RT, WT = RT, REL extends RELATED = {}>
     debounce: number,
     timeout: number,
     retention: number,
-    writeBounce?: number,
-    writeAction?: (
+    write_debounce?: number,
+    write_action?: (
       value: WT,
       state: OWNER_WA<RT, WT, REL>
     ) => Promise<Result<void, string>>,
     helper?: STATE_HELPER<WT, REL>
   ) {
     super();
-    this.singleGet = once;
-    this.setupConnection = setup;
-    this.teardownConnection = teardown;
-    if (writeAction) this.writeAction = writeAction;
+    this.single_get = once;
+    this.setup_connection = setup;
+    this.teardown_connection = teardown;
+    if (write_action) this.write_action = write_action;
     this.debounce = debounce;
     this.timeout = timeout;
     this.retention = retention;
-    this.writebounce = writeBounce || 0;
+    this.write_debounce = write_debounce || 0;
     if (helper) this.#helper = helper;
   }
 
   readonly debounce: number;
   readonly timeout: number;
   readonly retention: number;
-  readonly writebounce: number;
+  readonly write_debounce: number;
   #helper?: STATE_HELPER<WT, REL>;
 
   /**Called if the state is awaited, returns the value once*/
-  protected singleGet(_state: OWNER_WA<RT, WT, REL>): void {}
+  protected single_get(_state: OWNER_WA<RT, WT, REL>): void {}
 
   /**Called when state is subscribed to to setup connection to remote resource*/
-  protected setupConnection(_state: OWNER_WA<RT, WT, REL>): void {}
+  protected setup_connection(_state: OWNER_WA<RT, WT, REL>): void {}
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
-  protected teardownConnection(_state: OWNER_WA<RT, WT, REL>): void {}
+  protected teardown_connection(_state: OWNER_WA<RT, WT, REL>): void {}
 
   /**Called after write debounce finished with the last written value*/
-  protected async writeAction(
+  protected async write_action(
     _value: WT,
     _state: OWNER_WA<RT, WT, REL>
   ): Promise<Result<void, string>> {
@@ -524,8 +524,8 @@ const rea_wa = {
    * @param debounce delay added to once value retrival, which will collect multiple once requests into a single one
    * @param timeout how long the last retrived value is considered valid
    * @param retention delay after last subscriber unsubscribes before teardown is called, to allow quick resubscribe without teardown
-   * @param writeBounce debounce delay for write calls, only the last write within the delay is used
-   * @param writeAction function called after write debounce finished with the last written value
+   * @param write_debounce debounce delay for write calls, only the last write within the delay is used
+   * @param write_action function called after write debounce finished with the last written value
    * */
   from<RT, REL extends RELATED = {}, WT = RT>(
     once: (state: OWNER_WA<RT, WT, REL>) => void,
@@ -534,8 +534,8 @@ const rea_wa = {
     debounce: number = 0,
     timeout: number = 0,
     retention: number = 0,
-    writeBounce?: number,
-    writeAction?: (
+    write_debounce?: number,
+    write_action?: (
       value: WT,
       state: OWNER_WA<RT, WT, REL>
     ) => Promise<Result<void, string>>,
@@ -548,8 +548,8 @@ const rea_wa = {
       debounce,
       timeout,
       retention,
-      writeBounce,
-      writeAction,
+      write_debounce,
+      write_action,
       helper
     ) as STATE_RESOURCE_FUNC_REA_WA<RT, REL, WT>;
   },

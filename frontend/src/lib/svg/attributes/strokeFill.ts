@@ -5,13 +5,13 @@ export function stroke<T extends SVGElement>(elem: T, stroke: string): T {
 }
 
 //Modifies the stroke-width of a svg element
-export function strokeWidth<T extends SVGElement>(elem: T, width: number): T {
+export function stroke_width<T extends SVGElement>(elem: T, width: number): T {
   elem.setAttribute("stroke-width", String(width));
   return elem;
 }
 
 //Modifies the stroke and stroke-width of a svg element
-export function strokeAndWidth<T extends SVGElement>(
+export function stroke_and_width<T extends SVGElement>(
   elem: T,
   stroke: string,
   width: number
@@ -28,7 +28,7 @@ export function fill<T extends SVGElement>(elem: T, fill: string): T {
 }
 
 //Modifies the stroke and fill color of a svg element
-export function strokeFill<T extends SVGElement>(
+export function stroke_fill<T extends SVGElement>(
   elem: T,
   stroke: string,
   fill: string
@@ -39,7 +39,7 @@ export function strokeFill<T extends SVGElement>(
 }
 
 //Modifies the stroke, fill and stroke-width of a svg element
-export function strokeFillWidth<T extends SVGElement>(
+export function stroke_fill_width<T extends SVGElement>(
   elem: T,
   stroke: string,
   fill: string,

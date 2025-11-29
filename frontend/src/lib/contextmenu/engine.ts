@@ -1,4 +1,4 @@
-import { documentHandler } from "@libDocument";
+import { DOCUMENT_HANDLER } from "@libDocument";
 import type { Option } from "@libResult";
 import { Container } from "./container";
 import { ContextMenu } from "./menu";
@@ -13,12 +13,12 @@ declare global {
 }
 
 /**Reference to document handler*/
-let defaultMenu: (ContextMenu | (() => Option<ContextMenu>)) | undefined;
+let default_menu: (ContextMenu | (() => Option<ContextMenu>)) | undefined;
 
-documentHandler.events.on("added", (e) => {
+DOCUMENT_HANDLER.events.on("added", (e) => {
   apply_to_doc(e.data);
 });
-documentHandler.for_documents((doc) => {
+DOCUMENT_HANDLER.for_documents((doc) => {
   apply_to_doc(doc);
 });
 
@@ -26,7 +26,7 @@ function apply_to_doc(doc: Document) {
   let container = new Container();
   doc["@contextmenu"] = container;
   doc.documentElement.appendChild(container);
-  if (defaultMenu) context_menu_attach(doc.documentElement, defaultMenu);
+  if (default_menu) context_menu_attach(doc.documentElement, default_menu);
 }
 
 /**Attaches a context menu to the given element*/
@@ -78,7 +78,7 @@ export function context_menu_summon(
 ) {
   let container = element
     ? element.ownerDocument["@contextmenu"]
-    : documentHandler.main["@contextmenu"];
+    : DOCUMENT_HANDLER.main["@contextmenu"];
   if (container) {
     if (typeof x !== "number" || typeof y !== "number") {
       if (element) {
@@ -102,13 +102,13 @@ export function context_menu_summon(
 export function context_menu_default(
   lines: (ContextMenu | (() => Option<ContextMenu>)) | false
 ) {
-  if (defaultMenu)
-    documentHandler.for_documents((doc) => {
+  if (default_menu)
+    DOCUMENT_HANDLER.for_documents((doc) => {
       context_menu_dettach(doc.body);
     });
   if (lines) {
-    defaultMenu = lines;
-    documentHandler.for_documents((doc) => {
+    default_menu = lines;
+    DOCUMENT_HANDLER.for_documents((doc) => {
       context_menu_attach(doc.body, lines);
     });
   }

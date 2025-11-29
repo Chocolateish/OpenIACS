@@ -19,7 +19,7 @@ import {
 //     |_|  \_\\____/|_____/
 interface OWNER<RT, WT, REL extends RELATED> {
   set(value: ResultOk<RT>): void;
-  setOk(value: RT): void;
+  set_ok(value: RT): void;
   get state(): STATE<RT, WT, REL>;
   get readOnly(): STATE_ROS<RT, REL, WT>;
 }
@@ -46,7 +46,7 @@ class ROS<RT, REL extends RELATED = {}, WT = any>
   }
 
   #clean(): void {
-    (["get", "set", "writeSync"] as const).forEach((k) => delete this[k]);
+    (["get", "set", "write_sync"] as const).forEach((k) => delete this[k]);
   }
 
   #value?: ResultOk<RT>;
@@ -57,7 +57,7 @@ class ROS<RT, REL extends RELATED = {}, WT = any>
   set(value: ResultOk<RT>) {
     this.update_subs((this.#value = value));
   }
-  setOk(value: RT): void {
+  set_ok(value: RT): void {
     this.set(Ok(value));
   }
   get state(): STATE<RT, WT, REL> {
@@ -144,7 +144,7 @@ const ros = {
 //     |_|  \_\\____/|_____/      \/  \/  |_____/
 interface OWNER_WS<RT, WT, REL extends RELATED> {
   set(value: ResultOk<RT>): void;
-  setOk(value: RT): void;
+  set_ok(value: RT): void;
   get state(): STATE<RT, WT, REL>;
   get readOnly(): STATE_ROS<RT, REL, WT>;
   get readWrite(): STATE_ROS_WS<RT, WT, REL>;
@@ -173,8 +173,8 @@ class ROS_WS<RT, WT, REL extends RELATED>
         return this.#helper?.limit
           ? this.#helper
               ?.limit(value)
-              .map((e) => state.setOk(e as unknown as RT))
-          : Ok(state.setOk(value as unknown as RT));
+              .map((e) => state.set_ok(e as unknown as RT))
+          : Ok(state.set_ok(value as unknown as RT));
       };
     else this.#setter = setter;
     if (helper) this.#helper = helper;
@@ -186,7 +186,7 @@ class ROS_WS<RT, WT, REL extends RELATED>
   }
 
   #clean(): void {
-    (["get", "set", "writeSync"] as const).forEach((k) => delete this[k]);
+    (["get", "set", "write_sync"] as const).forEach((k) => delete this[k]);
   }
 
   #value?: ResultOk<RT>;
@@ -197,7 +197,7 @@ class ROS_WS<RT, WT, REL extends RELATED>
   set(value: ResultOk<RT>) {
     this.update_subs((this.#value = value));
   }
-  setOk(value: RT): void {
+  set_ok(value: RT): void {
     this.set(Ok(value));
   }
   get state(): STATE<RT, WT, REL> {

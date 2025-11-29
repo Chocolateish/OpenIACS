@@ -1,15 +1,15 @@
 import { Base, define_element } from "@libBase";
 import { grey } from "@libColors";
 import { svg_primitives } from "@libSVG";
-import { themeInitVariableRoot } from "@libTheme";
+import { theme_init_variable_root } from "@libTheme";
 import "./index.scss";
 
-let variables = themeInitVariableRoot(
+let variables = theme_init_variable_root(
   "spinners",
   "Spinner",
   "Spinner used as a placeholder for data with and unknown arrival time"
 );
-variables.makeVariable(
+variables.make_variable(
   "color",
   "Dot color",
   "Color of dots in spinner",

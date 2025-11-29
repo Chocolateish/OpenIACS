@@ -26,7 +26,7 @@ import type {
 interface OWNER<AT, REL extends RELATED> extends STATE_ARRAY<AT> {
   set(value: Result<AT[], string>): void;
   get state(): STATE<SAR<AT>, SAW<AT>, REL>;
-  get readOnly(): STATE_RES<SAR<AT>, REL, SAW<AT>>;
+  get read_only(): STATE_RES<SAR<AT>, REL, SAW<AT>>;
 }
 export type STATE_ARRAY_RES<AT, REL extends RELATED = {}> = STATE_RES<
   SAR<AT>,
@@ -58,7 +58,7 @@ export class RES<AT, REL extends RELATED>
   get state(): STATE<SAR<AT>, SAW<AT>, REL> {
     return this as STATE<SAR<AT>, SAW<AT>, REL>;
   }
-  get readOnly(): STATE_RES<SAR<AT>, REL, SAW<AT>> {
+  get read_only(): STATE_RES<SAR<AT>, REL, SAW<AT>> {
     return this as STATE_RES<SAR<AT>, REL, SAW<AT>>;
   }
 
@@ -160,7 +160,7 @@ export class RES<AT, REL extends RELATED>
   }
 
   ///Helps apply the changes from one state array to another
-  applyRead<B>(
+  apply_read<B>(
     result: Result<SAR<B>, string>,
     transform: (val: readonly B[], type: READ_TYPE) => AT[]
   ) {
@@ -201,15 +201,15 @@ const res = {
 interface OWNER_WS<AT, REL extends RELATED> extends STATE_ARRAY<AT> {
   set(value: Result<AT[], string>): void;
   get state(): STATE<SAR<AT>, SAW<AT>, REL>;
-  get readOnly(): STATE_RES<SAR<AT>, REL, SAW<AT>>;
-  get readWrite(): STATE_RES_WS<SAR<AT>, SAW<AT>, REL>;
+  get read_only(): STATE_RES<SAR<AT>, REL, SAW<AT>>;
+  get read_write(): STATE_RES_WS<SAR<AT>, SAW<AT>, REL>;
 }
 export type STATE_ARRAY_RES_WS<AT, REL extends RELATED = {}> = STATE_RES_WS<
   SAR<AT>,
   SAW<AT>,
   REL
 > &
-  OWNER<AT, REL>;
+  OWNER_WS<AT, REL>;
 
 export class RES_WS<AT, REL extends RELATED>
   extends STATE_BASE<SAR<AT>, SAW<AT>, REL, Result<SAR<AT>, string>>
@@ -227,7 +227,7 @@ export class RES_WS<AT, REL extends RELATED>
     super();
     if (setter === true)
       this.#setter = (val) =>
-        Ok(this.applyRead(Ok(val as SAR<AT>), (v) => [...v]));
+        Ok(this.apply_read(Ok(val as SAR<AT>), (v) => [...v]));
     else this.#setter = setter;
     if (helper) this.#h = helper;
     this.set(init);
@@ -246,10 +246,10 @@ export class RES_WS<AT, REL extends RELATED>
   get state(): STATE<SAR<AT>, SAW<AT>, REL> {
     return this;
   }
-  get readOnly(): STATE_RES<SAR<AT>, REL, SAW<AT>> {
+  get read_only(): STATE_RES<SAR<AT>, REL, SAW<AT>> {
     return this;
   }
-  get readWrite(): STATE_RES_WS<SAR<AT>, SAW<AT>, REL> {
+  get read_write(): STATE_RES_WS<SAR<AT>, SAW<AT>, REL> {
     return this;
   }
 
@@ -350,7 +350,7 @@ export class RES_WS<AT, REL extends RELATED>
   }
 
   ///Helps apply the changes from one state array to another
-  applyRead<B>(
+  apply_read<B>(
     result: Result<SAR<B>, string>,
     transform: (val: readonly B[], type: READ_TYPE) => AT[]
   ) {

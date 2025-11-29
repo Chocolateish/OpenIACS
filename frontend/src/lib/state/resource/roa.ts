@@ -30,10 +30,10 @@ import {
  * @template RT - The type of the state’s value when read.
  * @template REL - The type of related states, defaults to an empty object.*/
 export interface STATE_RESOURCE_ROA_OWNER<RT, WT, REL extends RELATED> {
-  updateResource(value: ResultOk<RT>): void;
+  update_resource(value: ResultOk<RT>): void;
   get buffer(): ResultOk<RT> | undefined;
   get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_ROA<RT, REL, WT>;
+  get read_only(): STATE_ROA<RT, REL, WT>;
 }
 export abstract class STATE_RESOURCE_ROA<RT, REL extends RELATED = {}, WT = any>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
@@ -42,8 +42,8 @@ export abstract class STATE_RESOURCE_ROA<RT, REL extends RELATED = {}, WT = any>
   #valid: number = 0;
   #fetching: boolean = false;
   #buffer?: ResultOk<RT>;
-  #retentionTimout: number = 0;
-  #debounceTimout: number = 0;
+  #retention_timout: number = 0;
+  #debounce_timout: number = 0;
 
   /**Debounce delaying one time value retrival*/
   abstract get debounce(): number;
@@ -56,53 +56,53 @@ export abstract class STATE_RESOURCE_ROA<RT, REL extends RELATED = {}, WT = any>
 
   protected on_subscribe(first: boolean): void {
     if (!first || this.in_use()) return;
-    if (this.#retentionTimout) {
-      clearTimeout(this.#retentionTimout);
-      this.#retentionTimout = 0;
+    if (this.#retention_timout) {
+      clearTimeout(this.#retention_timout);
+      this.#retention_timout = 0;
     } else {
       this.#fetching = true;
       if (this.debounce > 0)
-        this.#debounceTimout = setTimeout(() => {
-          this.setupConnection(this);
-          this.#debounceTimout = 0;
+        this.#debounce_timout = setTimeout(() => {
+          this.setup_connection(this);
+          this.#debounce_timout = 0;
         }, this.debounce) as any;
-      else this.setupConnection(this);
+      else this.setup_connection(this);
     }
   }
 
   protected on_unsubscribe(last: boolean): void {
     if (!last) return;
-    if (this.#debounceTimout) {
-      clearTimeout(this.#debounceTimout);
-      this.#debounceTimout = 0;
+    if (this.#debounce_timout) {
+      clearTimeout(this.#debounce_timout);
+      this.#debounce_timout = 0;
     } else {
       if (this.retention > 0) {
-        this.#retentionTimout = setTimeout(() => {
-          this.teardownConnection(this);
-          this.#retentionTimout = 0;
+        this.#retention_timout = setTimeout(() => {
+          this.teardown_connection(this);
+          this.#retention_timout = 0;
         }, this.retention) as any;
       } else {
-        this.teardownConnection(this);
+        this.teardown_connection(this);
       }
     }
   }
 
   /**Called if the state is awaited, returns the value once*/
-  protected abstract singleGet(
+  protected abstract single_get(
     state: STATE_RESOURCE_ROA_OWNER<RT, WT, REL>
   ): void;
 
   /**Called when state is subscribed to to setup connection to remote resource*/
-  protected abstract setupConnection(
+  protected abstract setup_connection(
     state: STATE_RESOURCE_ROA_OWNER<RT, WT, REL>
   ): void;
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
-  protected abstract teardownConnection(
+  protected abstract teardown_connection(
     state: STATE_RESOURCE_ROA_OWNER<RT, WT, REL>
   ): void;
 
-  updateResource(value: ResultOk<RT>) {
+  update_resource(value: ResultOk<RT>) {
     this.#valid = Date.now() + this.timeout;
     this.ful_R_prom(value);
     this.#fetching = false;
@@ -116,7 +116,7 @@ export abstract class STATE_RESOURCE_ROA<RT, REL extends RELATED = {}, WT = any>
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_ROA<RT, REL, WT> {
+  get read_only(): STATE_ROA<RT, REL, WT> {
     return this as STATE_ROA<RT, REL, WT>;
   }
 
@@ -139,7 +139,7 @@ export abstract class STATE_RESOURCE_ROA<RT, REL extends RELATED = {}, WT = any>
         await new Promise((a) => {
           setTimeout(a, this.debounce);
         });
-      this.singleGet(this);
+      this.single_get(this);
       return this.append_R_prom(func);
     }
   }
@@ -180,9 +180,9 @@ class FUNC_ROA<RT, REL extends RELATED = {}, WT = any>
     helper?: STATE_HELPER<WT, REL>
   ) {
     super();
-    this.singleGet = once;
-    this.setupConnection = setup;
-    this.teardownConnection = teardown;
+    this.single_get = once;
+    this.setup_connection = setup;
+    this.teardown_connection = teardown;
     this.debounce = debounce;
     this.timeout = timeout;
     this.retention = retention;
@@ -195,13 +195,13 @@ class FUNC_ROA<RT, REL extends RELATED = {}, WT = any>
   #helper?: STATE_HELPER<WT, REL>;
 
   /**Called if the state is awaited, returns the value once*/
-  protected singleGet(_state: OWNER<RT, WT, REL>): void {}
+  protected single_get(_state: OWNER<RT, WT, REL>): void {}
 
   /**Called when state is subscribed to to setup connection to remote resource*/
-  protected setupConnection(_state: OWNER<RT, WT, REL>): void {}
+  protected setup_connection(_state: OWNER<RT, WT, REL>): void {}
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
-  protected teardownConnection(_state: OWNER<RT, WT, REL>): void {}
+  protected teardown_connection(_state: OWNER<RT, WT, REL>): void {}
 
   related(): Option<REL> {
     return this.#helper?.related ? this.#helper.related() : None();

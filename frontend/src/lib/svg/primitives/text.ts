@@ -1,5 +1,5 @@
 import { SVGAnchorPoint } from "../util/anchorPoint";
-import { createSVGElement } from "./shared";
+import { create_SVG_element } from "./shared";
 
 /**Creates a text nodes for an svg
  * @param x x coordinate of text
@@ -14,28 +14,28 @@ export function text(
   size: number,
   anchor: SVGAnchorPoint
 ): SVGTextElement {
-  let textElem = createSVGElement("text");
-  textElem.setAttribute("x", String(x));
-  textElem.setAttribute("y", String(y));
-  textElem.setAttribute("font-size", String(size));
-  textElem.innerHTML = text;
+  let text_elem = create_SVG_element("text");
+  text_elem.setAttribute("x", String(x));
+  text_elem.setAttribute("y", String(y));
+  text_elem.setAttribute("font-size", String(size));
+  text_elem.innerHTML = text;
   switch (anchor) {
     case SVGAnchorPoint.bottomLeft:
     case SVGAnchorPoint.middleLeft:
     case SVGAnchorPoint.topLeft: {
-      textElem.setAttribute("text-anchor", "start");
+      text_elem.setAttribute("text-anchor", "start");
       break;
     }
     case SVGAnchorPoint.topCenter:
     case SVGAnchorPoint.bottomCenter:
     case SVGAnchorPoint.middleCenter: {
-      textElem.setAttribute("text-anchor", "middle");
+      text_elem.setAttribute("text-anchor", "middle");
       break;
     }
     case SVGAnchorPoint.topRight:
     case SVGAnchorPoint.middleRight:
     case SVGAnchorPoint.bottomRight: {
-      textElem.setAttribute("text-anchor", "end");
+      text_elem.setAttribute("text-anchor", "end");
       break;
     }
   }
@@ -43,23 +43,23 @@ export function text(
     case SVGAnchorPoint.bottomLeft:
     case SVGAnchorPoint.bottomRight:
     case SVGAnchorPoint.bottomCenter: {
-      textElem.setAttribute("dominant-baseline", "auto");
+      text_elem.setAttribute("dominant-baseline", "auto");
       break;
     }
     case SVGAnchorPoint.middleLeft:
     case SVGAnchorPoint.middleRight:
     case SVGAnchorPoint.middleCenter: {
-      textElem.setAttribute("dominant-baseline", "central");
+      text_elem.setAttribute("dominant-baseline", "central");
       break;
     }
     case SVGAnchorPoint.topLeft:
     case SVGAnchorPoint.topCenter:
     case SVGAnchorPoint.topRight: {
-      textElem.setAttribute("dominant-baseline", "hanging");
+      text_elem.setAttribute("dominant-baseline", "hanging");
       break;
     }
   }
-  return textElem;
+  return text_elem;
 }
 
 /**Creates a text nodes for an svg
@@ -70,7 +70,7 @@ export function text(
  * @param text text
  * @param size size of text in px
  * @param anchor anchor point of */
-export function multiLineText(
+export function multi_line_text(
   x: number,
   y: number,
   width: number,
@@ -79,37 +79,37 @@ export function multiLineText(
   size: number,
   anchor: SVGAnchorPoint
 ): SVGForeignObjectElement {
-  let textElement = createSVGElement("foreignObject");
-  let textDiv = textElement.appendChild(document.createElement("div"));
-  textElement.setAttribute("width", String(width));
-  textElement.setAttribute("height", String(height));
-  textElement.setAttribute("x", String(x));
-  textElement.setAttribute("y", String(y));
-  textDiv.style.fontSize = size + "px";
-  textDiv.style.width = "100%";
-  textDiv.style.height = "100%";
-  textDiv.style.display = "flex";
-  textDiv.innerHTML = text;
+  let text_element = create_SVG_element("foreignObject");
+  let text_div = text_element.appendChild(document.createElement("div"));
+  text_element.setAttribute("width", String(width));
+  text_element.setAttribute("height", String(height));
+  text_element.setAttribute("x", String(x));
+  text_element.setAttribute("y", String(y));
+  text_div.style.fontSize = size + "px";
+  text_div.style.width = "100%";
+  text_div.style.height = "100%";
+  text_div.style.display = "flex";
+  text_div.innerHTML = text;
   switch (anchor) {
     case SVGAnchorPoint.bottomLeft:
     case SVGAnchorPoint.middleLeft:
     case SVGAnchorPoint.topLeft: {
-      textDiv.style.textAlign = "start";
-      textDiv.style.justifyContent = "flex-start";
+      text_div.style.textAlign = "start";
+      text_div.style.justifyContent = "flex-start";
       break;
     }
     case SVGAnchorPoint.topCenter:
     case SVGAnchorPoint.bottomCenter:
     case SVGAnchorPoint.middleCenter: {
-      textDiv.style.textAlign = "center";
-      textDiv.style.justifyContent = "center";
+      text_div.style.textAlign = "center";
+      text_div.style.justifyContent = "center";
       break;
     }
     case SVGAnchorPoint.topRight:
     case SVGAnchorPoint.middleRight:
     case SVGAnchorPoint.bottomRight: {
-      textDiv.style.textAlign = "end";
-      textDiv.style.justifyContent = "flex-end";
+      text_div.style.textAlign = "end";
+      text_div.style.justifyContent = "flex-end";
       break;
     }
   }
@@ -117,21 +117,21 @@ export function multiLineText(
     case SVGAnchorPoint.bottomLeft:
     case SVGAnchorPoint.bottomRight:
     case SVGAnchorPoint.bottomCenter: {
-      textDiv.style.alignItems = "flex-end";
+      text_div.style.alignItems = "flex-end";
       break;
     }
     case SVGAnchorPoint.middleLeft:
     case SVGAnchorPoint.middleRight:
     case SVGAnchorPoint.middleCenter: {
-      textDiv.style.alignItems = "center";
+      text_div.style.alignItems = "center";
       break;
     }
     case SVGAnchorPoint.topLeft:
     case SVGAnchorPoint.topCenter:
     case SVGAnchorPoint.topRight: {
-      textDiv.style.alignItems = "flex-start";
+      text_div.style.alignItems = "flex-start";
       break;
     }
   }
-  return textElement;
+  return text_element;
 }

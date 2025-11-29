@@ -1,8 +1,8 @@
 import { blue, green, grey, orange, red, yellow } from "@libColors";
-import { themeInitVariableRoot } from "@libTheme";
+import { theme_init_variable_root } from "@libTheme";
 import "./shared.scss";
 
-let themeRoot = themeInitVariableRoot(
+let themeRoot = theme_init_variable_root(
   "form",
   "UI Form Elements",
   "Theme variables for UI form Elements"
@@ -14,12 +14,12 @@ let themeRoot = themeInitVariableRoot(
 //     |  _  /|  __|   / /\ \ | |  | | | |  | | . ` | |   \   /
 //     | | \ \| |____ / ____ \| |__| | | |__| | |\  | |____| |
 //     |_|  \_\______/_/    \_\_____/   \____/|_| \_|______|_|
-let readOnly = themeRoot.makeSubGroup(
+let readOnly = themeRoot.make_sub_group(
   "read",
   "Read Only",
   "Settings for form elements in read only mode"
 );
-export let formReadOnlyOpacity = readOnly.makeVariable(
+export let formReadOnlyOpacity = readOnly.make_variable(
   "filter",
   "Read Only Filter",
   "Filter applied to form elements in read only mode",
@@ -37,7 +37,7 @@ export let formReadOnlyOpacity = readOnly.makeVariable(
 //     | |   | |  | | |   | |  | |  _  / \___ \
 //     | |___| |__| | |___| |__| | | \ \ ____) |
 //      \_____\____/|______\____/|_|  \_\_____/
-let colors = themeRoot.makeSubGroup(
+let colors = themeRoot.make_sub_group(
   "colors",
   "Colors",
   "Colors used in all form elements"
@@ -49,12 +49,12 @@ let colors = themeRoot.makeSubGroup(
 //        | |  |  __|   > <    | |    | |   | |  | | |   | |  | |  _  / \___ \
 //        | |  | |____ / . \   | |    | |___| |__| | |___| |__| | | \ \ ____) |
 //        |_|  |______/_/ \_\  |_|     \_____\____/|______\____/|_|  \_\_____/
-let colorsText = colors.makeSubGroup(
+let colorsText = colors.make_sub_group(
   "text",
   "Text Colors",
   "Text colors used in all form elements"
 );
-export let formColorsTextLabel = colorsText.makeVariable(
+export let formColorsTextLabel = colorsText.make_variable(
   "label",
   "Label Color",
   "Color of form elements labels",
@@ -63,7 +63,7 @@ export let formColorsTextLabel = colorsText.makeVariable(
   "Color",
   undefined
 );
-export let formColorsTextNormal = colorsText.makeVariable(
+export let formColorsTextNormal = colorsText.make_variable(
   "normal",
   "Normal Text Color",
   "Normal text color in form elements",
@@ -72,7 +72,7 @@ export let formColorsTextNormal = colorsText.makeVariable(
   "Color",
   undefined
 );
-export let formColorsTextUnselected = colorsText.makeVariable(
+export let formColorsTextUnselected = colorsText.make_variable(
   "unselected",
   "Unselected Text Color",
   "Unselected text color in form elements",
@@ -88,12 +88,12 @@ export let formColorsTextUnselected = colorsText.makeVariable(
 //       | || |   | |  | | . ` | | |   | |  | | |   | |  | |  _  / \___ \
 //      _| || |___| |__| | |\  | | |___| |__| | |___| |__| | | \ \ ____) |
 //     |_____\_____\____/|_| \_|  \_____\____/|______\____/|_|  \_\_____/
-let colorsIcon = colors.makeSubGroup(
+let colorsIcon = colors.make_sub_group(
   "icon",
   "Icon Colors",
   "Icon colors used in all form elements"
 );
-export let formColorsIconNormal = colorsIcon.makeVariable(
+export let formColorsIconNormal = colorsIcon.make_variable(
   "normal",
   "Normal Icon Color",
   "Color of icons in form elements",
@@ -102,7 +102,7 @@ export let formColorsIconNormal = colorsIcon.makeVariable(
   "Color",
   undefined
 );
-export let formColorsIconUnselected = colorsIcon.makeVariable(
+export let formColorsIconUnselected = colorsIcon.make_variable(
   "unselected",
   "Unselected Icon Color",
   "Color of unselected icons in form elements",
@@ -118,12 +118,12 @@ export let formColorsIconUnselected = colorsIcon.makeVariable(
 //     |  _ < / /\ \| |    |  <| | |_ |  _  /| |  | | |  | | . ` | |  | | | |   | |  | | |   | |  | |  _  / \___ \
 //     | |_) / ____ \ |____| . \ |__| | | \ \| |__| | |__| | |\  | |__| | | |___| |__| | |___| |__| | | \ \ ____) |
 //     |____/_/    \_\_____|_|\_\_____|_|  \_\\____/ \____/|_| \_|_____/   \_____\____/|______\____/|_|  \_\_____/
-let colorsBackground = colors.makeSubGroup(
+let colorsBackground = colors.make_sub_group(
   "background",
   "Background Colors",
   "Background colors used in all form elements"
 );
-export let formColorsBackgroundNormal = colorsBackground.makeVariable(
+export let formColorsBackgroundNormal = colorsBackground.make_variable(
   "normal",
   "Normal Background Color",
   "Color of normal form element backgrounds",
@@ -132,7 +132,7 @@ export let formColorsBackgroundNormal = colorsBackground.makeVariable(
   "Color",
   undefined
 );
-export let formColorsBackgroundHover = colorsBackground.makeVariable(
+export let formColorsBackgroundHover = colorsBackground.make_variable(
   "hover",
   "Hover Background Color",
   "Color of form element backgrounds when hovering",
@@ -141,7 +141,7 @@ export let formColorsBackgroundHover = colorsBackground.makeVariable(
   "Color",
   undefined
 );
-export let formColorsBackgroundUnselected = colorsBackground.makeVariable(
+export let formColorsBackgroundUnselected = colorsBackground.make_variable(
   "unselected",
   "Unselected Background Color",
   "Color of unselected form element backgrounds",
@@ -157,12 +157,12 @@ export let formColorsBackgroundUnselected = colorsBackground.makeVariable(
 //     |  _ <| |  | |  _  /| |  | |  __| |  _  /  | |   | |  | | |   | |  | |  _  / \___ \
 //     | |_) | |__| | | \ \| |__| | |____| | \ \  | |___| |__| | |___| |__| | | \ \ ____) |
 //     |____/ \____/|_|  \_\_____/|______|_|  \_\  \_____\____/|______\____/|_|  \_\_____/
-let colorsBorder = colors.makeSubGroup(
+let colorsBorder = colors.make_sub_group(
   "border",
   "Border Colors",
   "Border colors used in all form elements"
 );
-export let formColorsBorderNormal = colorsBorder.makeVariable(
+export let formColorsBorderNormal = colorsBorder.make_variable(
   "normal",
   "Normal Border Color",
   "Color of normal form element borders",
@@ -171,7 +171,7 @@ export let formColorsBorderNormal = colorsBorder.makeVariable(
   "Color",
   undefined
 );
-export let formColorsBorderUnselected = colorsBorder.makeVariable(
+export let formColorsBorderUnselected = colorsBorder.make_variable(
   "unselected",
   "Unselected Border Color",
   "Color of unselected form element borders",
@@ -187,12 +187,12 @@ export let formColorsBorderUnselected = colorsBorder.makeVariable(
 //     | |  | | |  | |  | |  | |      | | | . ` |  __|   | |   | |  | | |   | |  | |  _  / \___ \
 //     | |__| | |__| |  | |  | |____ _| |_| |\  | |____  | |___| |__| | |___| |__| | | \ \ ____) |
 //      \____/ \____/   |_|  |______|_____|_| \_|______|  \_____\____/|______\____/|_|  \_\_____/
-let colorsOutline = colors.makeSubGroup(
+let colorsOutline = colors.make_sub_group(
   "outline",
   "Outline Colors",
   "Outline colors used in all form elements"
 );
-export let formColorsOutlineNormal = colorsOutline.makeVariable(
+export let formColorsOutlineNormal = colorsOutline.make_variable(
   "focus",
   "Focus Outline Color",
   "Color of focussed form element outlines",
@@ -208,12 +208,12 @@ export let formColorsOutlineNormal = colorsOutline.makeVariable(
 //     |  _ < / /\ \  \___ \  | || |      | |   | |  | | |   | |  | |  _  / \___ \
 //     | |_) / ____ \ ____) |_| || |____  | |___| |__| | |___| |__| | | \ \ ____) |
 //     |____/_/    \_\_____/|_____\_____|  \_____\____/|______\____/|_|  \_\_____/
-let colorsBasic = colors.makeSubGroup(
+let colorsBasic = colors.make_sub_group(
   "basic",
   "Basic Colors",
   "Basic colors used in all form elements"
 );
-export let formColorsBasicGreen = colorsBasic.makeVariable(
+export let formColorsBasicGreen = colorsBasic.make_variable(
   "green",
   "Basic Green Color",
   "Commonly used green color in form elements",
@@ -222,7 +222,7 @@ export let formColorsBasicGreen = colorsBasic.makeVariable(
   "Color",
   undefined
 );
-export let formColorsBasicRed = colorsBasic.makeVariable(
+export let formColorsBasicRed = colorsBasic.make_variable(
   "red",
   "Basic Red Color",
   "Commonly used red color in form elements",
@@ -231,7 +231,7 @@ export let formColorsBasicRed = colorsBasic.makeVariable(
   "Color",
   undefined
 );
-export let formColorsBasicBlue = colorsBasic.makeVariable(
+export let formColorsBasicBlue = colorsBasic.make_variable(
   "blue",
   "Basic Blue Color",
   "Commonly used blue color in form elements",
@@ -240,7 +240,7 @@ export let formColorsBasicBlue = colorsBasic.makeVariable(
   "Color",
   undefined
 );
-export let formColorsBasicYellow = colorsBasic.makeVariable(
+export let formColorsBasicYellow = colorsBasic.make_variable(
   "yellow",
   "Basic Yellow Color",
   "Commonly used yellow color in form elements",
@@ -258,13 +258,13 @@ export let formColorsBasicYellow = colorsBasic.makeVariable(
 //      \___ \  | |   / / |  __|  \___ \
 //      ____) |_| |_ / /__| |____ ____) |
 //     |_____/|_____/_____|______|_____/
-let sizes = themeRoot.makeSubGroup(
+let sizes = themeRoot.make_sub_group(
   "size",
   "Size",
   "Sizes used in all form elements"
 );
 
-export let formSizeCornerRadius = sizes.makeVariable(
+export let formSizeCornerRadius = sizes.make_variable(
   "cornerRadius",
   "Corner Radius",
   "Corner radius used in all form elements",
@@ -274,7 +274,7 @@ export let formSizeCornerRadius = sizes.makeVariable(
   { min: 0, max: 4 }
 );
 
-export let formSizeHeight = sizes.makeVariable(
+export let formSizeHeight = sizes.make_variable(
   "height",
   "Height",
   "Default height used in all form elements",
@@ -284,7 +284,7 @@ export let formSizeHeight = sizes.makeVariable(
   { min: 0.1, max: 10 }
 );
 
-export let formSizeTourchHeight = sizes.makeVariable(
+export let formSizeTourchHeight = sizes.make_variable(
   "touchHeight",
   "Touch Height",
   "Minimum height for touch devices used in all form elements",
@@ -302,13 +302,13 @@ export let formSizeTourchHeight = sizes.makeVariable(
 //       / /\ \ | . ` | | | | |\/| | / /\ \ | |    | || |  | | . ` |
 //      / ____ \| |\  |_| |_| |  | |/ ____ \| |   _| || |__| | |\  |
 //     /_/    \_\_| \_|_____|_|  |_/_/    \_\_|  |_____\____/|_| \_|
-let animation = themeRoot.makeSubGroup(
+let animation = themeRoot.make_sub_group(
   "animation",
   "Animation",
   "Animation settings used in all form elements"
 );
 
-export let formAnimationTransitionType = animation.makeVariable(
+export let formAnimationTransitionType = animation.make_variable(
   "transitionType",
   "Transition Type",
   "Type of transition used in form element animations",
@@ -318,7 +318,7 @@ export let formAnimationTransitionType = animation.makeVariable(
   undefined
 );
 
-export let formAnimationTransitionDuration = animation.makeVariable(
+export let formAnimationTransitionDuration = animation.make_variable(
   "transitionDuration",
   "Transition Duration",
   "Duration of transitions used in form element animations",

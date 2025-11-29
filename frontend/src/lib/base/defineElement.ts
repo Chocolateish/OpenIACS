@@ -1,6 +1,6 @@
 import type { Base } from "./base";
 
-const reservedNames = new Set([
+const RESERVED_NAMES = new Set([
   "annotation-xml",
   "color-profile",
   "font-face",
@@ -27,7 +27,7 @@ export let validate_element_name = (name: string) => {
     return "Custom element names must not start with a hyphen.";
   // https://html.spec.whatwg.org/multipage/scripting.html#prod-potentialcustomelementname
   if (!regex.test(name)) return "Invalid element name.";
-  if (reservedNames.has(name))
+  if (RESERVED_NAMES.has(name))
     return "The supplied element name is reserved and can't be used.\nSee: https://html.spec.whatwg.org/multipage/scripting.html#valid-custom-element-name";
   return "Unknown fault";
 };
@@ -41,7 +41,7 @@ export let base_element_name = (
 ): string => {
   let namespace = element.elementNameSpace();
   let check = element.elementName;
-  let defineName = "";
+  let define_name = "";
   let runner = element;
   // @ts-expect-error
   while (runner !== HTMLElement) {
@@ -53,9 +53,9 @@ export let base_element_name = (
         "Element uses same name as ancestor, abstract classes should return '@abstract@'"
       );
     if (!name.length) throw new Error("Element doesn't define element name");
-    if (name !== "@abstract@") defineName = "-" + name + defineName;
+    if (name !== "@abstract@") define_name = "-" + name + define_name;
   }
-  return namespace + defineName;
+  return namespace + define_name;
 };
 
 export let elementList: Set<string> = new Set();
@@ -69,7 +69,7 @@ export let define_element = (
 ) => {
   let namespace = element.element_name_space();
   let check = element.element_name;
-  let defineName = "";
+  let define_name = "";
   let runner = element;
   // @ts-expect-error
   while (runner !== HTMLElement) {
@@ -82,13 +82,13 @@ export let define_element = (
         "Element uses same name as ancestor, abstract classes should return '@abstract@'"
       );
     if (!name.length) throw new Error("Element doesn't define element name");
-    if (name !== "@abstract@") defineName = "-" + name + defineName;
+    if (name !== "@abstract@") define_name = "-" + name + define_name;
   }
-  defineName = namespace + defineName;
+  define_name = namespace + define_name;
   try {
     // @ts-expect-error
-    customElements.define(defineName, element);
-    elementList.add(defineName);
+    customElements.define(define_name, element);
+    elementList.add(define_name);
   } catch (e) {
     if (
       e instanceof Error &&
@@ -98,9 +98,9 @@ export let define_element = (
     } else {
       throw new Error(
         'Failed to define element "' +
-          defineName +
+          define_name +
           '" ' +
-          validate_element_name(defineName)
+          validate_element_name(define_name)
       );
     }
   }

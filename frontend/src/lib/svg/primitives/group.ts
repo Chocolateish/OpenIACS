@@ -1,6 +1,6 @@
-import { createSVGElement } from "./shared";
+import { create_SVG_element } from "./shared";
 
 /**This draws a triangle*/
 export function group(): SVGGElement {
-  return createSVGElement("g");
+  return create_SVG_element("g");
 }

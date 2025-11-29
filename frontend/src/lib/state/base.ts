@@ -9,7 +9,7 @@ export abstract class STATE_BASE<
 > implements BASE<RT, WT, REL, RRT>
 {
   #subscribers: Set<STATE_SUB<RRT>> = new Set();
-  #readPromises?: ((val: RRT) => void)[];
+  #read_promises?: ((val: RRT) => void)[];
 
   //#Reader Context
   /**Can state value be retrieved syncronously*/
@@ -101,7 +101,7 @@ export abstract class STATE_BASE<
   >(func: (value: T) => TResult1 | PromiseLike<TResult1>): Promise<TResult1> {
     return func(
       await new Promise<T>((a) => {
-        (this.#readPromises ??= []).push(
+        (this.#read_promises ??= []).push(
           a as (val: Result<RT, string>) => void
         );
       })
@@ -109,10 +109,10 @@ export abstract class STATE_BASE<
   }
   /**Fulfills all read promises with given value */
   protected ful_R_prom(value: RRT): RRT {
-    if (this.#readPromises)
-      for (let i = 0; i < this.#readPromises.length; i++)
-        this.#readPromises[i](value);
-    this.#readPromises = [];
+    if (this.#read_promises)
+      for (let i = 0; i < this.#read_promises.length; i++)
+        this.#read_promises[i](value);
+    this.#read_promises = [];
     return value;
   }
 }

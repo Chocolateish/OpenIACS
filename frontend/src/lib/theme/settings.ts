@@ -9,7 +9,7 @@ import { settings_init } from "@libSettings";
 import st from "@libState";
 import { name, version } from "@package";
 
-const settings = settings_init(
+const SETTINGS = settings_init(
   name,
   version,
   "Theme/UI",
@@ -22,14 +22,13 @@ const settings = settings_init(
 //        | |  |  __  |  __| | |\/| |  __|
 //        | |  | |  | | |____| |  | | |____
 //        |_|  |_|  |_|______|_|  |_|______|
-const ThemeID = "theme";
 export const Themes = {
   Light: "light",
   Dark: "dark",
 } as const;
 export type Themes = (typeof Themes)[keyof typeof Themes];
 
-const themesInternal = st.h.enums.list<Themes>({
+const THEMES = st.h.enums.list<Themes>({
   [Themes.Light]: {
     name: "Light",
     description: "Theme optimized for daylight",
@@ -42,25 +41,27 @@ const themesInternal = st.h.enums.list<Themes>({
   },
 });
 
-const themeInternal = st.s.ros_ws.ok(
-  settings.get(
-    ThemeID,
+const THEME_ID = "theme";
+const _THEME = st.s.ros_ws.ok(
+  SETTINGS.get(
+    THEME_ID,
     window.matchMedia &&
       window.matchMedia("(prefers-color-scheme: dark)").matches
       ? (Themes.Dark as Themes)
       : (Themes.Light as Themes)
   ),
   true,
-  st.h.enums.helper(themesInternal)
+  st.h.enums.helper(THEMES)
 );
-settings.register(ThemeID, "Theme", "Theme to use for the UI", themeInternal);
-export const theme = themeInternal.readWrite;
+SETTINGS.register(THEME_ID, "Theme", "Theme to use for the UI", _THEME);
+
+export const THEME = _THEME.read_write;
 
 //Sets up automatic theme change based on operating system
 window
   .matchMedia("(prefers-color-scheme: dark)")
   .addEventListener("change", (e) => {
-    themeInternal.write(e.matches ? Themes.Dark : Themes.Light);
+    _THEME.write(e.matches ? Themes.Dark : Themes.Light);
   });
 
 //       _____  _____          _      ______
@@ -69,14 +70,14 @@ window
 //      \___ \| |      / /\ \ | |    |  __|
 //      ____) | |____ / ____ \| |____| |____
 //     |_____/ \_____/_/    \_\______|______|
-const ScaleID = "scale";
-const scaleInternal = st.s.ros_ws.ok(
-  settings.get(ScaleID, 100),
+const SCALE_ID = "scale";
+const _SCALE = st.s.ros_ws.ok(
+  SETTINGS.get(SCALE_ID, 100),
   true,
   st.h.nums.helper(50, 400, "%", 0, 1)
 );
-settings.register(ScaleID, "Scale", "UI scale", scaleInternal);
-export const scale = scaleInternal.readWrite;
+SETTINGS.register(SCALE_ID, "Scale", "UI scale", _SCALE);
+export const SCALE = _SCALE.read_write;
 
 //       _____  _____ _____   ____  _      _      ____          _____
 //      / ____|/ ____|  __ \ / __ \| |    | |    |  _ \   /\   |  __ \
@@ -84,7 +85,6 @@ export const scale = scaleInternal.readWrite;
 //      \___ \| |    |  _  /| |  | | |    | |    |  _ < / /\ \ |  _  /
 //      ____) | |____| | \ \| |__| | |____| |____| |_) / ____ \| | \ \
 //     |_____/ \_____|_|  \_\\____/|______|______|____/_/    \_\_|  \_\
-const ScrollbarID = "scrollbar";
 export const ScrollbarModes = {
   THIN: "thin",
   MEDIUM: "medium",
@@ -93,7 +93,7 @@ export const ScrollbarModes = {
 export type ScrollbarModes =
   (typeof ScrollbarModes)[keyof typeof ScrollbarModes];
 
-const scrollbarModesInternal = st.h.enums.list<ScrollbarModes>({
+const SCROLLBAR_MODES = st.h.enums.list<ScrollbarModes>({
   [ScrollbarModes.THIN]: {
     name: "Thin",
     description: "Thin modern scrollbar",
@@ -105,18 +105,20 @@ const scrollbarModesInternal = st.h.enums.list<ScrollbarModes>({
   },
 });
 
-const scrollBarModeInternal = st.s.ros_ws.ok(
-  settings.get(ScrollbarID, ScrollbarModes.THIN as ScrollbarModes),
+const SCROLLBAR_ID = "scrollbar";
+const _SCROLLBAR_MODE = st.s.ros_ws.ok(
+  SETTINGS.get(SCROLLBAR_ID, ScrollbarModes.THIN as ScrollbarModes),
   true,
-  st.h.enums.helper(scrollbarModesInternal)
+  st.h.enums.helper(SCROLLBAR_MODES)
 );
-settings.register(
+SETTINGS.register(
   "scrollbar",
   "Scrollbar Mode",
   "Size of the scrollbar to use",
-  scrollBarModeInternal
+  _SCROLLBAR_MODE
 );
-export const scrollBarMode = scrollBarModeInternal.readWrite;
+
+export const SCROLLBAR_MODE = _SCROLLBAR_MODE.read_write;
 
 //      _____ _   _ _____  _    _ _______   __  __  ____  _____  ______
 //     |_   _| \ | |  __ \| |  | |__   __| |  \/  |/ __ \|  __ \|  ____|
@@ -124,7 +126,6 @@ export const scrollBarMode = scrollBarModeInternal.readWrite;
 //       | | | . ` |  ___/| |  | |  | |    | |\/| | |  | | |  | |  __|
 //      _| |_| |\  | |    | |__| |  | |    | |  | | |__| | |__| | |____
 //     |_____|_| \_|_|     \____/   |_|    |_|  |_|\____/|_____/|______|
-const InputModeID = "inputMode";
 export const InputModes = {
   MOUSE: "mouse",
   PEN: "pen",
@@ -132,7 +133,7 @@ export const InputModes = {
 } as const;
 export type InputModes = (typeof InputModes)[keyof typeof InputModes];
 
-const inputModesInternal = st.h.enums.list<InputModes>({
+const INPUT_MODES = st.h.enums.list<InputModes>({
   [InputModes.MOUSE]: {
     name: "Mouse",
     description: "Mouse input",
@@ -150,23 +151,25 @@ const inputModesInternal = st.h.enums.list<InputModes>({
   },
 });
 
-const inputModeInternal = st.s.ros_ws.ok(
-  settings.get(
-    InputModeID,
+const INPUT_MODE_ID = "inputMode";
+const _INPUT_MODE = st.s.ros_ws.ok(
+  SETTINGS.get(
+    INPUT_MODE_ID,
     matchMedia("(pointer: coarse)").matches
       ? InputModes.TOUCH
       : (InputModes.MOUSE as InputModes)
   ),
   true,
-  st.h.enums.helper(inputModesInternal)
+  st.h.enums.helper(INPUT_MODES)
 );
-settings.register(
-  InputModeID,
+SETTINGS.register(
+  INPUT_MODE_ID,
   "Input Mode",
   "Setting for preffered input mode, changes UI elements to be more optimized for the selected input mode",
-  inputModeInternal
+  _INPUT_MODE
 );
-export const inputMode = inputModeInternal.readWrite;
+
+export const INPUT_MODE = _INPUT_MODE.read_write;
 
 //               _   _ _____ __  __       _______ _____ ____  _   _   _      ________      ________ _
 //         /\   | \ | |_   _|  \/  |   /\|__   __|_   _/ __ \| \ | | | |    |  ____\ \    / /  ____| |
@@ -174,7 +177,6 @@ export const inputMode = inputModeInternal.readWrite;
 //       / /\ \ | . ` | | | | |\/| | / /\ \ | |    | || |  | | . ` | | |    |  __|   \ \/ / |  __| | |
 //      / ____ \| |\  |_| |_| |  | |/ ____ \| |   _| || |__| | |\  | | |____| |____   \  /  | |____| |____
 //     /_/    \_\_| \_|_____|_|  |_/_/    \_\_|  |_____\____/|_| \_| |______|______|   \/   |______|______|
-const AnimationLevelID = "animation";
 export const AnimationLevels = {
   ALL: "all",
   MOST: "most",
@@ -184,7 +186,7 @@ export const AnimationLevels = {
 export type AnimationLevels =
   (typeof AnimationLevels)[keyof typeof AnimationLevels];
 
-const animationLevelsInternal = st.h.enums.list<AnimationLevels>({
+const ANIMATION_LEVELS = st.h.enums.list<AnimationLevels>({
   [AnimationLevels.ALL]: { name: "All", description: "All animations" },
   [AnimationLevels.MOST]: {
     name: "Most",
@@ -197,15 +199,17 @@ const animationLevelsInternal = st.h.enums.list<AnimationLevels>({
   [AnimationLevels.NONE]: { name: "None", description: "No animations" },
 });
 
-const animationLevelInternal = st.s.ros_ws.ok(
-  settings.get(AnimationLevelID, AnimationLevels.NONE as AnimationLevels),
+const ANIMATION_LEVEL_ID = "animation";
+const _ANIMATION_LEVEL = st.s.ros_ws.ok(
+  SETTINGS.get(ANIMATION_LEVEL_ID, AnimationLevels.NONE as AnimationLevels),
   true,
-  st.h.enums.helper(animationLevelsInternal)
+  st.h.enums.helper(ANIMATION_LEVELS)
 );
-settings.register(
-  AnimationLevelID,
+SETTINGS.register(
+  ANIMATION_LEVEL_ID,
   "Animation Level",
   "Setting for animation level, changes the amount of animations used in the UI",
-  animationLevelInternal
+  _ANIMATION_LEVEL
 );
-export const animationLevel = animationLevelInternal.readWrite;
+
+export const ANIMATION_LEVEL = _ANIMATION_LEVEL.read_write;

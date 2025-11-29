@@ -129,7 +129,7 @@ describe("State String Max Len", async () => {
   it("Checking related max len", async () => {
     let stateInst = st.s.ros_ws.ok("5", true, st.h.strings.helper(10));
     let related = stateInst.related().unwrap;
-    expect(related.maxLength).to.equal(10);
+    expect(related.max_length).to.equal(10);
   });
 });
 
@@ -163,6 +163,6 @@ describe("State String Max Byte Len", async () => {
       st.h.strings.helper(undefined, 10)
     );
     let related = stateInst.related().unwrap;
-    expect(related.maxLengthBytes).to.equal(10);
+    expect(related.max_length_bytes).to.equal(10);
   });
 });

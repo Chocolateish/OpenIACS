@@ -19,15 +19,15 @@ import {
 //     |_|  \_\______|_____/
 interface OWNER<S, RIN, ROUT, WIN, WOUT> {
   /**Sets the state that is being proxied, and updates subscribers with new value*/
-  setState(state: S): void;
+  set_state(state: S): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
-  setTransformRead(
+  set_transform_read(
     transform: (val: Result<RIN, string>) => Result<ROUT, string>
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
-  setTransformWrite(transform: (val: WOUT) => WIN): void;
+  set_transform_write(transform: (val: WOUT) => WIN): void;
   get state(): STATE<ROUT, WOUT, any>;
-  get readOnly(): STATE_RES<ROUT, any, WOUT>;
+  get read_only(): STATE_RES<ROUT, any, WOUT>;
 }
 
 export type STATE_PROXY_RES<
@@ -50,21 +50,21 @@ export class RES<
 {
   constructor(
     state: S,
-    transformRead?: (value: Result<RIN, string>) => Result<ROUT, string>
+    transform_read?: (value: Result<RIN, string>) => Result<ROUT, string>
   ) {
     super();
     this.#state = state;
-    if (transformRead) this.transformRead = transformRead;
+    if (transform_read) this.transform_read = transform_read;
   }
 
   #state: S;
   #subscriber = (value: Result<RIN, string>) => {
-    this.#buffer = this.transformRead(value);
+    this.#buffer = this.transform_read(value);
     this.update_subs(this.#buffer);
   };
   #buffer?: Result<ROUT, string>;
 
-  private transformRead(value: Result<RIN, string>): Result<ROUT, string> {
+  private transform_read(value: Result<RIN, string>): Result<ROUT, string> {
     return value as Result<ROUT, string>;
   }
   private transformWrite?: (value: WOUT) => WIN;
@@ -79,29 +79,29 @@ export class RES<
   }
 
   //#Owner Context
-  setState(state: S) {
+  set_state(state: S) {
     if (this.in_use()) {
       this.on_unsubscribe(true);
       this.#state = state;
       this.on_subscribe(true);
     } else this.#state = state;
   }
-  setTransformRead(
+  set_transform_read(
     transform: (val: Result<RIN, string>) => Result<ROUT, string>
   ) {
     if (this.in_use()) {
       this.on_unsubscribe(true);
-      this.transformRead = transform;
+      this.transform_read = transform;
       this.on_subscribe(true);
-    } else this.transformRead = transform;
+    } else this.transform_read = transform;
   }
-  setTransformWrite(transform: (val: WOUT) => WIN) {
+  set_transform_write(transform: (val: WOUT) => WIN) {
     this.transformWrite = transform;
   }
   get state(): STATE<ROUT, WOUT> {
     return this as STATE<ROUT, WOUT>;
   }
-  get readOnly(): STATE_RES<ROUT, any, WOUT> {
+  get read_only(): STATE_RES<ROUT, any, WOUT> {
     return this as STATE_RES<ROUT, any, WOUT>;
   }
 
@@ -119,7 +119,7 @@ export class RES<
   }
   get(): Result<ROUT, string> {
     if (this.#buffer) return this.#buffer;
-    return this.transformRead(this.#state.get());
+    return this.transform_read(this.#state.get());
   }
   related(): Option<{}> {
     return None();
@@ -204,16 +204,16 @@ interface OWNER_WS<
   WOUT = WIN
 > {
   /**Sets the state that is being proxied, and updates subscribers with new value*/
-  setState(state: S): void;
+  set_state(state: S): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
-  setTransformRead(
+  set_transform_read(
     transform: (val: Result<RIN, string>) => Result<ROUT, string>
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
-  setTransformWrite(transform: (val: WOUT) => WIN): void;
+  set_transform_write(transform: (val: WOUT) => WIN): void;
   get state(): STATE<ROUT, WOUT, any>;
-  get readOnly(): STATE_RES<ROUT, any, WOUT>;
-  get readWrite(): STATE_RES_WS<ROUT, WOUT>;
+  get read_only(): STATE_RES<ROUT, any, WOUT>;
+  get read_write(): STATE_RES_WS<ROUT, WOUT>;
 }
 
 export type STATE_PROXY_RES_WS<
@@ -236,26 +236,26 @@ export class RES_WS<
 {
   constructor(
     state: S,
-    transformRead?: (value: Result<RIN, string>) => Result<ROUT, string>,
-    transformWrite?: (value: WOUT) => WIN
+    transform_read?: (value: Result<RIN, string>) => Result<ROUT, string>,
+    transform_write?: (value: WOUT) => WIN
   ) {
     super();
     this.#state = state;
-    if (transformRead) this.transformRead = transformRead;
-    if (transformWrite) this.transformWrite = transformWrite;
+    if (transform_read) this.transform_read = transform_read;
+    if (transform_write) this.transform_write = transform_write;
   }
 
   #state: S;
   #subscriber = (value: Result<RIN, string>) => {
-    this.#buffer = this.transformRead(value);
+    this.#buffer = this.transform_read(value);
     this.update_subs(this.#buffer);
   };
   #buffer?: Result<ROUT, string>;
 
-  private transformRead(value: Result<RIN, string>): Result<ROUT, string> {
+  private transform_read(value: Result<RIN, string>): Result<ROUT, string> {
     return value as Result<ROUT, string>;
   }
-  private transformWrite(value: WOUT): WIN {
+  private transform_write(value: WOUT): WIN {
     return value as unknown as WIN;
   }
   protected on_subscribe(first: boolean): void {
@@ -270,7 +270,7 @@ export class RES_WS<
 
   //#Owner Context
   /**Sets the state that is being proxied, and updates subscribers with new value*/
-  setState(state: S) {
+  set_state(state: S) {
     if (this.in_use()) {
       this.on_unsubscribe(true);
       this.#state = state;
@@ -278,26 +278,26 @@ export class RES_WS<
     } else this.#state = state;
   }
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
-  setTransformRead(
+  set_transform_read(
     transform: (val: Result<RIN, string>) => Result<ROUT, string>
   ) {
     if (this.in_use()) {
       this.on_unsubscribe(true);
-      this.transformRead = transform;
+      this.transform_read = transform;
       this.on_subscribe(true);
-    } else this.transformRead = transform;
+    } else this.transform_read = transform;
   }
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
-  setTransformWrite(transform: (val: WOUT) => WIN) {
-    this.transformWrite = transform;
+  set_transform_write(transform: (val: WOUT) => WIN) {
+    this.transform_write = transform;
   }
   get state(): STATE<ROUT, WOUT> {
     return this as STATE<ROUT, WOUT>;
   }
-  get readOnly(): STATE_RES<ROUT, any, WOUT> {
+  get read_only(): STATE_RES<ROUT, any, WOUT> {
     return this as STATE_RES<ROUT, any, WOUT>;
   }
-  get readWrite(): STATE_RES_WS<ROUT, WOUT> {
+  get read_write(): STATE_RES_WS<ROUT, WOUT> {
     return this as STATE_RES_WS<ROUT, WOUT>;
   }
 
@@ -312,11 +312,11 @@ export class RES_WS<
     func: (value: Result<ROUT, string>) => T | PromiseLike<T>
   ): Promise<T> {
     if (this.#buffer) return func(this.#buffer);
-    return func(this.transformRead(await this.#state));
+    return func(this.transform_read(await this.#state));
   }
   get(): Result<ROUT, string> {
     if (this.#buffer) return this.#buffer;
-    return this.transformRead(this.#state.get());
+    return this.transform_read(this.#state.get());
   }
   related(): Option<{}> {
     return None();
@@ -330,10 +330,10 @@ export class RES_WS<
     return true;
   }
   write(value: WOUT): Promise<Result<void, string>> {
-    return this.#state.write(this.transformWrite(value));
+    return this.#state.write(this.transform_write(value));
   }
   write_sync(value: WOUT): Result<void, string> {
-    return this.#state.write_sync(this.transformWrite(value));
+    return this.#state.write_sync(this.transform_write(value));
   }
   limit(_value: WOUT): Result<WOUT, string> {
     return Err("Limit not supported on proxy states");
@@ -345,7 +345,7 @@ export class RES_WS<
 
 /**Creates a proxy state which mirrors another state, with an optional transform function.
  * @param state - state to proxy.
- * @param transformRead - Function to transform value of proxy*/
+ * @param transform_read - Function to transform value of proxy*/
 function res_ws_from<
   S extends STATE_ROS_WS<RIN, WIN>,
   RIN,
@@ -354,8 +354,8 @@ function res_ws_from<
   WOUT = WIN
 >(
   state: STATE_ROS_WS<RIN, WIN>,
-  transformRead?: (value: ResultOk<RIN>) => Result<ROUT, string>,
-  transformWrite?: (value: WOUT) => WIN
+  transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>,
+  transform_write?: (value: WOUT) => WIN
 ): STATE_PROXY_RES_WS<S, RIN, WIN, ROUT, WOUT>;
 function res_ws_from<
   S extends STATE_RES_WS<RIN, WIN>,
@@ -365,8 +365,8 @@ function res_ws_from<
   WOUT = WIN
 >(
   state: STATE_RES_WS<RIN, WIN>,
-  transformRead?: (value: Result<RIN, string>) => Result<ROUT, string>,
-  transformWrite?: (value: WOUT) => WIN
+  transform_read?: (value: Result<RIN, string>) => Result<ROUT, string>,
+  transform_write?: (value: WOUT) => WIN
 ): STATE_PROXY_RES_WS<S, RIN, WIN, ROUT, WOUT>;
 function res_ws_from<
   S extends STATE_RES_WS<RIN, WIN>,
@@ -376,13 +376,13 @@ function res_ws_from<
   WOUT = WIN
 >(
   state: S,
-  transformRead: any,
-  transformWrite: any
+  transform_read: any,
+  transform_write: any
 ): STATE_PROXY_RES_WS<S, RIN, WIN, ROUT, WOUT> {
   return new RES_WS<S, RIN, WIN, ROUT, WOUT>(
     state,
-    transformRead,
-    transformWrite
+    transform_read,
+    transform_write
   ) as STATE_PROXY_RES_WS<S, RIN, WIN, ROUT, WOUT>;
 }
 
@@ -401,16 +401,16 @@ interface OWNER_WA<
   WOUT = WIN
 > {
   /**Sets the state that is being proxied, and updates subscribers with new value*/
-  setState(state: S): void;
+  set_state(state: S): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
-  setTransformRead(
+  set_transform_read(
     transform: (val: Result<RIN, string>) => Result<ROUT, string>
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
-  setTransformWrite(transform: (val: WOUT) => WIN): void;
+  set_transform_write(transform: (val: WOUT) => WIN): void;
   get state(): STATE<ROUT, WOUT, any>;
-  get readOnly(): STATE_RES<ROUT, any, WOUT>;
-  get readWrite(): STATE_RES_WA<ROUT, WOUT>;
+  get read_only(): STATE_RES<ROUT, any, WOUT>;
+  get read_write(): STATE_RES_WA<ROUT, WOUT>;
 }
 
 export type STATE_PROXY_RES_WA<
@@ -433,26 +433,26 @@ export class RES_WA<
 {
   constructor(
     state: S,
-    transformRead: (value: ResultOk<RIN>) => Result<ROUT, string>,
-    transformWrite?: (value: WOUT) => WIN
+    transform_read: (value: ResultOk<RIN>) => Result<ROUT, string>,
+    transform_write?: (value: WOUT) => WIN
   ) {
     super();
     this.#state = state;
-    if (transformRead) this.transformRead = transformRead;
-    if (transformWrite) this.transformWrite = transformWrite;
+    if (transform_read) this.transform_read = transform_read;
+    if (transform_write) this.transform_write = transform_write;
   }
 
   #state: S;
   #subscriber = (value: Result<RIN, string>) => {
-    this.#buffer = this.transformRead(value);
+    this.#buffer = this.transform_read(value);
     this.update_subs(this.#buffer);
   };
   #buffer?: Result<ROUT, string>;
 
-  private transformRead(value: Result<RIN, string>): Result<ROUT, string> {
+  private transform_read(value: Result<RIN, string>): Result<ROUT, string> {
     return value as Result<ROUT, string>;
   }
-  private transformWrite(value: WOUT): WIN {
+  private transform_write(value: WOUT): WIN {
     return value as unknown as WIN;
   }
   protected on_subscribe(first: boolean): void {
@@ -467,7 +467,7 @@ export class RES_WA<
 
   //#Owner Context
   /**Sets the state that is being proxied, and updates subscribers with new value*/
-  setState(state: S) {
+  set_state(state: S) {
     if (this.in_use()) {
       this.on_unsubscribe(true);
       this.#state = state;
@@ -475,26 +475,26 @@ export class RES_WA<
     } else this.#state = state;
   }
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
-  setTransformRead(
+  set_transform_read(
     transform: (val: Result<RIN, string>) => Result<ROUT, string>
   ) {
     if (this.in_use()) {
       this.on_unsubscribe(true);
-      this.transformRead = transform;
+      this.transform_read = transform;
       this.on_subscribe(true);
-    } else this.transformRead = transform;
+    } else this.transform_read = transform;
   }
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
-  setTransformWrite(transform: (val: WOUT) => WIN) {
-    this.transformWrite = transform;
+  set_transform_write(transform: (val: WOUT) => WIN) {
+    this.transform_write = transform;
   }
   get state(): STATE<ROUT, WOUT> {
     return this as STATE<ROUT, WOUT>;
   }
-  get readOnly(): STATE_RES<ROUT, any, WOUT> {
+  get read_only(): STATE_RES<ROUT, any, WOUT> {
     return this as STATE_RES<ROUT, any, WOUT>;
   }
-  get readWrite(): STATE_RES_WA<ROUT, WOUT> {
+  get read_write(): STATE_RES_WA<ROUT, WOUT> {
     return this as STATE_RES_WA<ROUT, WOUT>;
   }
 
@@ -509,11 +509,11 @@ export class RES_WA<
     func: (value: Result<ROUT, string>) => T | PromiseLike<T>
   ): Promise<T> {
     if (this.#buffer) return func(this.#buffer);
-    return func(this.transformRead(await this.#state));
+    return func(this.transform_read(await this.#state));
   }
   get(): Result<ROUT, string> {
     if (this.#buffer) return this.#buffer;
-    return this.transformRead(this.#state.get());
+    return this.transform_read(this.#state.get());
   }
   related(): Option<{}> {
     return None();
@@ -527,7 +527,7 @@ export class RES_WA<
     return this.#state.wsync;
   }
   write(value: WOUT): Promise<Result<void, string>> {
-    return this.#state.write(this.transformWrite(value));
+    return this.#state.write(this.transform_write(value));
   }
   limit(_value: WOUT): Result<WOUT, string> {
     return Err("Limit not supported on proxy states");
@@ -539,7 +539,7 @@ export class RES_WA<
 
 /**Creates a proxy state which mirrors another state, with an optional transform function.
  * @param state - state to proxy.
- * @param transformRead - Function to transform value of proxy*/
+ * @param transform_read - Function to transform value of proxy*/
 function res_wa_from<
   S extends STATE_ROS_WA<RIN, WIN>,
   RIN,
@@ -548,8 +548,8 @@ function res_wa_from<
   WOUT = WIN
 >(
   state: STATE_ROS_WA<RIN, WIN>,
-  transformRead?: (value: ResultOk<RIN>) => Result<ROUT, string>,
-  transformWrite?: (value: WOUT) => WIN
+  transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>,
+  transform_write?: (value: WOUT) => WIN
 ): STATE_PROXY_RES_WA<S, RIN, WIN, ROUT, WOUT>;
 function res_wa_from<
   S extends STATE_RES_WA<RIN, WIN>,
@@ -559,8 +559,8 @@ function res_wa_from<
   WOUT = WIN
 >(
   state: STATE_RES_WA<RIN, WIN>,
-  transformRead?: (value: Result<RIN, string>) => Result<ROUT, string>,
-  transformWrite?: (value: WOUT) => WIN
+  transform_read?: (value: Result<RIN, string>) => Result<ROUT, string>,
+  transform_write?: (value: WOUT) => WIN
 ): STATE_PROXY_RES_WA<S, RIN, WIN, ROUT, WOUT>;
 function res_wa_from<
   S extends STATE_RES_WA<RIN, WIN>,
@@ -570,13 +570,13 @@ function res_wa_from<
   WOUT = WIN
 >(
   state: S,
-  transformRead: any,
-  transformWrite: any
+  transform_read: any,
+  transform_write: any
 ): STATE_PROXY_RES_WA<S, RIN, WIN, ROUT, WOUT> {
   return new RES_WA<S, RIN, WIN, ROUT, WOUT>(
     state,
-    transformRead,
-    transformWrite
+    transform_read,
+    transform_write
   ) as STATE_PROXY_RES_WA<S, RIN, WIN, ROUT, WOUT>;
 }
 

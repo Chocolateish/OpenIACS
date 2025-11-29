@@ -1,6 +1,6 @@
 export * from "./strokeFill";
 
-export function classList<T extends SVGElement>(
+export function class_list<T extends SVGElement>(
   elem: T,
   ...className: string[]
 ): T {

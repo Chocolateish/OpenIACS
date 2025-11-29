@@ -1,12 +1,12 @@
 import { blue, grey } from "@libColors";
-import { themeInitVariableRoot } from "@libTheme";
+import { theme_init_variable_root } from "@libTheme";
 
-let variables = themeInitVariableRoot(
+let variables = theme_init_variable_root(
   "contextmenu",
   "Context Menu",
   "Right click or touch and hold context menu appearance"
 );
-variables.makeVariable(
+variables.make_variable(
   "background",
   "Background Color",
   "Color of background",
@@ -15,7 +15,7 @@ variables.makeVariable(
   "Color",
   undefined
 );
-variables.makeVariable(
+variables.make_variable(
   "text",
   "Text Color",
   "Color of text",
@@ -24,7 +24,7 @@ variables.makeVariable(
   "Color",
   undefined
 );
-variables.makeVariable(
+variables.make_variable(
   "hover",
   "Hover Color",
   "Background color of line when hovering over it",
@@ -33,7 +33,7 @@ variables.makeVariable(
   "Color",
   undefined
 );
-variables.makeVariable(
+variables.make_variable(
   "hoverText",
   "Text Color",
   "Standard text color",
@@ -42,7 +42,7 @@ variables.makeVariable(
   "Color",
   undefined
 );
-variables.makeVariable(
+variables.make_variable(
   "border",
   "Border Color",
   "Color of border and deviders",

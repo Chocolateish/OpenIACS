@@ -21,7 +21,7 @@ interface OWNER<RT, WT, REL extends RELATED> {
   set_ok(value: RT): void;
   set_err(err: string): void;
   get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_RES<RT, REL, WT>;
+  get read_only(): STATE_RES<RT, REL, WT>;
 }
 export type STATE_SYNC_RES<RT, REL extends RELATED = {}, WT = any> = STATE_RES<
   RT,
@@ -57,7 +57,7 @@ class RES<RT, REL extends RELATED, WT>
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_RES<RT, REL, WT> {
+  get read_only(): STATE_RES<RT, REL, WT> {
     return this as STATE_RES<RT, REL, WT>;
   }
 
@@ -152,8 +152,8 @@ interface OWNER_WS<RT, WT, REL extends RELATED> {
   set_ok(value: RT): void;
   set_err(err: string): void;
   get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_RES<RT, REL, WT>;
-  get readWrite(): STATE_RES_WS<RT, WT, REL>;
+  get read_only(): STATE_RES<RT, REL, WT>;
+  get read_write(): STATE_RES_WS<RT, WT, REL>;
 }
 
 export type STATE_SYNC_RES_WS<
@@ -204,10 +204,10 @@ class RES_WS<RT, WT, REL extends RELATED>
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_RES<RT, REL, WT> {
+  get read_only(): STATE_RES<RT, REL, WT> {
     return this as STATE_RES<RT, REL, WT>;
   }
-  get readWrite(): STATE_RES_WS<RT, WT, REL> {
+  get read_write(): STATE_RES_WS<RT, WT, REL> {
     return this as STATE_RES_WS<RT, WT, REL>;
   }
 

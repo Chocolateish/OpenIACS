@@ -19,10 +19,10 @@ import {
 //     |_|  \_\______|_____/
 interface OWNER<RT, WT, REL extends RELATED> {
   set(value: Result<RT, string>): void;
-  setOk(value: RT): void;
-  setErr(err: string): void;
+  set_ok(value: RT): void;
+  set_err(err: string): void;
   get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_RES<RT, REL, WT>;
+  get read_only(): STATE_RES<RT, REL, WT>;
 }
 
 export type STATE_LAZY_RES<RT, REL extends RELATED = {}, WT = any> = STATE_RES<
@@ -47,7 +47,7 @@ class RES<RT, REL extends Related = {}, WT = any>
   }
 
   #clean(): void {
-    (["get", "set", "writeSync"] as const).forEach((k) => delete this[k]);
+    (["get", "set", "write_sync"] as const).forEach((k) => delete this[k]);
   }
 
   #value?: Result<RT, string>;
@@ -58,16 +58,16 @@ class RES<RT, REL extends Related = {}, WT = any>
   set(value: Result<RT, string>) {
     this.update_subs((this.#value = value));
   }
-  setOk(value: RT): void {
+  set_ok(value: RT): void {
     this.set(Ok(value));
   }
-  setErr(err: string): void {
+  set_err(err: string): void {
     this.set(Err(err));
   }
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_RES<RT, REL, WT> {
+  get read_only(): STATE_RES<RT, REL, WT> {
     return this as STATE_RES<RT, REL, WT>;
   }
 
@@ -159,11 +159,11 @@ const res = {
 
 interface OWNER_WS<RT, WT, REL extends RELATED> {
   set(value: Result<RT, string>): void;
-  setOk(value: RT): void;
-  setErr(err: string): void;
+  set_ok(value: RT): void;
+  set_err(err: string): void;
   get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_RES<RT, REL, WT>;
-  get readWrite(): STATE_RES_WS<RT, WT, REL>;
+  get read_only(): STATE_RES<RT, REL, WT>;
+  get read_write(): STATE_RES_WS<RT, WT, REL>;
 }
 
 export type STATE_LAZY_RES_WS<
@@ -189,8 +189,8 @@ class RES_WS<RT, WT, REL extends Related>
         return this.#helper?.limit
           ? this.#helper
               ?.limit(value)
-              .map((e) => state.setOk(e as unknown as RT))
-          : Ok(state.setOk(value as unknown as RT));
+              .map((e) => state.set_ok(e as unknown as RT))
+          : Ok(state.set_ok(value as unknown as RT));
       };
     else this.#setter = setter;
     if (helper) this.#helper = helper;
@@ -202,7 +202,7 @@ class RES_WS<RT, WT, REL extends Related>
   }
 
   #clean(): void {
-    (["get", "set", "writeSync"] as const).forEach((k) => delete this[k]);
+    (["get", "set", "write_sync"] as const).forEach((k) => delete this[k]);
   }
 
   #value?: Result<RT, string>;
@@ -213,19 +213,19 @@ class RES_WS<RT, WT, REL extends Related>
   set(value: Result<RT, string>) {
     this.update_subs((this.#value = value));
   }
-  setOk(value: RT): void {
+  set_ok(value: RT): void {
     this.set(Ok(value));
   }
-  setErr(err: string): void {
+  set_err(err: string): void {
     this.set(Err(err));
   }
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_RES<RT, REL, WT> {
+  get read_only(): STATE_RES<RT, REL, WT> {
     return this as STATE_RES<RT, REL, WT>;
   }
-  get readWrite(): STATE_RES_WS<RT, WT, REL> {
+  get read_write(): STATE_RES_WS<RT, WT, REL> {
     return this as STATE_RES_WS<RT, WT, REL>;
   }
 

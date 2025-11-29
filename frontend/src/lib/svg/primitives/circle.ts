@@ -1,5 +1,5 @@
-import { ellipseArc } from "./ellipse";
-import { createSVGElement } from "./shared";
+import { ellipse_arc } from "./ellipse";
+import { create_SVG_element } from "./shared";
 
 /**This creates a svg circle
  * @param centerX x coordinate of center
@@ -10,7 +10,7 @@ export function circle(
   centerY: number,
   radius: number
 ): SVGCircleElement {
-  let circle = createSVGElement("circle");
+  let circle = create_SVG_element("circle");
   circle.setAttribute("cx", String(centerX));
   circle.setAttribute("cy", String(centerY));
   circle.setAttribute("r", String(radius));
@@ -21,14 +21,14 @@ export function circle(
  * @param centerX the center point on the x axis
  * @param centerY the center point on the y axis
  * @param radius radius in x axis
- * @param startAngle start angle in radians
- * @param endAngle end anglein  radians*/
-export function circleArc(
+ * @param start_angle start angle in radians
+ * @param end_angle end anglein  radians*/
+export function circle_arc(
   centerX: number,
   centerY: number,
   radius: number,
-  startAngle: number,
-  endAngle: number
+  start_angle: number,
+  end_angle: number
 ): SVGPathElement {
-  return ellipseArc(centerX, centerY, radius, radius, startAngle, endAngle);
+  return ellipse_arc(centerX, centerY, radius, radius, start_angle, end_angle);
 }

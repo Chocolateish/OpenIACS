@@ -1,3 +1,3 @@
 import type { ThemeVariableGroup } from "./variables";
 
-export let bottomGroups: { [key: string]: ThemeVariableGroup } = {};
+export const BOTTOM_GROUPS: { [key: string]: ThemeVariableGroup } = {};

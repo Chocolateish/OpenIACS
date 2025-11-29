@@ -1,4 +1,4 @@
-import { createSVGElement } from "./shared";
+import { create_SVG_element } from "./shared";
 
 /**This creates a line element
  * @param startX start point on x axis
@@ -11,7 +11,7 @@ export function line(
   endX: number,
   endY: number
 ): SVGLineElement {
-  let line = createSVGElement("line");
+  let line = create_SVG_element("line");
   line.setAttribute("x1", String(startX));
   line.setAttribute("y1", String(startY));
   line.setAttribute("x2", String(endX));

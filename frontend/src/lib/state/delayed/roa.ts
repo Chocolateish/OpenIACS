@@ -20,9 +20,9 @@ import {
 //     |_|  \_\\____/_/    \_\
 interface OWNER<RT, WT, REL extends RELATED> {
   set(value: ResultOk<RT>): void;
-  setOk(value: RT): void;
+  set_ok(value: RT): void;
   get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_ROA<RT, REL, WT>;
+  get read_only(): STATE_ROA<RT, REL, WT>;
 }
 
 export type STATE_DELAYED_ROA<
@@ -76,7 +76,7 @@ class ROA<RT, REL extends RELATED = {}, WT = any>
   }
 
   #clean(): void {
-    (["then", "set", "write", "writeSync"] as const).forEach(
+    (["then", "set", "write", "write_sync"] as const).forEach(
       (k) => delete this[k]
     );
   }
@@ -90,13 +90,13 @@ class ROA<RT, REL extends RELATED = {}, WT = any>
   set(value: ResultOk<RT>) {
     this.update_subs((this.#value = value));
   }
-  setOk(value: RT): void {
+  set_ok(value: RT): void {
     this.set(Ok(value));
   }
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_ROA<RT, REL, WT> {
+  get read_only(): STATE_ROA<RT, REL, WT> {
     return this as STATE_ROA<RT, REL, WT>;
   }
 
@@ -179,10 +179,10 @@ const roa = {
 //     |_|  \_\\____/_/    \_\     \/  \/  |_____/
 interface OWNER_WS<RT, WT, REL extends RELATED> {
   set(value: ResultOk<RT>): void;
-  setOk(value: RT): void;
+  set_ok(value: RT): void;
   get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_ROA<RT, REL, WT>;
-  get readWrite(): STATE_ROA_WS<RT, WT, REL>;
+  get read_only(): STATE_ROA<RT, REL, WT>;
+  get read_write(): STATE_ROA_WS<RT, WT, REL>;
 }
 
 export type STATE_DELAYED_ROA_WS<
@@ -208,8 +208,8 @@ class ROA_WS<RT, WT = RT, REL extends RELATED = {}>
         return this.#helper?.limit
           ? this.#helper
               ?.limit(value)
-              .map((e) => state.setOk(e as unknown as RT))
-          : Ok(state.setOk(value as unknown as RT));
+              .map((e) => state.set_ok(e as unknown as RT))
+          : Ok(state.set_ok(value as unknown as RT));
       };
     else this.#setter = setter;
     if (helper) this.#helper = helper;
@@ -244,7 +244,7 @@ class ROA_WS<RT, WT = RT, REL extends RELATED = {}>
   }
 
   #clean(): void {
-    (["then", "set", "writeSync"] as const).forEach((k) => delete this[k]);
+    (["then", "set", "write_sync"] as const).forEach((k) => delete this[k]);
   }
 
   #value?: ResultOk<RT>;
@@ -255,16 +255,16 @@ class ROA_WS<RT, WT = RT, REL extends RELATED = {}>
   set(value: ResultOk<RT>) {
     this.update_subs((this.#value = value));
   }
-  setOk(value: RT): void {
+  set_ok(value: RT): void {
     this.set(Ok(value));
   }
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_ROA<RT, REL, WT> {
+  get read_only(): STATE_ROA<RT, REL, WT> {
     return this as STATE_ROA<RT, REL, WT>;
   }
-  get readWrite(): STATE_ROA_WS<RT, WT, REL> {
+  get read_write(): STATE_ROA_WS<RT, WT, REL> {
     return this as STATE_ROA_WS<RT, WT, REL>;
   }
 
@@ -352,10 +352,10 @@ const roa_ws = {
 //     |_|  \_\\____/_/    \_\     \/  \/_/    \_\
 interface OWNER_WA<RT, WT, REL extends RELATED> {
   set(value: ResultOk<RT>): void;
-  setOk(value: RT): void;
+  set_ok(value: RT): void;
   get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_ROA<RT, REL, WT>;
-  get readWrite(): STATE_ROA_WA<RT, WT, REL>;
+  get read_only(): STATE_ROA<RT, REL, WT>;
+  get read_write(): STATE_ROA_WA<RT, WT, REL>;
 }
 
 export type STATE_DELAYED_ROA_WA<
@@ -381,8 +381,8 @@ export class ROA_WA<RT, WT = RT, REL extends RELATED = {}>
         return this.#helper?.limit
           ? this.#helper
               ?.limit(value)
-              .map((e) => state.setOk(e as unknown as RT))
-          : Ok(state.setOk(value as unknown as RT));
+              .map((e) => state.set_ok(e as unknown as RT))
+          : Ok(state.set_ok(value as unknown as RT));
       };
     else this.#setter = setter;
     if (helper) this.#helper = helper;
@@ -428,16 +428,16 @@ export class ROA_WA<RT, WT = RT, REL extends RELATED = {}>
   set(value: ResultOk<RT>) {
     this.update_subs((this.#value = value));
   }
-  setOk(value: RT): void {
+  set_ok(value: RT): void {
     this.set(Ok(value));
   }
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
   }
-  get readOnly(): STATE_ROA<RT, REL, WT> {
+  get read_only(): STATE_ROA<RT, REL, WT> {
     return this as STATE_ROA<RT, REL, WT>;
   }
-  get readWrite(): STATE_ROA_WA<RT, WT, REL> {
+  get read_write(): STATE_ROA_WA<RT, WT, REL> {
     return this as STATE_ROA_WA<RT, WT, REL>;
   }
 

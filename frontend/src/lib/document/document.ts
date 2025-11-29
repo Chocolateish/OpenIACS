@@ -7,7 +7,7 @@ interface DocumentHandlerEvents {
   removed: Document;
 }
 
-export let documentHandler = new (class DocumentHandler {
+export const DOCUMENT_HANDLER = new (class DocumentHandler {
   /**Stores all managed documents */
   #documents: Set<Document> = new Set();
   /**Stores the main docuement of the manager */

@@ -1,24 +1,24 @@
 import { grey } from "@libColors";
 import "./theme.scss";
-import { themeInitVariableRoot } from "./variables";
+import { theme_init_variable_root } from "./variables";
 
-let root = themeInitVariableRoot(
+let root = theme_init_variable_root(
   "common",
   "Shared Variables",
   "Shared variables across features"
 );
 
-let scrollBar = root.makeSubGroup(
+let scroll_bar = root.make_sub_group(
   "scrollbar",
   "Scrollbar",
   "Scrollbar variables"
 );
-let scrollBarThumb = scrollBar.makeSubGroup(
+let scroll_bar_thumb = scroll_bar.make_sub_group(
   "thumb",
   "Thumb",
   "Scrollbar Thumb variables"
 );
-scrollBarThumb.makeVariable(
+scroll_bar_thumb.make_variable(
   "color",
   "Thumb Color",
   "Color of the scrollbar thumb in normal state",
@@ -27,7 +27,7 @@ scrollBarThumb.makeVariable(
   "Font",
   undefined
 );
-scrollBarThumb.makeVariable(
+scroll_bar_thumb.make_variable(
   "hoverColor",
   "Thumb Hover Color",
   "Color of the scrollbar thumb when hovered",
@@ -36,7 +36,7 @@ scrollBarThumb.makeVariable(
   "Font",
   undefined
 );
-scrollBarThumb.makeVariable(
+scroll_bar_thumb.make_variable(
   "activeColor",
   "Thumb Color",
   "Color of the scrollbar thumb in normal state",
@@ -46,8 +46,8 @@ scrollBarThumb.makeVariable(
   undefined
 );
 
-let fonts = root.makeSubGroup("fonts", "Fonts", "Font variables");
-export let themeBuiltBaseFont = fonts.makeVariable(
+let fonts = root.make_sub_group("fonts", "Fonts", "Font variables");
+fonts.make_variable(
   "base",
   "UI Base Font",
   "The base font for the UI",
@@ -57,8 +57,8 @@ export let themeBuiltBaseFont = fonts.makeVariable(
   undefined
 );
 
-let colors = root.makeSubGroup("colors", "Colors", "Color variables");
-export let themeBuiltInLayer1Color = colors.makeVariable(
+let colors = root.make_sub_group("colors", "Colors", "Color variables");
+colors.make_variable(
   "layer1",
   "UI Layer 1",
   "Color of the first layer of the UI",

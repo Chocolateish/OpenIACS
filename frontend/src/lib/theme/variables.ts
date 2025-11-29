@@ -1,35 +1,35 @@
-import { themeEngine } from "./engine";
+import { theme_engine } from "./engine";
 import { Themes } from "./settings";
-import { bottomGroups } from "./shared";
+import { BOTTOM_GROUPS } from "./shared";
 
-let nameTransformer: ((name: string) => string) | undefined;
-export let themeSetNameTransform = (transform: (name: string) => string) => {
-  nameTransformer = transform;
+let name_transformer: ((name: string) => string) | undefined;
+export let theme_set_name_transform = (transform: (name: string) => string) => {
+  name_transformer = transform;
 };
 
 /**Initialises the settings for the package
  * @param packageName use import {name} from "../package.json"
  * @param name name of group formatted for user reading
  * @param description a description of what the setting group is about*/
-export let themeInitVariableRoot = (
+export let theme_init_variable_root = (
   packageName: string,
   name: string,
   description: string
 ) => {
   if (packageName.includes("-"))
     throw new Error("Dash not permitted in package name " + packageName);
-  if (nameTransformer) packageName = nameTransformer(packageName);
-  bottomGroups[packageName] = new ThemeVariableGroup(
+  if (name_transformer) packageName = name_transformer(packageName);
+  BOTTOM_GROUPS[packageName] = new ThemeVariableGroup(
     packageName,
     name,
     description
   );
-  return bottomGroups[packageName];
+  return BOTTOM_GROUPS[packageName];
 };
 
 /**Group of settings should never be instantiated manually use initSettings*/
 export class ThemeVariableGroup {
-  private pathID: string;
+  private path_ID: string;
   private variables: {
     [key: string]: {
       name: string;
@@ -40,12 +40,12 @@ export class ThemeVariableGroup {
       example?: () => Element;
     };
   } = {};
-  private subGroups: { [key: string]: ThemeVariableGroup } = {};
+  private sub_groups: { [key: string]: ThemeVariableGroup } = {};
   readonly name: string;
   readonly description: string;
 
   constructor(path: string, name: string, description: string) {
-    this.pathID = path;
+    this.path_ID = path;
     this.name = name;
     this.description = description;
   }
@@ -54,13 +54,13 @@ export class ThemeVariableGroup {
    * @param id unique identifier for this subgroup in the parent group
    * @param name name of group formatted for user reading
    * @param description a description of what the setting group is about formatted for user reading*/
-  makeSubGroup(id: string, name: string, description: string) {
+  make_sub_group(id: string, name: string, description: string) {
     if (id.includes("-"))
       throw new Error("Dash not permitted in variable id " + id);
-    if (id in this.subGroups)
+    if (id in this.sub_groups)
       throw new Error("Sub group already registered " + id);
-    return (this.subGroups[id] = new ThemeVariableGroup(
-      this.pathID + "-" + id,
+    return (this.sub_groups[id] = new ThemeVariableGroup(
+      this.path_ID + "-" + id,
       name,
       description
     ));
@@ -73,20 +73,20 @@ export class ThemeVariableGroup {
    * @param light value for light mode
    * @param dark value for dark mode
    * @param type type of variable for editing
-   * @param typeParams */
-  makeVariable<K extends keyof VariableType>(
+   * @param type_params */
+  make_variable<K extends keyof VariableType>(
     id: string,
     name: string,
     description: string,
     light: string,
     dark: string,
     type: K,
-    typeParams: VariableType[K],
+    type_params: VariableType[K],
     example?: () => Element
   ): string {
     if (id.includes("-"))
       throw new Error("Dash not permitted in variable id " + id);
-    let key = "--" + this.pathID + "-" + id;
+    let key = "--" + this.path_ID + "-" + id;
     if (key in this.variables)
       throw new Error("Settings already registered " + id);
     let variable = (this.variables[key] = {
@@ -94,21 +94,21 @@ export class ThemeVariableGroup {
       desc: description,
       vars: { [Themes.Light]: light, [Themes.Dark]: dark },
       type,
-      typeParams,
+      typeParams: type_params,
       example,
     });
-    themeEngine.applySingleProperty(key, variable.vars);
+    theme_engine.apply_single_property(key, variable.vars);
     return key;
   }
 
   /**Applies the groups
    * @param style unique identifier for this variable in the group
    * @param theme name of variable formatted for user reading*/
-  applyThemes(style: CSSStyleDeclaration, theme: string) {
+  apply_themes(style: CSSStyleDeclaration, theme: string) {
     for (const key in this.variables)
       style.setProperty(key, this.variables[key].vars[theme]);
-    for (const key in this.subGroups)
-      this.subGroups[key].applyThemes(style, theme);
+    for (const key in this.sub_groups)
+      this.sub_groups[key].apply_themes(style, theme);
   }
 }
 
