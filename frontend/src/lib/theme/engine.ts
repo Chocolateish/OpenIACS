@@ -41,9 +41,9 @@ export let theme_engine = new (class ThemeEngine {
     doc.documentElement.style.setProperty(
       "--scrollbar",
       {
-        [ScrollbarModes.THIN]: "0.6rem",
-        [ScrollbarModes.MEDIUM]: "1rem",
-        [ScrollbarModes.WIDE]: "2.6rem",
+        [ScrollbarModes.Thin]: "0.6rem",
+        [ScrollbarModes.Medium]: "1rem",
+        [ScrollbarModes.Wide]: "2.6rem",
       }[scroll]
     );
   }
@@ -58,12 +58,12 @@ export let theme_engine = new (class ThemeEngine {
     doc.documentElement.classList.remove("anim-all", "anim-most", "anim-some");
     switch (anim) {
       //@ts-ignore
-      case AnimationLevels.ALL:
+      case AnimationLevels.All:
         doc.documentElement.classList.add("anim-all");
       //@ts-ignore
-      case AnimationLevels.MOST:
+      case AnimationLevels.Most:
         doc.documentElement.classList.add("anim-most");
-      case AnimationLevels.SOME:
+      case AnimationLevels.Some:
         doc.documentElement.classList.add("anim-some");
         break;
     }
@@ -103,15 +103,15 @@ export let theme_engine = new (class ThemeEngine {
     style.setProperty("--touch", "0");
     doc.documentElement.classList.remove("mouse", "pen", "touch");
     switch (mode) {
-      case InputModes.MOUSE:
+      case InputModes.Mouse:
         style.setProperty("--mouse", "1");
         doc.documentElement.classList.add("mouse");
         break;
-      case InputModes.PEN:
+      case InputModes.Pen:
         style.setProperty("--pen", "1");
         doc.documentElement.classList.add("pen");
         break;
-      case InputModes.TOUCH:
+      case InputModes.Touch:
         style.setProperty("--touch", "1");
         doc.documentElement.classList.add("touch");
         break;

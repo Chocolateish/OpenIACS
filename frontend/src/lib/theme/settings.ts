@@ -86,20 +86,20 @@ export const SCALE = _SCALE.read_write;
 //      ____) | |____| | \ \| |__| | |____| |____| |_) / ____ \| | \ \
 //     |_____/ \_____|_|  \_\\____/|______|______|____/_/    \_\_|  \_\
 export const ScrollbarModes = {
-  THIN: "thin",
-  MEDIUM: "medium",
-  WIDE: "wide",
+  Thin: "thin",
+  Medium: "medium",
+  Wide: "wide",
 } as const;
 export type ScrollbarModes =
   (typeof ScrollbarModes)[keyof typeof ScrollbarModes];
 
 const SCROLLBAR_MODES = st.h.enums.list<ScrollbarModes>({
-  [ScrollbarModes.THIN]: {
+  [ScrollbarModes.Thin]: {
     name: "Thin",
     description: "Thin modern scrollbar",
   },
-  [ScrollbarModes.MEDIUM]: { name: "Medium", description: "Normal scrollbar" },
-  [ScrollbarModes.WIDE]: {
+  [ScrollbarModes.Medium]: { name: "Medium", description: "Normal scrollbar" },
+  [ScrollbarModes.Wide]: {
     name: "Wide",
     description: "Large touch friendly scrollbar",
   },
@@ -107,7 +107,7 @@ const SCROLLBAR_MODES = st.h.enums.list<ScrollbarModes>({
 
 const SCROLLBAR_ID = "scrollbar";
 const _SCROLLBAR_MODE = st.s.ros_ws.ok(
-  SETTINGS.get(SCROLLBAR_ID, ScrollbarModes.THIN as ScrollbarModes),
+  SETTINGS.get(SCROLLBAR_ID, ScrollbarModes.Thin as ScrollbarModes),
   true,
   st.h.enums.helper(SCROLLBAR_MODES)
 );
@@ -127,24 +127,24 @@ export const SCROLLBAR_MODE = _SCROLLBAR_MODE.read_write;
 //      _| |_| |\  | |    | |__| |  | |    | |  | | |__| | |__| | |____
 //     |_____|_| \_|_|     \____/   |_|    |_|  |_|\____/|_____/|______|
 export const InputModes = {
-  MOUSE: "mouse",
-  PEN: "pen",
-  TOUCH: "touch",
+  Mouse: "mouse",
+  Pen: "pen",
+  Touch: "touch",
 } as const;
 export type InputModes = (typeof InputModes)[keyof typeof InputModes];
 
 const INPUT_MODES = st.h.enums.list<InputModes>({
-  [InputModes.MOUSE]: {
+  [InputModes.Mouse]: {
     name: "Mouse",
     description: "Mouse input",
     icon: material_hardware_mouse_rounded,
   },
-  [InputModes.PEN]: {
+  [InputModes.Pen]: {
     name: "Pen",
     description: "Pen input",
     icon: material_image_edit_rounded,
   },
-  [InputModes.TOUCH]: {
+  [InputModes.Touch]: {
     name: "Touch",
     description: "Touch input",
     icon: material_action_touch_app_rounded,
@@ -156,8 +156,8 @@ const _INPUT_MODE = st.s.ros_ws.ok(
   SETTINGS.get(
     INPUT_MODE_ID,
     matchMedia("(pointer: coarse)").matches
-      ? InputModes.TOUCH
-      : (InputModes.MOUSE as InputModes)
+      ? InputModes.Touch
+      : (InputModes.Mouse as InputModes)
   ),
   true,
   st.h.enums.helper(INPUT_MODES)
@@ -178,30 +178,30 @@ export const INPUT_MODE = _INPUT_MODE.read_write;
 //      / ____ \| |\  |_| |_| |  | |/ ____ \| |   _| || |__| | |\  | | |____| |____   \  /  | |____| |____
 //     /_/    \_\_| \_|_____|_|  |_/_/    \_\_|  |_____\____/|_| \_| |______|______|   \/   |______|______|
 export const AnimationLevels = {
-  ALL: "all",
-  MOST: "most",
-  SOME: "some",
-  NONE: "none",
+  All: "all",
+  Most: "most",
+  Some: "some",
+  None: "none",
 } as const;
 export type AnimationLevels =
   (typeof AnimationLevels)[keyof typeof AnimationLevels];
 
 const ANIMATION_LEVELS = st.h.enums.list<AnimationLevels>({
-  [AnimationLevels.ALL]: { name: "All", description: "All animations" },
-  [AnimationLevels.MOST]: {
+  [AnimationLevels.All]: { name: "All", description: "All animations" },
+  [AnimationLevels.Most]: {
     name: "Most",
     description: "All but the heaviest animations",
   },
-  [AnimationLevels.SOME]: {
+  [AnimationLevels.Some]: {
     name: "Some",
     description: "Only the lightest animations",
   },
-  [AnimationLevels.NONE]: { name: "None", description: "No animations" },
+  [AnimationLevels.None]: { name: "None", description: "No animations" },
 });
 
 const ANIMATION_LEVEL_ID = "animation";
 const _ANIMATION_LEVEL = st.s.ros_ws.ok(
-  SETTINGS.get(ANIMATION_LEVEL_ID, AnimationLevels.NONE as AnimationLevels),
+  SETTINGS.get(ANIMATION_LEVEL_ID, AnimationLevels.None as AnimationLevels),
   true,
   st.h.enums.helper(ANIMATION_LEVELS)
 );

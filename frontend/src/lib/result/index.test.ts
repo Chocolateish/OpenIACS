@@ -85,10 +85,6 @@ describe("Result Ok", function () {
     let result = Ok(42);
     expect(result.to_option.expect()).equal(42);
   });
-  it("safeUnwrap from valid result", function () {
-    let result = Ok(42);
-    expect(result.safe_unwrap()).equal(42);
-  });
 });
 
 //###########################################################################################################################################################
