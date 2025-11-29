@@ -1,4 +1,4 @@
-import { None, ResultOk, type Option } from "@libResult";
+import { None, OptionNone, ResultOk, type Option } from "@libResult";
 import { STATE_BASE } from "../base";
 import {
   type STATE_RELATED as RELATED,
@@ -29,13 +29,17 @@ import {
  * this can prevent unneeded calls if the user is switching around quickly between things referencing states
  * @template RT - The type of the state’s value when read.
  * @template REL - The type of related states, defaults to an empty object.*/
-export interface STATE_RESOURCE_ROA_OWNER<RT, WT, REL extends RELATED> {
+export interface STATE_RESOURCE_ROA_OWNER<RT, WT, REL extends Option<RELATED>> {
   update_resource(value: ResultOk<RT>): void;
   get buffer(): ResultOk<RT> | undefined;
   get state(): STATE<RT, WT, REL>;
   get read_only(): STATE_ROA<RT, REL, WT>;
 }
-export abstract class STATE_RESOURCE_ROA<RT, REL extends RELATED = {}, WT = any>
+export abstract class STATE_RESOURCE_ROA<
+    RT,
+    REL extends Option<RELATED> = OptionNone,
+    WT = any
+  >
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
   implements STATE_RESOURCE_ROA_OWNER<RT, WT, REL>
 {
@@ -154,11 +158,11 @@ export abstract class STATE_RESOURCE_ROA<RT, REL extends RELATED = {}, WT = any>
 }
 
 //##################################################################################################################################################
-interface OWNER<RT, WT, REL extends RELATED>
+interface OWNER<RT, WT, REL extends Option<RELATED>>
   extends STATE_RESOURCE_ROA_OWNER<RT, WT, REL> {}
 export type STATE_RESOURCE_FUNC_ROA<
   RT,
-  REL extends RELATED = {},
+  REL extends Option<RELATED> = OptionNone,
   WT = any
 > = STATE_ROA<RT, REL, WT> & OWNER<RT, WT, REL>;
 
@@ -166,7 +170,7 @@ export type STATE_RESOURCE_FUNC_ROA<
  * @template RT - The type of the state’s value when read.
  * @template WT - The type which can be written to the state.
  * @template REL - The type of related states, defaults to an empty object.*/
-class FUNC_ROA<RT, REL extends RELATED = {}, WT = any>
+class FUNC_ROA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   extends STATE_RESOURCE_ROA<RT, REL, WT>
   implements OWNER<RT, WT, REL>
 {
@@ -203,8 +207,8 @@ class FUNC_ROA<RT, REL extends RELATED = {}, WT = any>
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
   protected teardown_connection(_state: OWNER<RT, WT, REL>): void {}
 
-  related(): Option<REL> {
-    return this.#helper?.related ? this.#helper.related() : None();
+  related(): REL {
+    return this.#helper?.related ? this.#helper.related() : (None() as REL);
   }
 }
 
@@ -219,7 +223,7 @@ const roa = {
    * @param timeout how long the last retrived value is considered valid
    * @param retention delay after last subscriber unsubscribes before teardown is called, to allow quick resubscribe without teardown
    * */
-  from<RT, REL extends RELATED = {}, WT = any>(
+  from<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     once: (state: OWNER<RT, WT, REL>) => void,
     setup: (state: OWNER<RT, WT, REL>) => void,
     teardown: (state: OWNER<RT, WT, REL>) => void,

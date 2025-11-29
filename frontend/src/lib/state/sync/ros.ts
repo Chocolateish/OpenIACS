@@ -1,4 +1,12 @@
-import { Err, None, Ok, ResultOk, type Option, type Result } from "@libResult";
+import {
+  Err,
+  None,
+  Ok,
+  OptionNone,
+  ResultOk,
+  type Option,
+  type Result,
+} from "@libResult";
 import { STATE_BASE } from "../base";
 import {
   type STATE_HELPER as Helper,
@@ -17,21 +25,20 @@ import {
 //     |  _  /| |  | |\___ \
 //     | | \ \| |__| |____) |
 //     |_|  \_\\____/|_____/
-interface OWNER<RT, WT, REL extends RELATED> {
+interface OWNER<RT, WT, REL extends Option<RELATED>> {
   set(value: ResultOk<RT>): void;
   set_ok(value: RT): void;
   get state(): STATE<RT, WT, REL>;
   get read_only(): STATE_ROS<RT, REL, WT>;
 }
 
-export type STATE_SYNC_ROS<RT, REL extends RELATED = {}, WT = any> = STATE_ROS<
+export type STATE_SYNC_ROS<
   RT,
-  REL,
-  WT
-> &
-  OWNER<RT, WT, REL>;
+  REL extends Option<RELATED> = OptionNone,
+  WT = any
+> = STATE_ROS<RT, REL, WT> & OWNER<RT, WT, REL>;
 
-class ROS<RT, REL extends RELATED = {}, WT = any>
+class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
   implements OWNER<RT, WT, REL>
 {
@@ -77,8 +84,8 @@ class ROS<RT, REL extends RELATED = {}, WT = any>
   ok(): RT {
     return this.#value.value;
   }
-  related(): Option<REL> {
-    return this.#helper?.related ? this.#helper.related() : None();
+  related(): REL {
+    return this.#helper?.related ? this.#helper.related() : (None() as REL);
   }
 
   //#Writer Context
@@ -106,7 +113,7 @@ const ros = {
   /**Creates a sync ok state from an initial value.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, REL extends RELATED = {}, WT = any>(
+  ok<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     init: RT,
     helper?: Helper<WT, REL>
   ) {
@@ -119,7 +126,7 @@ const ros = {
   /**Creates a sync ok state from an initial result.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, REL extends RELATED = {}, WT = any>(
+  result<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     init: ResultOk<RT>,
     helper?: Helper<WT, REL>
   ) {
@@ -135,7 +142,7 @@ const ros = {
 //     | | \ \| |__| |____) |    \  /\  /  ____) |
 //     |_|  \_\\____/|_____/      \/  \/  |_____/
 
-interface OWNER_WS<RT, WT, REL extends RELATED> {
+interface OWNER_WS<RT, WT, REL extends Option<RELATED>> {
   set(value: ResultOk<RT>): void;
   set_ok(value: RT): void;
   get state(): STATE<RT, WT, REL>;
@@ -146,10 +153,10 @@ interface OWNER_WS<RT, WT, REL extends RELATED> {
 export type STATE_SYNC_ROS_WS<
   RT,
   WT = RT,
-  REL extends RELATED = {}
+  REL extends Option<RELATED> = OptionNone
 > = STATE_ROS_WS<RT, WT, REL> & OWNER_WS<RT, WT, REL>;
 
-class ROS_WS<RT, WT = RT, REL extends RELATED = {}>
+class ROS_WS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
   implements OWNER_WS<RT, WT, REL>
 {
@@ -213,8 +220,8 @@ class ROS_WS<RT, WT = RT, REL extends RELATED = {}>
   ok(): RT {
     return this.#value.value;
   }
-  related(): Option<REL> {
-    return this.#helper?.related ? this.#helper.related() : None();
+  related(): REL {
+    return this.#helper?.related ? this.#helper.related() : (None() as REL);
   }
 
   //#Writer Context
@@ -241,7 +248,7 @@ const ros_ws = {
   /**Creates a sync ok state from an initial value.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, WT = RT, REL extends RELATED = {}>(
+  ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: RT,
     setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
@@ -255,7 +262,7 @@ const ros_ws = {
   /**Creates a sync ok state from an initial result.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, WT = RT, REL extends RELATED = {}>(
+  result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: ResultOk<RT>,
     setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>

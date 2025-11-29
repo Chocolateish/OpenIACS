@@ -1,4 +1,4 @@
-import { type ResultOk } from "@libResult";
+import { None, OptionNone, type ResultOk } from "@libResult";
 import { STATE_BASE } from "../base";
 import { type STATE, type STATE_RES, type STATE_ROS } from "../types";
 import type {
@@ -32,10 +32,10 @@ export type STATE_COLLECTED_ROS<
   RT,
   IN extends [STATE_RES<any>, ...STATE_RES<any>[]],
   WT = any
-> = STATE_ROS<RT, any, WT> & OWNER<RT, IN, WT>;
+> = STATE_ROS<RT, OptionNone, WT> & OWNER<RT, IN, WT>;
 
 export class ROS<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
-  extends STATE_BASE<RT, WT, any, ResultOk<RT>>
+  extends STATE_BASE<RT, WT, OptionNone, ResultOk<RT>>
   implements OWNER<RT, IN, WT>
 {
   constructor(
@@ -138,6 +138,9 @@ export class ROS<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
   }
   ok(): RT {
     return this.get().value;
+  }
+  related(): OptionNone {
+    return None();
   }
 
   //#Writer Context

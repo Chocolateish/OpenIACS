@@ -1,4 +1,4 @@
-import { Err, type Result } from "@libResult";
+import { Err, None, OptionNone, type Result } from "@libResult";
 import { STATE_BASE } from "../base";
 import { type STATE, type STATE_RES } from "../types";
 import type {
@@ -32,10 +32,10 @@ export type STATE_COLLECTED_RES<
   RT,
   IN extends STATE_RES<any>[],
   WT = any
-> = STATE_RES<RT, any, WT> & OWNER<RT, IN, WT>;
+> = STATE_RES<RT, OptionNone, WT> & OWNER<RT, IN, WT>;
 
 export class RES<RT, IN extends STATE_RES<any>[], WT>
-  extends STATE_BASE<RT, WT, any, Result<RT, string>>
+  extends STATE_BASE<RT, WT, OptionNone, Result<RT, string>>
   implements OWNER<RT, IN, WT>
 {
   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
@@ -144,6 +144,9 @@ export class RES<RT, IN extends STATE_RES<any>[], WT>
           this.#states.map((s) => s.get()) as STATE_COLLECTED_TRANS_VAL<IN>
         )
       : Err("No states registered");
+  }
+  related(): OptionNone {
+    return None();
   }
 
   //#Writer Context

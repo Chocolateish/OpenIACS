@@ -1,4 +1,11 @@
-import { Err, None, Ok, type Option, type Result } from "@libResult";
+import {
+  Err,
+  None,
+  Ok,
+  OptionNone,
+  type Option,
+  type Result,
+} from "@libResult";
 import { STATE_BASE } from "../base";
 import {
   type STATE_HELPER as Helper,
@@ -16,21 +23,20 @@ import {
 //     |  _  /|  __|  \___ \
 //     | | \ \| |____ ____) |
 //     |_|  \_\______|_____/
-interface OWNER<RT, WT, REL extends RELATED> {
+interface OWNER<RT, WT, REL extends Option<RELATED>> {
   set(value: Result<RT, string>): void;
   set_ok(value: RT): void;
   set_err(err: string): void;
   get state(): STATE<RT, WT, REL>;
   get read_only(): STATE_RES<RT, REL, WT>;
 }
-export type STATE_SYNC_RES<RT, REL extends RELATED = {}, WT = any> = STATE_RES<
+export type STATE_SYNC_RES<
   RT,
-  REL,
-  WT
-> &
-  OWNER<RT, WT, REL>;
+  REL extends Option<RELATED> = OptionNone,
+  WT = any
+> = STATE_RES<RT, REL, WT> & OWNER<RT, WT, REL>;
 
-class RES<RT, REL extends RELATED, WT>
+class RES<RT, REL extends Option<RELATED>, WT>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
   implements OWNER<RT, WT, REL>
 {
@@ -76,8 +82,8 @@ class RES<RT, REL extends RELATED, WT>
   get(): Result<RT, string> {
     return this.#value;
   }
-  related(): Option<REL> {
-    return this.#helper?.related ? this.#helper.related() : None();
+  related(): REL {
+    return this.#helper?.related ? this.#helper.related() : (None() as REL);
   }
 
   //#Writer Context
@@ -105,7 +111,7 @@ const res = {
   /**Creates a sync state from an initial value.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, REL extends RELATED = {}, WT = any>(
+  ok<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     init: RT,
     helper?: Helper<WT, REL>
   ) {
@@ -118,7 +124,7 @@ const res = {
   /**Creates a sync state from an initial error.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  err<RT, REL extends RELATED = {}, WT = any>(
+  err<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     init: string,
     helper?: Helper<WT, REL>
   ) {
@@ -131,7 +137,7 @@ const res = {
   /**Creates a sync state from an initial result.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, REL extends RELATED = {}, WT = any>(
+  result<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     init: Result<RT, string>,
     helper?: Helper<WT, REL>
   ) {
@@ -147,7 +153,7 @@ const res = {
 //     | | \ \| |____ ____) |    \  /\  /  ____) |
 //     |_|  \_\______|_____/      \/  \/  |_____/
 
-interface OWNER_WS<RT, WT, REL extends RELATED> {
+interface OWNER_WS<RT, WT, REL extends Option<RELATED>> {
   set(value: Result<RT, string>): void;
   set_ok(value: RT): void;
   set_err(err: string): void;
@@ -159,10 +165,10 @@ interface OWNER_WS<RT, WT, REL extends RELATED> {
 export type STATE_SYNC_RES_WS<
   RT,
   WT = RT,
-  REL extends RELATED = {}
+  REL extends Option<RELATED> = OptionNone
 > = STATE_RES_WS<RT, WT, REL> & OWNER_WS<RT, WT, REL>;
 
-class RES_WS<RT, WT, REL extends RELATED>
+class RES_WS<RT, WT, REL extends Option<RELATED>>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
   implements OWNER_WS<RT, WT, REL>
 {
@@ -226,8 +232,8 @@ class RES_WS<RT, WT, REL extends RELATED>
   get(): Result<RT, string> {
     return this.#value;
   }
-  related(): Option<REL> {
-    return this.#helper?.related ? this.#helper.related() : None();
+  related(): REL {
+    return this.#helper?.related ? this.#helper.related() : (None() as REL);
   }
 
   //#Writer Context
@@ -254,7 +260,7 @@ const res_ws = {
   /**Creates a writable sync state from an initial value.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, WT = RT, REL extends RELATED = {}>(
+  ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: RT,
     setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
@@ -268,7 +274,7 @@ const res_ws = {
   /**Creates a writable sync state from an initial error.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  err<RT, WT = RT, REL extends RELATED = {}>(
+  err<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: string,
     setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
@@ -282,7 +288,7 @@ const res_ws = {
   /**Creates a writable sync state from an initial result.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, WT = RT, REL extends RELATED = {}>(
+  result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: Result<RT, string>,
     setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>

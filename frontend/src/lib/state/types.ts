@@ -1,4 +1,9 @@
-import { type Option, type Result, type ResultOk } from "@libResult";
+import {
+  OptionNone,
+  type Option,
+  type Result,
+  type ResultOk,
+} from "@libResult";
 
 /**Function used to subscribe to state changes
  * @template RT - The type of the state’s value when read.*/
@@ -25,8 +30,8 @@ export type STATE_RELATED = {
   [key: string | symbol | number]: any;
 };
 
-export interface STATE_HELPER<WT, REL extends STATE_RELATED = {}> {
-  related?: () => Option<REL>;
+export interface STATE_HELPER<WT, REL extends Option<STATE_RELATED>> {
+  related?: () => REL;
   limit?: (value: WT) => Result<WT, string>;
   check?: (value: WT) => Result<WT, string>;
 }
@@ -67,7 +72,7 @@ export type STATE_SET_ROX_WS<RT, S, WT = RT> = (
 export interface STATE_BASE<
   RT,
   WT,
-  REL extends STATE_RELATED,
+  REL extends Option<STATE_RELATED>,
   RRT extends Result<RT, string>
 > {
   //#Reader Context
@@ -86,7 +91,7 @@ export interface STATE_BASE<
   /**This removes a function as a subscriber to the state*/
   unsub<T = STATE_SUB<RRT>>(func: T): T;
   /**This returns related states if any*/
-  related(): Option<REL>;
+  related(): REL;
 
   /**Returns if the state is being used */
   in_use(): this | undefined;
@@ -109,7 +114,7 @@ export interface STATE_BASE<
   check?(value: WT): Result<WT, string>;
 }
 
-interface REA<RT, REL extends STATE_RELATED, WT>
+interface REA<RT, REL extends Option<STATE_RELATED>, WT>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>> {
   readonly rsync: false;
   readonly rok: false;
@@ -117,7 +122,7 @@ interface REA<RT, REL extends STATE_RELATED, WT>
   readonly wsync: false;
 }
 
-interface ROA<RT, REL extends STATE_RELATED, WT>
+interface ROA<RT, REL extends Option<STATE_RELATED>, WT>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>> {
   readonly rsync: false;
   readonly rok: true;
@@ -125,7 +130,7 @@ interface ROA<RT, REL extends STATE_RELATED, WT>
   readonly wsync: false;
 }
 
-interface RES<RT, REL extends STATE_RELATED, WT>
+interface RES<RT, REL extends Option<STATE_RELATED>, WT>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>> {
   readonly rsync: true;
   readonly rok: false;
@@ -134,7 +139,7 @@ interface RES<RT, REL extends STATE_RELATED, WT>
   get(): Result<RT, string>;
 }
 
-interface ROS<RT, REL extends STATE_RELATED, WT>
+interface ROS<RT, REL extends Option<STATE_RELATED>, WT>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>> {
   readonly rsync: true;
   readonly rok: true;
@@ -144,7 +149,7 @@ interface ROS<RT, REL extends STATE_RELATED, WT>
   ok(): RT;
 }
 
-interface REA_WA<RT, WT, REL extends STATE_RELATED>
+interface REA_WA<RT, WT, REL extends Option<STATE_RELATED>>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>> {
   readonly rsync: false;
   readonly rok: false;
@@ -155,7 +160,7 @@ interface REA_WA<RT, WT, REL extends STATE_RELATED>
   check(value: WT): Result<WT, string>;
 }
 
-interface REA_WS<RT, WT = RT, REL extends STATE_RELATED = {}>
+interface REA_WS<RT, WT, REL extends Option<STATE_RELATED>>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>> {
   readonly rsync: false;
   readonly rok: false;
@@ -167,7 +172,7 @@ interface REA_WS<RT, WT = RT, REL extends STATE_RELATED = {}>
   write_sync(value: WT): Result<void, string>;
 }
 
-interface ROA_WA<RT, WT = RT, REL extends STATE_RELATED = {}>
+interface ROA_WA<RT, WT, REL extends Option<STATE_RELATED>>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>> {
   readonly rsync: false;
   readonly rok: true;
@@ -178,7 +183,7 @@ interface ROA_WA<RT, WT = RT, REL extends STATE_RELATED = {}>
   check(value: WT): Result<WT, string>;
 }
 
-interface ROA_WS<RT, WT = RT, REL extends STATE_RELATED = {}>
+interface ROA_WS<RT, WT, REL extends Option<STATE_RELATED>>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>> {
   readonly rsync: false;
   readonly rok: true;
@@ -190,7 +195,7 @@ interface ROA_WS<RT, WT = RT, REL extends STATE_RELATED = {}>
   write_sync(value: WT): Result<void, string>;
 }
 
-interface RES_WA<RT, WT = RT, REL extends STATE_RELATED = {}>
+interface RES_WA<RT, WT, REL extends Option<STATE_RELATED>>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>> {
   readonly rsync: true;
   readonly rok: false;
@@ -202,7 +207,7 @@ interface RES_WA<RT, WT = RT, REL extends STATE_RELATED = {}>
   check(value: WT): Result<WT, string>;
 }
 
-interface RES_WS<RT, WT, REL extends STATE_RELATED>
+interface RES_WS<RT, WT, REL extends Option<STATE_RELATED>>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>> {
   readonly rsync: true;
   readonly rok: false;
@@ -215,7 +220,7 @@ interface RES_WS<RT, WT, REL extends STATE_RELATED>
   write_sync(value: WT): Result<void, string>;
 }
 
-interface ROS_WA<RT, WT, REL extends STATE_RELATED>
+interface ROS_WA<RT, WT, REL extends Option<STATE_RELATED>>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>> {
   readonly rsync: true;
   readonly rok: true;
@@ -228,7 +233,7 @@ interface ROS_WA<RT, WT, REL extends STATE_RELATED>
   check(value: WT): Result<WT, string>;
 }
 
-interface ROS_WS<RT, WT, REL extends STATE_RELATED>
+interface ROS_WS<RT, WT, REL extends Option<STATE_RELATED>>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>> {
   readonly rsync: true;
   readonly rok: true;
@@ -250,7 +255,11 @@ interface ROS_WS<RT, WT, REL extends STATE_RELATED>
 //        | |     | |  | |    | |____ ____) |
 //        |_|     |_|  |_|    |______|_____/
 
-export type STATE<RT, WT = RT, REL extends STATE_RELATED = {}> =
+export type STATE<
+  RT,
+  WT = RT,
+  REL extends Option<STATE_RELATED> = OptionNone
+> =
   | STATE_REA<RT, REL, WT>
   | STATE_ROA<RT, REL, WT>
   | STATE_RES<RT, REL, WT>
@@ -264,7 +273,11 @@ export type STATE<RT, WT = RT, REL extends STATE_RELATED = {}> =
   | STATE_ROS_WA<RT, WT, REL>
   | STATE_ROS_WS<RT, WT, REL>;
 
-export type STATE_REA<RT, REL extends STATE_RELATED = {}, WT = any> =
+export type STATE_REA<
+  RT,
+  REL extends Option<STATE_RELATED> = OptionNone,
+  WT = any
+> =
   | REA<RT, REL, WT>
   | STATE_REA_WA<RT, WT, REL>
   | STATE_REA_WS<RT, WT, REL>
@@ -272,60 +285,85 @@ export type STATE_REA<RT, REL extends STATE_RELATED = {}, WT = any> =
   | STATE_ROS<RT, REL, WT>
   | STATE_RES<RT, REL, WT>;
 
-export type STATE_ROA<RT, REL extends STATE_RELATED = {}, WT = any> =
+export type STATE_ROA<
+  RT,
+  REL extends Option<STATE_RELATED> = OptionNone,
+  WT = any
+> =
   | ROA<RT, REL, WT>
   | STATE_ROA_WA<RT, WT, REL>
   | STATE_ROA_WS<RT, WT, REL>
   | STATE_ROS<RT, REL, WT>;
 
-export type STATE_RES<RT, REL extends STATE_RELATED = {}, WT = any> =
+export type STATE_RES<
+  RT,
+  REL extends Option<STATE_RELATED> = OptionNone,
+  WT = any
+> =
   | RES<RT, REL, WT>
   | STATE_RES_WA<RT, WT, REL>
   | STATE_RES_WS<RT, WT, REL>
   | STATE_ROS<RT, REL, WT>;
 
-export type STATE_ROS<RT, REL extends STATE_RELATED = {}, WT = any> =
-  | ROS<RT, REL, WT>
-  | STATE_ROS_WA<RT, WT, REL>
-  | STATE_ROS_WS<RT, WT, REL>;
+export type STATE_ROS<
+  RT,
+  REL extends Option<STATE_RELATED> = OptionNone,
+  WT = any
+> = ROS<RT, REL, WT> | STATE_ROS_WA<RT, WT, REL> | STATE_ROS_WS<RT, WT, REL>;
 
-export type STATE_REA_WA<RT, WT = RT, REL extends STATE_RELATED = {}> =
+export type STATE_REA_WA<
+  RT,
+  WT = RT,
+  REL extends Option<STATE_RELATED> = OptionNone
+> =
   | REA_WA<RT, WT, REL>
   | STATE_REA_WS<RT, WT, REL>
   | STATE_ROA_WA<RT, WT, REL>
   | STATE_ROS_WA<RT, WT, REL>
   | STATE_RES_WA<RT, WT, REL>;
 
-export type STATE_REA_WS<RT, WT = RT, REL extends STATE_RELATED = {}> =
+export type STATE_REA_WS<
+  RT,
+  WT = RT,
+  REL extends Option<STATE_RELATED> = OptionNone
+> =
   | REA_WS<RT, WT, REL>
   | STATE_ROA_WS<RT, WT, REL>
   | STATE_ROS_WS<RT, WT, REL>
   | STATE_RES_WS<RT, WT, REL>;
 
-export type STATE_ROA_WA<RT, WT = RT, REL extends STATE_RELATED = {}> =
-  | ROA_WA<RT, WT, REL>
-  | STATE_ROA_WS<RT, WT, REL>
-  | STATE_ROS_WA<RT, WT, REL>;
-
-export type STATE_ROA_WS<RT, WT = RT, REL extends STATE_RELATED = {}> =
-  | ROA_WS<RT, WT, REL>
-  | STATE_ROS_WS<RT, WT, REL>;
-
-export type STATE_RES_WA<RT, WT = RT, REL extends STATE_RELATED = {}> =
-  | RES_WA<RT, WT, REL>
-  | STATE_RES_WS<RT, WT, REL>
-  | STATE_ROS_WA<RT, WT, REL>;
-
-export type STATE_RES_WS<RT, WT = RT, REL extends STATE_RELATED = {}> =
-  | RES_WS<RT, WT, REL>
-  | STATE_ROS_WS<RT, WT, REL>;
-
-export type STATE_ROS_WA<RT, WT = RT, REL extends STATE_RELATED = {}> =
-  | ROS_WA<RT, WT, REL>
-  | STATE_ROS_WS<RT, WT, REL>;
-
-export type STATE_ROS_WS<RT, WT = RT, REL extends STATE_RELATED = {}> = ROS_WS<
+export type STATE_ROA_WA<
   RT,
-  WT,
-  REL
->;
+  WT = RT,
+  REL extends Option<STATE_RELATED> = OptionNone
+> = ROA_WA<RT, WT, REL> | STATE_ROA_WS<RT, WT, REL> | STATE_ROS_WA<RT, WT, REL>;
+
+export type STATE_ROA_WS<
+  RT,
+  WT = RT,
+  REL extends Option<STATE_RELATED> = OptionNone
+> = ROA_WS<RT, WT, REL> | STATE_ROS_WS<RT, WT, REL>;
+
+export type STATE_RES_WA<
+  RT,
+  WT = RT,
+  REL extends Option<STATE_RELATED> = OptionNone
+> = RES_WA<RT, WT, REL> | STATE_RES_WS<RT, WT, REL> | STATE_ROS_WA<RT, WT, REL>;
+
+export type STATE_RES_WS<
+  RT,
+  WT = RT,
+  REL extends Option<STATE_RELATED> = OptionNone
+> = RES_WS<RT, WT, REL> | STATE_ROS_WS<RT, WT, REL>;
+
+export type STATE_ROS_WA<
+  RT,
+  WT = RT,
+  REL extends Option<STATE_RELATED> = OptionNone
+> = ROS_WA<RT, WT, REL> | STATE_ROS_WS<RT, WT, REL>;
+
+export type STATE_ROS_WS<
+  RT,
+  WT = RT,
+  REL extends Option<STATE_RELATED> = OptionNone
+> = ROS_WS<RT, WT, REL>;

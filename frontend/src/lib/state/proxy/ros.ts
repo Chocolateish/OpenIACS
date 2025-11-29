@@ -1,4 +1,4 @@
-import { Err, None, ResultOk, type Option, type Result } from "@libResult";
+import { Err, None, OptionNone, ResultOk, type Result } from "@libResult";
 import { STATE_BASE } from "../base";
 import {
   type STATE,
@@ -24,8 +24,8 @@ interface OWNER<S extends STATE<any, any>, RIN, ROUT, WIN, WOUT> {
   set_transform_read(transform: ROS_TRANSFORM<S, RIN, ROUT>): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
-  get state(): STATE<ROUT, WOUT, any>;
-  get read_only(): STATE_ROS<ROUT, any, WOUT>;
+  get state(): STATE<ROUT, WOUT, OptionNone>;
+  get read_only(): STATE_ROS<ROUT, OptionNone, WOUT>;
 }
 
 type ROS_TRANSFORM<S extends STATE<any, any>, RIN, ROUT> = (
@@ -42,7 +42,7 @@ export type STATE_PROXY_ROS<
   ROUT = RIN,
   WIN = S extends STATE<any, infer WT> ? WT : any,
   WOUT = WIN
-> = STATE_ROS<ROUT, any, WOUT> & OWNER<S, RIN, ROUT, WIN, WOUT>;
+> = STATE_ROS<ROUT, OptionNone, WOUT> & OWNER<S, RIN, ROUT, WIN, WOUT>;
 
 export class ROS<
     S extends STATE_RES<RIN, any, WIN>,
@@ -51,7 +51,7 @@ export class ROS<
     WIN = S extends STATE<any, infer WT> ? WT : never,
     WOUT = WIN
   >
-  extends STATE_BASE<ROUT, WOUT, any, ResultOk<ROUT>>
+  extends STATE_BASE<ROUT, WOUT, OptionNone, ResultOk<ROUT>>
   implements OWNER<S, RIN, ROUT, WIN, WOUT>
 {
   constructor(
@@ -128,7 +128,7 @@ export class ROS<
   ok(): ROUT {
     return this.get().value;
   }
-  related(): Option<{}> {
+  related(): OptionNone {
     return None();
   }
 
@@ -218,9 +218,9 @@ interface OWNER_WS<
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
-  get state(): STATE<ROUT, WOUT, any>;
-  get read_only(): STATE_ROS<ROUT, any, WOUT>;
-  get read_write(): STATE_ROS_WS<ROUT, WOUT>;
+  get state(): STATE<ROUT, WOUT, OptionNone>;
+  get read_only(): STATE_ROS<ROUT, OptionNone, WOUT>;
+  get read_write(): STATE_ROS_WS<ROUT, WOUT, OptionNone>;
 }
 
 export type STATE_PROXY_ROS_WS<
@@ -229,7 +229,7 @@ export type STATE_PROXY_ROS_WS<
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_ROS_WS<ROUT, WOUT> & OWNER_WS<S, RIN, WIN, ROUT, WOUT>;
+> = STATE_ROS_WS<ROUT, WOUT, OptionNone> & OWNER_WS<S, RIN, WIN, ROUT, WOUT>;
 
 export class ROS_WS<
     S extends STATE_RES_WS<RIN, WIN>,
@@ -238,7 +238,7 @@ export class ROS_WS<
     ROUT = RIN,
     WOUT = WIN
   >
-  extends STATE_BASE<ROUT, WOUT, any, ResultOk<ROUT>>
+  extends STATE_BASE<ROUT, WOUT, OptionNone, ResultOk<ROUT>>
   implements OWNER_WS<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
@@ -323,7 +323,7 @@ export class ROS_WS<
   ok(): ROUT {
     return this.get().value;
   }
-  related(): Option<{}> {
+  related(): OptionNone {
     return None();
   }
 
@@ -413,9 +413,9 @@ interface OWNER_WA<
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
-  get state(): STATE<ROUT, WOUT, any>;
-  get read_only(): STATE_ROS<ROUT, any, WOUT>;
-  get read_write(): STATE_ROS_WA<ROUT, WOUT>;
+  get state(): STATE<ROUT, WOUT, OptionNone>;
+  get read_only(): STATE_ROS<ROUT, OptionNone, WOUT>;
+  get read_write(): STATE_ROS_WA<ROUT, WOUT, OptionNone>;
 }
 export type STATE_PROXY_ROS_WA<
   S extends STATE_RES_WA<RIN, WIN>,
@@ -423,7 +423,7 @@ export type STATE_PROXY_ROS_WA<
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_ROS_WA<ROUT, WOUT> & OWNER_WA<S, RIN, WIN, ROUT, WOUT>;
+> = STATE_ROS_WA<ROUT, WOUT, OptionNone> & OWNER_WA<S, RIN, WIN, ROUT, WOUT>;
 
 export class ROS_WA<
     S extends STATE_RES_WA<RIN, WIN>,
@@ -432,7 +432,7 @@ export class ROS_WA<
     ROUT = RIN,
     WOUT = WIN
   >
-  extends STATE_BASE<ROUT, WOUT, any, ResultOk<ROUT>>
+  extends STATE_BASE<ROUT, WOUT, OptionNone, ResultOk<ROUT>>
   implements OWNER_WA<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
@@ -517,7 +517,7 @@ export class ROS_WA<
   ok(): ROUT {
     return this.get().value;
   }
-  related(): Option<{}> {
+  related(): OptionNone {
     return None();
   }
 

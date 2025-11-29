@@ -1,4 +1,11 @@
-import { Err, None, Ok, type Option, type Result } from "@libResult";
+import {
+  Err,
+  None,
+  Ok,
+  OptionNone,
+  type Option,
+  type Result,
+} from "@libResult";
 import { STATE_BASE } from "../base";
 import {
   type STATE_RELATED as RELATED,
@@ -30,14 +37,18 @@ import {
  * this can prevent unneeded calls if the user is switching around quickly between things referencing states
  * @template RT - The type of the state’s value when read.
  * @template REL - The type of related states, defaults to an empty object.*/
-export interface STATE_RESOURCE_REA_OWNER<RT, WT, REL extends RELATED> {
+export interface STATE_RESOURCE_REA_OWNER<RT, WT, REL extends Option<RELATED>> {
   update_resource(value: Result<RT, string>): void;
   get buffer(): Result<RT, string> | undefined;
   get state(): STATE<RT, WT, REL>;
   get read_only(): STATE_REA<RT, REL, WT>;
 }
 
-export abstract class STATE_RESOURCE_REA<RT, REL extends RELATED = {}, WT = any>
+export abstract class STATE_RESOURCE_REA<
+    RT,
+    REL extends Option<RELATED> = OptionNone,
+    WT = any
+  >
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
   implements STATE_RESOURCE_REA_OWNER<RT, WT, REL>
 {
@@ -158,11 +169,11 @@ export abstract class STATE_RESOURCE_REA<RT, REL extends RELATED = {}, WT = any>
 }
 
 //##################################################################################################################################################
-interface OWNER<RT, WT, REL extends RELATED>
+interface OWNER<RT, WT, REL extends Option<RELATED>>
   extends STATE_RESOURCE_REA_OWNER<RT, WT, REL> {}
 export type STATE_RESOURCE_FUNC_REA<
   RT,
-  REL extends RELATED = {},
+  REL extends Option<RELATED> = OptionNone,
   WT = any
 > = STATE_REA<RT, REL, WT> & OWNER<RT, WT, REL>;
 
@@ -172,7 +183,7 @@ export type STATE_RESOURCE_FUNC_REA<
  * @template REL - The type of related states, defaults to an empty object.*/
 export class FUNC_REA<
   RT,
-  REL extends RELATED = {},
+  REL extends Option<RELATED> = OptionNone,
   WT = any
 > extends STATE_RESOURCE_REA<RT, REL, WT> {
   constructor(
@@ -208,8 +219,8 @@ export class FUNC_REA<
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
   protected teardown_connection(_state: OWNER<RT, WT, REL>): void {}
 
-  related(): Option<REL> {
-    return this.#helper?.related ? this.#helper.related() : None();
+  related(): REL {
+    return this.#helper?.related ? this.#helper.related() : (None() as REL);
   }
 }
 
@@ -224,7 +235,7 @@ const rea = {
    * @param timeout how long the last retrived value is considered valid
    * @param retention delay after last subscriber unsubscribes before teardown is called, to allow quick resubscribe without teardown
    * */
-  from<RT, REL extends RELATED = {}, WT = any>(
+  from<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     once: (state: OWNER<RT, WT, REL>) => void,
     setup: (state: OWNER<RT, WT, REL>) => void,
     teardown: (state: OWNER<RT, WT, REL>) => void,
@@ -270,7 +281,11 @@ const rea = {
  * @template RT - The type of the state’s value when read.
  * @template WT - The type which can be written to the state.
  * @template REL - The type of related states, defaults to an empty object.*/
-export interface STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL extends RELATED> {
+export interface STATE_RESOURCE_REA_OWNER_WA<
+  RT,
+  WT,
+  REL extends Option<RELATED>
+> {
   update_resource(value: Result<RT, string>): void;
   get buffer(): Result<RT, string> | undefined;
   get state(): STATE<RT, WT, REL>;
@@ -281,7 +296,7 @@ export interface STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL extends RELATED> {
 export abstract class STATE_RESOURCE_REA_WA<
     RT,
     WT = RT,
-    REL extends RELATED = {}
+    REL extends Option<RELATED> = OptionNone
   >
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
   implements STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL>
@@ -436,18 +451,18 @@ export abstract class STATE_RESOURCE_REA_WA<
 }
 
 //##################################################################################################################################################
-interface OWNER_WA<RT, WT, REL extends RELATED>
+interface OWNER_WA<RT, WT, REL extends Option<RELATED>>
   extends STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL> {}
 export type STATE_RESOURCE_FUNC_REA_WA<
   RT,
-  REL extends RELATED = {},
+  REL extends Option<RELATED> = OptionNone,
   WT = any
 > = STATE_REA_WA<RT, WT, REL> & OWNER_WA<RT, WT, REL>;
 /**Alternative state resource which can be initialized with functions
  * @template RT - The type of the state’s value when read.
  * @template WT - The type which can be written to the state.
  * @template REL - The type of related states, defaults to an empty object.*/
-class FUNC_REA_WA<RT, WT = RT, REL extends RELATED = {}>
+class FUNC_REA_WA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   extends STATE_RESOURCE_REA_WA<RT, WT, REL>
   implements OWNER_WA<RT, WT, REL>
 {
@@ -508,8 +523,8 @@ class FUNC_REA_WA<RT, WT = RT, REL extends RELATED = {}>
     return this.#helper?.check ? this.#helper.check(value) : Ok(value);
   }
 
-  related(): Option<REL> {
-    return this.#helper?.related ? this.#helper.related() : None();
+  related(): REL {
+    return this.#helper?.related ? this.#helper.related() : (None() as REL);
   }
 }
 
@@ -527,7 +542,7 @@ const rea_wa = {
    * @param write_debounce debounce delay for write calls, only the last write within the delay is used
    * @param write_action function called after write debounce finished with the last written value
    * */
-  from<RT, REL extends RELATED = {}, WT = RT>(
+  from<RT, REL extends Option<RELATED> = OptionNone, WT = RT>(
     once: (state: OWNER_WA<RT, WT, REL>) => void,
     setup: (state: OWNER_WA<RT, WT, REL>) => void,
     teardown: () => void,

@@ -1,4 +1,4 @@
-import { Err, None, ResultOk, type Option, type Result } from "@libResult";
+import { Err, None, OptionNone, ResultOk, type Result } from "@libResult";
 import { STATE_BASE } from "../base";
 import {
   type STATE,
@@ -26,8 +26,8 @@ interface OWNER<S, RIN, ROUT, WIN, WOUT> {
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
-  get state(): STATE<ROUT, WOUT, any>;
-  get read_only(): STATE_REA<ROUT, any, WOUT>;
+  get state(): STATE<ROUT, WOUT, OptionNone>;
+  get read_only(): STATE_REA<ROUT, OptionNone, WOUT>;
 }
 
 export type STATE_PROXY_REA<
@@ -36,7 +36,7 @@ export type STATE_PROXY_REA<
   ROUT = RIN,
   WIN = S extends STATE<any, infer WT> ? WT : any,
   WOUT = WIN
-> = STATE_REA<ROUT, any, WOUT> & OWNER<S, RIN, ROUT, WIN, WOUT>;
+> = STATE_REA<ROUT, OptionNone, WOUT> & OWNER<S, RIN, ROUT, WIN, WOUT>;
 
 export class REA<
     S extends STATE<RIN, WIN>,
@@ -45,7 +45,7 @@ export class REA<
     WIN = S extends STATE<any, infer WT> ? WT : never,
     WOUT = WIN
   >
-  extends STATE_BASE<ROUT, WOUT, any, Result<ROUT, string>>
+  extends STATE_BASE<ROUT, WOUT, OptionNone, Result<ROUT, string>>
   implements OWNER<S, RIN, ROUT, WIN, WOUT>
 {
   constructor(
@@ -118,7 +118,7 @@ export class REA<
     if (this.#buffer) return func(this.#buffer);
     return func(this.transform_read(await this.#state));
   }
-  related(): Option<{}> {
+  related(): OptionNone {
     return None();
   }
 
@@ -208,8 +208,8 @@ interface OWNER_WS<
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
-  get state(): STATE<ROUT, WOUT, any>;
-  get read_only(): STATE_REA<ROUT, any, WOUT>;
+  get state(): STATE<ROUT, WOUT, OptionNone>;
+  get read_only(): STATE_REA<ROUT, OptionNone, WOUT>;
   get read_write(): STATE_REA_WS<ROUT, WOUT>;
 }
 
@@ -219,7 +219,7 @@ export type STATE_PROXY_REA_WS<
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_REA_WS<ROUT, WOUT> & OWNER_WS<S, RIN, WIN, ROUT, WOUT>;
+> = STATE_REA_WS<ROUT, WOUT, OptionNone> & OWNER_WS<S, RIN, WIN, ROUT, WOUT>;
 
 export class REA_WS<
     S extends STATE_REA_WS<RIN, WIN>,
@@ -228,7 +228,7 @@ export class REA_WS<
     ROUT = RIN,
     WOUT = WIN
   >
-  extends STATE_BASE<ROUT, WOUT, any, Result<ROUT, string>>
+  extends STATE_BASE<ROUT, WOUT, OptionNone, Result<ROUT, string>>
   implements OWNER_WS<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
@@ -308,7 +308,7 @@ export class REA_WS<
     if (this.#buffer) return func(this.#buffer);
     return func(this.transform_read(await this.#state));
   }
-  related(): Option<{}> {
+  related(): OptionNone {
     return None();
   }
 
@@ -398,8 +398,8 @@ interface OWNER_WA<
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
-  get state(): STATE<ROUT, WOUT, any>;
-  get read_only(): STATE_REA<ROUT, any, WOUT>;
+  get state(): STATE<ROUT, WOUT, OptionNone>;
+  get read_only(): STATE_REA<ROUT, OptionNone, WOUT>;
   get read_write(): STATE_REA_WA<ROUT, WOUT>;
 }
 
@@ -409,7 +409,7 @@ export type STATE_PROXY_REA_WA<
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_REA_WA<ROUT, WOUT> & OWNER_WA<S, RIN, WIN, ROUT, WOUT>;
+> = STATE_REA_WA<ROUT, WOUT, OptionNone> & OWNER_WA<S, RIN, WIN, ROUT, WOUT>;
 
 export class REA_WA<
     S extends STATE_REA_WA<RIN, WIN>,
@@ -418,7 +418,7 @@ export class REA_WA<
     ROUT = RIN,
     WOUT = WIN
   >
-  extends STATE_BASE<ROUT, WOUT, any, Result<ROUT, string>>
+  extends STATE_BASE<ROUT, WOUT, OptionNone, Result<ROUT, string>>
   implements OWNER_WA<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
@@ -500,7 +500,7 @@ export class REA_WA<
     if (this.#buffer) return func(this.#buffer);
     return func(this.transform_read(await this.#state));
   }
-  related(): Option<{}> {
+  related(): OptionNone {
     return None();
   }
 

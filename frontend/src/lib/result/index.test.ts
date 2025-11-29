@@ -178,10 +178,6 @@ describe("Option Some", function () {
     let result = Some(42);
     expect(result.value).equal(42);
   });
-  it("Valid from Some", function () {
-    let result = Some(42);
-    expect(result.valid).equal(true);
-  });
   it("Some from Some", function () {
     let result = Some(42);
     expect(result.some).equal(true);
@@ -252,10 +248,6 @@ describe("Option Some", function () {
 //     |_| \_|\___/|_| |_|\___|
 //###########################################################################################################################################################
 describe("Option None", function () {
-  it("Valid from None", function () {
-    let result = None();
-    expect(result.valid).equal(false);
-  });
   it("Some from None", function () {
     let result = None();
     expect(result.some).equal(false);

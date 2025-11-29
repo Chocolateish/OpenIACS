@@ -6,7 +6,7 @@
 //     | |__| | |      | |   _| || |__| | |\  |
 //      \____/|_|      |_|  |_____\____/|_| \_|
 //###########################################################################################################################################################
-export interface OptionBase<T> {
+interface OptionBase<T> {
   /**Is true when a value is available*/
   readonly some: boolean;
   /**Is true when no value is available*/
@@ -45,14 +45,11 @@ export interface OptionBase<T> {
   to_result<E>(error: E): Result<T, E>;
 }
 
-class OptionSome<T> implements OptionBase<T> {
+export class OptionSome<T> implements OptionBase<T> {
   readonly value: T;
 
   constructor(value: T) {
     this.value = value;
-  }
-  get valid(): true {
-    return true;
   }
   get some(): true {
     return true;
@@ -94,9 +91,6 @@ class OptionSome<T> implements OptionBase<T> {
 }
 
 export class OptionNone implements OptionBase<never> {
-  get valid(): false {
-    return false;
-  }
   get some(): false {
     return false;
   }
@@ -145,7 +139,7 @@ export class OptionNone implements OptionBase<never> {
 //     |_|  \_\___||___/\__,_|_|\__|
 //###########################################################################################################################################################
 
-export interface ResultBase<T, E> {
+interface ResultBase<T, E> {
   /**Is true when the result is valid and false when it is invalid*/
   readonly ok: boolean;
   /**Is false when the result is valid and true when it is invalid*/

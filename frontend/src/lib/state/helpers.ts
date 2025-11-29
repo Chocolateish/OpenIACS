@@ -1,4 +1,4 @@
-import { Err, Ok, Some, type Option, type Result } from "@libResult";
+import { Err, Ok, OptionSome, Some, type Result } from "@libResult";
 import type { SVGFunc } from "@libSVG";
 import { STATE_BASE } from "./base";
 import {
@@ -28,7 +28,9 @@ export interface STATE_NUMBER_RELATED extends STATE_RELATED {
 }
 
 export class STATE_NUMBER_HELPER
-  implements STATE_NUMBER_RELATED, STATE_HELPER<number, STATE_NUMBER_RELATED>
+  implements
+    STATE_NUMBER_RELATED,
+    STATE_HELPER<number, OptionSome<STATE_NUMBER_RELATED>>
 {
   min: number | undefined;
   max: number | undefined;
@@ -108,8 +110,8 @@ export class STATE_NUMBER_HELPER
     return Ok(value);
   }
 
-  related(): Option<STATE_NUMBER_RELATED> {
-    return Some(this as STATE_NUMBER_RELATED);
+  related(): OptionSome<STATE_NUMBER_RELATED> {
+    return Some(this);
   }
 }
 
@@ -142,7 +144,9 @@ export interface STATE_STRING_RELATED extends STATE_RELATED {
 }
 
 export class STATE_STRING_HELPER
-  implements STATE_STRING_RELATED, STATE_HELPER<string, STATE_STRING_RELATED>
+  implements
+    STATE_STRING_RELATED,
+    STATE_HELPER<string, OptionSome<STATE_STRING_RELATED>>
 {
   max_length: number | undefined;
   max_length_bytes: number | undefined;
@@ -180,8 +184,8 @@ export class STATE_STRING_HELPER
       );
     return Ok(value);
   }
-  related(): Option<STATE_STRING_RELATED> {
-    return Some(this as STATE_STRING_RELATED);
+  related(): OptionSome<STATE_STRING_RELATED> {
+    return Some(this);
   }
 }
 
@@ -216,7 +220,7 @@ export class STATE_ENUM_HELPER<
   L extends STATE_ENUM_HELPER_LIST<any>,
   K extends PropertyKey = keyof L,
   R extends STATE_RELATED = STATE_ENUM_RELATED<L>
-> implements STATE_HELPER<K, R>, STATE_ENUM_RELATED<L>
+> implements STATE_HELPER<K, OptionSome<R>>, STATE_ENUM_RELATED<L>
 {
   list: L;
 
@@ -231,7 +235,7 @@ export class STATE_ENUM_HELPER<
     if (value in this.list) return Ok(value);
     return Err(String(value) + " is not in list");
   }
-  related(): Option<R> {
+  related(): OptionSome<R> {
     return Some(this as unknown as R);
   }
 }

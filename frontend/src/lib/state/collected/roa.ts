@@ -1,4 +1,4 @@
-import { type ResultOk } from "@libResult";
+import { None, OptionNone, type ResultOk } from "@libResult";
 import { STATE_BASE } from "../base";
 import { type STATE, type STATE_ROA } from "../types";
 import type {
@@ -32,10 +32,10 @@ export type STATE_COLLECTED_ROA<
   RT,
   IN extends [STATE<any>, ...STATE<any>[]],
   WT = any
-> = STATE_ROA<RT, any, WT> & OWNER<RT, IN, WT>;
+> = STATE_ROA<RT, OptionNone, WT> & OWNER<RT, IN, WT>;
 
 export class ROA<RT, IN extends [STATE<any>, ...STATE<any>[]], WT>
-  extends STATE_BASE<RT, WT, any, ResultOk<RT>>
+  extends STATE_BASE<RT, WT, OptionNone, ResultOk<RT>>
   implements OWNER<RT, IN, WT>
 {
   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
@@ -151,6 +151,9 @@ export class ROA<RT, IN extends [STATE<any>, ...STATE<any>[]], WT>
         )
       );
     return this.append_R_prom(func);
+  }
+  related(): OptionNone {
+    return None();
   }
 
   //#Writer Context

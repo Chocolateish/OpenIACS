@@ -1,4 +1,12 @@
-import { Err, None, Ok, ResultOk, type Option, type Result } from "@libResult";
+import {
+  Err,
+  None,
+  Ok,
+  OptionNone,
+  ResultOk,
+  type Option,
+  type Result,
+} from "@libResult";
 import { STATE_BASE } from "../base";
 import {
   type STATE_HELPER as HELPER,
@@ -23,19 +31,17 @@ import type {
 //     | | \ \| |__| |____) |
 //     |_|  \_\\____/|_____/
 
-interface OWNER<AT, REL extends RELATED> extends STATE_ARRAY<AT> {
+interface OWNER<AT, REL extends Option<RELATED>> extends STATE_ARRAY<AT> {
   set(value: ResultOk<AT[]>): void;
   get state(): STATE<SAR<AT>, SAW<AT>, REL>;
   get read_only(): STATE_ROS<SAR<AT>, REL, SAW<AT>>;
 }
-export type STATE_ARRAY_ROS<AT, REL extends RELATED = {}> = STATE_ROS<
-  SAR<AT>,
-  REL,
-  SAW<AT>
-> &
-  OWNER<AT, REL>;
+export type STATE_ARRAY_ROS<
+  AT,
+  REL extends Option<RELATED> = OptionNone
+> = STATE_ROS<SAR<AT>, REL, SAW<AT>> & OWNER<AT, REL>;
 
-export class ROS<AT, REL extends RELATED = {}>
+export class ROS<AT, REL extends Option<RELATED> = OptionNone>
   extends STATE_BASE<SAR<AT>, SAW<AT>, REL, ResultOk<SAR<AT>>>
   implements OWNER<AT, REL>
 {
@@ -78,8 +84,8 @@ export class ROS<AT, REL extends RELATED = {}>
   ok(): SAR<AT> {
     return this.#mr("none", 0, this.#a);
   }
-  related(): Option<REL> {
-    return this.#helper?.related ? this.#helper.related() : None();
+  related(): REL {
+    return this.#helper?.related ? this.#helper.related() : (None() as REL);
   }
 
   //#Writer Context
@@ -177,7 +183,7 @@ const ros = {
   /**Creates a state representing an array
    * @param init initial array, leave empty for empty array
    * @param helper functions to make related*/
-  ok<AT, REL extends RELATED = {}>(
+  ok<AT, REL extends Option<RELATED> = OptionNone>(
     init: AT[] = [],
     helper?: HELPER<SAW<AT>, REL>
   ) {
@@ -193,20 +199,18 @@ const ros = {
 //     | | \ \| |__| |____) |    \  /\  /  ____) |
 //     |_|  \_\\____/|_____/      \/  \/  |_____/
 
-interface OWNER_WS<AT, REL extends RELATED> extends STATE_ARRAY<AT> {
+interface OWNER_WS<AT, REL extends Option<RELATED>> extends STATE_ARRAY<AT> {
   set(value: ResultOk<AT[]>): void;
   get state(): STATE<SAR<AT>, SAW<AT>, REL>;
   get read_only(): STATE_ROS<SAR<AT>, REL, SAW<AT>>;
   get read_write(): STATE_ROS_WS<SAR<AT>, SAW<AT>, REL>;
 }
-export type STATE_ARRAY_ROS_WS<AT, REL extends RELATED = {}> = STATE_ROS_WS<
-  SAR<AT>,
-  SAW<AT>,
-  REL
-> &
-  OWNER_WS<AT, REL>;
+export type STATE_ARRAY_ROS_WS<
+  AT,
+  REL extends Option<RELATED> = OptionNone
+> = STATE_ROS_WS<SAR<AT>, SAW<AT>, REL> & OWNER_WS<AT, REL>;
 
-export class ROS_WS<AT, REL extends RELATED = {}>
+export class ROS_WS<AT, REL extends Option<RELATED> = OptionNone>
   extends STATE_BASE<SAR<AT>, SAW<AT>, REL, ResultOk<SAR<AT>>>
   implements OWNER_WS<AT, REL>
 {
@@ -265,8 +269,8 @@ export class ROS_WS<AT, REL extends RELATED = {}>
   ok(): SAR<AT> {
     return this.#mr("none", 0, this.#a);
   }
-  related(): Option<REL> {
-    return this.#helper?.related ? this.#helper.related() : None();
+  related(): REL {
+    return this.#helper?.related ? this.#helper.related() : (None() as REL);
   }
 
   //#Writer Context
@@ -365,7 +369,7 @@ const ros_ws = {
    * @param init initial array, leave empty for empty array
    * @param setter function called when state value is set via setter, set true let write set it's value
    * @param helper functions to check and limit*/
-  ok<AT, REL extends RELATED = {}>(
+  ok<AT, REL extends Option<RELATED> = OptionNone>(
     init: AT[] = [],
     setter: STATE_SET_REX_WS<SAR<AT>, OWNER_WS<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>

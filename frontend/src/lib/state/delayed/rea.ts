@@ -1,4 +1,12 @@
-import { Err, None, Ok, ResultOk, type Option, type Result } from "@libResult";
+import {
+  Err,
+  None,
+  Ok,
+  OptionNone,
+  ResultOk,
+  type Option,
+  type Result,
+} from "@libResult";
 import { STATE_BASE } from "../base";
 import {
   type STATE_HELPER as Helper,
@@ -11,7 +19,7 @@ import {
   type STATE_SET_REX_WS,
 } from "../types";
 
-interface OWNER<RT, WT, REL extends RELATED> {
+interface OWNER<RT, WT, REL extends Option<RELATED>> {
   set(value: Result<RT, string>): void;
   set_ok(value: RT): void;
   set_err(err: string): void;
@@ -28,11 +36,11 @@ interface OWNER<RT, WT, REL extends RELATED> {
 //     |_|  \_\______/_/    \_\
 export type STATE_DELAYED_REA<
   RT,
-  REL extends RELATED = {},
+  REL extends Option<RELATED> = OptionNone,
   WT = any
 > = STATE_REA<RT, REL, WT> & OWNER<RT, WT, REL>;
 
-class REA<RT, REL extends RELATED = {}, WT = any>
+class REA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
   implements OWNER<RT, WT, REL>
 {
@@ -120,8 +128,8 @@ class REA<RT, REL extends RELATED = {}, WT = any>
   ): Promise<TResult1> {
     return func(this.#value!);
   }
-  related(): Option<REL> {
-    return this.#helper?.related ? this.#helper.related() : None();
+  related(): REL {
+    return this.#helper?.related ? this.#helper.related() : (None() as REL);
   }
 
   //#Writer Context
@@ -151,7 +159,7 @@ const rea = {
   /**Creates a delayed state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, REL extends RELATED = {}, WT = any>(
+  ok<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     init?: () => PromiseLike<RT>,
     helper?: Helper<WT, REL>
   ) {
@@ -163,7 +171,7 @@ const rea = {
   /**Creates a delayed state from an initial error, delayed meaning the value is a promise evaluated on first access.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  err<RT, REL extends RELATED = {}, WT = any>(
+  err<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     init?: () => PromiseLike<string>,
     helper?: Helper<WT, REL>
   ) {
@@ -175,7 +183,7 @@ const rea = {
   /**Creates a delayed state from an initial result, delayed meaning the value is a promise evaluated on first access.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, REL extends RELATED = {}, WT = any>(
+  result<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     init?: () => PromiseLike<Result<RT, string>>,
     helper?: Helper<WT, REL>
   ) {
@@ -190,7 +198,7 @@ const rea = {
 //     |  _  /|  __|   / /\ \     \ \/  \/ / \___ \
 //     | | \ \| |____ / ____ \     \  /\  /  ____) |
 //     |_|  \_\______/_/    \_\     \/  \/  |_____/
-interface OWNER_WS<RT, WT, REL extends RELATED> {
+interface OWNER_WS<RT, WT, REL extends Option<RELATED>> {
   set(value: Result<RT, string>): void;
   set_ok(value: RT): void;
   set_err(err: string): void;
@@ -202,10 +210,10 @@ interface OWNER_WS<RT, WT, REL extends RELATED> {
 export type STATE_DELAYED_REA_WS<
   RT,
   WT = RT,
-  REL extends RELATED = {}
+  REL extends Option<RELATED> = OptionNone
 > = STATE_REA_WS<RT, WT, REL> & OWNER_WS<RT, WT, REL>;
 
-class REA_WS<RT, WT = RT, REL extends RELATED = {}>
+class REA_WS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
   implements OWNER_WS<RT, WT, REL>
 {
@@ -302,8 +310,8 @@ class REA_WS<RT, WT = RT, REL extends RELATED = {}>
   ): Promise<TResult1> {
     return func(this.#value!);
   }
-  related(): Option<REL> {
-    return this.#helper?.related ? this.#helper.related() : None();
+  related(): REL {
+    return this.#helper?.related ? this.#helper.related() : (None() as REL);
   }
 
   //#Writer Context
@@ -331,7 +339,7 @@ const rea_ws = {
   /**Creates a writable delayed state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, WT = RT, REL extends RELATED = {}>(
+  ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<RT>,
     setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
@@ -345,7 +353,7 @@ const rea_ws = {
   /**Creates a writable delayed state from an initial error, delayed meaning the value is a promise evaluated on first access.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  err<RT, WT = RT, REL extends RELATED = {}>(
+  err<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<string>,
     setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
@@ -359,7 +367,7 @@ const rea_ws = {
   /**Creates a writable delayed state from an initial result, delayed meaning the value is a promise evaluated on first access.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, WT = RT, REL extends RELATED = {}>(
+  result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<Result<RT, string>>,
     setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
@@ -379,7 +387,7 @@ const rea_ws = {
 //     |  _  /|  __|   / /\ \     \ \/  \/ / /\ \
 //     | | \ \| |____ / ____ \     \  /\  / ____ \
 //     |_|  \_\______/_/    \_\     \/  \/_/    \_\
-interface OWNER_WA<RT, WT, REL extends RELATED> {
+interface OWNER_WA<RT, WT, REL extends Option<RELATED>> {
   set(value: Result<RT, string>): void;
   set_ok(value: RT): void;
   set_err(err: string): void;
@@ -391,10 +399,10 @@ interface OWNER_WA<RT, WT, REL extends RELATED> {
 export type STATE_DELAYED_REA_WA<
   RT,
   WT = RT,
-  REL extends RELATED = {}
+  REL extends Option<RELATED> = OptionNone
 > = STATE_REA_WA<RT, WT, REL> & OWNER_WA<RT, WT, REL>;
 
-export class REA_WA<RT, WT = RT, REL extends RELATED = {}>
+export class REA_WA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
   implements OWNER_WA<RT, WT, REL>
 {
@@ -491,8 +499,8 @@ export class REA_WA<RT, WT = RT, REL extends RELATED = {}>
   ): Promise<TResult1> {
     return func(this.#value!);
   }
-  related(): Option<REL> {
-    return this.#helper?.related ? this.#helper.related() : None();
+  related(): REL {
+    return this.#helper?.related ? this.#helper.related() : (None() as REL);
   }
 
   //#Writer Context
@@ -517,7 +525,7 @@ const rea_wa = {
   /**Creates a writable delayed state from an initial value, delayed meaning the value is a promise evaluated on first access.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, WT = RT, REL extends RELATED = {}>(
+  ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<RT>,
     setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
@@ -531,7 +539,7 @@ const rea_wa = {
   /**Creates a writable delayed state from an initial error, delayed meaning the value is a promise evaluated on first access.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  err<RT, WT = RT, REL extends RELATED = {}>(
+  err<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<string>,
     setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
@@ -545,7 +553,7 @@ const rea_wa = {
   /**Creates a writable delayed state from an initial result, delayed meaning the value is a promise evaluated on first access.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, WT = RT, REL extends RELATED = {}>(
+  result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<Result<RT, string>>,
     setter: STATE_SET_REX_WA<RT, OWNER_WA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>

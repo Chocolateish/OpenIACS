@@ -1,4 +1,4 @@
-import { Err, None, ResultOk, type Option, type Result } from "@libResult";
+import { Err, None, OptionNone, ResultOk, type Result } from "@libResult";
 import { STATE_BASE } from "../base";
 import {
   type STATE,
@@ -26,8 +26,8 @@ interface OWNER<S, RIN, ROUT, WIN, WOUT> {
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
-  get state(): STATE<ROUT, WOUT, any>;
-  get read_only(): STATE_RES<ROUT, any, WOUT>;
+  get state(): STATE<ROUT, WOUT, OptionNone>;
+  get read_only(): STATE_RES<ROUT, OptionNone, WOUT>;
 }
 
 export type STATE_PROXY_RES<
@@ -36,7 +36,7 @@ export type STATE_PROXY_RES<
   ROUT = RIN,
   WIN = S extends STATE<any, infer WT> ? WT : any,
   WOUT = WIN
-> = STATE_RES<ROUT, any, WOUT> & OWNER<S, RIN, ROUT, WIN, WOUT>;
+> = STATE_RES<ROUT, OptionNone, WOUT> & OWNER<S, RIN, ROUT, WIN, WOUT>;
 
 export class RES<
     S extends STATE_RES<RIN, any, WIN>,
@@ -45,7 +45,7 @@ export class RES<
     WIN = S extends STATE<any, infer WT> ? WT : never,
     WOUT = WIN
   >
-  extends STATE_BASE<ROUT, WOUT, any, Result<ROUT, string>>
+  extends STATE_BASE<ROUT, WOUT, OptionNone, Result<ROUT, string>>
   implements OWNER<S, RIN, ROUT, WIN, WOUT>
 {
   constructor(
@@ -121,7 +121,7 @@ export class RES<
     if (this.#buffer) return this.#buffer;
     return this.transform_read(this.#state.get());
   }
-  related(): Option<{}> {
+  related(): OptionNone {
     return None();
   }
 
@@ -211,8 +211,8 @@ interface OWNER_WS<
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
-  get state(): STATE<ROUT, WOUT, any>;
-  get read_only(): STATE_RES<ROUT, any, WOUT>;
+  get state(): STATE<ROUT, WOUT, OptionNone>;
+  get read_only(): STATE_RES<ROUT, OptionNone, WOUT>;
   get read_write(): STATE_RES_WS<ROUT, WOUT>;
 }
 
@@ -222,7 +222,7 @@ export type STATE_PROXY_RES_WS<
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_RES_WS<ROUT, WOUT> & OWNER_WS<S, RIN, WIN, ROUT, WOUT>;
+> = STATE_RES_WS<ROUT, WOUT, OptionNone> & OWNER_WS<S, RIN, WIN, ROUT, WOUT>;
 
 export class RES_WS<
     S extends STATE_RES_WS<RIN, WIN>,
@@ -231,7 +231,7 @@ export class RES_WS<
     ROUT = RIN,
     WOUT = WIN
   >
-  extends STATE_BASE<ROUT, WOUT, any, Result<ROUT, string>>
+  extends STATE_BASE<ROUT, WOUT, OptionNone, Result<ROUT, string>>
   implements OWNER_WS<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
@@ -318,7 +318,7 @@ export class RES_WS<
     if (this.#buffer) return this.#buffer;
     return this.transform_read(this.#state.get());
   }
-  related(): Option<{}> {
+  related(): OptionNone {
     return None();
   }
 
@@ -408,8 +408,8 @@ interface OWNER_WA<
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
-  get state(): STATE<ROUT, WOUT, any>;
-  get read_only(): STATE_RES<ROUT, any, WOUT>;
+  get state(): STATE<ROUT, WOUT, OptionNone>;
+  get read_only(): STATE_RES<ROUT, OptionNone, WOUT>;
   get read_write(): STATE_RES_WA<ROUT, WOUT>;
 }
 
@@ -419,7 +419,7 @@ export type STATE_PROXY_RES_WA<
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_RES_WA<ROUT, WOUT> & OWNER_WA<S, RIN, WIN, ROUT, WOUT>;
+> = STATE_RES_WA<ROUT, WOUT, OptionNone> & OWNER_WA<S, RIN, WIN, ROUT, WOUT>;
 
 export class RES_WA<
     S extends STATE_RES_WA<RIN, WIN>,
@@ -428,7 +428,7 @@ export class RES_WA<
     ROUT = RIN,
     WOUT = WIN
   >
-  extends STATE_BASE<ROUT, WOUT, any, Result<ROUT, string>>
+  extends STATE_BASE<ROUT, WOUT, OptionNone, Result<ROUT, string>>
   implements OWNER_WA<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
@@ -515,7 +515,7 @@ export class RES_WA<
     if (this.#buffer) return this.#buffer;
     return this.transform_read(this.#state.get());
   }
-  related(): Option<{}> {
+  related(): OptionNone {
     return None();
   }
 

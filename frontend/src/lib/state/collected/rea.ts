@@ -1,4 +1,4 @@
-import { Err, type Result } from "@libResult";
+import { Err, None, OptionNone, type Result } from "@libResult";
 import { STATE_BASE } from "../base";
 import { type STATE, type STATE_REA } from "../types";
 import type {
@@ -33,10 +33,10 @@ export type STATE_COLLECTED_REA<
   RT,
   IN extends STATE<any>[],
   WT = any
-> = STATE_REA<RT, any, WT> & OWNER<RT, IN, WT>;
+> = STATE_REA<RT, OptionNone, WT> & OWNER<RT, IN, WT>;
 
 export class REA<RT, IN extends STATE<any>[], WT>
-  extends STATE_BASE<RT, WT, any, Result<RT, string>>
+  extends STATE_BASE<RT, WT, OptionNone, Result<RT, string>>
   implements OWNER<RT, IN, WT>
 {
   constructor(
@@ -153,6 +153,9 @@ export class REA<RT, IN extends STATE<any>[], WT>
         )
       );
     return this.append_R_prom(func);
+  }
+  related(): OptionNone {
+    return None();
   }
 
   //#Writer Context

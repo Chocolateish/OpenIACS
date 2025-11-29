@@ -1,11 +1,11 @@
-import { None, type Option, type Result } from "@libResult";
+import { type Option, type Result } from "@libResult";
 import type { STATE_BASE as BASE, STATE_RELATED, STATE_SUB } from "./types";
 
 export abstract class STATE_BASE<
   RT,
-  WT = RT,
-  REL extends STATE_RELATED = {},
-  RRT extends Result<RT, string> = Result<RT, string>
+  WT,
+  REL extends Option<STATE_RELATED>,
+  RRT extends Result<RT, string>
 > implements BASE<RT, WT, REL, RRT>
 {
   #subscribers: Set<STATE_SUB<RRT>> = new Set();
@@ -44,9 +44,7 @@ export abstract class STATE_BASE<
     return func as T;
   }
   /**This returns related states if any*/
-  related(): Option<REL> {
-    return None();
-  }
+  abstract related(): REL;
 
   /**Returns if the state is being used */
   in_use(): this | undefined {
