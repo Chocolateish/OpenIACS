@@ -66,8 +66,11 @@ formCont.appendChild(
     })
 ).value_by_state = bool;
 
-formCont.appendChild(form.switch.from({ label: "Toggle Me" })).value_by_state =
-  bool;
+formCont.appendChild(
+  form.switch.from({
+    label: "Toggle Me",
+  })
+).value_by_state = bool;
 
 context_menu_default(
   context_menu([

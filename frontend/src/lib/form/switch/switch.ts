@@ -1,11 +1,15 @@
 import { define_element } from "@libBase";
 import type { SVGFunc } from "@libSVG";
-import { FormValueWrite, type FormValueOptions } from "../base";
+import { FormColors, FormValueWrite, type FormValueOptions } from "../base";
 import "./switch.scss";
 
 interface FormSwitchOptions extends FormValueOptions<boolean> {
   /**Icon to use for left side*/
   icon?: SVGFunc;
+  /**Color when switch is on */
+  on_color?: FormColors;
+  /**Color when switch is off */
+  off_color?: FormColors;
 }
 
 /**Toggle Switch, switches between on and off*/
@@ -26,6 +30,8 @@ export class Switch extends FormValueWrite<boolean> {
   constructor(options: FormSwitchOptions) {
     super(options);
     if (options.icon) this.icon = options.icon;
+    this.on_color = options.on_color || FormColors.Green;
+    this.off_color = options.off_color || FormColors.Black;
 
     this.#switch.setAttribute("tabindex", "0");
     this.#switch.onkeydown = (e) => {
@@ -102,6 +108,15 @@ export class Switch extends FormValueWrite<boolean> {
       this._body.removeChild(this.#icon);
       this.#icon = undefined;
     }
+  }
+
+  set on_color(color: FormColors) {
+    if (color === FormColors.None) this.#switch.removeAttribute("on-color");
+    else this.#switch.setAttribute("on-color", color);
+  }
+  set off_color(color: FormColors) {
+    if (color === FormColors.None) this.#switch.removeAttribute("on-color");
+    else this.#switch.setAttribute("off-color", color);
   }
 
   /**Called when value is changed */

@@ -163,24 +163,24 @@ $touch_unit_width: $touch_unit_font_size * 5.6;
   }
 }
 
-@mixin form-colors {
-  &[color="black"] {
-    background-color: $color_basic_black;
+@mixin form-colors($attr, $var) {
+  &[#{$attr}="black"] {
+    #{$var}: $color_basic_black;
   }
 
-  &[color="green"] {
-    background-color: $color_basic_green;
+  &[#{$attr}="green"] {
+    #{$var}: $color_basic_green;
   }
 
-  &[color="red"] {
-    background-color: $color_basic_red;
+  &[#{$attr}="red"] {
+    #{$var}: $color_basic_red;
   }
 
-  &[color="blue"] {
-    background-color: $color_basic_blue;
+  &[#{$attr}="blue"] {
+    #{$var}: $color_basic_blue;
   }
 
-  &[color="yellow"] {
-    background-color: $color_basic_yellow;
+  &[#{$attr}="yellow"] {
+    #{$var}: $color_basic_yellow;
   }
 }

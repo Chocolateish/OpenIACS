@@ -76,7 +76,7 @@ form-button {
       }
     }
 
-    @include base.form-colors;
+    @include base.form-colors(color, background-color);
 
     &[color="black"] {
       > span {

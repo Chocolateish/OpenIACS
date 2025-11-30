@@ -17,8 +17,6 @@ form-switch {
 
     > div {
       border: base.$border;
-
-      background-color: base.$color_background;
       box-shadow: base.$shadow_in;
       border-radius: base.$size_height;
       width: calc(base.$size_height * 2);
@@ -28,9 +26,12 @@ form-switch {
       position: relative;
       outline: none;
       cursor: grab;
+      background-color: base.$color_background;
+      @include base.form-colors(off-color, background-color);
 
       &.on {
-        background-color: base.$color_basic_green;
+        background-color: base.$color_background;
+        @include base.form-colors(on-color, background-color);
 
         &::after {
           left: base.$size_height;
