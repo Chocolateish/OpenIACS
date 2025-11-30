@@ -47,6 +47,13 @@ let formCont = document.body.appendChild(document.createElement("div"));
 formCont.style.flexGrow = "1";
 
 formCont.appendChild(
+  form.text.from({
+    text: "Hello World!",
+    size: 2,
+  })
+);
+
+formCont.appendChild(
   form.button
     .from({
       label: "YOYOYOY",
@@ -58,6 +65,9 @@ formCont.appendChild(
       access: "w",
     })
 ).value_by_state = bool;
+
+formCont.appendChild(form.switch.from({ label: "Toggle Me" })).value_by_state =
+  bool;
 
 context_menu_default(
   context_menu([

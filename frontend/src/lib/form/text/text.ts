@@ -1,58 +1,47 @@
+import { define_element } from "@libBase";
+import { FormElement } from "../base";
 import "./text.scss";
-import { defineElement } from "@chocolatelibui/core";
-import { FormBaseRead } from "../base";
-import { Value } from "@chocolatelib/value";
+
+interface FormTextOptions {
+  /**Buttons text */
+  text?: string;
+  /**Text size */
+  size?: number;
+}
 
 /**Component for simple text */
-export class TextField extends FormBaseRead<string> {
-  /**Returns the name used to define the element*/
-  static elementName() {
+class Text extends FormElement {
+  static element_name() {
     return "text";
   }
+  static element_name_space(): string {
+    return "form";
+  }
 
-  constructor() {
+  constructor(options: FormTextOptions) {
     super();
-    this.appendChild(this._label);
+    if (options.text) this.text = options.text;
+    if (options.size) this.size = options.size;
   }
 
-  /**Called when Value is changed */
-  protected _ValueUpdate(value: Value<string>) {
-    value;
+  /**Sets the current text of the element*/
+  set text(text: string) {
+    this.textContent = text;
   }
-  /**Called when the form element is set to not use a Value anymore*/
-  protected _ValueClear() {}
-  /**Called when value is changed */
-  protected _valueUpdate(value: string) {
-    value;
+  get text() {
+    return this.textContent;
   }
-  /**Called when value cleared */
-  protected _valueClear() {}
+
+  /**Sets the current text of the element*/
+  set size(size: number) {
+    this.style.fontSize = `${size}rem`;
+  }
 }
-defineElement(TextField);
+define_element(Text);
 
-/**Element for form titles */
-export class TitleField extends FormBaseRead<string> {
-  /**Returns the name used to define the element*/
-  static elementName() {
-    return "title";
-  }
-
-  constructor() {
-    super();
-    this.appendChild(this._label);
-  }
-
-  /**Called when Value is changed */
-  protected _ValueUpdate(value: Value<string>) {
-    value;
-  }
-  /**Called when the form element is set to not use a Value anymore*/
-  protected _ValueClear() {}
-  /**Called when value is changed */
-  protected _valueUpdate(value: string) {
-    value;
-  }
-  /**Called when value cleared */
-  protected _valueClear() {}
-}
-defineElement(TitleField);
+export let form_text = {
+  /**Creates a button form element */
+  from(options: FormTextOptions): Text {
+    return new Text(options);
+  },
+};

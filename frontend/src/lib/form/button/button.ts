@@ -18,7 +18,7 @@ interface FormButtonOptions extends FormValueOptions<boolean> {
 }
 
 /**Button for clicking*/
-export class Button extends FormValueWrite<boolean> {
+class Button extends FormValueWrite<boolean> {
   static element_name() {
     return "button";
   }
@@ -98,13 +98,12 @@ export class Button extends FormValueWrite<boolean> {
     };
   }
 
-  /**Gets the current text of the button*/
-  get text() {
-    return this.#text.textContent;
-  }
   /**Sets the current text of the button*/
   set text(label: string) {
     this.#text.textContent = label;
+  }
+  get text() {
+    return this.#text.textContent;
   }
 
   /**Changes the icon of the button*/

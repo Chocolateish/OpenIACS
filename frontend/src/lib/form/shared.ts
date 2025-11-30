@@ -385,3 +385,37 @@ animation.make_variable(
   "Time",
   { min: 0, max: 5000 }
 );
+
+//#################################################################################3
+//#################################################################################3
+//               _   _ _____ __  __       _______ _____ ____  _   _
+//         /\   | \ | |_   _|  \/  |   /\|__   __|_   _/ __ \| \ | |
+//        /  \  |  \| | | | | \  / |  /  \  | |    | || |  | |  \| |
+//       / /\ \ | . ` | | | | |\/| | / /\ \ | |    | || |  | | . ` |
+//      / ____ \| |\  |_| |_| |  | |/ ____ \| |   _| || |__| | |\  |
+//     /_/    \_\_| \_|_____|_|  |_/_/    \_\_|  |_____\____/|_| \_|
+let font = themeRoot.make_sub_group(
+  "font",
+  "Font",
+  "Font settings used in all form elements"
+);
+
+font.make_variable(
+  "size",
+  "Font Size",
+  "Default font size used in all form elements",
+  "1rem",
+  "1rem",
+  "Length",
+  { min: 0.1, max: 10 }
+);
+
+font.make_variable(
+  "touchSize",
+  "Touch Font Size",
+  "Font size used in all form elements for touch devices",
+  "1.6rem",
+  "1.6rem",
+  "Length",
+  { min: 0.1, max: 10 }
+);

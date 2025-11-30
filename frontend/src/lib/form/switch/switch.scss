@@ -1,7 +1,7 @@
-@import "../base.scss";
+@use "../base";
 
-chocolatelibui-form-switch {
-  @include base;
+form-switch {
+  @include base.base;
 
   > div {
     display: flex;
@@ -11,30 +11,32 @@ chocolatelibui-form-switch {
 
     @media (pointer: fine) {
       &:hover > div::after {
-        background-color: $color_background_hover;
+        background-color: base.$color_background_hover;
       }
     }
 
     > div {
+      border: base.$border;
+
+      background-color: base.$color_background;
+      box-shadow: base.$shadow_in;
+      border-radius: base.$size_height;
+      width: calc(base.$size_height * 2);
+      height: base.$size_height;
       touch-action: none;
       flex-shrink: 0;
       position: relative;
-      background-color: $color_background;
-      box-shadow: $shadow_in;
-      border-radius: $size_height;
-      width: $size_height * 2;
-      height: $size_height;
       outline: none;
       cursor: grab;
 
       &.on {
-        background-color: $color_basic_green;
+        background-color: base.$color_basic_green;
 
         &::after {
-          left: $size_height;
+          left: base.$size_height;
 
           .touch & {
-            left: $size_touchHeight;
+            left: base.$size_touchHeight;
           }
         }
       }
@@ -48,72 +50,67 @@ chocolatelibui-form-switch {
         content: "";
         left: 0rem;
         position: absolute;
-        background-color: $color_background;
-        box-shadow: inset 0 0 0px 2px $color_border, $shadow_out;
-        width: $size_height;
-        height: $size_height;
-        border-radius: $size_height;
+        background-color: base.$color_background;
+        box-shadow: inset 0 0 0px 2px base.$color_border, base.$shadow_out;
+        width: base.$size_height;
+        height: base.$size_height;
+        border-radius: base.$size_height;
 
         .touch & {
-          width: $size_touchHeight;
-          height: $size_touchHeight;
+          width: base.$size_touchHeight;
+          height: base.$size_touchHeight;
         }
 
         .anim & {
-          transition: width var(--sizeTransitionType) var(--sizeTransitionTime),
-            height var(--sizeTransitionType) var(--sizeTransitionTime),
-            left var(--sizeTransitionType) var(--sizeTransitionTime),
-            border-radius var(--sizeTransitionType) var(--sizeTransitionTime),
-            background-color var(--colorTransitionType)
-              var(--colorTransitionTime),
-            box-shadow var(--colorTransitionType) var(--colorTransitionTime);
+          transition: width base.$animation, height base.$animation,
+            left base.$animation, border-radius base.$animation,
+            background-color base.$animation, box-shadow base.$animation;
         }
       }
 
       .touch & {
-        width: $size_touchHeight * 2;
-        height: $size_touchHeight;
+        width: calc(base.$size_touchHeight * 2);
+        height: base.$size_touchHeight;
       }
 
       &:focus-visible {
-        box-shadow: $shadow_in_focus_out;
+        box-shadow: base.$shadow_in_focus_out;
         z-index: 2;
       }
     }
 
     > svg {
       box-sizing: border-box;
-      fill: $color_text;
-      height: $size_height;
-      max-width: $size_height;
+      fill: base.$color_text;
+      height: base.$size_height;
+      max-width: base.$size_height;
       width: auto;
       padding: 0.2rem;
       flex-shrink: 0;
 
       .touch & {
-        height: $size_touchHeight;
-        max-width: $size_touchHeight;
+        height: base.$size_touchHeight;
+        max-width: base.$size_touchHeight;
         padding: 0.4rem;
       }
 
       .anim & {
-        transition: fill var(--colorTransitionType) var(--colorTransitionTime),
-          height var(--sizeTransitionType) var(--sizeTransitionTime),
-          max-width var(--sizeTransitionType) var(--sizeTransitionTime);
+        transition: base.$animation, height base.$animation,
+          max-width base.$animation;
       }
     }
 
     > span {
       display: block;
       padding: 0.1rem 0.1rem 0.1rem 0.1rem;
-      color: $color_text;
+      color: base.$color_text;
 
       &:empty {
         display: none;
       }
 
       .anim & {
-        transition: color var(--colorTransitionType) var(--colorTransitionTime);
+        transition: color base.$animation;
       }
 
       .touch & {

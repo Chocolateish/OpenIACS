@@ -1,39 +1,16 @@
-@import "../base.scss";
+@use "../base";
 
-chocolatelibui-form-text {
+form-text {
   display: block;
-  min-height: $size_height;
+  min-height: base.$size_height;
+  color: base.$color_text;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.2rem;
+  min-width: 5rem;
 
-  > span {
-    color: $color_text;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 0.2rem;
-    min-width: 5rem;
-
-    .anim & {
-      transition: color var(--colorTransitionType) var(--colorTransitionTime);
-    }
-  }
-}
-
-chocolatelibui-form-title {
-  display: block;
-  min-height: $size_height;
-
-  > span {
-    color: $color_text;
-    font-size: 1.6rem;
-    font-weight: bold;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 0.2rem;
-    min-width: 5rem;
-
-    .anim & {
-      transition: color var(--colorTransitionType) var(--colorTransitionTime);
-    }
+  .anim & {
+    transition: color base.$animation;
   }
 }

@@ -1,36 +1,34 @@
-import { Listener, Value } from "@chocolatelib/value";
-import { defineElement } from "@chocolatelibui/core";
-import { FormBaseRead, FormValueOptions } from "../base";
+import { define_element } from "@libBase";
+import type { SVGFunc } from "@libSVG";
+import { FormValueWrite, type FormValueOptions } from "../base";
 import "./switch.scss";
 
-interface ToggleSwitchOptions extends FormValueOptions<boolean> {
+interface FormSwitchOptions extends FormValueOptions<boolean> {
   /**Icon to use for left side*/
-  icon?: SVGSVGElement;
-  /**Text besides toggleswitch */
-  text?: Value<string> | string;
+  icon?: SVGFunc;
 }
 
 /**Toggle Switch, switches between on and off*/
-export class Switch extends FormBaseRead<boolean> {
-  private _switch: HTMLDivElement = this._body.appendChild(
-    document.createElement("div")
-  );
-  private _text: HTMLSpanElement = this._body.appendChild(
-    document.createElement("span")
-  );
-  private _icon: SVGSVGElement | undefined;
-  private _preventClick: boolean = false;
-  private _textListener: Listener<string> | undefined;
-
-  /**Returns the name used to define the element*/
-  static elementName() {
+export class Switch extends FormValueWrite<boolean> {
+  static element_name() {
     return "switch";
   }
+  static element_name_space(): string {
+    return "form";
+  }
 
-  constructor() {
-    super();
-    this._switch.setAttribute("tabindex", "0");
-    this._switch.onkeydown = (e) => {
+  #switch: HTMLDivElement = this._body.appendChild(
+    document.createElement("div")
+  );
+  #icon: SVGSVGElement | undefined;
+  #preventClick: boolean = false;
+
+  constructor(options: FormSwitchOptions) {
+    super(options);
+    if (options.icon) this.icon = options.icon;
+
+    this.#switch.setAttribute("tabindex", "0");
+    this.#switch.onkeydown = (e) => {
       switch (e.key) {
         case "Enter":
         case " ": {
@@ -42,7 +40,7 @@ export class Switch extends FormBaseRead<boolean> {
               case " ": {
                 e.stopPropagation();
                 e.preventDefault();
-                this._valueSet(!this._value);
+                this.set_value(!this.buffer);
                 break;
               }
             }
@@ -53,25 +51,21 @@ export class Switch extends FormBaseRead<boolean> {
       }
     };
 
-    this._switch.onpointerdown = (e) => {
+    this.#switch.onpointerdown = (e) => {
       if (e.button === 0) {
         e.stopPropagation();
-        this._switch.classList.add("active");
-        this._switch.setPointerCapture(e.pointerId);
+        this.#switch.classList.add("active");
+        this.#switch.setPointerCapture(e.pointerId);
         let hasMoved = false;
-        this._switch.onpointermove = (ev) => {
+        this.#switch.onpointermove = (ev) => {
           ev.stopPropagation();
           if (hasMoved) {
-            let box = this._switch.getBoundingClientRect();
+            let box = this.#switch.getBoundingClientRect();
             let midCord = box.x + box.width / 2;
             if (ev.clientX > midCord) {
-              if (!this._value) {
-                this._valueSet(true);
-              }
+              if (!this.buffer) this.set_value(true);
             } else {
-              if (this._value) {
-                this._valueSet(false);
-              }
+              if (this.buffer) this.set_value(false);
             }
           } else if (
             Math.abs(e.clientX - ev.clientX) > 10 ||
@@ -81,99 +75,48 @@ export class Switch extends FormBaseRead<boolean> {
           }
         };
 
-        this._switch.onpointerup = (ev) => {
+        this.#switch.onpointerup = (ev) => {
           ev.stopPropagation();
-          this._switch.classList.remove("active");
-          if (!hasMoved) {
-            this._valueSet(!this._value);
-          }
-          this._switch.releasePointerCapture(ev.pointerId);
-          this._switch.onpointerup = null;
-          this._switch.onpointermove = null;
+          this.#switch.classList.remove("active");
+          if (!hasMoved) this.set_value(!this.buffer);
+          this.#switch.releasePointerCapture(ev.pointerId);
+          this.#switch.onpointerup = null;
+          this.#switch.onpointermove = null;
         };
       }
     };
 
-    this._switch.onclick = (e) => {
-      e.stopPropagation();
-    };
+    this.#switch.onclick = (e) => e.stopPropagation();
 
     this._body.onclick = (e) => {
       e.stopPropagation();
-      if (this._preventClick) {
-        this._preventClick = false;
-        return;
-      }
-      this._valueSet(!this._value);
+      if (this.#preventClick) return (this.#preventClick = false);
+      this.set_value(!this.buffer);
     };
   }
 
-  /**Sets options for the toggleswitch*/
-  options(options: ToggleSwitchOptions) {
-    super.options(options);
-    if (options.text) {
-      this.text = options.text;
-    }
-    if (options.icon) {
-      this.icon = options.icon;
-    }
-    return this;
-  }
-
-  /**Gets the current label of switch*/
-  get text() {
-    return this._text.innerHTML;
-  }
-  /**Sets the current label of switch*/
-  set text(value: Value<string> | string | undefined) {
-    if (this._textListener) {
-      this.dettachValue(this._textListener);
-      delete this._textListener;
-    }
-    if (typeof value === "object" && value instanceof Value) {
-      this._textListener = this.attachValue(value, (val) => {
-        if (val) {
-          this._text.innerHTML = val;
-        } else {
-          this._text.innerHTML = "";
-        }
-      });
-    } else if (value) {
-      this._text.innerHTML = value;
-    } else {
-      this._text.innerHTML = "";
-    }
-  }
-
-  /**Returns the icon of the switch */
-  get icon() {
-    return this._icon;
-  }
-
   /**Changes the icon of the switch*/
-  set icon(icon: SVGSVGElement | undefined) {
-    if (icon) {
-      this._icon = this._body.insertBefore(icon, this._text);
-    } else if (this._icon) {
-      this._body.removeChild(this._icon);
-      delete this._icon;
+  set icon(icon: SVGFunc | undefined) {
+    if (icon) this.#icon = this._body.insertBefore(icon(), this.#switch);
+    else if (this.#icon) {
+      this._body.removeChild(this.#icon);
+      this.#icon = undefined;
     }
   }
-  /**Called when Value is changed */
-  protected _ValueUpdate(value: Value<boolean>) {
-    value;
-  }
-  /**Called when the form element is set to not use a Value anymore*/
-  protected _ValueClear() {}
+
   /**Called when value is changed */
-  protected _valueUpdate(value: boolean) {
-    if (value) {
-      this._switch.classList.add("on");
-    } else {
-      this._switch.classList.remove("on");
-    }
+  protected new_value(value: boolean) {
+    if (value) this.#switch.classList.add("on");
+    else this.#switch.classList.remove("on");
   }
-  /**Called when value cleared */
-  protected _valueClear() {}
+
+  protected new_error(_val: string): void {}
 }
-defineElement(Switch);
+define_element(Switch);
+
+export let form_switch = {
+  /**Creates a button form element */
+  from(options: FormSwitchOptions): Switch {
+    return new Switch(options);
+  },
+};

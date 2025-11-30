@@ -51,7 +51,6 @@ export abstract class FormValue<RT> extends FormElement {
   }
 
   readonly cid?: string;
-  protected _icon?: SVGSVGElement;
   protected _description?: string;
   protected _label: HTMLSpanElement = this.appendChild(
     document.createElement("span")
@@ -60,8 +59,6 @@ export abstract class FormValue<RT> extends FormElement {
     document.createElement("div")
   );
 
-  /**
-   * @param cid Component ID for identifying component instances */
   constructor(options: FormValueOptions<RT>) {
     super();
     this.cid = options.id;
