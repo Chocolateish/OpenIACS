@@ -3,17 +3,19 @@ import {
   material_navigation_unfold_less_rounded,
   material_navigation_unfold_more_rounded,
 } from "@libIcons";
+import type { SVGFunc } from "@libSVG";
 import { FormValue } from "../../base";
 import {
   SelectorBase,
-  type SelectionBase,
   type SelectorBaseOptions,
   type SelectorOption,
 } from "../selectorBase";
 import "./dropDown.scss";
 
-interface Selection<T> extends SelectionBase<T> {
+interface Selection {
   line: HTMLDivElement;
+  icon?: SVGFunc;
+  text: string;
 }
 
 export interface DropDownOptions<T> extends SelectorBaseOptions<T> {
@@ -22,7 +24,7 @@ export interface DropDownOptions<T> extends SelectorBaseOptions<T> {
 }
 
 /**Dropdown box for selecting between multiple choices in a small space*/
-export class DropDown<T> extends SelectorBase<T, Selection<T>> {
+export class DropDown<T> extends SelectorBase<T, Selection> {
   static element_name() {
     return "dropdown";
   }
@@ -35,10 +37,7 @@ export class DropDown<T> extends SelectorBase<T, Selection<T>> {
   #text: HTMLDivElement = document.createElement("div");
   #default: Text = document.createTextNode("Select something");
   #open: HTMLDivElement = document.createElement("div");
-  #keyCombo: string = "";
-  #keyIndex: number = 0;
-  #keyTimeout: number = 0;
-  #keyTimeoutIndex: number = 0;
+  #is_open: boolean = false;
 
   constructor(id: string | undefined) {
     super(id);
@@ -64,36 +63,6 @@ export class DropDown<T> extends SelectorBase<T, Selection<T>> {
           this._selectAdjacent(e.key === "ArrowDown");
           break;
       }
-      if (e.key.length === 1) {
-        const combo = (this.#keyCombo += e.key).toLowerCase();
-        clearTimeout(this.#keyTimeout);
-        clearTimeout(this.#keyTimeoutIndex);
-        this.#keyTimeout = setTimeout(() => {
-          this.#keyCombo = "";
-        }, 200);
-        this.#keyTimeout = setTimeout(() => {
-          this.#keyIndex = 0;
-        }, 2000);
-        let keyIndex = this.#keyIndex;
-        for (let i = this.#keyIndex; i < this.#selections.length; i++) {
-          const selection = this.#selections[i].selection;
-          if (selection.text.toLowerCase().startsWith(combo)) {
-            this.set_value(selection.value);
-            this.#keyIndex = i + 1;
-            return;
-          }
-        }
-        if (keyIndex) {
-          for (let i = 0; i < keyIndex; i++) {
-            const selection = this.#selections[i].selection;
-            if (selection.text.toLowerCase().startsWith(combo)) {
-              this.set_value(selection.value);
-              this.#keyIndex = i + 1;
-              return;
-            }
-          }
-        }
-      }
     };
     let line = this._body.appendChild(document.createElement("div"));
     line.appendChild(this.#icon);
@@ -113,7 +82,7 @@ export class DropDown<T> extends SelectorBase<T, Selection<T>> {
     this.#default.nodeValue = def;
   }
 
-  protected _add_selection(selection: SelectorOption<T>, index: number) {
+  protected _add_selection(selection: SelectorOption<T>) {
     let line = document.createElement("div");
     let icon = line.appendChild(document.createElement("div"));
     if (selection.icon) icon.appendChild(selection.icon());
@@ -134,36 +103,39 @@ export class DropDown<T> extends SelectorBase<T, Selection<T>> {
       }
     };
     this.#box.appendChild(line);
-    return { line, index, selection };
+    return { line, icon: selection.icon, text: selection.text };
   }
 
   protected _clear_selections() {
     this.#box.replaceChildren();
   }
 
-  protected _set_selection(selection: Selection<T>) {
+  protected _set_selection(selection: Selection) {
     selection.line.classList.add("selected");
-    if (selection.selection.icon)
-      this.#icon.replaceChildren(selection.selection.icon());
+    if (selection.icon) this.#icon.replaceChildren(selection.icon());
     else this.#icon.replaceChildren();
-    this.#text.textContent = selection.selection.text;
+    this.#text.textContent = selection.text;
   }
 
-  protected _clear_selection(selection: Selection<T>) {
+  protected _clear_selection(selection: Selection) {
     selection.line.classList.remove("selected");
     this.#icon.replaceChildren();
-    this.#text.textContent = selection.selection.text;
+    this.#text.replaceChildren(this.#default);
   }
 
-  protected _focus_selection(selection: Selection<T>) {
-    selection;
+  protected _focus_selection(selection: Selection) {
+    if (this.#is_open) this.set_value(selection.)
   }
 
   set open(open: boolean) {
-    if (open)
+    if (open && !this.#is_open) {
       this.#open.replaceChildren(material_navigation_unfold_less_rounded());
-    else this.#open.replaceChildren(material_navigation_unfold_more_rounded());
-    box.openMenu(this.#box, this, this._body);
+      box.openMenu(this.#box, this, this._body);
+    } else if (!open && this.#is_open) {
+      this.#open.replaceChildren(material_navigation_unfold_more_rounded());
+      box.closeMenu();
+    }
+    this.#is_open = open;
   }
 
   focus() {
