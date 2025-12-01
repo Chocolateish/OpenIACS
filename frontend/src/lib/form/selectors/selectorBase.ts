@@ -1,5 +1,5 @@
-import { Value, ValueLimitedString } from "@chocolatelib/value";
-import { FormBaseRead, FormValueOptions } from "../base";
+import type { SVGFunc } from "@libSVG";
+import { FormValueWrite, type FormValueOptions } from "../base";
 import "./selectorBase.scss";
 
 export interface SelectorOption<T> {
@@ -8,7 +8,7 @@ export interface SelectorOption<T> {
   /**Text for selection */
   text: string;
   /**Icon to display for option*/
-  icon?: SVGSVGElement;
+  icon?: SVGFunc;
 }
 
 export interface SelectorBaseOptions<T> extends FormValueOptions<T> {
@@ -18,126 +18,82 @@ export interface SelectorBaseOptions<T> extends FormValueOptions<T> {
 
 export interface SelectionBase<T> {
   index: number;
-  selection: SelectorOption<T>;
 }
 
 /**Base for number elements elements*/
 export abstract class SelectorBase<
-  T,
-  S extends SelectionBase<T>
-> extends FormBaseRead<T> {
-  protected _selectionValues: T[] = [];
-  protected _selections: S[] = [];
-  protected _selection: S | undefined;
+  RT,
+  S extends SelectionBase<RT>
+> extends FormValueWrite<RT> {
+  //Stores selections by value
+  #map: Map<RT, S> = new Map();
+  //Stores values in order supplied
+  #values: RT[] = [];
+  #selection: number = -1;
 
-  /**Sets options for the element*/
-  options(options: SelectorBaseOptions<T>) {
-    super.options(options);
-    if (options.selections) {
-      this.selections = options.selections;
-    }
-    return this;
-  }
-
-  /**Gets the selection options for the selector */
-  get selections() {
-    let selections: SelectorOption<T>[] = [];
-    for (let i = 0; i < this._selections.length; i++) {
-      const sel = this._selections[i].selection;
-      if (sel.icon) {
-        selections.push({
-          text: sel.text,
-          value: sel.value,
-          icon: <SVGSVGElement>sel.icon.cloneNode(true),
-        });
-      } else {
-        selections.push({ text: sel.text, value: sel.value });
-      }
-    }
-    return selections;
+  static apply_options<RT, S extends SelectionBase<RT>>(
+    element: SelectorBase<RT, S>,
+    options: SelectorBaseOptions<RT>
+  ) {
+    if (options.selections) element.selections = options.selections;
   }
 
   /**Sets the selection options for the selector */
-  set selections(selections: SelectorOption<T>[] | undefined) {
-    this._selectionValues = [];
-    this._selections = [];
-    this._clearSelections();
+  set selections(selections: SelectorOption<RT>[] | undefined) {
+    if (this.#selection != -1)
+      this._clear_selection(this.#map.get(this.#values[this.#selection])!);
+    this._clear_selections();
+    this.#values = [];
+    this.#map.clear();
     if (selections) {
+      this.#values = selections.map((s) => s.value);
       for (let i = 0; i < selections.length; i++) {
-        const selection = selections[i];
-        if (selection) {
-          this._selectionValues[i] = selections[i].value;
-          this._selections[i] = this._addSelection(selections[i], i);
-        }
+        let sel = selections[i];
+        if (this.#map.has(sel.value))
+          console.error(
+            "Selection with value " +
+              sel.value +
+              " already exists in " +
+              (this.formID ?? "selector")
+          );
+        this.#map.set(sel.value, this._add_selection(sel, i));
       }
     }
   }
+
   /**Clears all selections from the element */
-  protected abstract _clearSelections(): void;
+  protected abstract _clear_selections(): void;
   /**Add a selection to the element */
-  protected abstract _addSelection(
-    selection: SelectorOption<T>,
+  protected abstract _add_selection(
+    selection: SelectorOption<RT>,
     index: number
   ): S;
   /**Sets which selection is active*/
-  protected abstract _setSelection(selection: S): void;
+  protected abstract _set_selection(selection: S): void;
   /**Clears any active selection*/
-  protected abstract _clearSelection(selection: S): void;
+  protected abstract _clear_selection(selection: S): void;
   /**Set a selection to focused*/
-  protected abstract _focusSelection(selection: S): void;
+  protected abstract _focus_selection(selection: S, old?: S): void;
 
   /**Selects the previous or next selection in the element
    * @param dir false is next true is previous*/
   protected _selectAdjacent(dir: boolean) {
-    if (dir) {
-      let index = this._selection?.index ?? -1;
-      if (index < this._selections.length - 1) {
-        this._valueSet(this._selectionValues[index + 1]);
-        this._focusSelection(this._selections[index + 1]);
-      }
-    } else {
-      let index = this._selection?.index ?? this._selections.length - 1;
-      if (index > 0) {
-        this._valueSet(this._selectionValues[index - 1]);
-        this._focusSelection(this._selections[index - 1]);
-      }
-    }
-  }
-
-  /**Called when value is changed */
-  protected _valueUpdate(value: T) {
-    if (this._selection) {
-      this._clearSelection(this._selection);
-      this._selection = undefined;
-    }
-    let index = this._selectionValues.indexOf(value);
-    if (index !== -1) {
-      this._setSelection(this._selections[index]);
-      this._selection = this._selections[index];
-    }
-  }
-  /**Called when value cleared */
-  protected _valueClear() {
-    if (this._selection) {
-      this._clearSelection(this._selection);
+    let y = Math.min(
+      this.#values.length - 1,
+      Math.max(0, dir ? this.#selection + 1 : this.#selection - 1)
+    );
+    if (y !== this.#selection) {
+      this.set_value(this.#values[y]);
+      this._focus_selection(this.#map.get(this.#values[y])!);
     }
   }
 
   /**Called when Value is changed */
-  protected _ValueUpdate(value: Value<T>) {
-    if (value instanceof ValueLimitedString) {
-      let selections: SelectorOption<any>[] = [];
-      for (const key in value.enums) {
-        let enu = value.enums[key];
-        selections.push({
-          text: enu.name,
-          icon: enu.icon,
-          value: key,
-        });
-      }
-      this.selections = selections;
-    }
+  protected new_value(value: RT) {
+    if (!this.#map.has(value) && this.#selection != -1)
+      return this._clear_selection(this.#map.get(this.buffer!)!);
+    this._set_selection(this.#map.get(value)!);
   }
-  /**Called when the form element is set to not use a Value anymore*/
-  protected _ValueClear() {}
+
+  protected new_error(_val: string): void {}
 }

@@ -12,7 +12,6 @@ interface FormSwitchOptions extends FormValueOptions<boolean> {
   off_color?: FormColors;
 }
 
-/**Toggle Switch, switches between on and off*/
 export class Switch extends FormValueWrite<boolean> {
   static element_name() {
     return "switch";
@@ -27,11 +26,8 @@ export class Switch extends FormValueWrite<boolean> {
   #icon: SVGSVGElement | undefined;
   #preventClick: boolean = false;
 
-  constructor(options: FormSwitchOptions) {
-    super(options);
-    if (options.icon) this.icon = options.icon;
-    this.on_color = options.on_color || FormColors.Green;
-    this.off_color = options.off_color || FormColors.Black;
+  constructor(id: string | undefined) {
+    super(id);
 
     this.#switch.setAttribute("tabindex", "0");
     this.#switch.onkeydown = (e) => {
@@ -130,8 +126,15 @@ export class Switch extends FormValueWrite<boolean> {
 define_element(Switch);
 
 export let form_switch = {
-  /**Creates a button form element */
-  from(options: FormSwitchOptions): Switch {
-    return new Switch(options);
+  /**Creates a switch form element */
+  from(options?: FormSwitchOptions): Switch {
+    let swit = new Switch(options?.id);
+    if (options) {
+      if (options.icon) swit.icon = options.icon;
+      if (options.on_color) swit.on_color = options.on_color;
+      if (options.off_color) swit.off_color = options.off_color;
+      FormValueWrite.apply_options(swit, options);
+    }
+    return swit;
   },
 };

@@ -4,7 +4,10 @@ import {
   context_menu_default,
   context_sub,
 } from "@libContextmenu";
-import { material_av_add_to_queue_rounded } from "@libIcons";
+import {
+  material_av_add_to_queue_rounded,
+  material_av_remove_from_queue_rounded,
+} from "@libIcons";
 import { Err, Ok, type Result } from "@libResult";
 import type { STATE_SYNC_ROS_WS } from "@libState";
 import { default as st, default as state } from "@libState";
@@ -71,6 +74,24 @@ formCont.appendChild(
     label: "Toggle Me",
   })
 ).value_by_state = bool;
+
+formCont.appendChild(
+  form.lamp.from({
+    text: "Status Lamp",
+    colors: [FormColors.Red, FormColors.Green],
+    icon: material_av_add_to_queue_rounded,
+  })
+).value_by_state = bool;
+
+formCont.appendChild(
+  form.dropdown.from({
+    label: "Status Lamp",
+    selections: [
+      { text: "Off", value: 2, icon: material_av_add_to_queue_rounded },
+      { text: "On", value: 3, icon: material_av_remove_from_queue_rounded },
+    ],
+  })
+);
 
 context_menu_default(
   context_menu([

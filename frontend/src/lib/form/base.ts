@@ -50,7 +50,7 @@ export abstract class FormValue<RT> extends FormElement {
     return "@abstract@";
   }
 
-  readonly cid?: string;
+  readonly formID?: string;
   protected _description?: string;
   protected _label: HTMLSpanElement = this.appendChild(
     document.createElement("span")
@@ -59,11 +59,19 @@ export abstract class FormValue<RT> extends FormElement {
     document.createElement("div")
   );
 
-  constructor(options: FormValueOptions<RT>) {
+  static apply_options<RT>(
+    element: FormValue<RT>,
+    options: FormValueOptions<RT>
+  ) {
+    if (options.label) element.label = options.label;
+    if (options.description) element.description = options.description;
+    if (options.value_by_state) element.value_by_state = options.value_by_state;
+    else if (options.value !== undefined) element.value = options.value;
+  }
+
+  constructor(id: string | undefined) {
     super();
-    this.cid = options.id;
-    if (options.label) this.label = options.label;
-    if (options.description) this.description = options.description;
+    this.formID = id;
   }
 
   /**Sets the current label of the element*/
@@ -145,10 +153,8 @@ export abstract class FormValueWrite<RT> extends FormValue<RT> {
 
   protected warn_input: HTMLInputElement = document.createElement("input");
 
-  /**
-   * @param cid Component ID for identifying component instances */
-  constructor(options: FormValueOptions<RT>) {
-    super(options);
+  constructor(id: string | undefined) {
+    super(id);
     this.warn_input.name = "val";
   }
 

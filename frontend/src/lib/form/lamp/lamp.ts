@@ -1,114 +1,93 @@
-import { Listener, Value } from "@chocolatelib/value";
-import { defineElement } from "@chocolatelibui/core";
-import { BasicColors, FormBaseRead, FormValueOptions } from "../base";
+import { define_element } from "@libBase";
+import type { SVGFunc } from "@libSVG";
+import { FormValue, type FormColors, type FormValueOptions } from "../base";
 import "./lamp.scss";
 
-interface LampOptions extends FormValueOptions<number | boolean> {
+interface FormLampOptions<T extends boolean | number, C extends FormColors[]>
+  extends FormValueOptions<T> {
+  /**Sets the lamp colors */
+  colors: C;
   /**Lamp text */
   text?: string;
   /**Icon for lamp */
-  icon?: SVGSVGElement;
-  /**Sets the lamp colors */
-  colors?: BasicColors[];
+  icon?: SVGFunc;
 }
 
-/**Lamp for clicking*/
-export class Lamp extends FormBaseRead<number | boolean> {
-  private _text: HTMLSpanElement = this._body.appendChild(
-    document.createElement("span")
-  );
-  private _textListener: Listener<string> | undefined;
-  private _icon: SVGSVGElement | undefined;
-  private _colors: BasicColors[] = [];
-
-  /**Returns the name used to define the element*/
-  static elementName() {
+class Lamp<
+  T extends boolean | number,
+  C extends FormColors[]
+> extends FormValue<T> {
+  static element_name() {
     return "lamp";
   }
-
-  /**Sets options for the lamp*/
-  options(options: LampOptions) {
-    super.options(options);
-    if (options.text) {
-      this.text = options.text;
-    }
-    if (options.icon) {
-      this.icon = options.icon;
-    }
-    this.colors = options.colors;
-    return this;
+  static element_name_space(): string {
+    return "form";
   }
 
-  /**Gets the current text of the button*/
+  #text: HTMLSpanElement = this._body.appendChild(
+    document.createElement("span")
+  );
+  #icon: SVGSVGElement | undefined;
+  #colors: FormColors[] = [];
+
+  /**Sets the current text of the lamp*/
+  set text(label: string) {
+    this.#text.textContent = label;
+  }
   get text() {
-    return this._text.innerHTML;
-  }
-  /**Sets the current text of the button*/
-  set text(value: Value<string> | string | undefined) {
-    if (this._textListener) {
-      this.dettachValue(this._textListener);
-      delete this._textListener;
-    }
-    if (typeof value === "object" && value instanceof Value) {
-      this._textListener = this.attachValue(value, (val) => {
-        if (val) {
-          this._text.innerHTML = val;
-        } else {
-          this._text.innerHTML = "";
-        }
-      });
-    } else if (value) {
-      this._text.innerHTML = value;
-    } else {
-      this._text.innerHTML = "";
-    }
+    return this.#text.textContent;
   }
 
-  /**Returns current icon of lamp*/
-  get icon() {
-    return this._icon;
-  }
   /**Changes the icon of the lamp*/
-  set icon(icon: SVGSVGElement | undefined) {
-    if (icon) {
-      if (this._icon) {
-        this._body.replaceChild(icon, this._icon);
-        this._icon = icon;
-      } else {
-        this._icon = this._body.insertBefore(icon, this._body.firstChild);
-      }
-    } else if (this._icon) {
-      this._body.removeChild(this._icon);
-      delete this._icon;
+  set icon(icon: SVGFunc | undefined) {
+    if (icon) this.#icon = this._body.insertBefore(icon(), this.#text);
+    else if (this.#icon) {
+      this._body.removeChild(this.#icon);
+      this.#icon = undefined;
     }
   }
 
   /** Sets the background color of the lamp*/
-  set colors(colors: BasicColors[] | undefined) {
-    if (colors instanceof Array) {
-      this._colors = colors;
-    } else {
-      this._colors = [BasicColors.Black];
-    }
+  set colors(colors: C) {
+    this.#colors = colors;
+    this.new_value(this.buffer!);
   }
-  /**Called when Value is changed */
-  protected _ValueUpdate(value: Value<number | boolean>) {
-    value;
-  }
-  /**Called when the form element is set to not use a Value anymore*/
-  protected _ValueClear() {}
+
   /**Called when value is changed */
-  protected _valueUpdate(value: number | boolean) {
-    let color = this._colors[Number(value)];
-    if (color) {
-      this._body.setAttribute("color", <string>color);
-    } else {
-      this._body.removeAttribute("color");
-    }
+  protected new_value(value: number | boolean) {
+    let color = this.#colors[Number(value)];
+    if (color) this._body.setAttribute("color", color);
+    else this._body.removeAttribute("color");
   }
-  /**Called when value cleared */
-  protected _valueClear() {
-    this.removeAttribute("color");
-  }
+
+  protected new_error(_val: string): void {}
 }
-defineElement(Lamp);
+define_element(Lamp);
+
+/**Creates a button form element */
+function from(
+  options?: FormLampOptions<
+    number,
+    [FormColors, FormColors, FormColors, ...FormColors[]]
+  >
+): Lamp<number, [FormColors, FormColors, FormColors, ...FormColors[]]>;
+function from(
+  options?: FormLampOptions<boolean, [FormColors, FormColors]>
+): Lamp<boolean, [FormColors, FormColors]>;
+function from<T extends boolean | number, C extends FormColors[]>(
+  options?: FormLampOptions<T, C>
+): Lamp<T, C> {
+  let lamp = new Lamp<T, C>(options?.id);
+  if (options) {
+    lamp.colors = options.colors;
+    if (options.text) lamp.text = options.text;
+    if (options.icon) lamp.icon = options.icon;
+    FormValue.apply_options(lamp, options);
+  }
+  return lamp;
+}
+
+export let form_lamp = {
+  /**Creates a button form element */
+  from,
+};

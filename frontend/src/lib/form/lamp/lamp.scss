@@ -1,62 +1,57 @@
-@import "../base.scss";
+@use "../base";
 
-chocolatelibui-form-lamp {
-  @include base;
+form-lamp {
+  @include base.base;
 
   > div {
+    border: 1px solid base.$color_border;
+    min-height: base.$size_height;
+    box-shadow: base.$shadow_out;
+    border-radius: base.$size_height;
+    background-color: base.$color_background;
     display: flex;
     box-sizing: border-box;
-    min-height: $size_height;
     min-width: min-content;
-    background-color: $color_background;
-    border: 1px solid $color_border;
-    border-radius: $size_height;
-    box-shadow: $shadow_out;
     -webkit-user-select: none;
     user-select: none;
     align-items: center;
 
     .touch & {
-      border-radius: $size_touchHeight;
-      min-height: $size_touchHeight;
+      min-height: base.$size_touchHeight;
+      border-radius: base.$size_touchHeight;
     }
 
     .anim & {
-      transition: min-height var(--sizeTransitionType) var(--sizeTransitionTime),
-        box-shadow ease 200ms,
-        border-color var(--colorTransitionType) var(--colorTransitionTime),
-        background-color var(--colorTransitionType) var(--colorTransitionTime);
+      transition: min-height base.$animation, border-color base.$animation,
+        background-color base.$animation;
     }
 
     > svg {
+      fill: base.$color_text;
+      height: calc(base.$size_height - 2px);
       box-sizing: border-box;
-      height: calc($size_height - 2px);
       width: auto;
       flex-shrink: 0;
       background-color: initial;
-      fill: $color_text;
       padding: 0.2rem;
       padding-left: 0.4rem;
 
       .touch & {
-        height: calc($size_touchHeight - 2px);
+        height: calc(base.$size_touchHeight - 2px);
         padding: 0.5rem;
       }
 
       .anim & {
-        transition: fill var(--colorTransitionType) var(--colorTransitionTime),
-          height var(--sizeTransitionType) var(--sizeTransitionTime),
-          max-width var(--sizeTransitionType) var(--sizeTransitionTime);
+        transition: fill base.$animation, height base.$animation;
       }
     }
 
     > span {
+      color: base.$color_text;
       display: flex;
       justify-content: center;
-      color: $color_text;
       padding-inline: 0.8rem;
       padding-block: 0.2rem;
-      min-width: 10rem;
 
       &:empty {
         display: none;
@@ -69,7 +64,7 @@ chocolatelibui-form-lamp {
       }
 
       .anim & {
-        transition: color var(--colorTransitionType) var(--colorTransitionTime);
+        transition: color base.$animation;
       }
     }
 
@@ -77,32 +72,16 @@ chocolatelibui-form-lamp {
       padding-left: 0.4rem !important;
     }
 
-    &[color="black"] {
-      background-color: $color_basic_black;
+    @include base.form-colors(color, background-color);
 
+    &[color="black"] {
       > span {
-        color: $color_text_black;
+        color: base.$color_text_black;
       }
 
       > svg {
-        fill: $color_text_black;
+        fill: base.$color_text_black;
       }
-    }
-
-    &[color="green"] {
-      background-color: $color_basic_green;
-    }
-
-    &[color="red"] {
-      background-color: $color_basic_red;
-    }
-
-    &[color="blue"] {
-      background-color: $color_basic_blue;
-    }
-
-    &[color="yellow"] {
-      background-color: $color_basic_yellow;
     }
   }
 }

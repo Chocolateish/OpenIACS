@@ -16,16 +16,16 @@ chocolatelibui-form-togglebutton {
     }
 
     > div {
-      color: $unselectedTextColor;
-      fill: $unselectedTextColor;
+      color: $color_text_unselected;
+      fill: $color_text_unselected;
       display: flex;
       justify-content: center;
       text-align: center;
       box-sizing: border-box;
 
       &.selected {
-        color: $selectedTextColor;
-        fill: $selectedTextColor;
+        color: $color_text_selected;
+        fill: $color_text_selected;
       }
 
       &:nth-child(odd) {

@@ -1,6 +1,11 @@
 import { define_element } from "@libBase";
 import type { SVGFunc } from "@libSVG";
-import { FormColors, FormValueWrite, type FormValueOptions } from "../base";
+import {
+  FormColors,
+  FormValue,
+  FormValueWrite,
+  type FormValueOptions,
+} from "../base";
 import "../shared";
 import "./button.scss";
 
@@ -17,7 +22,6 @@ interface FormButtonOptions extends FormValueOptions<boolean> {
   color?: FormColors;
 }
 
-/**Button for clicking*/
 class Button extends FormValueWrite<boolean> {
   static element_name() {
     return "button";
@@ -33,13 +37,8 @@ class Button extends FormValueWrite<boolean> {
   #toggle?: boolean;
   #icon?: SVGSVGElement;
 
-  constructor(options: FormButtonOptions) {
-    super(options);
-    if (options.text) this.text = options.text;
-    if (options.icon) this.icon = options.icon;
-    if (options.on_click) this.on_click = options.on_click;
-    if (options.toggle) this.toggle = options.toggle;
-    if (options.color) this.color = options.color;
+  constructor(id: string | undefined) {
+    super(id);
 
     this._body.setAttribute("tabindex", "0");
     this._body.onclick = () => {
@@ -152,7 +151,16 @@ define_element(Button);
 
 export let form_button = {
   /**Creates a button form element */
-  from(options: FormButtonOptions): Button {
-    return new Button(options);
+  from(options?: FormButtonOptions): Button {
+    let butt = new Button(options?.id);
+    if (options) {
+      if (options.text) butt.text = options.text;
+      if (options.icon) butt.icon = options.icon;
+      if (options.on_click) butt.on_click = options.on_click;
+      if (options.toggle) butt.toggle = options.toggle;
+      if (options.color) butt.color = options.color;
+      FormValue.apply_options(butt, options);
+    }
+    return butt;
   },
 };
