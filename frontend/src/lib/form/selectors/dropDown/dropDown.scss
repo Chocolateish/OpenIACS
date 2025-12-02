@@ -1,5 +1,74 @@
 @use "../../base";
 
+form-dropdown {
+  @include base.base;
+
+  //   -webkit-user-select: none;
+  //   user-select: none;
+
+  > div {
+    background-color: base.$color_background;
+    border: base.$border;
+    border-radius: base.$size_cornerRadius;
+    box-shadow: base.$shadow_out;
+    min-height: base.$size_height;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    outline: none;
+    position: relative;
+    line-height: 0;
+
+    .touch & {
+      min-height: base.$size_touchHeight;
+    }
+
+    &:focus-visible {
+      box-shadow: base.$shadow_out_focus_out;
+    }
+
+    @media (pointer: fine) {
+      &:hover {
+        background-color: base.$color_background_hover;
+      }
+    }
+
+    > span {
+      > svg {
+        fill: base.$color_text;
+        box-sizing: border-box;
+        max-width: base.$size_height;
+        height: calc(base.$size_height - 2px);
+        width: auto;
+        padding: 0.2rem;
+      }
+    }
+
+    > div {
+      color: base.$color_text;
+      padding-left: base.$padding;
+      box-sizing: border-box;
+      vertical-align: middle;
+      align-items: baseline;
+      flex-grow: 1;
+      line-height: 1.2rem;
+
+      .touch & {
+        font-size: base.$touch_font_size;
+      }
+    }
+
+    > svg {
+      box-sizing: border-box;
+      flex-shrink: 0;
+      fill: base.$color_text;
+      padding: 0.1rem;
+    }
+  }
+}
+
 form-dropdownbox {
   position: fixed;
   display: none;
@@ -15,7 +84,7 @@ form-dropdownbox {
   > div {
     position: fixed;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 
     > div {
       border: base.$border;
@@ -138,95 +207,6 @@ form-dropdownbox {
 
       &::-webkit-scrollbar-thumb:hover {
         background: base.$color_background_hover;
-      }
-    }
-  }
-}
-
-form-dropdown {
-  @include base.base;
-
-  > div {
-    display: table;
-    background-color: base.$color_background;
-    border: base.$border;
-    border-radius: base.$size_cornerRadius;
-    box-shadow: base.$shadow_out;
-    box-sizing: border-box;
-    -webkit-user-select: none;
-    user-select: none;
-    min-height: base.$size_height;
-    outline: none;
-
-    &:focus-visible {
-      box-shadow: base.$shadow_out_focus_out;
-    }
-
-    @media (pointer: fine) {
-      &:hover {
-        background-color: base.$color_background_hover;
-      }
-    }
-
-    .touch & {
-      min-height: base.$size_touchHeight;
-    }
-
-    > div {
-      display: table-row;
-      color: base.$color_text;
-      fill: base.$color_text;
-      outline: none;
-      position: relative;
-
-      .touch & {
-        font-size: base.$touch_font_size;
-      }
-
-      > div {
-        display: table-cell;
-        box-sizing: border-box;
-        vertical-align: middle;
-        height: base.$size_height;
-
-        &:first-child {
-          padding: base.$padding;
-          width: 0;
-
-          > svg {
-            padding-left: base.$padding;
-            height: base.$size_height - base.$padding * 2;
-            box-sizing: border-box;
-            display: block;
-            width: auto;
-
-            .touch & {
-              height: base.$size_touchHeight - base.$padding * 4;
-            }
-          }
-        }
-
-        &:nth-child(2) {
-          padding-left: base.$padding;
-          padding-right: base.$padding;
-        }
-
-        &:last-child {
-          padding: base.$padding;
-          width: base.$size_height - base.$padding * 2;
-
-          > svg {
-            padding-left: base.$padding;
-            height: base.$size_height - base.$padding * 2;
-            box-sizing: border-box;
-            display: block;
-            width: auto;
-
-            .touch & {
-              height: base.$size_touchHeight - base.$padding * 4;
-            }
-          }
-        }
       }
     }
   }
