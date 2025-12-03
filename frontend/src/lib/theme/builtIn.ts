@@ -2,6 +2,8 @@ import { grey } from "@libColors";
 import "./theme.scss";
 import { theme_init_variable_root } from "./variables";
 
+export const BUILT_IN = 0;
+
 let root = theme_init_variable_root(
   "common",
   "Shared Variables",

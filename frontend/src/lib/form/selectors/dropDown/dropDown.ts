@@ -66,7 +66,7 @@ export class Dropdown<RT> extends SelectorBase<RT> {
         case "ArrowUp":
           e.preventDefault();
           e.stopPropagation();
-          this.#selectAdjacent(e.key === "ArrowDown");
+          this.#select_adjacent(e.key === "ArrowDown");
           break;
       }
     };
@@ -87,7 +87,7 @@ export class Dropdown<RT> extends SelectorBase<RT> {
   }
 
   /**Sets the default text displayed when nothing has been selected yet */
-  set defaultIcon(def: SVGFunc | undefined) {
+  set default_icon(def: SVGFunc | undefined) {
     this.#defaultIcon = def;
     if (def && this.#selected === -1) this.#icon.replaceChildren(def());
   }
@@ -110,17 +110,17 @@ export class Dropdown<RT> extends SelectorBase<RT> {
   set open(open: boolean) {
     if (open && !this.is_open) {
       this.#open.replaceChildren(material_navigation_unfold_less_rounded());
-      box.openMenu(this.#map, this, this._body, this.buffer);
+      box.open_menu(this.#map, this, this._body, this.buffer);
     } else if (!open && this.is_open) {
       this.#open.replaceChildren(material_navigation_unfold_more_rounded());
-      box.closeMenu();
+      box.close_menu();
     }
     this.is_open = open;
   }
 
   /**Selects the previous or next selection in the element
    * @param dir false is next true is previous*/
-  #selectAdjacent(dir: boolean) {
+  #select_adjacent(dir: boolean) {
     let y = Math.min(
       this.#values.length - 1,
       Math.max(0, dir ? this.#selected + 1 : this.#selected - 1)
@@ -170,7 +170,7 @@ export let form_dropDown = {
     let drop = new Dropdown<T>(options?.id);
     if (options) {
       if (options.default) drop.default = options.default;
-      if (options.defaultIcon) drop.defaultIcon = options.defaultIcon;
+      if (options.defaultIcon) drop.default_icon = options.defaultIcon;
       SelectorBase.apply_options(drop, options);
       FormValue.apply_options(drop, options);
     }
@@ -196,21 +196,34 @@ class DropDownBox extends Base {
     document.createElement("div")
   );
   #dropdown: Dropdown<any> | undefined;
-  #resizeListener = () => this.closeMenu();
+  #focus_out_handler = (e: FocusEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!e.relatedTarget || !this.contains(e.relatedTarget as Node))
+      this.close_menu();
+  };
+  #window_resize_handler = () => this.close_menu();
 
   constructor() {
     super();
-    this.#scroll.tabIndex = 0;
-    this.#closer.onclick = () => this.closeMenu();
+    this.#container.tabIndex = 0;
+    // this.#closer.onclick = () => this.close_menu();
     this.#closer
       .appendChild(document.createElement("div"))
       .appendChild(material_navigation_close_rounded());
     this.#closer.appendChild(document.createElement("div")).innerHTML = "Close";
+    this.#closer.tabIndex = 0;
+    this.#closer.onkeydown = (e) => {
+      if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        this.close_menu();
+      }
+    };
     this.ontouchend = (e) => {
       if (e.target === this) {
         if (e.cancelable) e.preventDefault();
         e.stopPropagation();
-        this.closeMenu();
+        this.close_menu();
       }
     };
     this.onpointerdown = (e) => {
@@ -220,21 +233,16 @@ class DropDownBox extends Base {
         e.pointerType === "touch" &&
         (e.target === this || e.target === this.#container)
       ) {
-        this.closeMenu();
+        this.close_menu();
       }
     };
     this.onpointerup = (e) => {
       e.preventDefault();
       e.stopPropagation();
       if (e.target !== this && e.pointerType !== "touch") {
-        this.closeMenu();
+        this.close_menu();
       }
     };
-    this.addEventListener("focusout", (e) => {
-      if (e.relatedTarget === null) {
-        this.closeMenu();
-      }
-    });
     this.onwheel = (e) => {
       e.preventDefault();
     };
@@ -242,41 +250,64 @@ class DropDownBox extends Base {
       if (this.#scroll.scrollHeight !== this.#scroll.clientHeight)
         e.stopPropagation();
     };
-    this.#scroll.onkeydown = (e) => {
+    this.#container.onkeydown = (e) => {
       switch (e.key) {
         case "Escape":
-          this.closeMenu();
+          this.close_menu();
           e.stopPropagation();
           break;
         case " ":
         case "Enter":
           e.stopPropagation();
-          this.closeMenu();
+          this.close_menu();
           break;
         case "Tab":
         case "ArrowUp":
           e.stopPropagation();
           e.preventDefault();
           var elem =
-            e.target === this.#scroll
-              ? (e.target as HTMLElement).lastElementChild
+            e.target === this.#container
+              ? this.#table.lastElementChild
               : (e.target as HTMLElement).previousElementSibling;
-          (elem as HTMLElement).focus();
+          if (elem) (elem as HTMLElement).focus();
           break;
         case "ArrowDown":
           e.stopPropagation();
           e.preventDefault();
           var elem =
-            e.target === this.#scroll
-              ? (e.target as HTMLElement).firstElementChild
+            e.target === this.#container
+              ? this.#table.firstElementChild
               : (e.target as HTMLElement).nextElementSibling;
-          (elem as HTMLElement).focus();
+          if (elem) (elem as HTMLElement).focus();
           break;
       }
     };
   }
 
-  openMenu(
+  protected connectedCallback(): void {
+    super.connectedCallback();
+    // this.addEventListener("focusout", this.#focus_out_handler, {
+    //   capture: true,
+    // });
+    this.ownerDocument.defaultView?.addEventListener(
+      "resize",
+      this.#window_resize_handler,
+      { passive: true }
+    );
+  }
+
+  protected disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.removeEventListener("focusout", this.#focus_out_handler, {
+      capture: true,
+    });
+    this.ownerDocument.defaultView?.removeEventListener(
+      "resize",
+      this.#window_resize_handler
+    );
+  }
+
+  open_menu(
     map: Map<any, SelOptions>,
     parent: Dropdown<any>,
     ref: HTMLDivElement,
@@ -305,12 +336,6 @@ class DropDownBox extends Base {
     if (this.#scroll.scrollHeight > this.#scroll.clientHeight)
       this.#scroll.classList.add("scroll");
     else this.#scroll.classList.remove("scroll");
-
-    this.ownerDocument.defaultView?.addEventListener(
-      "resize",
-      this.#resizeListener,
-      { once: true }
-    );
 
     let focus: HTMLElement | undefined = undefined as HTMLElement | undefined;
     //@ts-expect-error
@@ -350,11 +375,13 @@ class DropDownBox extends Base {
       this.#table.prepend(this.#closer);
     }
 
-    if (focus) focus.focus();
-    else this.#scroll.focus();
+    if (focus) {
+      focus.focus();
+      focus.classList.add("selected");
+    } else this.#container.focus();
   }
 
-  closeMenu() {
+  close_menu() {
     console.error("YOYOYOYO");
 
     this.classList.remove("open");
@@ -364,10 +391,6 @@ class DropDownBox extends Base {
       //@ts-expect-error
       this.#dropdown.is_open = false;
     }
-    this.ownerDocument.defaultView?.removeEventListener(
-      "resize",
-      this.#resizeListener
-    );
   }
 }
 define_element(DropDownBox);

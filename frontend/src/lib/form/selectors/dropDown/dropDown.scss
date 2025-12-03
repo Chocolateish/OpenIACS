@@ -82,16 +82,22 @@ form-dropdownbox {
   }
 
   > div {
+    outline: none;
     position: fixed;
     display: flex;
+    box-sizing: border-box;
     flex-direction: row;
+    border: base.$border;
+    border-radius: base.$size_cornerRadius;
+    background-color: base.$color_background;
+    overflow: hidden;
+    box-shadow: base.$shadow_out;
+
+    &:focus-visible {
+      box-shadow: base.$focus_out;
+    }
 
     > div {
-      border: base.$border;
-      padding-left: base.$padding;
-      padding-right: base.$padding;
-      border-radius: base.$size_cornerRadius;
-      background-color: base.$color_background;
       box-sizing: border-box;
       overflow-y: auto;
       overflow-x: hidden;
@@ -99,6 +105,7 @@ form-dropdownbox {
       overscroll-behavior: contain;
       outline: none;
       touch-action: none;
+      position: relative;
 
       &.scroll {
         touch-action: auto;
@@ -107,6 +114,7 @@ form-dropdownbox {
       > div {
         width: 100%;
         display: table;
+        position: relative;
 
         > div {
           fill: base.$color_text_unselected;
@@ -115,19 +123,55 @@ form-dropdownbox {
           outline: none;
           position: relative;
 
+          &:focus-visible::after {
+            content: "";
+            inset: 0;
+            z-index: 0;
+            position: absolute;
+            box-shadow: base.$focus_in;
+          }
+
+          &:first-child::after {
+            border-radius: base.$size_cornerRadius 0 0 0;
+          }
+          &:last-child::after {
+            border-radius: 0 0 0 base.$size_cornerRadius;
+          }
+
+          @media (pointer: fine) {
+            &:hover::after {
+              content: "";
+              inset: 0;
+              z-index: 0;
+              position: absolute;
+              background-color: base.$color_background_hover;
+            }
+          }
+
           &.selected {
             fill: base.$color_text_selected;
             color: base.$color_text_selected;
 
             &::after {
               content: "";
-              left: -(base.$padding);
-              right: -(base.$padding + base.$scrollbar_width);
+              inset: 0;
               background-color: base.$color_background_hover;
               position: absolute;
-              inset: 0;
-              z-index: -1;
+              z-index: 0;
             }
+          }
+
+          &:last-child {
+            padding-left: base.$padding;
+            padding-right: 0.4rem;
+
+            .touch & {
+              font-size: base.$touch_font_size;
+            }
+          }
+
+          .touch & {
+            height: base.$size_touchHeight;
           }
 
           > div {
@@ -140,6 +184,7 @@ form-dropdownbox {
 
             &:first-child {
               padding: base.$padding;
+              padding-inline: 0.3rem;
               width: 0;
 
               > svg {
@@ -158,55 +203,8 @@ form-dropdownbox {
                 padding-left: base.$padding;
               }
             }
-
-            &:last-child {
-              padding-left: base.$padding;
-              padding-right: 0.4rem;
-
-              .touch & {
-                font-size: base.$touch_font_size;
-              }
-            }
-
-            .touch & {
-              height: base.$size_touchHeight;
-            }
-          }
-
-          &:focus-visible {
-            box-shadow: base.$shadow_out_focus_out;
-          }
-
-          @media (pointer: fine) {
-            &:hover::after {
-              content: "";
-              position: absolute;
-              inset: 0;
-              left: -(base.$padding);
-              right: -(base.$padding + base.$scrollbar_width);
-              background-color: base.$color_background_hover;
-              z-index: 0;
-            }
           }
         }
-      }
-
-      &::-webkit-scrollbar {
-        width: base.$scrollbar_width;
-      }
-
-      &::-webkit-scrollbar-track {
-        background: none;
-        padding-top: base.$padding;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background: base.$color_border;
-        border-radius: 0.5rem;
-      }
-
-      &::-webkit-scrollbar-thumb:hover {
-        background: base.$color_background_hover;
       }
     }
   }
