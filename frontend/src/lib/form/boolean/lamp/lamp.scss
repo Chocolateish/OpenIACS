@@ -1,79 +1,75 @@
-@use "../base";
+@use "../../base";
 
-form-button {
+form-lamp {
   @include base.base;
-  min-width: unset;
 
   > div {
-    border: base.$border;
+    border: 1px solid base.$color_border;
     min-height: base.$size_height;
     box-shadow: base.$shadow_out;
-    border-radius: base.$size_cornerRadius;
+    border-radius: base.$size_height;
     background-color: base.$color_background;
     display: flex;
-    align-items: center;
     box-sizing: border-box;
+    min-width: min-content;
     -webkit-user-select: none;
     user-select: none;
-    min-width: min-content;
-    outline: none;
-
-    &.active {
-      box-shadow: base.$shadow_out_active;
-    }
-
-    &:focus-visible {
-      box-shadow: base.$shadow_out_focus_out;
-
-      &.active {
-        box-shadow: base.$shadow_out_active_focus_out;
-      }
-    }
-
-    @media (pointer: fine) {
-      &:hover {
-        background-color: base.$color_background_hover;
-      }
-    }
+    align-items: center;
 
     .touch & {
       min-height: base.$size_touchHeight;
+      border-radius: base.$size_touchHeight;
+    }
+
+    .anim & {
+      transition: min-height base.$animation, border-color base.$animation,
+        background-color base.$animation;
     }
 
     > svg {
       fill: base.$color_text;
-      max-width: base.$size_height;
       height: calc(base.$size_height - 2px);
       box-sizing: border-box;
       width: auto;
+      flex-shrink: 0;
+      background-color: initial;
       padding: 0.2rem;
       padding-left: 0.4rem;
-      flex-shrink: 0;
 
       .touch & {
-        height: base.$size_touchHeight;
-        max-width: base.$size_touchHeight + 1rem;
+        height: calc(base.$size_touchHeight - 2px);
         padding: 0.5rem;
+      }
+
+      .anim & {
+        transition: fill base.$animation, height base.$animation;
+      }
+    }
+
+    > span {
+      color: base.$color_text;
+      display: flex;
+      justify-content: center;
+      padding-inline: 0.8rem;
+      padding-block: 0.2rem;
+
+      &:empty {
+        display: none;
+      }
+
+      .touch & {
+        padding-inline: 1.6rem;
+        padding-block: 0.5rem;
+        font-size: 1.4rem;
+      }
+
+      .anim & {
+        transition: color base.$animation;
       }
     }
 
     > svg + span {
       padding-left: 0.4rem !important;
-    }
-
-    > span {
-      color: base.$color_text;
-      justify-content: center;
-      padding-inline: 0.8rem;
-      padding-block: 0.2rem;
-
-      .touch & {
-        font-size: 1.4rem;
-      }
-
-      &:empty {
-        display: none;
-      }
     }
 
     @include base.form-colors(color, background-color);

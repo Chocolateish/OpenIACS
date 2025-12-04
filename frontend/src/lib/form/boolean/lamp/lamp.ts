@@ -1,6 +1,6 @@
 import { define_element } from "@libBase";
 import type { SVGFunc } from "@libSVG";
-import { FormValue, type FormColors, type FormValueOptions } from "../base";
+import { FormValue, type FormColors, type FormValueOptions } from "../../base";
 import "./lamp.scss";
 
 interface FormLampOptions<T extends boolean | number, C extends FormColors[]>

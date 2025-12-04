@@ -121,7 +121,7 @@ $touch_value_unit_font_height: max(
     $touch_unit_font_size
   ) + 0.4rem;
 
-@mixin valueFont {
+@mixin value-font {
   color: $color_text;
   font-size: $value_font_size;
   line-height: $value_unit_font_height;
@@ -132,7 +132,7 @@ $touch_value_unit_font_height: max(
   }
 }
 
-@mixin unitFont {
+@mixin unit-font {
   color: $color_text;
   font-size: $unit_font_size;
   line-height: $value_unit_font_height;
@@ -146,8 +146,8 @@ $touch_value_unit_font_height: max(
 $unit_width: $unit_font_size * 5.6;
 $touch_unit_width: $touch_unit_font_size * 5.6;
 
-@mixin unitContainer {
-  @include unitFont;
+@mixin unit-container {
+  @include unit-font;
   display: block;
   max-width: $unit_width;
   overflow: hidden;

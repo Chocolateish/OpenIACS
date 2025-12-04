@@ -1,36 +1,36 @@
-@import "../numberBase.scss";
+@use "../../base";
+@use "../numberBase";
 
-chocolatelibui-form-progress {
-  @include base;
-  @include number-base;
+form-progress {
+  @include base.base;
+  @include numberBase.number-base;
 
   > div {
-    border-radius: $size_cornerRadius;
-    background-color: $color_background;
+    height: base.$size_height;
+    border-radius: base.$size_cornerRadius;
+    background-color: base.$color_background;
     position: relative;
     -webkit-user-select: none;
     user-select: none;
-    height: $size_height;
     display: flex;
     align-items: center;
 
     .touch & {
-      height: $size_touchHeight;
+      height: base.$size_touchHeight;
     }
 
     .anim & {
-      transition: height var(--sizeTransitionType) var(--sizeTransitionTime),
-        background-color var(--colorTransitionType) var(--colorTransitionTime);
+      transition: height base.$animation, background-color base.$animation;
     }
 
     > div {
       position: absolute;
-      border-radius: $size_cornerRadius;
+      border-radius: base.$size_cornerRadius;
       height: 100%;
       left: 0px;
       top: 0px;
       width: 0%;
-      background-color: $color_basic_green;
+      background-color: base.$color_basic_green;
       z-index: 1;
     }
 
@@ -39,10 +39,10 @@ chocolatelibui-form-progress {
       height: min-content;
       position: relative;
       z-index: 1;
-      color: $color_text;
+      color: base.$color_text;
 
       &:nth-child(2) {
-        @include valueFont;
+        @include base.value-font;
         min-width: 3rem;
         text-align: end;
         padding-left: 0.5rem;
@@ -53,17 +53,17 @@ chocolatelibui-form-progress {
       }
 
       &:last-child {
-        @include unitContainer;
+        @include base.unit-container;
       }
     }
 
     &::after {
       content: "";
+      border: base.$border;
+      box-shadow: base.$shadow_in;
+      border-radius: base.$size_cornerRadius;
       inset: 0;
       position: absolute;
-      border-radius: $size_cornerRadius;
-      border: $border;
-      box-shadow: $shadow_in;
       z-index: 1;
     }
   }

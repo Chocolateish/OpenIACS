@@ -187,6 +187,20 @@ formCont.appendChild(
   })
 ).value_by_state = num;
 
+formCont.appendChild(
+  form.slider.from({
+    label: "Progress",
+    unit: "mA",
+  })
+).value_by_state = num;
+
+formCont.appendChild(
+  form.progress.from({
+    label: "Progress",
+    unit: "mA",
+  })
+).value_by_state = num;
+
 context_menu_default(
   context_menu([
     context_line("Default Option", () => console.warn("Clicked")),

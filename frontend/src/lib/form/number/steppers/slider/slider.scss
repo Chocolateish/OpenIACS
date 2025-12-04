@@ -1,29 +1,31 @@
-@import "../stepperBase.scss";
+@use "../../../base";
+@use "../../numberBase";
+@use "../stepperBase";
 
-chocolatelibui-form-slider {
-  @include base;
-  @include number-base;
+form-slider {
+  @include base.base;
+  @include numberBase.number-base;
   $textPadding: 0.2rem;
-  $thumbWidth: $unit_width + 0.4rem + $textPadding;
-  $touchThumbWidth: $touch_unit_width + 0.4rem + $textPadding;
+  $thumbWidth: base.$unit_width + 0.4rem + $textPadding;
+  $touchThumbWidth: base.$touch_unit_width + 0.4rem + $textPadding;
 
   > div {
+    border: base.$border;
+    height: base.$size_height;
+    box-shadow: base.$shadow_in;
+    border-radius: base.$size_cornerRadius;
+    background-color: base.$color_background;
     -webkit-user-select: none;
     user-select: none;
     box-sizing: border-box;
-    height: $size_height;
     position: relative;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    background-color: $color_background;
-    border-radius: $size_cornerRadius;
-    border: $border;
-    box-shadow: $shadow_in;
     touch-action: none;
 
     .touch & {
-      height: $size_touchHeight;
+      height: base.$size_touchHeight;
     }
 
     > div {
@@ -32,31 +34,35 @@ chocolatelibui-form-slider {
       align-items: center;
       height: 100%;
       width: calc(
-        100% - (($thumbWidth + ($size_height * 2)) - ($border_thickness * 4))
+        100% -
+          (
+            ($thumbWidth + (base.$size_height * 2)) -
+              (base.$border_thickness * 4)
+          )
       );
       position: relative;
-      left: -$border_thickness * 2;
+      left: -(base.$border_thickness) * 2;
       z-index: 1;
 
       .touch & {
         width: calc(
           100% -
             (
-              ($touchThumbWidth + ($size_touchHeight * 2)) -
-                ($border_thickness * 4)
+              ($touchThumbWidth + (base.$size_touchHeight * 2)) -
+                (base.$border_thickness * 4)
             )
         );
       }
 
       > div {
-        box-sizing: border-box;
-        background-color: $color_background;
-        border-radius: $size_cornerRadius;
-        border: $border;
-        box-shadow: $shadow_out;
-        height: $size_height;
+        top: -(base.$border_thickness);
         width: $thumbWidth;
-        top: -$border_thickness;
+        border: base.$border;
+        height: base.$size_height;
+        box-shadow: base.$shadow_out;
+        border-radius: base.$size_cornerRadius;
+        background-color: base.$color_background;
+        box-sizing: border-box;
         left: 50%;
         position: absolute;
         display: flex;
@@ -72,78 +78,78 @@ chocolatelibui-form-slider {
         }
 
         &:focus-visible {
-          box-shadow: $shadow_out_focus_out;
+          box-shadow: base.$shadow_out_focus_out;
           z-index: 2;
         }
 
         @media (pointer: fine) {
           &:hover {
-            background-color: $color_background_hover;
+            background-color: base.$color_background_hover;
           }
         }
 
         .touch & {
-          height: $size_touchHeight;
+          height: base.$size_touchHeight;
           width: $touchThumbWidth;
         }
 
         > span:first-child {
-          @include valueFont;
+          @include base.value-font;
           box-sizing: border-box;
-          line-height: $value_font_size;
+          line-height: base.$value_font_size;
           text-align: center;
           max-width: $thumbWidth - $textPadding * 2;
           overflow: hidden;
 
           .touch & {
-            line-height: $touch_value_font_size;
+            line-height: base.$touch_value_font_size;
             max-width: $touchThumbWidth;
           }
         }
 
         > span:last-child {
-          @include unitContainer;
-          line-height: $unit_font_size;
+          @include base.unit-container;
+          line-height: base.$unit_font_size;
           text-align: center;
 
           .touch & {
-            line-height: $touch_unit_font_size;
+            line-height: base.$touch_unit_font_size;
           }
         }
       }
     }
 
     > svg {
-      @include svgStepperButton;
+      @include stepperBase.svg-stepper-button;
       z-index: 1;
 
       &:nth-child(2) {
-        left: -$border_thickness;
+        left: -(base.$border_thickness);
       }
 
       &:nth-child(4) {
         position: absolute;
-        right: -$border_thickness;
+        right: -(base.$border_thickness);
       }
     }
 
     > span {
       position: absolute;
       inset: 0;
-      padding-left: $size_height + 0.4rem;
-      padding-right: $size_height + 0.4rem;
+      padding-left: base.$size_height + 0.4rem;
+      padding-right: base.$size_height + 0.4rem;
       justify-content: space-between;
       align-items: center;
       gap: 0.4rem;
       display: flex;
 
       .touch & {
-        padding-left: $size_touchHeight + 0.4rem;
-        padding-right: $size_touchHeight + 0.4rem;
+        padding-left: base.$size_touchHeight + 0.4rem;
+        padding-right: base.$size_touchHeight + 0.4rem;
       }
 
       > * {
-        @include limit-legend;
+        @include numberBase.limit-legend;
         overflow: hidden;
       }
     }

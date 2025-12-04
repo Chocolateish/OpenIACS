@@ -16,13 +16,6 @@ export interface SelectorBaseOptions<T> extends FormValueOptions<T> {
   selections?: SelectorOption<T>[];
 }
 
-export function form_selector_apply_options<RT>(
-  element: SelectorBase<RT>,
-  options: SelectorBaseOptions<RT>
-) {
-  if (options.selections) element.selections = options.selections;
-}
-
 /**Base for number elements elements*/
 export abstract class SelectorBase<RT> extends FormValueWrite<RT> {
   /**Sets the selection options for the selector */

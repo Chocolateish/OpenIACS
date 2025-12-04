@@ -1,6 +1,6 @@
 import { define_element } from "@libBase";
 import type { SVGFunc } from "@libSVG";
-import { FormColors, FormValueWrite, type FormValueOptions } from "../base";
+import { FormColors, FormValueWrite, type FormValueOptions } from "../../base";
 import "./switch.scss";
 
 interface FormSwitchOptions extends FormValueOptions<boolean> {

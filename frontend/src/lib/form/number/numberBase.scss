@@ -1,4 +1,4 @@
-@import "../base.scss";
+@use "../base";
 
 //Mixins
 @mixin number-base {
@@ -10,7 +10,7 @@
 }
 
 @mixin limit-legend {
-  color: $color_text;
+  color: base.$color_text;
   font-size: 0.7rem;
 
   .touch & {

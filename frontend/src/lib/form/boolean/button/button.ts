@@ -5,8 +5,8 @@ import {
   FormValue,
   FormValueWrite,
   type FormValueOptions,
-} from "../base";
-import "../shared";
+} from "../../base";
+import "../../shared";
 import "./button.scss";
 
 interface FormButtonOptions extends FormValueOptions<boolean> {

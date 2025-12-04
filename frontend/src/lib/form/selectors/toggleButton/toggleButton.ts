@@ -1,5 +1,4 @@
 import { define_element } from "@libBase";
-import { FormValue } from "../../base";
 import {
   SelectorBase,
   type SelectorBaseOptions,
@@ -94,13 +93,10 @@ export class ToggleButton<RT> extends SelectorBase<RT> {
 define_element(ToggleButton);
 
 export let form_toggle_button = {
-  /**Creates a button form element */
+  /**Creates a toggle button form element */
   from<RT>(options?: SelectorBaseOptions<RT>): ToggleButton<RT> {
-    let drop = new ToggleButton<RT>(options?.id);
-    if (options) {
-      SelectorBase.apply_options(drop, options);
-      FormValue.apply_options(drop, options);
-    }
-    return drop;
+    let togg = new ToggleButton<RT>(options?.id);
+    if (options) SelectorBase.apply_options(togg, options);
+    return togg;
   },
 };

@@ -5,7 +5,6 @@ import {
   material_navigation_unfold_more_rounded,
 } from "@libIcons";
 import type { SVGFunc } from "@libSVG";
-import { FormValue } from "../../base";
 import {
   SelectorBase,
   type SelectorBaseOptions,
@@ -170,14 +169,13 @@ export class Dropdown<RT> extends SelectorBase<RT> {
 define_element(Dropdown);
 
 export let form_dropDown = {
-  /**Creates a button form element */
+  /**Creates a dropdown form element */
   from<RT>(options?: DropDownOptions<RT>): Dropdown<RT> {
     let drop = new Dropdown<RT>(options?.id);
     if (options) {
       if (options.default) drop.default = options.default;
       if (options.defaultIcon) drop.default_icon = options.defaultIcon;
       SelectorBase.apply_options(drop, options);
-      FormValue.apply_options(drop, options);
     }
     return drop;
   },
