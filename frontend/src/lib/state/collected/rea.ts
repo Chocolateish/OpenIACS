@@ -62,48 +62,49 @@ export class REA<RT, IN extends STATE<any>[], WT>
   }
 
   /**Called when subscriber is added*/
-  protected on_subscribe(first: boolean) {
-    if (!first) return;
+  protected on_subscribe() {
     if (!this.#states.length)
       return (this.#buffer = Err("No states registered"));
     this.#stateBuffers.length = this.#states.length;
-    let count = 0;
-    let amount = this.#states.length - 1;
-    Promise.all(this.#states).then((vals) => {
-      for (let i = 0; i < this.#stateBuffers.length; i++)
-        this.#stateBuffers[i] = this.#stateBuffers[i] ?? vals[i];
-      this.#buffer = this.getter(
-        this.#stateBuffers as STATE_COLLECTED_TRANS_VAL<IN>
-      );
-      this.ful_R_prom(this.#buffer);
-      count = amount;
-    });
-    let calc = false;
-    for (let i = 0; i < this.#states.length; i++) {
-      this.#stateSubscribers[i] = this.#states[i].sub((value) => {
-        if (count < amount) {
-          if (!this.#stateBuffers[i]) count++;
-          this.#stateBuffers[i] = value;
-          return;
-        }
-        this.#stateBuffers[i] = value;
-        if (!calc) {
-          calc = true;
-          Promise.resolve().then(() => {
-            this.#buffer = this.getter(
-              this.#stateBuffers as STATE_COLLECTED_TRANS_VAL<IN>
-            );
-            this.update_subs(this.#buffer);
-            calc = false;
-          });
-        }
+    //Creates a new scope to hold count and amount variables
+    scope: {
+      let count = 0;
+      let amount = this.#states.length - 1;
+      Promise.all(this.#states).then((vals) => {
+        for (let i = 0; i < this.#stateBuffers.length; i++)
+          this.#stateBuffers[i] = this.#stateBuffers[i] ?? vals[i];
+        this.#buffer = this.getter(
+          this.#stateBuffers as STATE_COLLECTED_TRANS_VAL<IN>
+        );
+        this.ful_R_prom(this.#buffer);
+        count = amount;
       });
+      let calc = false;
+      for (let i = 0; i < this.#states.length; i++) {
+        this.#stateSubscribers[i] = this.#states[i].sub((value) => {
+          if (count < amount) {
+            if (!this.#stateBuffers[i]) count++;
+            this.#stateBuffers[i] = value;
+            return;
+          }
+          this.#stateBuffers[i] = value;
+          if (!calc) {
+            calc = true;
+            Promise.resolve().then(() => {
+              this.#buffer = this.getter(
+                this.#stateBuffers as STATE_COLLECTED_TRANS_VAL<IN>
+              );
+              this.update_subs(this.#buffer);
+              calc = false;
+            });
+          }
+        });
+      }
     }
   }
 
   /**Called when subscriber is removed*/
-  protected on_unsubscribe(last: boolean) {
-    if (!last) return;
+  protected on_unsubscribe() {
     for (let i = 0; i < this.#states.length; i++)
       this.#states[i].unsub(this.#stateSubscribers[i] as any);
     this.#stateSubscribers = [];
@@ -114,18 +115,18 @@ export class REA<RT, IN extends STATE<any>[], WT>
   //#Owner Context
   set_states(...states: STATE_COLLECTED_STATES<IN>) {
     if (this.in_use()) {
-      this.on_unsubscribe(true);
+      this.on_unsubscribe();
       this.#states = [...states] as unknown as IN;
-      this.on_subscribe(true);
+      this.on_subscribe();
     } else this.#states = [...states] as unknown as IN;
   }
   set_getter(
     getter: (values: STATE_COLLECTED_TRANS_VAL<IN>) => Result<RT, string>
   ) {
     if (this.in_use()) {
-      this.on_unsubscribe(true);
+      this.on_unsubscribe();
       this.getter = getter;
-      this.on_subscribe(true);
+      this.on_subscribe();
     } else this.getter = getter;
   }
   get state(): STATE<RT, WT, any> {

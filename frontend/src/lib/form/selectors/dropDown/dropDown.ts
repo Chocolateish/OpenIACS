@@ -215,28 +215,11 @@ class DropDownBox extends Base {
       this.close_menu();
   };
   #window_resize_handler = () => this.close_menu();
+  #is_open: boolean = false;
 
   constructor() {
     super();
     this.#container.tabIndex = 0;
-    // this.#closer.onclick = () => this.close_menu();
-    this.#closer
-      .appendChild(document.createElement("div"))
-      .appendChild(material_navigation_close_rounded());
-    this.#closer.appendChild(document.createElement("div")).innerHTML = "Close";
-    this.#closer.tabIndex = 0;
-    this.#closer.onclick = (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      this.close_menu();
-    };
-    this.#closer.onkeydown = (e) => {
-      if (e.key === " " || e.key === "Enter") {
-        e.stopPropagation();
-        e.preventDefault();
-        this.close_menu();
-      }
-    };
     this.#container.onkeydown = (e) => {
       if (e.key === "Escape") this.close_menu();
       else if (e.key === "ArrowUp" || (e.shiftKey && e.key === "Tab")) {
@@ -257,18 +240,26 @@ class DropDownBox extends Base {
       e.stopPropagation();
       e.preventDefault();
     };
-  }
 
-  protected connectedCallback(): void {
-    super.connectedCallback();
-    // this.addEventListener("focusout", this.#focus_out_handler, {
-    //   capture: true,
-    // });
-  }
+    this.#closer
+      .appendChild(document.createElement("div"))
+      .appendChild(material_navigation_close_rounded());
+    this.#closer.appendChild(document.createElement("div")).innerHTML = "Close";
+    this.#closer.tabIndex = 0;
+    this.#closer.onclick = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      this.close_menu();
+    };
+    this.#closer.onkeydown = (e) => {
+      if (e.key === " " || e.key === "Enter") {
+        e.stopPropagation();
+        e.preventDefault();
+        this.close_menu();
+      }
+    };
 
-  protected disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.removeEventListener("focusout", this.#focus_out_handler, {
+    this.addEventListener("focusout", this.#focus_out_handler, {
       capture: true,
     });
   }
@@ -352,11 +343,12 @@ class DropDownBox extends Base {
       this.#window_resize_handler,
       { passive: true }
     );
+    this.#is_open = true;
   }
 
   close_menu() {
-    console.error("YOYOYOYO");
-
+    if (!this.#is_open) return;
+    this.#is_open = false;
     this.classList.remove("open");
     this.#table.replaceChildren();
     if (this.#dropdown) {

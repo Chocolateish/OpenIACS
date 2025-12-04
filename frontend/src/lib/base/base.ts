@@ -63,20 +63,20 @@ export abstract class Base extends HTMLElement {
     return "lib";
   }
   /**Events for element*/
-  #baseEvents = new EventHandler<BaseEvents, Base>(this);
+  #base_events = new EventHandler<BaseEvents, Base>(this);
   /**Events for element*/
-  readonly baseEvents = this.#baseEvents.consumer;
+  readonly baseEvents = this.#base_events.consumer;
 
   #states: Map<STATE_SUB<any>, [STATE<any>, boolean]> = new Map();
 
-  #isConnected: boolean = false;
+  #is_connected: boolean = false;
 
   /**Observer for children of this element */
   #observer?: BaseObserver;
 
   /**Works when element is connected to observer, otherwise it is an alias for isConnected*/
   readonly isVisible: boolean = false;
-  #attachedObserver?: BaseObserver;
+  #attached_observer?: BaseObserver;
 
   #access?: AccessTypes;
 
@@ -85,38 +85,38 @@ export abstract class Base extends HTMLElement {
 
   /**Runs when element is attached to document*/
   protected connectedCallback() {
-    this.#baseEvents.emit("connect", ConnectEventVal.Connect);
+    this.#base_events.emit("connect", ConnectEventVal.Connect);
     for (const [f, [s, v]] of this.#states) {
       if (!v) s.sub(f, true);
     }
-    if (this.#attachedObserver) this.#attachedObserver.observe(this);
+    if (this.#attached_observer) this.#attached_observer.observe(this);
     else this._set_visible(true);
-    this.#isConnected = true;
+    this.#is_connected = true;
   }
 
   /**Runs when element is dettached from document*/
   protected disconnectedCallback() {
-    this.#baseEvents.emit("connect", ConnectEventVal.Disconnect);
+    this.#base_events.emit("connect", ConnectEventVal.Disconnect);
     for (const [f, [s, v]] of this.#states) {
       if (!v) s.unsub(f);
     }
-    if (this.#attachedObserver) {
-      this.#attachedObserver.unobserve(this);
+    if (this.#attached_observer) {
+      this.#attached_observer.unobserve(this);
       this._set_visible(false);
     }
-    this.#isConnected = false;
+    this.#is_connected = false;
   }
 
   /**Runs when element is attached to different document*/
   protected adoptedCallback() {
-    this.#baseEvents.emit("connect", ConnectEventVal.Adopted);
+    this.#base_events.emit("connect", ConnectEventVal.Adopted);
   }
 
   private _set_visible(is: boolean) {
     if (this.isVisible !== is) {
       //@ts-expect-error
       this.isVisible = is;
-      this.#baseEvents.emit("visible", is);
+      this.#base_events.emit("visible", is);
       if (is) {
         for (const [f, [s, v]] of this.#states) if (v) s.sub(f, true);
       } else {
@@ -149,15 +149,15 @@ export abstract class Base extends HTMLElement {
   /**Attaches the component to an observer, which is needed for the isVisible state and event to work and for the state system to work on visible*/
   attach_to_observer(observer?: BaseObserver): this {
     if (observer) {
-      if (this.#isConnected) {
-        if (this.#attachedObserver) this.#attachedObserver.unobserve(this);
+      if (this.#is_connected) {
+        if (this.#attached_observer) this.#attached_observer.unobserve(this);
         observer.observe(this);
       }
-      this.#attachedObserver = observer;
-    } else if (this.#attachedObserver) {
-      if (this.#isConnected) this.#attachedObserver.unobserve(this);
+      this.#attached_observer = observer;
+    } else if (this.#attached_observer) {
+      if (this.#is_connected) this.#attached_observer.unobserve(this);
       if (!this.isVisible) this._set_visible(true);
-      this.#attachedObserver = undefined;
+      this.#attached_observer = undefined;
     }
     return this;
   }
@@ -173,7 +173,7 @@ export abstract class Base extends HTMLElement {
       console.error("Function already registered with element", func, this);
     else {
       this.#states.set(func, [state, Boolean(visible)]);
-      if (visible ? this.isVisible : this.#isConnected)
+      if (visible ? this.isVisible : this.#is_connected)
         state.sub(func as STATE_SUB<any>, true);
     }
     return func;
@@ -183,7 +183,7 @@ export abstract class Base extends HTMLElement {
   dettach_STATE(func: STATE_SUB<any>): typeof func {
     let state = this.#states.get(func);
     if (state) {
-      if (state[1] ? this.isVisible : this.#isConnected) state[0].unsub(func);
+      if (state[1] ? this.isVisible : this.#is_connected) state[0].unsub(func);
       this.#states.delete(func);
     } else console.error("Function not registered with element", func, this);
     return func;

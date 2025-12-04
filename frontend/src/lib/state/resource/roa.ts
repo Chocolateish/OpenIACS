@@ -43,28 +43,30 @@ export abstract class STATE_RESOURCE_ROA<
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
   implements STATE_RESOURCE_ROA_OWNER<RT, WT, REL>
 {
-  #valid: number = 0;
+  #valid: number | true = 0;
   #fetching: boolean = false;
   #buffer?: ResultOk<RT>;
   #retention_timout: number = 0;
   #debounce_timout: number = 0;
+  #timeout_timout: number = 0;
+
+  /**Timeout before giving generic error, if update_resource is not called*/
+  abstract get timeout(): number;
 
   /**Debounce delaying one time value retrival*/
   abstract get debounce(): number;
 
   /**Timeout for validity of last buffered value*/
-  abstract get timeout(): number;
+  abstract get validity(): number | true;
 
   /**Retention delay before resource performs teardown of connection is performed*/
   abstract get retention(): number;
 
-  protected on_subscribe(first: boolean): void {
-    if (!first || this.in_use()) return;
+  protected on_subscribe(): void {
     if (this.#retention_timout) {
       clearTimeout(this.#retention_timout);
       this.#retention_timout = 0;
     } else {
-      this.#fetching = true;
       if (this.debounce > 0)
         this.#debounce_timout = setTimeout(() => {
           this.setup_connection(this);
@@ -74,8 +76,7 @@ export abstract class STATE_RESOURCE_ROA<
     }
   }
 
-  protected on_unsubscribe(last: boolean): void {
-    if (!last) return;
+  protected on_unsubscribe(): void {
     if (this.#debounce_timout) {
       clearTimeout(this.#debounce_timout);
       this.#debounce_timout = 0;
@@ -89,6 +90,7 @@ export abstract class STATE_RESOURCE_ROA<
         this.teardown_connection(this);
       }
     }
+    if (this.validity === true) this.#valid = 0;
   }
 
   /**Called if the state is awaited, returns the value once*/
@@ -107,9 +109,10 @@ export abstract class STATE_RESOURCE_ROA<
   ): void;
 
   update_resource(value: ResultOk<RT>) {
-    this.#valid = Date.now() + this.timeout;
+    this.#valid = this.validity === true ? true : Date.now() + this.validity;
     this.ful_R_prom(value);
     this.#fetching = false;
+    clearTimeout(this.#timeout_timout);
     if (value.ok && this.#buffer?.ok && value.value !== this.#buffer.value)
       this.update_subs(value);
     this.#buffer = value;
@@ -134,18 +137,19 @@ export abstract class STATE_RESOURCE_ROA<
   async then<T = ResultOk<RT>>(
     func: (value: ResultOk<RT>) => T | PromiseLike<T>
   ): Promise<T> {
-    if (this.#valid >= Date.now()) {
+    if (this.#valid === true || this.#valid >= Date.now())
       return func(this.#buffer!);
-    } else if (this.#fetching) return this.append_R_prom(func);
-    else {
+    else if (!this.#fetching) {
       this.#fetching = true;
+      this.#timeout_timout = setTimeout(
+        () => (this.#fetching = false),
+        this.timeout
+      );
       if (this.debounce > 0)
-        await new Promise((a) => {
-          setTimeout(a, this.debounce);
-        });
-      this.single_get(this);
-      return this.append_R_prom(func);
+        setTimeout(() => this.single_get(this), this.debounce);
+      else this.single_get(this);
     }
+    return this.append_R_prom(func);
   }
 
   //#Writer Context
@@ -178,8 +182,9 @@ class FUNC_ROA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
     once: (state: OWNER<RT, WT, REL>) => void,
     setup: (state: OWNER<RT, WT, REL>) => void,
     teardown: (state: OWNER<RT, WT, REL>) => void,
-    debounce: number,
     timeout: number,
+    debounce: number,
+    validity: number | true,
     retention: number,
     helper?: STATE_HELPER<WT, REL>
   ) {
@@ -187,14 +192,16 @@ class FUNC_ROA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
     this.single_get = once;
     this.setup_connection = setup;
     this.teardown_connection = teardown;
-    this.debounce = debounce;
     this.timeout = timeout;
+    this.debounce = debounce;
+    this.validity = validity;
     this.retention = retention;
     if (helper) this.#helper = helper;
   }
 
-  readonly debounce: number;
   readonly timeout: number;
+  readonly debounce: number;
+  readonly validity: number | true;
   readonly retention: number;
   #helper?: STATE_HELPER<WT, REL>;
 
@@ -220,25 +227,29 @@ const roa = {
    * @param setup function called when state has been subscribed to
    * @param teardown function called when state has been unsubscribed from completely
    * @param debounce delay added to once value retrival, which will collect multiple once requests into a single one
-   * @param timeout how long the last retrived value is considered valid
+   * @param validity how long the last retrived value is considered valid, if true, value is valid until all unsubscribes
    * @param retention delay after last subscriber unsubscribes before teardown is called, to allow quick resubscribe without teardown
    * */
   from<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     once: (state: OWNER<RT, WT, REL>) => void,
     setup: (state: OWNER<RT, WT, REL>) => void,
     teardown: (state: OWNER<RT, WT, REL>) => void,
-    debounce: number = 0,
-    timeout: number = 0,
-    retention: number = 0,
+    times?: {
+      timeout?: number;
+      debounce?: number;
+      validity?: number | true;
+      retention?: number;
+    },
     helper?: STATE_HELPER<WT, REL>
   ) {
     return new FUNC_ROA<RT, REL, WT>(
       once,
       setup,
       teardown,
-      debounce,
-      timeout,
-      retention,
+      times?.timeout ?? 1000,
+      times?.debounce ?? 0,
+      times?.validity ?? 0,
+      times?.retention ?? 0,
       helper
     ) as STATE_RESOURCE_ROA<RT, REL, WT>;
   },

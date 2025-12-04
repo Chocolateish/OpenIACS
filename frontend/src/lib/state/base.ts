@@ -31,16 +31,16 @@ export abstract class STATE_BASE<
       console.error("Function already registered as subscriber", this, func);
       return func as T;
     }
-    this.on_subscribe(this.#subscribers.size == 0);
+    if (this.#subscribers.size === 0) this.on_subscribe();
     this.#subscribers.add(func);
     if (update) this.then(func as (value: Result<RT, string>) => void);
     return func as T;
   }
   /**This removes a function as a subscriber to the state*/
   unsub<T = STATE_SUB<RRT>>(func: T): T {
-    if (this.#subscribers.delete(func as STATE_SUB<RRT>))
-      this.on_unsubscribe(this.#subscribers.size == 0);
-    else console.error("Subscriber not found with state", this, func);
+    if (this.#subscribers.delete(func as STATE_SUB<RRT>)) {
+      if (this.#subscribers.size == 0) this.on_unsubscribe();
+    } else console.error("Subscriber not found with state", this, func);
     return func as T;
   }
   /**This returns related states if any*/
@@ -76,9 +76,9 @@ export abstract class STATE_BASE<
   write_sync?(value: WT): Result<void, string>;
 
   /**Called when subscriber is added*/
-  protected on_subscribe(_first: boolean): void {}
+  protected on_subscribe(): void {}
   /**Called when subscriber is removed*/
-  protected on_unsubscribe(_last: boolean): void {}
+  protected on_unsubscribe(): void {}
 
   /**Updates all subscribers with a value */
   protected update_subs(value: RRT): void {

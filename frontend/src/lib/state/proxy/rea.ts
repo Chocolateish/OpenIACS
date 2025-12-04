@@ -68,31 +68,29 @@ export class REA<
     return value as Result<ROUT, string>;
   }
   private transform_write?: (value: WOUT) => WIN;
-  protected on_subscribe(first: boolean, run: boolean = false): void {
-    if (first) this.#state.sub(this.#subscriber, run);
+  protected on_subscribe(run: boolean = false): void {
+    this.#state.sub(this.#subscriber, run);
   }
-  protected on_unsubscribe(last: boolean): void {
-    if (last) {
-      this.#state.unsub(this.#subscriber);
-      this.#buffer = undefined;
-    }
+  protected on_unsubscribe(): void {
+    this.#state.unsub(this.#subscriber);
+    this.#buffer = undefined;
   }
 
   //#Owner Context
   set_state(state: S) {
     if (this.in_use()) {
-      this.on_unsubscribe(true);
+      this.on_unsubscribe();
       this.#state = state;
-      this.on_subscribe(true, true);
+      this.on_subscribe(true);
     } else this.#state = state;
   }
   set_transform_read(
     transform: (val: Result<RIN, string>) => Result<ROUT, string>
   ) {
     if (this.in_use()) {
-      this.on_unsubscribe(true);
+      this.on_unsubscribe();
       this.transform_read = transform;
-      this.on_subscribe(true, true);
+      this.on_subscribe(true);
     } else this.transform_read = transform;
   }
   set_transform_write(transform: (val: WOUT) => WIN) {
@@ -255,31 +253,29 @@ export class REA_WS<
   private transform_write(value: WOUT): WIN {
     return value as unknown as WIN;
   }
-  protected on_subscribe(first: boolean, run: boolean = false): void {
-    if (first) this.#state.sub(this.#subscriber, run);
+  protected on_subscribe(run: boolean = false): void {
+    this.#state.sub(this.#subscriber, run);
   }
-  protected on_unsubscribe(last: boolean): void {
-    if (last) {
-      this.#state.unsub(this.#subscriber);
-      this.#buffer = undefined;
-    }
+  protected on_unsubscribe(): void {
+    this.#state.unsub(this.#subscriber);
+    this.#buffer = undefined;
   }
 
   //#Owner Context
   set_state(state: S) {
     if (this.in_use()) {
-      this.on_unsubscribe(true);
+      this.on_unsubscribe();
       this.#state = state;
-      this.on_subscribe(true, true);
+      this.on_subscribe(true);
     } else this.#state = state;
   }
   set_transform_read(
     transform: (val: Result<RIN, string>) => Result<ROUT, string>
   ) {
     if (this.in_use()) {
-      this.on_unsubscribe(true);
+      this.on_unsubscribe();
       this.transform_read = transform;
-      this.on_subscribe(true, true);
+      this.on_subscribe(true);
     } else this.transform_read = transform;
   }
   set_transform_write(transform: (val: WOUT) => WIN) {
@@ -447,31 +443,29 @@ export class REA_WA<
     return value as unknown as WIN;
   }
 
-  protected on_subscribe(first: boolean, run: boolean = false): void {
-    if (first) this.#state.sub(this.#subscriber, run);
+  protected on_subscribe(run: boolean = false): void {
+    this.#state.sub(this.#subscriber, run);
   }
-  protected on_unsubscribe(last: boolean): void {
-    if (last) {
-      this.#state.unsub(this.#subscriber);
-      this.#buffer = undefined;
-    }
+  protected on_unsubscribe(): void {
+    this.#state.unsub(this.#subscriber);
+    this.#buffer = undefined;
   }
 
   //#Owner Context
   set_state(state: S) {
     if (this.in_use()) {
-      this.on_unsubscribe(true);
+      this.on_unsubscribe();
       this.#state = state;
-      this.on_subscribe(true, true);
+      this.on_subscribe(true);
     } else this.#state = state;
   }
   set_transform_read(
     transform: (val: Result<RIN, string>) => Result<ROUT, string>
   ) {
     if (this.in_use()) {
-      this.on_unsubscribe(true);
+      this.on_unsubscribe();
       this.transform_read = transform;
-      this.on_subscribe(true, true);
+      this.on_subscribe(true);
     } else this.transform_read = transform;
   }
   set_transform_write(transform: (val: WOUT) => WIN) {
