@@ -101,7 +101,7 @@ export class Dropdown<RT> extends SelectorBase<RT> {
     for (let i = 0; selections && i < selections.length; i++) {
       let { value, text, icon } = selections[i];
       this.#map.set(value, { text, icon });
-      this.#values.push(selections[i].value);
+      this.#values.push(value);
     }
     if (this.buffer) this.new_value(this.buffer);
   }
@@ -140,13 +140,6 @@ export class Dropdown<RT> extends SelectorBase<RT> {
     if (y !== this.#selected) this.set_value(this.#values[y]);
   }
 
-  // protected _set_selection(selection: Selection) {
-  //   selection.line.classList.add("selected");
-  //   if (selection.icon) this.#icon.replaceChildren(selection.icon());
-  //   else this.#icon.replaceChildren();
-  //   this.#text.textContent = selection.text;
-  // }
-
   #clear() {
     this.#defaultIcon
       ? (this.#set_icon = this.#defaultIcon)
@@ -178,8 +171,8 @@ define_element(Dropdown);
 
 export let form_dropDown = {
   /**Creates a button form element */
-  from<T>(options?: DropDownOptions<T>): Dropdown<T> {
-    let drop = new Dropdown<T>(options?.id);
+  from<RT>(options?: DropDownOptions<RT>): Dropdown<RT> {
+    let drop = new Dropdown<RT>(options?.id);
     if (options) {
       if (options.default) drop.default = options.default;
       if (options.defaultIcon) drop.default_icon = options.defaultIcon;

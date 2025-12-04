@@ -1,5 +1,10 @@
 import { define_element } from "@libBase";
-import { SelectorBase, SelectorOption } from "../selectorBase";
+import { FormValue } from "../../base";
+import {
+  SelectorBase,
+  type SelectorBaseOptions,
+  type SelectorOption,
+} from "../selectorBase";
 import "./toggleButton.scss";
 
 interface SelOptions {
@@ -28,45 +33,31 @@ export class ToggleButton<RT> extends SelectorBase<RT> {
       this.#selected = -1;
     }
     for (let i = 0; selections && i < selections.length; i++) {
-      let { value, text, icon } = selections[i];
-      this.#map.set(value, { text, icon });
+      let { value } = selections[i];
+      this.#map.set(value, this.#add_selection(selections[i]));
       this.#values.push(selections[i].value);
     }
     if (this.buffer) this.new_value(this.buffer);
   }
 
-  protected _add_selection(selection: SelectorOption<RT>, index: number) {
+  #add_selection(selection: SelectorOption<RT>) {
     let top = this._body.appendChild(document.createElement("div"));
     top.tabIndex = 0;
     let bot = this._body.appendChild(document.createElement("div"));
     if (selection.icon) {
-      top.appendChild(selection.icon);
+      top.appendChild(selection.icon());
       bot.textContent = selection.text;
-    } else {
-      top.textContent = selection.text;
-    }
-    let click = () => {
-      this.set_value(selection.value);
-    };
+    } else top.textContent = selection.text;
+    let click = () => this.set_value(selection.value);
     top.onclick = click;
     bot.onclick = click;
     top.onkeydown = (e) => {
-      switch (e.key) {
-        case " ":
-        case "Enter":
-          e.preventDefault();
-          e.stopPropagation();
-          this.set_value(selection.value);
-          break;
-        case "ArrowRight":
-          e.stopPropagation();
-          this._selectAdjacent(true);
-          break;
-        case "ArrowLeft":
-          e.stopPropagation();
-          this._selectAdjacent(false);
-          break;
-      }
+      if (e.key === " " || e.key === "Enter") this.set_value(selection.value);
+      else if (e.key === "ArrowRight") this.#select_adjacent(true);
+      else if (e.key === "ArrowLeft") this.#select_adjacent(false);
+      else return;
+      e.preventDefault();
+      e.stopPropagation();
     };
     return { top, bot };
   }
@@ -81,29 +72,35 @@ export class ToggleButton<RT> extends SelectorBase<RT> {
     if (y !== this.#selected) this.set_value(this.#values[y]);
   }
 
-  protected _clear_selections() {
-    this._body.replaceChildren();
-  }
-
-  protected _set_selection(selection: SelOptions<RT>) {
-    selection.top.classList.add("selected");
-    selection.bot.classList.add("selected");
-  }
-
-  protected _clear_selection(selection: SelOptions<RT>) {
-    selection.top.classList.remove("selected");
-    selection.bot.classList.remove("selected");
-  }
-
-  protected _focus_selection(selection: SelOptions<RT>) {
-    selection.top.focus();
-  }
-
   protected new_value(value: RT): void {
+    let prev = this.#map.get(this.#values[this.#selected]);
+    if (prev) {
+      prev.top.classList.remove("selected");
+      prev.bot.classList.remove("selected");
+    }
     let opt = this.#map.get(value)!;
-    this.#selected = this.#values.indexOf(value);
+    if (opt) {
+      opt.top.classList.add("selected");
+      opt.bot.classList.add("selected");
+      this.#selected = this.#values.indexOf(value);
+      if (this.contains(document.activeElement)) {
+        opt.top.focus();
+      }
+    }
   }
 
-  protected new_error(val: string): void {}
+  protected new_error(_val: string): void {}
 }
 define_element(ToggleButton);
+
+export let form_toggle_button = {
+  /**Creates a button form element */
+  from<RT>(options?: SelectorBaseOptions<RT>): ToggleButton<RT> {
+    let drop = new ToggleButton<RT>(options?.id);
+    if (options) {
+      SelectorBase.apply_options(drop, options);
+      FormValue.apply_options(drop, options);
+    }
+    return drop;
+  },
+};

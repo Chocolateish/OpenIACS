@@ -44,8 +44,6 @@ class Character {
 
 console.warn(Character.deserialize({ uuid: "1234", name: "Hero" }));
 
-let bool = state.s.ros_ws.ok(false);
-
 let formCont = document.body.appendChild(document.createElement("div"));
 formCont.style.flexGrow = "1";
 formCont.style.maxWidth = "40rem";
@@ -58,6 +56,7 @@ formCont.appendChild(
   })
 );
 
+let bool = state.s.ros_ws.ok(false);
 formCont.appendChild(
   form.button
     .from({
@@ -85,6 +84,7 @@ formCont.appendChild(
   })
 ).value_by_state = bool;
 
+let num = state.s.ros_ws.ok(0);
 formCont.appendChild(
   form.dropdown.from({
     label: "Status Lamp",
@@ -106,7 +106,7 @@ formCont.appendChild(
       },
     ],
   })
-);
+).value_by_state = num;
 
 formCont.appendChild(
   form.dropdown.from({
@@ -122,7 +122,7 @@ formCont.appendChild(
       };
     }),
   })
-);
+).value_by_state = num;
 
 formCont.appendChild(
   form.dropdown.from({
@@ -137,7 +137,55 @@ formCont.appendChild(
       };
     }),
   })
-);
+).value_by_state = num;
+
+formCont.appendChild(
+  form.toggle_button.from({
+    label: "Status Lamp",
+    selections: [
+      {
+        text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
+        value: 2,
+        icon: material_av_add_to_queue_rounded,
+      },
+      {
+        text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
+        value: 3,
+        icon: material_av_remove_from_queue_rounded,
+      },
+      {
+        text: "YPYP",
+        value: 6,
+        icon: material_av_remove_from_queue_rounded,
+      },
+    ],
+  })
+).value_by_state = num;
+
+formCont.appendChild(
+  form.toggle_button.from({
+    label: "Status Lamp",
+    selections: Array.from({ length: 20 }, (v, i) => {
+      return {
+        value: i,
+        text: `Option ${i + 1}`,
+        icon: material_av_remove_from_queue_rounded,
+      };
+    }),
+  })
+).value_by_state = num;
+
+formCont.appendChild(
+  form.toggle_button.from({
+    label: "Status Lamp",
+    selections: Array.from({ length: 20 }, (v, i) => {
+      return {
+        value: i,
+        text: `Option ${i + 1}`,
+      };
+    }),
+  })
+).value_by_state = num;
 
 context_menu_default(
   context_menu([

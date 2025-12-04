@@ -1,86 +1,107 @@
-@import "../selectorBase.scss";
+@use "../../base";
 
-chocolatelibui-form-togglebutton {
-  @include base;
+form-togglebutton {
+  @include base.base;
 
   > div {
+    padding: base.$padding;
+    padding-bottom: 0.3rem;
     overflow-x: auto;
     -webkit-user-select: none;
     user-select: none;
     display: grid;
     grid-template-rows: auto auto;
     grid-auto-columns: 1fr;
+    position: relative;
 
     .touch & {
-      font-size: $touch_font_size;
+      font-size: base.$touch_font_size;
     }
 
     > div {
-      color: $color_text_unselected;
-      fill: $color_text_unselected;
+      color: base.$color_text_unselected;
+      fill: base.$color_text_unselected;
       display: flex;
       justify-content: center;
       text-align: center;
       box-sizing: border-box;
+      position: relative;
 
       &.selected {
-        color: $color_text_selected;
-        fill: $color_text_selected;
+        color: base.$color_text_selected;
+        fill: base.$color_text_selected;
       }
 
       &:nth-child(odd) {
         position: relative;
         grid-row: 1;
         align-items: center;
-        background-color: $color_background;
-        padding: $padding;
-        border-block: $border_thickness solid $color_border;
+        background-color: base.$color_background;
+        padding: base.$padding;
+        border-block: base.$border_thickness solid base.$color_border;
         outline: none;
-        min-height: $size_height;
+        min-height: base.$size_height;
 
         &.selected {
-          background-color: $color_background_hover;
+          background-color: base.$color_background_hover;
         }
 
         .touch & {
-          min-height: $size_touchHeight - $border_thickness * 2;
+          min-height: base.$size_touchHeight - base.$border_thickness * 2;
         }
 
         &:focus-visible {
           z-index: 1;
 
-          &::after {
-            box-shadow: $focus_out;
+          &::before {
+            content: "";
+            position: absolute;
+            box-shadow: base.$focus_out;
+            inset: 0;
+            z-index: 1;
+          }
+
+          &:first-child {
+            &::before {
+              border-radius: base.$size_cornerRadius 0 0 base.$size_cornerRadius;
+            }
+          }
+          &:nth-last-child(2) {
+            &::before {
+              border-radius: 0 base.$size_cornerRadius base.$size_cornerRadius 0;
+            }
           }
         }
 
         &::after {
           content: "";
           position: absolute;
-          box-shadow: $shadow_out;
-          inset: -$border_thickness;
+          inset: -(base.$border_thickness);
+          box-shadow: 0 0.155rem 0.1875rem -0.03rem base.$color_border;
           z-index: -1;
         }
 
         @media (pointer: fine) {
           &:hover {
-            background-color: $color_background_hover;
+            background-color: base.$color_background_hover;
           }
         }
 
         > svg {
-          height: $size_height - $padding * 2 - $border_thickness * 2;
+          height: base.$size_height - base.$padding * 2 - base.$border_thickness *
+            2;
           width: auto;
 
           .touch & {
-            height: $size_touchHeight - $padding * 2 - $border_thickness * 2;
+            height: base.$size_touchHeight - base.$padding * 2 -
+              base.$border_thickness * 2;
           }
         }
       }
 
       &:nth-child(even) {
         grid-row: 2;
-        padding: $padding;
+        padding: base.$padding;
         padding-bottom: 0;
 
         &:empty {
@@ -89,20 +110,20 @@ chocolatelibui-form-togglebutton {
       }
 
       &:first-child {
-        border-radius: $size_cornerRadius 0 0 $size_cornerRadius;
-        border-left: $border_thickness solid $color_border;
+        border-radius: base.$size_cornerRadius 0 0 base.$size_cornerRadius;
+        border-left: base.$border_thickness solid base.$color_border;
 
         &::after {
-          border-radius: $size_cornerRadius 0 0 $size_cornerRadius;
+          border-radius: base.$size_cornerRadius 0 0 base.$size_cornerRadius;
         }
       }
 
       &:nth-last-child(2) {
-        border-radius: 0 $size_cornerRadius $size_cornerRadius 0;
-        border-right: $border_thickness solid $color_border;
+        border-radius: 0 base.$size_cornerRadius base.$size_cornerRadius 0;
+        border-right: base.$border_thickness solid base.$color_border;
 
         &::after {
-          border-radius: 0 $size_cornerRadius $size_cornerRadius 0;
+          border-radius: 0 base.$size_cornerRadius base.$size_cornerRadius 0;
         }
       }
     }
