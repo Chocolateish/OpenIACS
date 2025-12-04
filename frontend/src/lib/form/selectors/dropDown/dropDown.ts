@@ -38,9 +38,9 @@ export class Dropdown<RT> extends SelectorBase<RT> {
   #values: RT[] = [];
   #selected: number = -1;
 
+  #icon?: SVGSVGElement;
   #default: Text = document.createTextNode("Select something");
   #defaultIcon?: SVGFunc;
-  #icon: HTMLSpanElement = document.createElement("span");
   #text: HTMLDivElement = document.createElement("div");
   #open: SVGSVGElement = material_navigation_unfold_more_rounded();
   private is_open: boolean = false;
@@ -70,7 +70,6 @@ export class Dropdown<RT> extends SelectorBase<RT> {
           break;
       }
     };
-    this._body.appendChild(this.#icon);
     this._body.appendChild(this.#text);
     this.#text.append(this.#default);
     this._body.appendChild(this.#open);
@@ -89,7 +88,7 @@ export class Dropdown<RT> extends SelectorBase<RT> {
   /**Sets the default text displayed when nothing has been selected yet */
   set default_icon(def: SVGFunc | undefined) {
     this.#defaultIcon = def;
-    if (def && this.#selected === -1) this.#icon.replaceChildren(def());
+    if (def && this.#selected === -1) this.#set_icon = def;
   }
 
   set selections(selections: SelectorOption<RT>[] | undefined) {
@@ -118,6 +117,19 @@ export class Dropdown<RT> extends SelectorBase<RT> {
     this.is_open = open;
   }
 
+  /**Changes the icon of the button*/
+  set #set_icon(icon: SVGFunc | undefined) {
+    if (icon) {
+      let i = icon();
+      if (this.#icon) this._body.replaceChild(i, this.#icon);
+      else this._body.insertBefore(i, this.#text);
+      this.#icon = i;
+    } else if (this.#icon) {
+      this._body.removeChild(this.#icon);
+      this.#icon = undefined;
+    }
+  }
+
   /**Selects the previous or next selection in the element
    * @param dir false is next true is previous*/
   #select_adjacent(dir: boolean) {
@@ -137,8 +149,8 @@ export class Dropdown<RT> extends SelectorBase<RT> {
 
   #clear() {
     this.#defaultIcon
-      ? this.#icon.replaceChildren(this.#defaultIcon())
-      : this.#icon.replaceChildren();
+      ? (this.#set_icon = this.#defaultIcon)
+      : (this.#set_icon = undefined);
     this.#text.replaceChildren(this.#default);
   }
 
@@ -152,8 +164,8 @@ export class Dropdown<RT> extends SelectorBase<RT> {
     let opt = this.#map.get(value)!;
     this.#text.innerText = opt.text;
     this.#selected = this.#values.indexOf(value);
-    if (opt.icon) this.#icon.replaceChildren(opt.icon());
-    else this.#icon.replaceChildren();
+    if (opt.icon) this.#set_icon = opt.icon;
+    else this.#set_icon = undefined;
   }
 
   protected new_error(_val: string): void {}
@@ -213,74 +225,37 @@ class DropDownBox extends Base {
       .appendChild(material_navigation_close_rounded());
     this.#closer.appendChild(document.createElement("div")).innerHTML = "Close";
     this.#closer.tabIndex = 0;
+    this.#closer.onclick = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      this.close_menu();
+    };
     this.#closer.onkeydown = (e) => {
       if (e.key === " " || e.key === "Enter") {
+        e.stopPropagation();
         e.preventDefault();
         this.close_menu();
       }
     };
-    this.ontouchend = (e) => {
-      if (e.target === this) {
-        if (e.cancelable) e.preventDefault();
-        e.stopPropagation();
-        this.close_menu();
-      }
-    };
-    this.onpointerdown = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (
-        e.pointerType === "touch" &&
-        (e.target === this || e.target === this.#container)
-      ) {
-        this.close_menu();
-      }
-    };
-    this.onpointerup = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (e.target !== this && e.pointerType !== "touch") {
-        this.close_menu();
-      }
-    };
-    this.onwheel = (e) => {
-      e.preventDefault();
-    };
-    this.#scroll.onwheel = (e) => {
-      if (this.#scroll.scrollHeight !== this.#scroll.clientHeight)
-        e.stopPropagation();
-    };
     this.#container.onkeydown = (e) => {
-      switch (e.key) {
-        case "Escape":
-          this.close_menu();
-          e.stopPropagation();
-          break;
-        case " ":
-        case "Enter":
-          e.stopPropagation();
-          this.close_menu();
-          break;
-        case "Tab":
-        case "ArrowUp":
-          e.stopPropagation();
-          e.preventDefault();
-          var elem =
-            e.target === this.#container
-              ? this.#table.lastElementChild
-              : (e.target as HTMLElement).previousElementSibling;
-          if (elem) (elem as HTMLElement).focus();
-          break;
-        case "ArrowDown":
-          e.stopPropagation();
-          e.preventDefault();
-          var elem =
-            e.target === this.#container
-              ? this.#table.firstElementChild
-              : (e.target as HTMLElement).nextElementSibling;
-          if (elem) (elem as HTMLElement).focus();
-          break;
+      if (e.key === "Escape") this.close_menu();
+      else if (e.key === "ArrowUp" || (e.shiftKey && e.key === "Tab")) {
+        var elem =
+          e.target === this.#container
+            ? this.#table.lastElementChild
+            : (e.target as HTMLElement).previousElementSibling;
+        if (elem) (elem as HTMLElement).focus();
+      } else if (e.key === "ArrowDown" || e.key === "Tab") {
+        var elem =
+          e.target === this.#container
+            ? this.#table.firstElementChild
+            : (e.target as HTMLElement).nextElementSibling;
+        if (elem) (elem as HTMLElement).focus();
+      } else {
+        return;
       }
+      e.stopPropagation();
+      e.preventDefault();
     };
   }
 
@@ -289,11 +264,6 @@ class DropDownBox extends Base {
     // this.addEventListener("focusout", this.#focus_out_handler, {
     //   capture: true,
     // });
-    this.ownerDocument.defaultView?.addEventListener(
-      "resize",
-      this.#window_resize_handler,
-      { passive: true }
-    );
   }
 
   protected disconnectedCallback(): void {
@@ -301,10 +271,12 @@ class DropDownBox extends Base {
     this.removeEventListener("focusout", this.#focus_out_handler, {
       capture: true,
     });
-    this.ownerDocument.defaultView?.removeEventListener(
-      "resize",
-      this.#window_resize_handler
-    );
+  }
+
+  #set_value(value: any) {
+    //@ts-expect-error
+    if (this.#dropdown) this.#dropdown.set_value(value);
+    this.close_menu();
   }
 
   open_menu(
@@ -320,13 +292,13 @@ class DropDownBox extends Base {
       let top = bounds.y + bounds.height;
       this.#container.style.top = top + "px";
       this.#container.style.bottom = "";
-      this.#container.style.height = inner_height - top - 20 + "px";
+      this.#container.style.maxHeight = inner_height - top - 10 + "px";
       this.#container.style.flexDirection = "column";
     } else {
       let bottom = inner_height - bounds.y;
       this.#container.style.top = "";
       this.#container.style.bottom = bottom + "px";
-      this.#container.style.height = inner_height - bottom - 20 + "px";
+      this.#container.style.maxHeight = inner_height - bottom - 10 + "px";
       this.#container.style.flexDirection = "column-reverse";
     }
     this.#container.style.left = bounds.x + "px";
@@ -338,8 +310,6 @@ class DropDownBox extends Base {
     else this.#scroll.classList.remove("scroll");
 
     let focus: HTMLElement | undefined = undefined as HTMLElement | undefined;
-    //@ts-expect-error
-    let set = parent.set_value.bind(parent);
     this.#table.replaceChildren(
       ...Array.from(map).map(([val, opt]) => {
         let line = document.createElement("div");
@@ -348,17 +318,14 @@ class DropDownBox extends Base {
         let text = line.appendChild(document.createElement("div"));
         text.textContent = opt.text;
         line.onpointerup = (e) => {
-          if (e.pointerType !== "touch") set(val);
+          if (e.pointerType !== "touch") this.#set_value(val);
         };
-        line.onclick = () => set(val);
+        line.onclick = () => this.#set_value(val);
         line.tabIndex = 0;
         line.onkeydown = (e) => {
-          switch (e.key) {
-            case " ":
-            case "Enter":
-              e.preventDefault();
-              set(val);
-              break;
+          if (e.key === " " || e.key === "Enter") {
+            e.preventDefault();
+            this.#set_value(val);
           }
         };
         if (val === value) focus = line;
@@ -379,6 +346,12 @@ class DropDownBox extends Base {
       focus.focus();
       focus.classList.add("selected");
     } else this.#container.focus();
+
+    this.ownerDocument.defaultView?.addEventListener(
+      "resize",
+      this.#window_resize_handler,
+      { passive: true }
+    );
   }
 
   close_menu() {
@@ -391,6 +364,10 @@ class DropDownBox extends Base {
       //@ts-expect-error
       this.#dropdown.is_open = false;
     }
+    this.ownerDocument.defaultView?.removeEventListener(
+      "resize",
+      this.#window_resize_handler
+    );
   }
 }
 define_element(DropDownBox);

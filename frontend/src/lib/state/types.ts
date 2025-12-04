@@ -1,9 +1,4 @@
-import {
-  OptionNone,
-  type Option,
-  type Result,
-  type ResultOk,
-} from "@libResult";
+import { type Option, type Result, type ResultOk } from "@libResult";
 
 /**Function used to subscribe to state changes
  * @template RT - The type of the state’s value when read.*/
@@ -258,7 +253,7 @@ interface ROS_WS<RT, WT, REL extends Option<STATE_RELATED>>
 export type STATE<
   RT,
   WT = RT,
-  REL extends Option<STATE_RELATED> = OptionNone
+  REL extends Option<STATE_RELATED> = Option<any>
 > =
   | STATE_REA<RT, REL, WT>
   | STATE_ROA<RT, REL, WT>
@@ -275,7 +270,7 @@ export type STATE<
 
 export type STATE_REA<
   RT,
-  REL extends Option<STATE_RELATED> = OptionNone,
+  REL extends Option<STATE_RELATED> = Option<any>,
   WT = any
 > =
   | REA<RT, REL, WT>
@@ -287,7 +282,7 @@ export type STATE_REA<
 
 export type STATE_ROA<
   RT,
-  REL extends Option<STATE_RELATED> = OptionNone,
+  REL extends Option<STATE_RELATED> = Option<any>,
   WT = any
 > =
   | ROA<RT, REL, WT>
@@ -297,7 +292,7 @@ export type STATE_ROA<
 
 export type STATE_RES<
   RT,
-  REL extends Option<STATE_RELATED> = OptionNone,
+  REL extends Option<STATE_RELATED> = Option<any>,
   WT = any
 > =
   | RES<RT, REL, WT>
@@ -307,14 +302,14 @@ export type STATE_RES<
 
 export type STATE_ROS<
   RT,
-  REL extends Option<STATE_RELATED> = OptionNone,
+  REL extends Option<STATE_RELATED> = Option<any>,
   WT = any
 > = ROS<RT, REL, WT> | STATE_ROS_WA<RT, WT, REL> | STATE_ROS_WS<RT, WT, REL>;
 
 export type STATE_REA_WA<
   RT,
   WT = RT,
-  REL extends Option<STATE_RELATED> = OptionNone
+  REL extends Option<STATE_RELATED> = Option<any>
 > =
   | REA_WA<RT, WT, REL>
   | STATE_REA_WS<RT, WT, REL>
@@ -325,7 +320,7 @@ export type STATE_REA_WA<
 export type STATE_REA_WS<
   RT,
   WT = RT,
-  REL extends Option<STATE_RELATED> = OptionNone
+  REL extends Option<STATE_RELATED> = Option<any>
 > =
   | REA_WS<RT, WT, REL>
   | STATE_ROA_WS<RT, WT, REL>
@@ -335,35 +330,35 @@ export type STATE_REA_WS<
 export type STATE_ROA_WA<
   RT,
   WT = RT,
-  REL extends Option<STATE_RELATED> = OptionNone
+  REL extends Option<STATE_RELATED> = Option<any>
 > = ROA_WA<RT, WT, REL> | STATE_ROA_WS<RT, WT, REL> | STATE_ROS_WA<RT, WT, REL>;
 
 export type STATE_ROA_WS<
   RT,
   WT = RT,
-  REL extends Option<STATE_RELATED> = OptionNone
+  REL extends Option<STATE_RELATED> = Option<any>
 > = ROA_WS<RT, WT, REL> | STATE_ROS_WS<RT, WT, REL>;
 
 export type STATE_RES_WA<
   RT,
   WT = RT,
-  REL extends Option<STATE_RELATED> = OptionNone
+  REL extends Option<STATE_RELATED> = Option<any>
 > = RES_WA<RT, WT, REL> | STATE_RES_WS<RT, WT, REL> | STATE_ROS_WA<RT, WT, REL>;
 
 export type STATE_RES_WS<
   RT,
   WT = RT,
-  REL extends Option<STATE_RELATED> = OptionNone
+  REL extends Option<STATE_RELATED> = Option<any>
 > = RES_WS<RT, WT, REL> | STATE_ROS_WS<RT, WT, REL>;
 
 export type STATE_ROS_WA<
   RT,
   WT = RT,
-  REL extends Option<STATE_RELATED> = OptionNone
+  REL extends Option<STATE_RELATED> = Option<any>
 > = ROS_WA<RT, WT, REL> | STATE_ROS_WS<RT, WT, REL>;
 
 export type STATE_ROS_WS<
   RT,
   WT = RT,
-  REL extends Option<STATE_RELATED> = OptionNone
+  REL extends Option<STATE_RELATED> = Option<any>
 > = ROS_WS<RT, WT, REL>;

@@ -1,8 +1,10 @@
-lib-test-1 {
-  display: block;
-  width: 200px;
-  height: 200px;
-  background-color: var(--chocolatelibui-theme-primary);
+div[id="app"] {
+  display: none;
+}
+body {
+  overflow: scroll;
+  touch-action: auto;
+  align-content: flex-start;
 }
 
 :root {

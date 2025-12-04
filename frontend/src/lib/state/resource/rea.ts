@@ -434,10 +434,11 @@ export abstract class STATE_RESOURCE_REA_WA<
     else if (this.#write_debounce_timout === 0)
       this.#write_debounce_timout = window.setTimeout(async () => {
         this.#write_debounce_timout = 0;
+        let write_buffer = this.#write_buffer;
         this.#write_buffer = undefined;
         let promises = this.#write_promises;
         this.#write_promises = [];
-        let res = await this.write_action(this.#write_buffer!, this);
+        let res = await this.write_action(write_buffer!, this);
         for (let i = 0; i < promises.length; i++) promises[i](res);
       }, this.write_debounce);
     return new Promise<Result<void, string>>((a) => {

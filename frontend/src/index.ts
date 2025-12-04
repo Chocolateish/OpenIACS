@@ -49,6 +49,7 @@ let bool = state.s.ros_ws.ok(false);
 let formCont = document.body.appendChild(document.createElement("div"));
 formCont.style.flexGrow = "1";
 formCont.style.maxWidth = "40rem";
+formCont.style.overflow = "auto";
 
 formCont.appendChild(
   form.text.from({
@@ -88,8 +89,21 @@ formCont.appendChild(
   form.dropdown.from({
     label: "Status Lamp",
     selections: [
-      { text: "Off", value: 2, icon: material_av_add_to_queue_rounded },
-      { text: "On", value: 3, icon: material_av_remove_from_queue_rounded },
+      {
+        text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
+        value: 2,
+        icon: material_av_add_to_queue_rounded,
+      },
+      {
+        text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
+        value: 3,
+        icon: material_av_remove_from_queue_rounded,
+      },
+      {
+        text: "YPYP",
+        value: 6,
+        icon: material_av_remove_from_queue_rounded,
+      },
     ],
   })
 );
@@ -105,6 +119,21 @@ formCont.appendChild(
         value: i,
         text: `Option ${i + 1}`,
         icon: material_av_remove_from_queue_rounded,
+      };
+    }),
+  })
+);
+
+formCont.appendChild(
+  form.dropdown.from({
+    label: "Status Lamp",
+    default:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
+    defaultIcon: material_av_add_to_queue_rounded,
+    selections: Array.from({ length: 100 }, (v, i) => {
+      return {
+        value: i,
+        text: `Option ${i + 1}`,
       };
     }),
   })

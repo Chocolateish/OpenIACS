@@ -74,8 +74,8 @@ export class ROA<
     return value as unknown as ResultOk<ROUT>;
   }
   private transformWrite?: (value: WOUT) => WIN;
-  protected on_subscribe(first: boolean): void {
-    if (first) this.#state.sub(this.#subscriber, false);
+  protected on_subscribe(first: boolean, run: boolean = false): void {
+    if (first) this.#state.sub(this.#subscriber, run);
   }
   protected on_unsubscribe(last: boolean): void {
     if (last) {
@@ -89,24 +89,24 @@ export class ROA<
     if (this.in_use()) {
       this.on_unsubscribe(true);
       this.#state = state;
-      this.on_subscribe(true);
+      this.on_subscribe(true, true);
     } else this.#state = state;
   }
   set_transform_read(transform: ROA_TRANSFORM<S, RIN, ROUT>) {
     if (this.in_use()) {
       this.on_unsubscribe(true);
       this.transform_read = transform;
-      this.on_subscribe(true);
+      this.on_subscribe(true, true);
     } else this.transform_read = transform;
   }
   set_transform_write(transform: (val: WOUT) => WIN) {
     this.transformWrite = transform;
   }
-  get state(): STATE<ROUT, WOUT, any> {
-    return this as STATE<ROUT, WOUT, any>;
+  get state(): STATE<ROUT, WOUT, OptionNone> {
+    return this as STATE<ROUT, WOUT, OptionNone>;
   }
-  get read_only(): STATE_ROA<ROUT, any, WOUT> {
-    return this as STATE_ROA<ROUT, any, WOUT>;
+  get read_only(): STATE_ROA<ROUT, OptionNone, WOUT> {
+    return this as STATE_ROA<ROUT, OptionNone, WOUT>;
   }
 
   //#Reader Context
@@ -215,7 +215,7 @@ interface OWNER_WS<
   set_transform_write(transform: (val: WOUT) => WIN): void;
   get state(): STATE<ROUT, WOUT, OptionNone>;
   get read_only(): STATE_ROA<ROUT, OptionNone, WOUT>;
-  get read_write(): STATE_ROA_WS<ROUT, WOUT>;
+  get read_write(): STATE_ROA_WS<ROUT, WOUT, OptionNone>;
 }
 
 export type STATE_PROXY_ROA_WS<
@@ -260,8 +260,8 @@ export class ROA_WS<
   private transform_write(value: WOUT): WIN {
     return value as unknown as WIN;
   }
-  protected on_subscribe(first: boolean): void {
-    if (first) this.#state.sub(this.#subscriber, false);
+  protected on_subscribe(first: boolean, run: boolean = false): void {
+    if (first) this.#state.sub(this.#subscriber, run);
   }
   protected on_unsubscribe(last: boolean): void {
     if (last) {
@@ -275,27 +275,27 @@ export class ROA_WS<
     if (this.in_use()) {
       this.on_unsubscribe(true);
       this.#state = state;
-      this.on_subscribe(true);
+      this.on_subscribe(true, true);
     } else this.#state = state;
   }
   set_transform_read(transform: (val: Result<RIN, string>) => ResultOk<ROUT>) {
     if (this.in_use()) {
       this.on_unsubscribe(true);
       this.transform_read = transform;
-      this.on_subscribe(true);
+      this.on_subscribe(true, true);
     } else this.transform_read = transform;
   }
   set_transform_write(transform: (val: WOUT) => WIN) {
     this.transform_write = transform;
   }
-  get state(): STATE<ROUT, WOUT> {
-    return this as STATE<ROUT, WOUT>;
+  get state(): STATE<ROUT, WOUT, OptionNone> {
+    return this as STATE<ROUT, WOUT, OptionNone>;
   }
-  get read_only(): STATE_ROA<ROUT, any, WOUT> {
-    return this as STATE_ROA<ROUT, any, WOUT>;
+  get read_only(): STATE_ROA<ROUT, OptionNone, WOUT> {
+    return this as STATE_ROA<ROUT, OptionNone, WOUT>;
   }
-  get read_write(): STATE_ROA_WS<ROUT, WOUT> {
-    return this as STATE_ROA_WS<ROUT, WOUT>;
+  get read_write(): STATE_ROA_WS<ROUT, WOUT, OptionNone> {
+    return this as STATE_ROA_WS<ROUT, WOUT, OptionNone>;
   }
 
   //#Reader Context
@@ -449,8 +449,8 @@ export class ROA_WA<
   private transform_write(value: WOUT): WIN {
     return value as unknown as WIN;
   }
-  protected on_subscribe(first: boolean): void {
-    if (first) this.#state.sub(this.#subscriber, false);
+  protected on_subscribe(first: boolean, run: boolean = false): void {
+    if (first) this.#state.sub(this.#subscriber, run);
   }
   protected on_unsubscribe(last: boolean): void {
     if (last) {
@@ -464,27 +464,27 @@ export class ROA_WA<
     if (this.in_use()) {
       this.on_unsubscribe(true);
       this.#state = state;
-      this.on_subscribe(true);
+      this.on_subscribe(true, true);
     } else this.#state = state;
   }
   set_transform_read(transform: (val: Result<RIN, string>) => ResultOk<ROUT>) {
     if (this.in_use()) {
       this.on_unsubscribe(true);
       this.transform_read = transform;
-      this.on_subscribe(true);
+      this.on_subscribe(true, true);
     } else this.transform_read = transform;
   }
   set_transform_write(transform: (val: WOUT) => WIN) {
     this.transform_write = transform;
   }
-  get state(): STATE<ROUT, WOUT> {
-    return this as STATE<ROUT, WOUT>;
+  get state(): STATE<ROUT, WOUT, OptionNone> {
+    return this as STATE<ROUT, WOUT, OptionNone>;
   }
-  get read_only(): STATE_ROA<ROUT, any, WOUT> {
-    return this as STATE_ROA<ROUT, any, WOUT>;
+  get read_only(): STATE_ROA<ROUT, OptionNone, WOUT> {
+    return this as STATE_ROA<ROUT, OptionNone, WOUT>;
   }
-  get read_write(): STATE_ROA_WA<ROUT, WOUT> {
-    return this as STATE_ROA_WA<ROUT, WOUT>;
+  get read_write(): STATE_ROA_WA<ROUT, WOUT, OptionNone> {
+    return this as STATE_ROA_WA<ROUT, WOUT, OptionNone>;
   }
 
   //#Reader Context

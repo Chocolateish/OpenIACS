@@ -3,8 +3,8 @@
 form-dropdown {
   @include base.base;
 
-  //   -webkit-user-select: none;
-  //   user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
 
   > div {
     background-color: base.$color_background;
@@ -19,7 +19,6 @@ form-dropdown {
     box-sizing: border-box;
     outline: none;
     position: relative;
-    line-height: 0;
 
     .touch & {
       min-height: base.$size_touchHeight;
@@ -35,36 +34,35 @@ form-dropdown {
       }
     }
 
-    > span {
-      > svg {
-        fill: base.$color_text;
-        box-sizing: border-box;
-        max-width: base.$size_height;
-        height: calc(base.$size_height - 2px);
-        width: auto;
-        padding: 0.2rem;
-      }
+    > svg:first-child {
+      fill: base.$color_text;
+      max-height: calc(base.$size_height - 2px);
+      box-sizing: border-box;
+      padding: 0.1rem;
+      flex-shrink: 0;
+      flex-basis: base.$size_height;
     }
 
     > div {
       color: base.$color_text;
       padding-left: base.$padding;
+      line-height: calc(base.$font_size + 0.2rem);
       box-sizing: border-box;
       vertical-align: middle;
       align-items: baseline;
       flex-grow: 1;
-      line-height: 1.2rem;
 
       .touch & {
         font-size: base.$touch_font_size;
+        line-height: calc(base.$touch_font_size + 0.2rem);
       }
     }
 
-    > svg {
+    > svg:last-child {
       box-sizing: border-box;
       flex-shrink: 0;
       fill: base.$color_text;
-      padding: 0.1rem;
+      width: 1.6rem;
     }
   }
 }
@@ -82,21 +80,22 @@ form-dropdownbox {
   }
 
   > div {
+    border: base.$border;
+    border-radius: base.$size_cornerRadius;
+    background-color: base.$color_background;
+    box-shadow: base.$shadow_out;
     outline: none;
     position: fixed;
     display: flex;
     box-sizing: border-box;
     flex-direction: row;
-    border: base.$border;
-    border-radius: base.$size_cornerRadius;
-    background-color: base.$color_background;
     overflow: hidden;
-    box-shadow: base.$shadow_out;
 
     &:focus-visible {
       box-shadow: base.$focus_out;
     }
 
+    //Scroll
     > div {
       box-sizing: border-box;
       overflow-y: auto;
@@ -104,7 +103,6 @@ form-dropdownbox {
       scrollbar-width: thin;
       overscroll-behavior: contain;
       outline: none;
-      touch-action: none;
       position: relative;
 
       &.scroll {
@@ -164,10 +162,6 @@ form-dropdownbox {
           &:last-child {
             padding-left: base.$padding;
             padding-right: 0.4rem;
-
-            .touch & {
-              font-size: base.$touch_font_size;
-            }
           }
 
           .touch & {
@@ -176,22 +170,27 @@ form-dropdownbox {
 
           > div {
             height: base.$size_height;
+            padding-block: base.$padding;
+            line-height: calc(base.$font_size + 0.2rem);
             display: table-cell;
             box-sizing: border-box;
             vertical-align: middle;
             position: relative;
             z-index: 1;
 
+            .touch & {
+              font-size: base.$touch_font_size;
+              line-height: calc(base.$touch_font_size + 0.2rem);
+            }
+
             &:first-child {
-              padding: base.$padding;
               padding-inline: 0.3rem;
-              width: 0;
+              width: base.$size_height;
 
               > svg {
                 height: base.$size_height - base.$padding * 2;
                 display: block;
                 box-sizing: border-box;
-                width: auto;
 
                 .touch & {
                   height: base.$size_touchHeight - base.$padding * 4;

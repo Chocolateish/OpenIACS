@@ -5,7 +5,8 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   server: {
-    port: 9999,
+    port: 9998,
+    host: true,
   },
   build: {
     outDir: path.resolve(__dirname, "dist"),
