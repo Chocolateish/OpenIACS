@@ -1,10 +1,10 @@
-import { defineElement } from "@chocolatelibui/core";
 import {
   material_content_add_rounded,
   material_content_remove_rounded,
 } from "@chocolatelibui/icons";
-import { NoValueText } from "../../../base";
-import { StepperBase } from "../stepperBase";
+import { define_element } from "@libBase";
+import { NoValueText } from "../../base";
+import { StepperBase } from "../steppers/stepperBase";
 import "./stepper.scss";
 
 /**Slide Selector, displays all options in a slider*/
@@ -21,7 +21,7 @@ export class Stepper extends StepperBase {
   constructor() {
     super();
     this._body.setAttribute("tabindex", "0");
-    this._iconDec = this._stepperFunc(
+    this._iconDec = this._stepper_func(
       this._body.appendChild(material_content_remove_rounded()),
       false
     );
@@ -31,7 +31,7 @@ export class Stepper extends StepperBase {
     this._valueBox.contentEditable = "true";
     this._valueBox.textContent = NoValueText;
     this._text.appendChild(this._unit);
-    this._iconInc = this._stepperFunc(
+    this._iconInc = this._stepper_func(
       this._body.appendChild(material_content_add_rounded()),
       true
     );
@@ -49,7 +49,7 @@ export class Stepper extends StepperBase {
     this._valueBox.onblur = async () => {
       dragBlocker = false;
       setTimeout(() => {
-        this._setValueValidate(
+        this._set_value_validate(
           parseFloat(this._valueBox.textContent?.replace(",", ".") || "") || 0,
           true
         );
@@ -154,12 +154,12 @@ export class Stepper extends StepperBase {
   /**Moves the value to a position by the mouse x coordinates*/
   private _moveDiff(value: number, last: boolean) {
     if (last && !this._live) {
-      this._setValueValidate(this._valueApplyPrecision(value), true);
+      this._set_value_validate(this._value_apply_precision(value), true);
     } else {
       if (this._live) {
-        this._setValueValidate(this._valueApplyPrecision(value), false);
+        this._set_value_validate(this._value_apply_precision(value), false);
       } else {
-        this._moveValue(this._valueApplyPrecision(value));
+        this._moveValue(this._value_apply_precision(value));
       }
     }
   }
@@ -172,6 +172,77 @@ export class Stepper extends StepperBase {
     ).toFixed(this._decimals);
   }
 
+  protected _stepper_func(icon: SVGSVGElement, dir: boolean) {
+    icon.onpointerdown = (e) => {
+      if (e.button === 0) {
+        e.stopPropagation();
+        let interval = 0;
+        let scalerInterval = 0;
+        let scaler = 200;
+        let release = () => {
+          clearInterval(interval);
+          clearInterval(scalerInterval);
+          clearTimeout(timeout);
+          icon.onpointerup = null;
+          icon.releasePointerCapture(e.pointerId);
+          icon.classList.remove("active");
+        };
+        icon.setPointerCapture(e.pointerId);
+        icon.classList.add("active");
+        let timeout = setTimeout(() => {
+          if (this._step_value(dir)) {
+            icon.onpointerup = null;
+          } else {
+            interval = setInterval(() => {
+              if (this._step_value(dir)) {
+                release();
+              }
+            }, scaler);
+            scalerInterval = setInterval(() => {
+              if (scaler > 20) {
+                scaler /= 1.1;
+              }
+              clearInterval(interval);
+              interval = setInterval(() => {
+                if (this._step_value(dir)) {
+                  release();
+                }
+              }, scaler);
+            }, 200);
+          }
+        }, 500);
+        icon.onpointerup = () => {
+          if (interval === 0) {
+            this._step_value(dir);
+          }
+          release();
+        };
+      }
+    };
+    return icon;
+  }
+
+  /**This steps the slider value in the given direction*/
+  protected _step_value(dir: boolean): boolean | void {
+    if (this._step === 0) {
+      if (this._decimals === 0) {
+        var step = Math.max(1, Math.floor(Math.abs(this.buffer || 0) / 150));
+      } else {
+        var step = Math.max(
+          1 / this._decimals,
+          Math.floor(Math.abs(this.buffer || 0) / 150)
+        );
+      }
+    } else {
+      var step = this._step;
+    }
+    if (dir) {
+      return this._set_value_validate((this.buffer || 0) + step, true);
+    } else {
+      return this._set_value_validate((this.buffer || 0) - step, true);
+    }
+  }
+
   /**Called when value is changed */
   protected _valueUpdate(value: number) {
     this._moveValue(value);
@@ -182,4 +253,4 @@ export class Stepper extends StepperBase {
     this._valueBox.textContent = NoValueText;
   }
 }
-defineElement(Stepper);
+define_element(Stepper);

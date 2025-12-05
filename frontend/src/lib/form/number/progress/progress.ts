@@ -3,7 +3,6 @@ import { FormValue } from "../../base";
 import { type FormNumberOptions } from "../numberBase";
 import "./progress.scss";
 
-/**Slide Selector, displays all options in a slider*/
 export class Progress extends FormValue<number> {
   static element_name() {
     return "progress";
@@ -12,9 +11,9 @@ export class Progress extends FormValue<number> {
     return "form";
   }
 
-  #min: number = -Infinity;
-  #max: number = Infinity;
-  #span: number = Infinity;
+  #min: number = 0;
+  #max: number = 100;
+  #span: number = 100;
   #decimals: number = 0;
   #bar: HTMLDivElement = this._body.appendChild(document.createElement("div"));
   #val: HTMLSpanElement = this._body.appendChild(
@@ -25,23 +24,15 @@ export class Progress extends FormValue<number> {
   );
 
   /**Set the minimum value*/
-  set min(min: number | undefined) {
-    // if (typeof min === "number") {
-    //   this._minUsr = min;
-    // } else {
-    //   this._minUsr = -Infinity;
-    // }
-    // this._updateMinMax();
+  set min(min: number) {
+    this.#min = min;
+    this.#span = this.#max - this.#min;
   }
 
   /**Set the minimum value*/
-  set max(max: number | undefined) {
-    // if (typeof max === "number") {
-    //   this._maxUsr = max;
-    // } else {
-    //   this._maxUsr = Infinity;
-    // }
-    // this._updateMinMax();
+  set max(max: number) {
+    this.#max = max;
+    this.#span = this.#max - this.#min;
   }
 
   /**Sets the amount of decimals the element can have*/
@@ -70,9 +61,9 @@ export let form_progress = {
   from(options?: FormNumberOptions): Progress {
     let prog = new Progress(options?.id);
     if (options) {
+      if (typeof options.min !== "undefined") prog.min = options.min;
+      if (typeof options.max !== "undefined") prog.max = options.max;
       prog.decimals = options.decimals;
-      prog.min = options.min;
-      prog.max = options.max;
       prog.unit = options.unit;
       FormValue.apply_options(prog, options);
     }

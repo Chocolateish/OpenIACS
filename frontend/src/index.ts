@@ -189,8 +189,23 @@ formCont.appendChild(
 
 formCont.appendChild(
   form.slider.from({
-    label: "Progress",
+    label: "Slider",
     unit: "mA",
+  })
+).value_by_state = num;
+formCont.appendChild(
+  form.slider.from({
+    label: "Slider",
+    unit: "mA",
+    live: true,
+  })
+).value_by_state = num;
+formCont.appendChild(
+  form.slider.from({
+    label: "Slider",
+    unit: "mA",
+    min: -50,
+    max: 50,
   })
 ).value_by_state = num;
 

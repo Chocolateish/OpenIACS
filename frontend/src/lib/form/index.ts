@@ -2,7 +2,7 @@ import { form_button } from "./boolean/button/button";
 import { form_lamp } from "./boolean/lamp/lamp";
 import { form_switch } from "./boolean/switch/switch";
 import { form_progress } from "./number/progress/progress";
-import { form_slider } from "./number/steppers/slider/slider";
+import { form_slider } from "./number/slider/slider";
 import { form_dropDown } from "./selectors/dropDown/dropDown";
 import { form_toggle_button } from "./selectors/toggleButton/toggleButton";
 import { form_text } from "./text/text";

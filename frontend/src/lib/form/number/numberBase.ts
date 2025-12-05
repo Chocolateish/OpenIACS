@@ -1,3 +1,4 @@
+import type { SVGFunc } from "@libSVG";
 import { FormValueWrite, type FormValueOptions } from "../base";
 import "./numberBase.scss";
 
@@ -12,14 +13,6 @@ export interface FormNumberOptions<RT = number> extends FormValueOptions<RT> {
   unit?: string;
 }
 
-//##################################################################################################
-//      _   _ _    _ __  __ ____  ______ _____   __          _______ _______ _____ ______
-//     | \ | | |  | |  \/  |  _ \|  ____|  __ \  \ \        / /  __ \__   __|_   _|  ____|
-//     |  \| | |  | | \  / | |_) | |__  | |__) |  \ \  /\  / /| |__) | | |    | | | |__
-//     | . ` | |  | | |\/| |  _ <|  __| |  _  /    \ \/  \/ / |  _  /  | |    | | |  __|
-//     | |\  | |__| | |  | | |_) | |____| | \ \     \  /\  /  | | \ \  | |   _| |_| |____
-//     |_| \_|\____/|_|  |_|____/|______|_|  \_\     \/  \/   |_|  \_\ |_|  |_____|______|
-
 export interface FormNumberWriteOptions<RT = number>
   extends FormNumberOptions<RT> {
   /**Step size, use 0 for automatic step size*/
@@ -28,54 +21,49 @@ export interface FormNumberWriteOptions<RT = number>
   start?: number;
 }
 
+export interface StepperBaseOptions<RT = number>
+  extends FormNumberWriteOptions<RT> {
+  /**wether the events are live as the slider is moved or only when moving stops */
+  live?: boolean;
+  /**Icon to use for decreasing value*/
+  icon_decrease?: SVGFunc;
+  /**Icon to use for increasing value*/
+  icon_increase?: SVGFunc;
+}
+
 export abstract class FormNumberWrite<RT = number> extends FormValueWrite<RT> {
   static apply_options<RT>(
     element: FormNumberWrite<RT>,
     options: FormNumberWriteOptions<RT>
   ) {
-    element.decimals = options.decimals;
-    element.min = options.min;
-    element.max = options.max;
-    element.step = options.step;
-    element.start = options.start;
-    element.unit = options.unit;
+    if (options.decimals) element.decimals = options.decimals;
+    if (options.min !== undefined) element.min = options.min;
+    if (options.max !== undefined) element.max = options.max;
+    if (options.step) element.step = options.step;
+    if (options.start) element.start = options.start;
+    if (options.unit) element.unit = options.unit;
     super.apply_options(element, options);
   }
 
-  /**Minimum and maximum value for element */
-  protected _min: number = -Infinity;
-  protected _max: number = Infinity;
-  protected _span: number = Infinity;
-  protected _minUsr: number = -Infinity;
-  protected _maxUsr: number = Infinity;
-  protected _minVal: number = -Infinity;
-  protected _maxVal: number = Infinity;
-  /**Precision of input*/
-  protected _step: number = 0;
-  protected _start: number = 0;
-  protected _decimals: number = 0;
+  /**Set the minimum value*/
+  abstract set min(min: number | undefined);
 
   /**Set the minimum value*/
-  set min(min: number | undefined) {
-    if (typeof min === "number") {
-      this._minUsr = min;
-    } else {
-      this._minUsr = -Infinity;
-    }
-    this._updateMinMax();
-  }
+  abstract set max(max: number | undefined);
 
-  /**Set the minimum value*/
-  set max(max: number | undefined) {
-    if (typeof max === "number") {
-      this._maxUsr = max;
-    } else {
-      this._maxUsr = Infinity;
-    }
-    this._updateMinMax();
-  }
+  /**Sets the size of number change steps*/
+  abstract set step(step: number | undefined);
 
-  protected _updateMinMax() {
+  /**Sets the start offset for number steps*/
+  abstract set start(step: number | undefined);
+
+  /**Sets the amount of decimals the element can have*/
+  abstract set decimals(dec: number | undefined);
+
+  /**Sets the unit of the element*/
+  abstract set unit(unit: string | undefined);
+
+  protected _update_min_max() {
     // this._min = Math.max(this._minUsr, this._minVal);
     // if (String(this._min).length > 5) {
     //   this._minLegend.textContent =
@@ -97,26 +85,8 @@ export abstract class FormNumberWrite<RT = number> extends FormValueWrite<RT> {
     // this._span = this._max - this._min;
   }
 
-  /**Sets the size of number change steps*/
-  set step(step: number | undefined) {
-    this._step = step ?? 0;
-  }
-
-  /**Sets the start offset for number steps*/
-  set start(step: number | undefined) {
-    this._step = step ?? 0;
-  }
-
-  /**Sets the amount of decimals the element can have*/
-  set decimals(dec: number | undefined) {
-    this._decimals = Math.max(dec ?? 0, 0);
-  }
-
-  /**Sets the unit of the element*/
-  abstract set unit(unit: string | undefined);
-
   /**Validates given value then sets it*/
-  protected _setValueValidate(val: number, warn: boolean): boolean | void {
+  protected _set_value_validate(val: RT, warn: boolean): boolean | void {
     // if (this._Value && this._Value instanceof ValueLimited) {
     //   let { allowed, reason, correction } = this._Value.checkLimitReason(val);
     //   if (!allowed) {
@@ -125,7 +95,7 @@ export abstract class FormNumberWrite<RT = number> extends FormValueWrite<RT> {
     //       if (correction === this._value) {
     //         this._valueUpdate(this._value || 0);
     //       } else {
-    //         this._valueSet(correction);
+    //         this.set_value(correction);
     //       }
     //     } else {
     //       this._valueUpdate(this._value || 0);
@@ -138,7 +108,7 @@ export abstract class FormNumberWrite<RT = number> extends FormValueWrite<RT> {
     //     "Minimum value is " + this._min.toFixed(this._decimals),
     //     warn
     //   );
-    //   this._valueSet(this._min);
+    //   this.set_value(this._min);
     //   return true;
     // }
     // if (val > this._max) {
@@ -146,23 +116,22 @@ export abstract class FormNumberWrite<RT = number> extends FormValueWrite<RT> {
     //     "Maximum value is " + this._max.toFixed(this._decimals),
     //     warn
     //   );
-    //   this._valueSet(this._max);
+    //   this.set_value(this._max);
     //   return true;
     // }
     // this._warnValidator("", true);
-    // this._valueSet(val);
+    this.set_value(val);
   }
 
-  /**Method for ancestors to overwrite */
-  protected _valueApplyPrecision(value: number) {
-    value = Number(value.toFixed(this._decimals));
-    if (this._step !== 0) {
-      let modBuff = value % this._step;
-      return modBuff >= this._step / 2
-        ? value + this._step - modBuff
-        : value - modBuff;
-    } else {
-      return value;
-    }
-  }
+  // protected _value_apply_precision(value: number) {
+  //   value = Number(value.toFixed(this._decimals));
+  //   if (this._step !== 0) {
+  //     let modBuff = value % this._step;
+  //     return modBuff >= this._step / 2
+  //       ? value + this._step - modBuff
+  //       : value - modBuff;
+  //   } else {
+  //     return value;
+  //   }
+  // }
 }

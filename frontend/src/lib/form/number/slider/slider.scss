@@ -1,6 +1,5 @@
-@use "../../../base";
-@use "../../numberBase";
-@use "../stepperBase";
+@use "../../base";
+@use "../numberBase";
 
 form-slider {
   @include base.base;
@@ -120,7 +119,7 @@ form-slider {
     }
 
     > svg {
-      @include stepperBase.svg-stepper-button;
+      @include numberBase.svg-stepper-button;
       z-index: 1;
 
       &:nth-child(2) {
@@ -136,16 +135,16 @@ form-slider {
     > span {
       position: absolute;
       inset: 0;
-      padding-left: base.$size_height + 0.4rem;
-      padding-right: base.$size_height + 0.4rem;
+      padding-left: calc(base.$size_height + 0.4rem);
+      padding-right: calc(base.$size_height + 0.4rem);
       justify-content: space-between;
       align-items: center;
       gap: 0.4rem;
       display: flex;
 
       .touch & {
-        padding-left: base.$size_touchHeight + 0.4rem;
-        padding-right: base.$size_touchHeight + 0.4rem;
+        padding-left: calc(base.$size_touchHeight + 0.4rem);
+        padding-right: calc(base.$size_touchHeight + 0.4rem);
       }
 
       > * {
