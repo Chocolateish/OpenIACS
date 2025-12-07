@@ -199,6 +199,8 @@ formCont.appendChild(
     label: "Slider",
     unit: "mA",
     max: 50,
+    step: 0.5,
+    start: 0.1,
     decimals: 1,
   })
 ).value_by_state = slideNum;

@@ -62,8 +62,6 @@ export class FormSlider extends FormNumberWrite<number> {
           let value = this.buffer || 0;
           let interval = setInterval(() => {
             let val = (value += diff / 50);
-            console.error(diff, val);
-
             if (this.#live) this.set_value_limit(val).map((v) => (value = v));
             else {
               this.limit_value(val).map((v) => {
