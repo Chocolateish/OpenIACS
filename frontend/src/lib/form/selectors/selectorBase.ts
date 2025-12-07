@@ -2,7 +2,7 @@ import type { SVGFunc } from "@libSVG";
 import { FormValueWrite, type FormValueOptions } from "../base";
 import "./selectorBase.scss";
 
-export interface SelectorOption<T> {
+export interface FormSelectorOption<T> {
   /**Value to set when option is selected */
   value: T;
   /**Text for selection */
@@ -11,19 +11,19 @@ export interface SelectorOption<T> {
   icon?: SVGFunc;
 }
 
-export interface SelectorBaseOptions<T> extends FormValueOptions<T> {
+export interface FormSelectorBaseOptions<T> extends FormValueOptions<T> {
   /**Options for selector*/
-  selections?: SelectorOption<T>[];
+  selections?: FormSelectorOption<T>[];
 }
 
 /**Base for number elements elements*/
-export abstract class SelectorBase<RT> extends FormValueWrite<RT> {
+export abstract class FormSelectorBase<RT> extends FormValueWrite<RT> {
   /**Sets the selection options for the selector */
-  abstract set selections(selections: SelectorOption<RT>[] | undefined);
+  abstract set selections(selections: FormSelectorOption<RT>[] | undefined);
 
   static apply_options<RT>(
-    element: SelectorBase<RT>,
-    options: SelectorBaseOptions<RT>
+    element: FormSelectorBase<RT>,
+    options: FormSelectorBaseOptions<RT>
   ) {
     if (options.selections) element.selections = options.selections;
     super.apply_options(element, options);

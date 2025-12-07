@@ -1,3 +1,4 @@
+import { number_step_start_decimal } from "@libMath";
 import { Err, Ok, OptionSome, Some, type Result } from "@libResult";
 import type { SVGFunc } from "@libSVG";
 import { STATE_BASE } from "./base";
@@ -82,23 +83,14 @@ export class STATE_NUMBER_HELPER
   }
 
   limit(value: number): Result<number, string> {
-    if (this.step)
-      if (this.start)
-        value = parseFloat(
-          (
-            Math.round((value - this.start + Number.EPSILON) / this.step) *
-              this.step +
-            this.start
-          ).toFixed(this.decimals)
-        );
-      else
-        value = parseFloat(
-          (
-            Math.round((value + Number.EPSILON) / this.step) * this.step
-          ).toFixed(this.decimals)
-        );
     return Ok(
-      Math.min(this.max ?? Infinity, Math.max(this.min ?? -Infinity, value))
+      Math.min(
+        this.max ?? Infinity,
+        Math.max(
+          this.min ?? -Infinity,
+          number_step_start_decimal(value, this.step, this.start, this.decimals)
+        )
+      )
     );
   }
 

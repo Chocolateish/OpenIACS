@@ -84,7 +84,7 @@ formCont.appendChild(
   })
 ).value_by_state = bool;
 
-let num = state.s.ros_ws.ok(0);
+let num = state.s.ros.ok(0);
 formCont.appendChild(
   form.dropdown.from({
     label: "Status Lamp",
@@ -187,22 +187,56 @@ formCont.appendChild(
   })
 ).value_by_state = num;
 
+let slideNum = state.s.ros.ok(0);
 formCont.appendChild(
   form.slider.from({
     label: "Slider",
     unit: "mA",
   })
-).value_by_state = num;
+).value_by_state = slideNum;
 formCont.appendChild(
   form.slider.from({
     label: "Slider",
     unit: "mA",
     live: true,
+    max: 50,
   })
-).value_by_state = num;
+).value_by_state = slideNum;
 formCont.appendChild(
   form.slider.from({
     label: "Slider",
+    unit: "mA",
+    min: -50,
+    max: 50,
+  })
+).value_by_state = slideNum;
+formCont.appendChild(
+  form.slider.from({
+    label: "Slider",
+    unit: "mA",
+    min: -50,
+    max: 50,
+    live: true,
+  })
+).value_by_state = slideNum;
+
+formCont.appendChild(
+  form.stepper.from({
+    label: "Stepper",
+    unit: "mA",
+  })
+).value_by_state = num;
+formCont.appendChild(
+  form.stepper.from({
+    label: "Stepper",
+    unit: "mA",
+    live: true,
+    max: 50,
+  })
+).value_by_state = num;
+formCont.appendChild(
+  form.stepper.from({
+    label: "Stepper",
     unit: "mA",
     min: -50,
     max: 50,

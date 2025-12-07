@@ -34,6 +34,15 @@ form-dropdown {
       }
     }
 
+    > input {
+      all: unset;
+      visibility: hidden;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      inset: 0;
+    }
+
     > svg:first-child {
       fill: base.$color_text;
       max-height: calc(base.$size_height - 2px);
@@ -58,7 +67,7 @@ form-dropdown {
       }
     }
 
-    > svg:last-child {
+    > svg:nth-last-child(2) {
       box-sizing: border-box;
       flex-shrink: 0;
       fill: base.$color_text;

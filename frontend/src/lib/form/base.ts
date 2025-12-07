@@ -201,22 +201,23 @@ export abstract class FormValueWrite<RT> extends FormValue<RT> {
   }
 
   /**Function to update value*/
-  protected async set_value(val: RT) {
+  protected async set_value(val: RT): Promise<string> {
+    try {
+      this.change(val);
+    } catch (e) {
+      console.error("Failed while updating change listener", e);
+    }
     if (this._state) {
       if (this._state.writable) {
         let res = await this._state.write(val);
         res.map_err((e) => this.warn(e));
-        this.#changed = true;
+      } else {
+        this.warn("Not writable");
       }
     } else {
       this.new_value(val);
       this.#buffer = val;
       this.#changed = true;
-    }
-    try {
-      this.change(val);
-    } catch (e) {
-      console.error("Failed while updating change listener", e);
     }
   }
 

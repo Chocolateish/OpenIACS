@@ -1,20 +1,20 @@
-@import "../stepperBase.scss";
+@use "../../base";
+@use "../numberBase";
 
-chocolatelibui-form-stepper {
-  @include base;
-  @include number-base;
+form-stepper {
+  @include base.base;
 
   > div {
+    height: base.$size_height;
+    border: base.$border;
+    box-shadow: base.$shadow_in;
+    border-radius: base.$size_cornerRadius;
+    background-color: base.$color_background;
     box-sizing: border-box;
     min-width: min-content;
     display: flex;
     justify-content: space-between;
     align-items: stretch;
-    height: $size_height;
-    background-color: $color_background;
-    border-radius: $size_cornerRadius;
-    border: $border;
-    box-shadow: $shadow_in;
     -webkit-user-select: none;
     user-select: none;
     cursor: ew-resize;
@@ -23,20 +23,20 @@ chocolatelibui-form-stepper {
 
     .touch & {
       min-width: 14rem;
-      height: $size_touchHeight;
+      height: base.$size_touchHeight;
     }
 
     &:has(:focus) {
-      box-shadow: $shadow_in_focus_out;
+      box-shadow: base.$shadow_in_focus_out;
     }
 
     &:focus-visible {
-      box-shadow: $shadow_in_focus_out;
+      box-shadow: base.$shadow_in_focus_out;
     }
 
     @media (pointer: fine) {
       &:hover {
-        background-color: $color_background_hover;
+        background-color: base.$color_background_hover;
       }
     }
 
@@ -48,7 +48,7 @@ chocolatelibui-form-stepper {
       outline: none;
 
       > span:nth-child(1) {
-        @include valueFont;
+        @include base.value-font;
         padding-left: 0.3rem;
         min-width: 3rem;
         text-align: end;
@@ -60,14 +60,14 @@ chocolatelibui-form-stepper {
       }
 
       > span:nth-child(2) {
-        @include unitContainer;
+        @include base.unit-container;
         padding-left: 0.3rem;
         -webkit-user-select: none;
         user-select: none;
       }
 
       > span:nth-child(3) {
-        color: $color_text;
+        color: base.$color_text;
         display: flex;
         flex-direction: column;
         text-align: end;
@@ -76,7 +76,7 @@ chocolatelibui-form-stepper {
         align-items: flex-end;
 
         > span {
-          @include limit-legend;
+          @include base.limit-legend;
         }
       }
 
@@ -88,14 +88,14 @@ chocolatelibui-form-stepper {
     }
 
     > svg {
-      @include svgStepperButton;
+      @include numberBase.svg-stepper-button;
 
       &:nth-child(2) {
-        left: -$border_thickness;
+        left: -(base.$border_thickness);
       }
 
       &:last-child {
-        right: -$border_thickness;
+        right: -(base.$border_thickness);
       }
     }
   }

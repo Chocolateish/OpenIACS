@@ -10,7 +10,7 @@ interface FormTextOptions {
 }
 
 /**Component for simple text */
-class Text extends FormElement {
+class FormText extends FormElement {
   static element_name() {
     return "text";
   }
@@ -37,11 +37,11 @@ class Text extends FormElement {
     this.style.fontSize = `${size}rem`;
   }
 }
-define_element(Text);
+define_element(FormText);
 
 export let form_text = {
   /**Creates a button form element */
-  from(options: FormTextOptions): Text {
-    return new Text(options);
+  from(options: FormTextOptions): FormText {
+    return new FormText(options);
   },
 };

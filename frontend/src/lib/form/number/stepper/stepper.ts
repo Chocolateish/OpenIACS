@@ -1,87 +1,95 @@
+import { define_element } from "@libBase";
 import {
   material_content_add_rounded,
   material_content_remove_rounded,
-} from "@chocolatelibui/icons";
-import { define_element } from "@libBase";
-import { NoValueText } from "../../base";
-import { StepperBase } from "../steppers/stepperBase";
+} from "@libIcons";
+import type { SVGFunc } from "@libSVG";
+import { FormNumberWrite, type FormStepperBaseOptions } from "../numberBase";
 import "./stepper.scss";
 
 /**Slide Selector, displays all options in a slider*/
-export class Stepper extends StepperBase {
-  private _text: HTMLSpanElement;
-  private _valueBox: HTMLSpanElement;
-  private _legend: HTMLSpanElement;
-
-  /**Returns the name used to define the element*/
-  static elementName() {
+export class FormStepper extends FormNumberWrite<number> {
+  static element_name() {
     return "stepper";
   }
+  static element_name_space(): string {
+    return "form";
+  }
 
-  constructor() {
-    super();
+  #unit: string = "";
+  #decimals: number = 0;
+  #min: number = -Infinity;
+  #max: number = Infinity;
+  #span: number = Infinity;
+  #step: number = 0;
+  #start: number = 0;
+  #live: boolean = false;
+  #icon_dec = this._stepper_func(
+    this._body.appendChild(material_content_remove_rounded()),
+    false
+  );
+  #text = this._body.appendChild(document.createElement("span"));
+  #icon_inc = this._stepper_func(
+    this._body.appendChild(material_content_add_rounded()),
+    true
+  );
+  #value_box = this.#text.appendChild(document.createElement("span"));
+  #unit_box = this.#text.appendChild(document.createElement("span"));
+  #legend = this.#text.appendChild(document.createElement("span"));
+  #min_legend = this.#legend.appendChild(document.createElement("span"));
+  #max_legend = this.#legend.appendChild(document.createElement("span"));
+
+  constructor(id: string | undefined) {
+    super(id);
     this._body.setAttribute("tabindex", "0");
-    this._iconDec = this._stepper_func(
-      this._body.appendChild(material_content_remove_rounded()),
-      false
-    );
-    this._text = this._body.appendChild(document.createElement("span"));
-    this._valueBox = this._text.appendChild(document.createElement("span"));
-    this._valueBox.setAttribute("tabindex", "-1");
-    this._valueBox.contentEditable = "true";
-    this._valueBox.textContent = NoValueText;
-    this._text.appendChild(this._unit);
-    this._iconInc = this._stepper_func(
-      this._body.appendChild(material_content_add_rounded()),
-      true
-    );
-    this._legend = this._text.appendChild(document.createElement("span"));
-    this._legend.append(this._minLegend, this._maxLegend);
+
+    this.#value_box.setAttribute("tabindex", "-1");
+    this.#value_box.contentEditable = "true";
 
     let dragBlocker = false;
 
-    this._valueBox.onfocus = async () => {
+    this.#value_box.onfocus = async () => {
       dragBlocker = true;
-      if (this._valueBox.textContent === NoValueText) {
-        this._valueBox.textContent = "";
+      if (this.#value_box.textContent === NoValueText) {
+        this.#value_box.textContent = "";
       }
     };
-    this._valueBox.onblur = async () => {
+    this.#value_box.onblur = async () => {
       dragBlocker = false;
       setTimeout(() => {
         this._set_value_validate(
-          parseFloat(this._valueBox.textContent?.replace(",", ".") || "") || 0,
+          parseFloat(this.#value_box.textContent?.replace(",", ".") || "") || 0,
           true
         );
       }, 0);
     };
-    this._text.onpointerdown = (e) => {
-      if (e.button === 0 && (e.target !== this._valueBox || !dragBlocker)) {
+    this.#text.onpointerdown = (e) => {
+      if (e.button === 0 && (e.target !== this.#value_box || !dragBlocker)) {
         e.stopPropagation();
         let initialVal = this._value || 0;
         let moving = false;
-        this._text.setPointerCapture(e.pointerId);
-        this._text.onpointermove = (ev) => {
+        this.#text.setPointerCapture(e.pointerId);
+        this.#text.onpointermove = (ev) => {
           ev.stopPropagation();
           if (moving) {
             this._moveDiff(initialVal + (ev.clientX - e.clientX) / 5, false);
           } else {
             if (Math.abs(e.clientX - ev.clientX) > 5) {
-              this._valueBox.contentEditable = "false";
+              this.#value_box.contentEditable = "false";
               moving = true;
             }
           }
         };
-        this._text.onpointerup = (ev) => {
+        this.#text.onpointerup = (ev) => {
           ev.stopPropagation();
-          this._valueBox.contentEditable = "true";
-          if (!moving && e.target !== this._valueBox) {
-            if (this._valueBox.textContent === NoValueText) {
-              this._valueBox.focus();
+          this.#value_box.contentEditable = "true";
+          if (!moving && e.target !== this.#value_box) {
+            if (this.#value_box.textContent === NoValueText) {
+              this.#value_box.focus();
             } else {
-              this._valueBox.focus();
+              this.#value_box.focus();
               let range = document.createRange();
-              range.setStartAfter(<Node>this._valueBox.firstChild);
+              range.setStartAfter(<Node>this.#value_box.firstChild);
               let selection = this.ownerDocument?.defaultView?.getSelection();
               if (selection) {
                 selection.removeAllRanges();
@@ -92,9 +100,9 @@ export class Stepper extends StepperBase {
             moving = false;
             this._moveDiff(initialVal + (ev.clientX - e.clientX) / 5, true);
           }
-          this._text.releasePointerCapture(e.pointerId);
-          this._text.onpointermove = null;
-          this._text.onpointerup = null;
+          this.#text.releasePointerCapture(e.pointerId);
+          this.#text.onpointermove = null;
+          this.#text.onpointerup = null;
         };
       }
     };
@@ -111,18 +119,18 @@ export class Stepper extends StepperBase {
           break;
         default:
           if (
-            this.ownerDocument.activeElement !== this._valueBox &&
+            this.ownerDocument.activeElement !== this.#value_box &&
             /[\d,.-]/g.test(e.key)
           ) {
-            this._valueBox.textContent = "";
-            this._valueBox.focus();
+            this.#value_box.textContent = "";
+            this.#value_box.focus();
           }
       }
     };
-    this._valueBox.onkeydown = (e) => {
+    this.#value_box.onkeydown = (e) => {
       switch (e.key) {
         case "Enter":
-          this._valueBox.blur();
+          this.#value_box.blur();
           return;
         case "ArrowRight":
         case "ArrowLeft":
@@ -130,7 +138,7 @@ export class Stepper extends StepperBase {
           break;
       }
     };
-    this._valueBox.onbeforeinput = (e) => {
+    this.#value_box.onbeforeinput = (e) => {
       switch (e.inputType) {
         case "insertParagraph":
           e.preventDefault();
@@ -143,7 +151,7 @@ export class Stepper extends StepperBase {
           e.preventDefault();
         } else if (
           (this._minUsr >= 0 && /-/g.test(e.data)) ||
-          this._valueBox.textContent?.includes("-")
+          this.#value_box.textContent?.includes("-")
         ) {
           e.preventDefault();
         }
@@ -151,25 +159,88 @@ export class Stepper extends StepperBase {
     };
   }
 
+  set unit(unit: string | undefined) {
+    this.#unit = unit || "";
+    this.#unit_box.textContent = this.#unit;
+    this.#update_min();
+    this.#update_max();
+  }
+
+  set min(min: number | undefined) {
+    this.#min = min ?? -Infinity;
+    this.#update_min();
+  }
+  #update_min() {
+    this.#min_legend.textContent =
+      this.#min === -Infinity
+        ? ""
+        : this.#min.toFixed(this.#decimals) + this.#unit + " :Min";
+  }
+
+  set max(max: number | undefined) {
+    this.#max = max ?? Infinity;
+    this.#update_max();
+  }
+  #update_max() {
+    this.#max_legend.textContent =
+      this.#max === Infinity
+        ? ""
+        : this.#max.toFixed(this.#decimals) + this.#unit + " :Max";
+  }
+
+  set decimals(dec: number | undefined) {
+    this.#decimals = dec || 0;
+    this.#update_min();
+    this.#update_max();
+  }
+
+  set step(step: number | undefined) {
+    this.#step = step || 0;
+  }
+
+  set start(step: number | undefined) {
+    this.#start = step || 0;
+  }
+
+  /**Set wether the slider is in live mode*/
+  set live(live: boolean | undefined) {
+    this.#live = live || false;
+  }
+
+  set icon_decrease(icon: SVGFunc | undefined) {
+    this._body.replaceChild(
+      this.#icon_dec,
+      this._stepper_func(
+        icon ? icon() : material_content_remove_rounded(),
+        false
+      )
+    );
+  }
+
+  set icon_increase(icon: SVGFunc | undefined) {
+    this._body.replaceChild(
+      this.#icon_inc,
+      this._stepper_func(icon ? icon() : material_content_add_rounded(), true)
+    );
+  }
+
   /**Moves the value to a position by the mouse x coordinates*/
   private _moveDiff(value: number, last: boolean) {
-    if (last && !this._live) {
+    if (last && !this.#live) {
       this._set_value_validate(this._value_apply_precision(value), true);
     } else {
-      if (this._live) {
+      if (this.#live)
         this._set_value_validate(this._value_apply_precision(value), false);
-      } else {
-        this._moveValue(this._value_apply_precision(value));
-      }
+      else this._moveValue(this._value_apply_precision(value));
     }
   }
 
   /**Moves the slider to the given percent position*/
   private _moveValue(value: number) {
-    this._valueBox.textContent = Math.min(
-      Math.max(value, this._min),
-      this._max
-    ).toFixed(this._decimals);
+    this.#value_box.textContent = Math.min(
+      Math.max(value, this.#min),
+      this.#max
+    ).toFixed(this.#decimals);
   }
 
   protected _stepper_func(icon: SVGSVGElement, dir: boolean) {
@@ -224,17 +295,17 @@ export class Stepper extends StepperBase {
 
   /**This steps the slider value in the given direction*/
   protected _step_value(dir: boolean): boolean | void {
-    if (this._step === 0) {
-      if (this._decimals === 0) {
+    if (this.#step === 0) {
+      if (this.#decimals === 0) {
         var step = Math.max(1, Math.floor(Math.abs(this.buffer || 0) / 150));
       } else {
         var step = Math.max(
-          1 / this._decimals,
+          1 / this.#decimals,
           Math.floor(Math.abs(this.buffer || 0) / 150)
         );
       }
     } else {
-      var step = this._step;
+      var step = this.#step;
     }
     if (dir) {
       return this._set_value_validate((this.buffer || 0) + step, true);
@@ -243,14 +314,29 @@ export class Stepper extends StepperBase {
     }
   }
 
+  protected _value_apply_precision(value: number) {
+    this.set_value(value);
+  }
+
   /**Called when value is changed */
-  protected _valueUpdate(value: number) {
+  protected new_value(value: number) {
     this._moveValue(value);
   }
 
-  /**Called when value cleared */
-  protected _valueClear() {
-    this._valueBox.textContent = NoValueText;
-  }
+  protected new_error(_val: string): void {}
 }
-define_element(Stepper);
+define_element(FormStepper);
+
+export let form_stepper = {
+  /**Creates a dropdown form element */
+  from(options?: FormStepperBaseOptions): FormStepper {
+    let slide = new FormStepper(options?.id);
+    if (options) {
+      if (options.live) slide.live = options.live;
+      if (options.icon_decrease) slide.icon_decrease = options.icon_decrease;
+      if (options.icon_increase) slide.icon_increase = options.icon_increase;
+      FormNumberWrite.apply_options(slide, options);
+    }
+    return slide;
+  },
+};

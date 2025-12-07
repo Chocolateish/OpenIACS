@@ -3,7 +3,7 @@ import { FormValue } from "../../base";
 import { type FormNumberOptions } from "../numberBase";
 import "./progress.scss";
 
-export class Progress extends FormValue<number> {
+export class FormProgress extends FormValue<number> {
   static element_name() {
     return "progress";
   }
@@ -54,12 +54,12 @@ export class Progress extends FormValue<number> {
 
   protected new_error(_val: string): void {}
 }
-define_element(Progress);
+define_element(FormProgress);
 
 export let form_progress = {
   /**Creates a progress form element */
-  from(options?: FormNumberOptions): Progress {
-    let prog = new Progress(options?.id);
+  from(options?: FormNumberOptions): FormProgress {
+    let prog = new FormProgress(options?.id);
     if (options) {
       if (typeof options.min !== "undefined") prog.min = options.min;
       if (typeof options.max !== "undefined") prog.max = options.max;

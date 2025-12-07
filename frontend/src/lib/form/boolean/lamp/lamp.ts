@@ -13,7 +13,7 @@ interface FormLampOptions<T extends boolean | number, C extends FormColors[]>
   icon?: SVGFunc;
 }
 
-class Lamp<
+class FormLamp<
   T extends boolean | number,
   C extends FormColors[]
 > extends FormValue<T> {
@@ -62,7 +62,7 @@ class Lamp<
 
   protected new_error(_val: string): void {}
 }
-define_element(Lamp);
+define_element(FormLamp);
 
 /**Creates a button form element */
 function from(
@@ -70,14 +70,14 @@ function from(
     number,
     [FormColors, FormColors, FormColors, ...FormColors[]]
   >
-): Lamp<number, [FormColors, FormColors, FormColors, ...FormColors[]]>;
+): FormLamp<number, [FormColors, FormColors, FormColors, ...FormColors[]]>;
 function from(
   options?: FormLampOptions<boolean, [FormColors, FormColors]>
-): Lamp<boolean, [FormColors, FormColors]>;
+): FormLamp<boolean, [FormColors, FormColors]>;
 function from<T extends boolean | number, C extends FormColors[]>(
   options?: FormLampOptions<T, C>
-): Lamp<T, C> {
-  let lamp = new Lamp<T, C>(options?.id);
+): FormLamp<T, C> {
+  let lamp = new FormLamp<T, C>(options?.id);
   if (options) {
     lamp.colors = options.colors;
     if (options.text) lamp.text = options.text;

@@ -1,23 +1,5 @@
 @use "../base";
 
-//Mixins
-@mixin number-base {
-  div > button {
-    position: absolute;
-    inset: 0;
-    visibility: hidden;
-  }
-}
-
-@mixin limit-legend {
-  color: base.$color_text;
-  font-size: 0.7rem;
-
-  .touch & {
-    font-size: 0.7rem;
-  }
-}
-
 @mixin svg-stepper-button {
   top: -(base.$border_thickness);
   fill: base.$color_text;

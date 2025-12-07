@@ -3,7 +3,6 @@
 
 form-progress {
   @include base.base;
-  @include numberBase.number-base;
 
   > div {
     height: base.$size_height;

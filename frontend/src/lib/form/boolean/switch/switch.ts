@@ -12,7 +12,7 @@ interface FormSwitchOptions extends FormValueOptions<boolean> {
   off_color?: FormColors;
 }
 
-export class Switch extends FormValueWrite<boolean> {
+export class FormSwitch extends FormValueWrite<boolean> {
   static element_name() {
     return "switch";
   }
@@ -29,6 +29,7 @@ export class Switch extends FormValueWrite<boolean> {
   constructor(id: string | undefined) {
     super(id);
 
+    this._body.appendChild(this.warn_input);
     this.#switch.setAttribute("tabindex", "0");
     this.#switch.onkeydown = (e) => {
       switch (e.key) {
@@ -123,12 +124,12 @@ export class Switch extends FormValueWrite<boolean> {
 
   protected new_error(_val: string): void {}
 }
-define_element(Switch);
+define_element(FormSwitch);
 
 export let form_switch = {
   /**Creates a switch form element */
-  from(options?: FormSwitchOptions): Switch {
-    let swit = new Switch(options?.id);
+  from(options?: FormSwitchOptions): FormSwitch {
+    let swit = new FormSwitch(options?.id);
     if (options) {
       if (options.icon) swit.icon = options.icon;
       if (options.on_color) swit.on_color = options.on_color;

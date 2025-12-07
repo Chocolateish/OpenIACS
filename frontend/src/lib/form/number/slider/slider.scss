@@ -3,7 +3,6 @@
 
 form-slider {
   @include base.base;
-  @include numberBase.number-base;
   $textPadding: 0.2rem;
   $thumbWidth: base.$unit_width + 0.4rem + $textPadding;
   $touchThumbWidth: base.$touch_unit_width + 0.4rem + $textPadding;
@@ -148,7 +147,7 @@ form-slider {
       }
 
       > * {
-        @include numberBase.limit-legend;
+        @include base.limit-legend;
         overflow: hidden;
       }
     }

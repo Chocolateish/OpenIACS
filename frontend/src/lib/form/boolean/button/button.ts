@@ -22,7 +22,7 @@ interface FormButtonOptions extends FormValueOptions<boolean> {
   color?: FormColors;
 }
 
-class Button extends FormValueWrite<boolean> {
+class FormButton extends FormValueWrite<boolean> {
   static element_name() {
     return "button";
   }
@@ -40,6 +40,7 @@ class Button extends FormValueWrite<boolean> {
   constructor(id: string | undefined) {
     super(id);
 
+    this._body.appendChild(this.warn_input);
     this._body.setAttribute("tabindex", "0");
     this._body.onclick = () => {
       if (this.#on_click) this.#on_click();
@@ -147,12 +148,12 @@ class Button extends FormValueWrite<boolean> {
     return this.#toggle;
   }
 }
-define_element(Button);
+define_element(FormButton);
 
 export let form_button = {
   /**Creates a button form element */
-  from(options?: FormButtonOptions): Button {
-    let butt = new Button(options?.id);
+  from(options?: FormButtonOptions): FormButton {
+    let butt = new FormButton(options?.id);
     if (options) {
       if (options.text) butt.text = options.text;
       if (options.icon) butt.icon = options.icon;

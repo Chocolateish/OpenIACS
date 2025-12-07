@@ -1,14 +1,14 @@
 import { define_element } from "@libBase";
 import {
-  material_navigation_chevron_left_rounded,
-  material_navigation_chevron_right_rounded,
+  material_content_add_rounded,
+  material_content_remove_rounded,
 } from "@libIcons";
 import type { SVGFunc } from "@libSVG";
-import { FormNumberWrite, type StepperBaseOptions } from "../numberBase";
+import { FormNumberWrite, type FormStepperBaseOptions } from "../numberBase";
 import "./slider.scss";
 
 /**Slide Selector, displays all options in a slider*/
-export class Slider extends FormNumberWrite<number> {
+export class FormSlider extends FormNumberWrite<number> {
   static element_name() {
     return "slider";
   }
@@ -16,27 +16,33 @@ export class Slider extends FormNumberWrite<number> {
     return "form";
   }
 
-  #icon_dec = this._stepper_func(
-    this._body.appendChild(material_navigation_chevron_left_rounded()),
+  #unit: string = "";
+  #decimals: number = 0;
+  #min: number = -Infinity;
+  #max: number = Infinity;
+  #span: number = Infinity;
+  #step: number = 0;
+  #start: number = 0;
+  #live: boolean = false;
+  #icon_dec = this.#stepper_func(
+    this._body.appendChild(material_content_remove_rounded()),
     false
   );
   #slide = this._body.appendChild(document.createElement("div"));
   #legend = this._body.appendChild(document.createElement("span"));
-  #min_leg = this.#legend.appendChild(document.createElement("span"));
-  #max_leg = this.#legend.appendChild(document.createElement("span"));
-  #icon_inc = this._stepper_func(
-    this._body.appendChild(material_navigation_chevron_right_rounded()),
+  #left_legend = this.#legend.appendChild(document.createElement("span"));
+  #right_legend = this.#legend.appendChild(document.createElement("span"));
+  #icon_inc = this.#stepper_func(
+    this._body.appendChild(material_content_add_rounded()),
     true
   );
   #slider = this.#slide.appendChild(document.createElement("div"));
   #value_box = this.#slider.appendChild(document.createElement("span"));
-  #unit = this.#slider.appendChild(document.createElement("span"));
+  #unit_box = this.#slider.appendChild(document.createElement("span"));
 
   constructor(id: string | undefined) {
     super(id);
     this.#slider.setAttribute("tabindex", "0");
-    this.#min_leg.textContent = "Min";
-    this.#max_leg.textContent = "Max";
 
     this._body.onpointerdown = (e) => {
       if (e.button === 0) {
@@ -49,17 +55,13 @@ export class Slider extends FormNumberWrite<number> {
               ? box.x - e.clientX
               : -box.width
             : 0;
-        if (this._min === -Infinity || this._max === Infinity) {
+        if (this.#min === -Infinity || this.#max === Infinity) {
           let value = this.buffer || 0;
           let interval = setInterval(() => {
-            if (this._live) {
-              this._set_value_validate((value += diff / 50), true);
-            } else {
-              this.#move_value((value += diff / 50));
-            }
+            if (this.#live) this.set_value((value += diff / 50));
+            else this.#move_value((value += diff / 50));
           }, 100);
           let diff = this.#x_to_perc(e.clientX + offset) - 50;
-
           this.#move_slide(this.#x_to_perc(e.clientX + offset));
           this.#slider.setPointerCapture(e.pointerId);
           this.#slider.onpointermove = (ev) => {
@@ -75,9 +77,7 @@ export class Slider extends FormNumberWrite<number> {
             this.#slider.onpointermove = null;
             this.#slider.onpointerup = null;
             this.#move_slide(50);
-            if (!this._live) {
-              this._set_value_validate(value, true);
-            }
+            if (!this.#live) this.set_value(value);
             clearInterval(interval);
           };
         } else {
@@ -102,26 +102,71 @@ export class Slider extends FormNumberWrite<number> {
       switch (e.key) {
         case "ArrowRight":
           e.stopPropagation();
-          this._step_value(true);
+          this.#step_value(true);
           break;
         case "ArrowLeft":
           e.stopPropagation();
-          this._step_value(false);
+          this.#step_value(false);
           break;
       }
     };
   }
 
+  set unit(unit: string | undefined) {
+    this.#unit = unit || "";
+    this.#unit_box.textContent = this.#unit;
+    this.#update_min();
+    this.#update_max();
+  }
+
+  set min(min: number | undefined) {
+    this.#min = min ?? -Infinity;
+    this.#span = this.#max - this.#min;
+    this.#update_min();
+  }
+  #update_min() {
+    this.#left_legend.textContent =
+      this.#min === -Infinity
+        ? ""
+        : "Min: " + this.#min.toFixed(this.#decimals) + this.#unit;
+  }
+
+  set max(max: number | undefined) {
+    this.#max = max ?? Infinity;
+    this.#span = this.#max - this.#min;
+    this.#update_max();
+  }
+  #update_max() {
+    this.#right_legend.textContent =
+      this.#max === Infinity
+        ? ""
+        : this.#max.toFixed(this.#decimals) + this.#unit + " :Max";
+  }
+
+  set decimals(dec: number | undefined) {
+    this.#decimals = dec || 0;
+    this.#update_min();
+    this.#update_max();
+  }
+
+  set step(step: number | undefined) {
+    this.#step = step || 0;
+  }
+
+  set start(step: number | undefined) {
+    this.#start = step || 0;
+  }
+
   /**Set wether the slider is in live mode*/
   set live(live: boolean | undefined) {
-    this._live = live || false;
+    this.#live = live || false;
   }
 
   set icon_decrease(icon: SVGFunc | undefined) {
     this._body.replaceChild(
       this.#icon_dec,
-      this._stepper_func(
-        icon ? icon() : material_navigation_chevron_left_rounded(),
+      this.#stepper_func(
+        icon ? icon() : material_content_remove_rounded(),
         false
       )
     );
@@ -130,68 +175,62 @@ export class Slider extends FormNumberWrite<number> {
   set icon_increase(icon: SVGFunc | undefined) {
     this._body.replaceChild(
       this.#icon_inc,
-      this._stepper_func(
-        icon ? icon() : material_navigation_chevron_right_rounded(),
-        true
-      )
+      this.#stepper_func(icon ? icon() : material_content_add_rounded(), true)
     );
   }
 
-  set unit(unit: string | undefined) {
-    this.#unit.textContent = unit ?? "";
+  protected new_value(value: number): void {
+    this.#move_value(value);
+    this.#move_slide(
+      Math.min(Math.max(((-this.#min + value) / this.#span) * 100, 0), 100)
+    );
   }
 
-  #move_absolute(x: number, last: boolean) {
-    let perc = this.#x_to_perc(x);
-    if (last && !this._live) {
-      this._set_value_validate(
-        this._value_apply_precision(this.#perc_to_value(perc)),
-        true
+  protected new_error(_val: string): void {}
+
+  /**This steps the slider value in the given direction*/
+  #step_value(dir: boolean) {
+    let step =
+      this.#step ||
+      Math.max(
+        this.#decimals ? 1 / this.#decimals : 1,
+        Math.floor(Math.abs(this.buffer || 0) / 150)
       );
-    } else {
-      if (this._live) {
-        this._set_value_validate(
-          this._value_apply_precision(this.#perc_to_value(perc)),
-          false
-        );
-      } else {
-        this.#move_slide(perc);
-        this.#move_value(
-          this._value_apply_precision(this.#perc_to_value(perc))
-        );
-      }
-    }
+
+    return this.set_value((this.buffer || 0) + (dir ? step : -step));
   }
 
-  /**Calculates the percent from the x value*/
   #x_to_perc(x: number) {
     let box = this.#slide.getBoundingClientRect();
     return Math.min(100, Math.max(0, ((x - box.x) / box.width) * 100));
   }
 
   #perc_to_value(perc: number) {
-    return (perc / 100) * this._span + this._min;
-  }
-  #value_to_perc(value: number) {
-    return Math.min(
-      Math.max(((-this._min + value) / this._span) * 100, 0),
-      100
-    );
-  }
-  #move_slide(perc: number) {
-    this.#slider.style.left = perc + "%";
-  }
-  #move_value(value: number) {
-    this.#value_box.textContent = value.toFixed(this._decimals);
+    return (perc / 100) * this.#span + this.#min;
   }
 
-  protected _stepper_func(icon: SVGSVGElement, dir: boolean) {
+  #move_absolute(x: number, last: boolean) {
+    let perc = this.#x_to_perc(x);
+    if (last && !this.#live) {
+      this.set_value(this.#perc_to_value(perc));
+    } else {
+      if (this.#live) {
+        this.set_value(this.#perc_to_value(perc));
+      } else {
+        this.#move_slide(perc);
+        this.#move_value(this.#perc_to_value(perc));
+      }
+    }
+  }
+
+  /**Attaches click action to over time increase speed of stepping when holding step buttons */
+  #stepper_func(icon: SVGSVGElement, dir: boolean) {
     icon.onpointerdown = (e) => {
       if (e.button === 0) {
         e.stopPropagation();
         let interval = 0;
         let scalerInterval = 0;
-        let scaler = 200;
+        let scaler = 250;
         let release = () => {
           clearInterval(interval);
           clearInterval(scalerInterval);
@@ -203,31 +242,16 @@ export class Slider extends FormNumberWrite<number> {
         icon.setPointerCapture(e.pointerId);
         icon.classList.add("active");
         let timeout = setTimeout(() => {
-          if (this._step_value(dir)) {
-            icon.onpointerup = null;
-          } else {
-            interval = setInterval(() => {
-              if (this._step_value(dir)) {
-                release();
-              }
-            }, scaler);
-            scalerInterval = setInterval(() => {
-              if (scaler > 20) {
-                scaler /= 1.1;
-              }
-              clearInterval(interval);
-              interval = setInterval(() => {
-                if (this._step_value(dir)) {
-                  release();
-                }
-              }, scaler);
-            }, 200);
-          }
+          this.#step_value(dir);
+          interval = setInterval(() => this.#step_value(dir), scaler);
+          scalerInterval = setInterval(() => {
+            if (scaler > 20) scaler /= 1.1;
+            clearInterval(interval);
+            interval = setInterval(() => this.#step_value(dir), scaler);
+          }, 1000);
         }, 500);
         icon.onpointerup = () => {
-          if (interval === 0) {
-            this._step_value(dir);
-          }
+          if (interval === 0) this.#step_value(dir);
           release();
         };
       }
@@ -235,39 +259,21 @@ export class Slider extends FormNumberWrite<number> {
     return icon;
   }
 
-  /**This steps the slider value in the given direction*/
-  protected _step_value(dir: boolean): boolean | void {
-    if (this._step === 0) {
-      if (this._decimals === 0) {
-        var step = Math.max(1, Math.floor(Math.abs(this.buffer || 0) / 150));
-      } else {
-        var step = Math.max(
-          1 / this._decimals,
-          Math.floor(Math.abs(this.buffer || 0) / 150)
-        );
-      }
-    } else {
-      var step = this._step;
-    }
-    if (dir) {
-      return this._set_value_validate((this.buffer || 0) + step, true);
-    } else {
-      return this._set_value_validate((this.buffer || 0) - step, true);
-    }
-  }
+  /**Calculates the percent from the x value*/
 
-  protected new_value(value: number): void {
-    this.#move_value(value);
-    this.#move_slide(this.#value_to_perc(value));
+  #move_slide(perc: number) {
+    this.#slider.style.left = perc + "%";
   }
-  protected new_error(_val: string): void {}
+  #move_value(value: number) {
+    this.#value_box.textContent = value.toFixed(this.#decimals);
+  }
 }
-define_element(Slider);
+define_element(FormSlider);
 
 export let form_slider = {
   /**Creates a dropdown form element */
-  from(options?: StepperBaseOptions): Slider {
-    let slide = new Slider(options?.id);
+  from(options?: FormStepperBaseOptions): FormSlider {
+    let slide = new FormSlider(options?.id);
     if (options) {
       if (options.live) slide.live = options.live;
       if (options.icon_decrease) slide.icon_decrease = options.icon_decrease;

@@ -1,23 +1,23 @@
-import { defineElement } from "@chocolatelibui/core";
-import { NoValueText } from "../../base";
-import { FormNumber } from "../numberBase";
+import { define_element } from "@libBase";
+import { FormNumberWrite, type FormNumberWriteOptions } from "../numberBase";
 import "./numberInput.scss";
 
 /**Slide Selector, displays all options in a slider*/
-export class NumberInput extends FormNumber {
+export class FormNumberInput extends FormNumberWrite {
+  static element_name() {
+    return "numberinput";
+  }
+  static element_name_space(): string {
+    return "form";
+  }
+
   private _valueBox: HTMLSpanElement;
   private _legend: HTMLSpanElement;
 
-  /**Returns the name used to define the element*/
-  static elementName() {
-    return "numberinput";
-  }
-
-  constructor() {
-    super();
+  constructor(id: string | undefined) {
+    super(id);
     this._valueBox = this._body.appendChild(document.createElement("span"));
     this._valueBox.contentEditable = "true";
-    this._valueBox.textContent = NoValueText;
     this._body.appendChild(this._unit);
     this._legend = this._body.appendChild(document.createElement("span"));
     this._legend.append(this._minLegend, this._maxLegend);
@@ -64,9 +64,16 @@ export class NumberInput extends FormNumber {
   protected _valueUpdate(value: number) {
     this._valueBox.textContent = value.toFixed(this._decimals);
   }
-  /**Called when value cleared */
-  protected _valueClear() {
-    this._valueBox.textContent = NoValueText;
-  }
 }
-defineElement(NumberInput);
+define_element(FormNumberInput);
+
+export let form_number_input = {
+  /**Creates a dropdown form element */
+  from(options?: FormNumberWriteOptions): FormNumberInput {
+    let slide = new FormNumberInput(options?.id);
+    if (options) {
+      FormNumberWrite.apply_options(slide, options);
+    }
+    return slide;
+  },
+};

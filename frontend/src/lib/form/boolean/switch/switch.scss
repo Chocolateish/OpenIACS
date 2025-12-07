@@ -4,6 +4,7 @@ form-switch {
   @include base.base;
 
   > div {
+    position: relative;
     display: flex;
     align-items: center;
     -webkit-user-select: none;
@@ -13,6 +14,15 @@ form-switch {
       &:hover > div::after {
         background-color: base.$color_background_hover;
       }
+    }
+
+    > input {
+      all: unset;
+      visibility: hidden;
+      position: absolute;
+      width: calc(base.$size_height * 2);
+      height: 100%;
+      inset: 0;
     }
 
     > div {

@@ -6,9 +6,9 @@ import {
 } from "@libIcons";
 import type { SVGFunc } from "@libSVG";
 import {
-  SelectorBase,
-  type SelectorBaseOptions,
-  type SelectorOption,
+  FormSelectorBase,
+  type FormSelectorBaseOptions,
+  type FormSelectorOption,
 } from "../selectorBase";
 import "./dropDown.scss";
 
@@ -17,7 +17,7 @@ interface SelOptions {
   icon?: SVGFunc;
 }
 
-export interface DropDownOptions<T> extends SelectorBaseOptions<T> {
+export interface FormDropDownOptions<T> extends FormSelectorBaseOptions<T> {
   /**Default text displayed*/
   default?: string;
   /**Default icon displayed*/
@@ -25,7 +25,7 @@ export interface DropDownOptions<T> extends SelectorBaseOptions<T> {
 }
 
 /**Dropdown box for selecting between multiple choices in a small space*/
-export class Dropdown<RT> extends SelectorBase<RT> {
+export class FormDropdown<RT> extends FormSelectorBase<RT> {
   static element_name() {
     return "dropdown";
   }
@@ -38,14 +38,18 @@ export class Dropdown<RT> extends SelectorBase<RT> {
   #selected: number = -1;
 
   #icon?: SVGSVGElement;
+  #text: HTMLDivElement = this._body.appendChild(document.createElement("div"));
+  #open: SVGSVGElement = this._body.appendChild(
+    material_navigation_unfold_more_rounded()
+  );
   #default: Text = document.createTextNode("Select something");
   #defaultIcon?: SVGFunc;
-  #text: HTMLDivElement = document.createElement("div");
-  #open: SVGSVGElement = material_navigation_unfold_more_rounded();
   private is_open: boolean = false;
 
   constructor(id: string | undefined) {
     super(id);
+    this.#text.append(this.#default);
+    this._body.appendChild(this.warn_input);
     this._body.tabIndex = 0;
     this._body.onclick = () => (this.open = true);
     this._body.onpointerdown = (e) => {
@@ -69,9 +73,6 @@ export class Dropdown<RT> extends SelectorBase<RT> {
           break;
       }
     };
-    this._body.appendChild(this.#text);
-    this.#text.append(this.#default);
-    this._body.appendChild(this.#open);
   }
 
   /**Gets the default text displayed when nothing has been selected yet */
@@ -90,7 +91,7 @@ export class Dropdown<RT> extends SelectorBase<RT> {
     if (def && this.#selected === -1) this.#set_icon = def;
   }
 
-  set selections(selections: SelectorOption<RT>[] | undefined) {
+  set selections(selections: FormSelectorOption<RT>[] | undefined) {
     this.open = false;
     if (this.#map.size > 0) {
       this.#map.clear();
@@ -166,16 +167,16 @@ export class Dropdown<RT> extends SelectorBase<RT> {
     this._body.focus();
   }
 }
-define_element(Dropdown);
+define_element(FormDropdown);
 
 export let form_dropDown = {
   /**Creates a dropdown form element */
-  from<RT>(options?: DropDownOptions<RT>): Dropdown<RT> {
-    let drop = new Dropdown<RT>(options?.id);
+  from<RT>(options?: FormDropDownOptions<RT>): FormDropdown<RT> {
+    let drop = new FormDropdown<RT>(options?.id);
     if (options) {
       if (options.default) drop.default = options.default;
       if (options.defaultIcon) drop.default_icon = options.defaultIcon;
-      SelectorBase.apply_options(drop, options);
+      FormSelectorBase.apply_options(drop, options);
     }
     return drop;
   },
@@ -198,7 +199,7 @@ class DropDownBox extends Base {
   #table: HTMLDivElement = this.#scroll.appendChild(
     document.createElement("div")
   );
-  #dropdown: Dropdown<any> | undefined;
+  #dropdown: FormDropdown<any> | undefined;
   #focus_out_handler = (e: FocusEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -263,7 +264,7 @@ class DropDownBox extends Base {
 
   open_menu(
     map: Map<any, SelOptions>,
-    parent: Dropdown<any>,
+    parent: FormDropdown<any>,
     ref: HTMLDivElement,
     value: any
   ) {

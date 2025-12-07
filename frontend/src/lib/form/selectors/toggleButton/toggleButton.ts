@@ -1,8 +1,8 @@
 import { define_element } from "@libBase";
 import {
-  SelectorBase,
-  type SelectorBaseOptions,
-  type SelectorOption,
+  FormSelectorBase,
+  type FormSelectorBaseOptions,
+  type FormSelectorOption,
 } from "../selectorBase";
 import "./toggleButton.scss";
 
@@ -12,7 +12,7 @@ interface SelOptions {
 }
 
 /**Toggle buttons, displays all options in a multi toggler*/
-export class ToggleButton<RT> extends SelectorBase<RT> {
+export class FormToggleButton<RT> extends FormSelectorBase<RT> {
   /**Returns the name used to define the element*/
   static element_name() {
     return "togglebutton";
@@ -25,7 +25,7 @@ export class ToggleButton<RT> extends SelectorBase<RT> {
   #values: RT[] = [];
   #selected: number = -1;
 
-  set selections(selections: SelectorOption<RT>[] | undefined) {
+  set selections(selections: FormSelectorOption<RT>[] | undefined) {
     if (this.#map.size > 0) {
       this.#map.clear();
       this.#values = [];
@@ -39,7 +39,7 @@ export class ToggleButton<RT> extends SelectorBase<RT> {
     if (this.buffer) this.new_value(this.buffer);
   }
 
-  #add_selection(selection: SelectorOption<RT>) {
+  #add_selection(selection: FormSelectorOption<RT>) {
     let top = this._body.appendChild(document.createElement("div"));
     top.tabIndex = 0;
     let bot = this._body.appendChild(document.createElement("div"));
@@ -47,7 +47,10 @@ export class ToggleButton<RT> extends SelectorBase<RT> {
       top.appendChild(selection.icon());
       bot.textContent = selection.text;
     } else top.textContent = selection.text;
-    let click = () => this.set_value(selection.value);
+    let click = () => {
+      top.appendChild(this.warn_input);
+      this.set_value(selection.value);
+    };
     top.onclick = click;
     bot.onclick = click;
     top.onkeydown = (e) => {
@@ -90,13 +93,13 @@ export class ToggleButton<RT> extends SelectorBase<RT> {
 
   protected new_error(_val: string): void {}
 }
-define_element(ToggleButton);
+define_element(FormToggleButton);
 
 export let form_toggle_button = {
   /**Creates a toggle button form element */
-  from<RT>(options?: SelectorBaseOptions<RT>): ToggleButton<RT> {
-    let togg = new ToggleButton<RT>(options?.id);
-    if (options) SelectorBase.apply_options(togg, options);
+  from<RT>(options?: FormSelectorBaseOptions<RT>): FormToggleButton<RT> {
+    let togg = new FormToggleButton<RT>(options?.id);
+    if (options) FormSelectorBase.apply_options(togg, options);
     return togg;
   },
 };
