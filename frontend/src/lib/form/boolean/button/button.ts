@@ -49,24 +49,24 @@ class FormButton extends FormValueWrite<boolean> {
       if (e.pointerType !== "touch" && e.button === 0) {
         e.stopPropagation();
         this._body.setPointerCapture(e.pointerId);
-        if (!this.#toggle) this.set_value(true);
+        if (!this.#toggle) this.set_value_check(true);
         this._body.onpointerup = (ev) => {
           ev.stopPropagation();
           this._body.releasePointerCapture(ev.pointerId);
-          if (this.#toggle) this.set_value(!this.buffer);
-          else this.set_value(false);
+          if (this.#toggle) this.set_value_check(!this.buffer);
+          else this.set_value_check(false);
           this._body.onpointerup = null;
         };
       }
     };
     this._body.ontouchstart = (e) => {
       e.stopPropagation();
-      if (!this.#toggle) this.set_value(true);
+      if (!this.#toggle) this.set_value_check(true);
       this._body.ontouchend = (ev) => {
         ev.stopPropagation();
         if (ev.targetTouches.length === 0) {
-          if (this.#toggle) this.set_value(!this.buffer);
-          else this.set_value(false);
+          if (this.#toggle) this.set_value_check(!this.buffer);
+          else this.set_value_check(false);
           this._body.ontouchend = null;
         }
       };
@@ -77,15 +77,15 @@ class FormButton extends FormValueWrite<boolean> {
         case "Enter": {
           e.stopPropagation();
           e.preventDefault();
-          if (!this.#toggle) this.set_value(true);
+          if (!this.#toggle) this.set_value_check(true);
           this._body.onkeyup = (e) => {
             switch (e.key) {
               case "Enter":
               case " ": {
                 e.stopPropagation();
                 e.preventDefault();
-                if (this.#toggle) this.set_value(!this.buffer);
-                else this.set_value(false);
+                if (this.#toggle) this.set_value_check(!this.buffer);
+                else this.set_value_check(false);
                 if (this.#on_click) this.#on_click();
                 break;
               }

@@ -187,11 +187,19 @@ formCont.appendChild(
   })
 ).value_by_state = num;
 
-let slideNum = state.s.ros.ok(0);
+//       _____ _      _____ _____  ______ _____
+//      / ____| |    |_   _|  __ \|  ____|  __ \
+//     | (___ | |      | | | |  | | |__  | |__) |
+//      \___ \| |      | | | |  | |  __| |  _  /
+//      ____) | |____ _| |_| |__| | |____| | \ \
+//     |_____/|______|_____|_____/|______|_|  \_\
+let slideNum = state.s.ros_ws.ok(0);
 formCont.appendChild(
   form.slider.from({
     label: "Slider",
     unit: "mA",
+    max: 50,
+    decimals: 1,
   })
 ).value_by_state = slideNum;
 formCont.appendChild(
@@ -200,6 +208,9 @@ formCont.appendChild(
     unit: "mA",
     live: true,
     max: 50,
+    step: 0.5,
+    start: 0.1,
+    decimals: 1,
   })
 ).value_by_state = slideNum;
 formCont.appendChild(
@@ -208,6 +219,9 @@ formCont.appendChild(
     unit: "mA",
     min: -50,
     max: 50,
+    step: 0.5,
+    start: 0.1,
+    decimals: 1,
   })
 ).value_by_state = slideNum;
 formCont.appendChild(
@@ -216,6 +230,9 @@ formCont.appendChild(
     unit: "mA",
     min: -50,
     max: 50,
+    step: 0.5,
+    start: 0.1,
+    decimals: 1,
     live: true,
   })
 ).value_by_state = slideNum;

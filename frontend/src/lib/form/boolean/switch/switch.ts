@@ -43,7 +43,7 @@ export class FormSwitch extends FormValueWrite<boolean> {
               case " ": {
                 e.stopPropagation();
                 e.preventDefault();
-                this.set_value(!this.buffer);
+                this.set_value_check(!this.buffer);
                 break;
               }
             }
@@ -66,9 +66,9 @@ export class FormSwitch extends FormValueWrite<boolean> {
             let box = this.#switch.getBoundingClientRect();
             let midCord = box.x + box.width / 2;
             if (ev.clientX > midCord) {
-              if (!this.buffer) this.set_value(true);
+              if (!this.buffer) this.set_value_check(true);
             } else {
-              if (this.buffer) this.set_value(false);
+              if (this.buffer) this.set_value_check(false);
             }
           } else if (
             Math.abs(e.clientX - ev.clientX) > 10 ||
@@ -81,7 +81,7 @@ export class FormSwitch extends FormValueWrite<boolean> {
         this.#switch.onpointerup = (ev) => {
           ev.stopPropagation();
           this.#switch.classList.remove("active");
-          if (!hasMoved) this.set_value(!this.buffer);
+          if (!hasMoved) this.set_value_check(!this.buffer);
           this.#switch.releasePointerCapture(ev.pointerId);
           this.#switch.onpointerup = null;
           this.#switch.onpointermove = null;
@@ -94,7 +94,7 @@ export class FormSwitch extends FormValueWrite<boolean> {
     this._body.onclick = (e) => {
       e.stopPropagation();
       if (this.#preventClick) return (this.#preventClick = false);
-      this.set_value(!this.buffer);
+      this.set_value_check(!this.buffer);
     };
   }
 

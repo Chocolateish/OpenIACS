@@ -200,20 +200,59 @@ export abstract class FormValueWrite<RT> extends FormValue<RT> {
     this.warn_input.reportValidity();
   }
 
+  /**Function to limit value entered */
+  protected limit_value(val: RT): Result<RT, string> {
+    if (this._state) {
+      if (this._state.writable) return this._state.limit(val);
+      else return Err("Not writable");
+    } else return Ok(val);
+  }
+
+  /**Function to check value */
+  protected check_value(val: RT): Result<RT, string> {
+    if (this._state) {
+      if (this._state.writable) return this._state.check(val);
+      else return Err("Not writable");
+    } else return Ok(val);
+  }
+
   /**Function to update value*/
-  protected async set_value(val: RT): Promise<string> {
+  protected set_value_limit(val: RT): Result<RT, string> {
+    let limited = this.limit_value(val);
+    if (limited.err) {
+      this.warn(limited.error);
+      return limited;
+    }
+    this.#set_value(limited.value);
+    return limited;
+  }
+
+  /**Function to update value*/
+  protected set_value_check(val: RT): Result<RT, string> {
+    let checked = this.check_value(val);
+    if (checked.err) {
+      this.warn(checked.error);
+      return checked;
+    }
+    this.#set_value(checked.value);
+    return checked;
+  }
+
+  #set_value(val: RT) {
+    if (this.#buffer === val) this.new_value(val);
     try {
       this.change(val);
     } catch (e) {
       console.error("Failed while updating change listener", e);
     }
     if (this._state) {
-      if (this._state.writable) {
-        let res = await this._state.write(val);
-        res.map_err((e) => this.warn(e));
-      } else {
-        this.warn("Not writable");
-      }
+      let buff = this.#buffer;
+      this._state.write!(val).then((err) => {
+        if (err.err) {
+          if (buff !== undefined) this.new_value(buff);
+          this.warn(err.error);
+        }
+      });
     } else {
       this.new_value(val);
       this.#buffer = val;

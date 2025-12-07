@@ -315,7 +315,7 @@ export class FormStepper extends FormNumberWrite<number> {
   }
 
   protected _value_apply_precision(value: number) {
-    this.set_value(value);
+    this.set_value_check(value);
   }
 
   /**Called when value is changed */

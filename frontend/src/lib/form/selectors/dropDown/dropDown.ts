@@ -137,7 +137,7 @@ export class FormDropdown<RT> extends FormSelectorBase<RT> {
       this.#values.length - 1,
       Math.max(0, dir ? this.#selected + 1 : this.#selected - 1)
     );
-    if (y !== this.#selected) this.set_value(this.#values[y]);
+    if (y !== this.#selected) this.set_value_check(this.#values[y]);
   }
 
   #clear() {
@@ -162,6 +162,12 @@ export class FormDropdown<RT> extends FormSelectorBase<RT> {
   }
 
   protected new_error(_val: string): void {}
+
+  warn(message: string): void {
+    setTimeout(() => {
+      super.warn(message);
+    }, 0);
+  }
 
   focus() {
     this._body.focus();
@@ -258,7 +264,7 @@ class DropDownBox extends Base {
 
   #set_value(value: any) {
     //@ts-expect-error
-    if (this.#dropdown) this.#dropdown.set_value(value);
+    if (this.#dropdown) this.#dropdown.set_value_check(value);
     this.close_menu();
   }
 

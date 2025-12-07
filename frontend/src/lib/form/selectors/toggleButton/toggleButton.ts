@@ -49,12 +49,13 @@ export class FormToggleButton<RT> extends FormSelectorBase<RT> {
     } else top.textContent = selection.text;
     let click = () => {
       top.appendChild(this.warn_input);
-      this.set_value(selection.value);
+      this.set_value_check(selection.value);
     };
     top.onclick = click;
     bot.onclick = click;
     top.onkeydown = (e) => {
-      if (e.key === " " || e.key === "Enter") this.set_value(selection.value);
+      if (e.key === " " || e.key === "Enter")
+        this.set_value_check(selection.value);
       else if (e.key === "ArrowRight") this.#select_adjacent(true);
       else if (e.key === "ArrowLeft") this.#select_adjacent(false);
       else return;
@@ -71,7 +72,7 @@ export class FormToggleButton<RT> extends FormSelectorBase<RT> {
       this.#values.length - 1,
       Math.max(0, dir ? this.#selected + 1 : this.#selected - 1)
     );
-    if (y !== this.#selected) this.set_value(this.#values[y]);
+    if (y !== this.#selected) this.set_value_check(this.#values[y]);
   }
 
   protected new_value(value: RT): void {
