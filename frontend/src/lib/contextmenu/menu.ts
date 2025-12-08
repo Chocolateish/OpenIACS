@@ -20,6 +20,7 @@ export class ContextMenu extends Base {
     return "contextmenu";
   }
 
+  container: Container | undefined;
   readonly submenu: ContextMenuSub | undefined;
   #closer: ContextMenuOption | undefined;
   #x: number | undefined;
@@ -183,50 +184,44 @@ export class ContextMenu extends Base {
     this.#element = element;
     let box = this.getBoundingClientRect();
     let boxArea = box.width * box.height;
-    let window = this.ownerDocument.defaultView;
-    let html = this.ownerDocument.documentElement;
-    let htmlArea = html.clientWidth * html.clientHeight;
+    let window = this.ownerDocument.defaultView!;
+    let htmlArea = window.innerWidth * window.innerHeight;
     this.closer = boxArea > htmlArea * 0.5;
-    box = this.getBoundingClientRect();
     let top = NaN;
     let bottom = NaN;
     let left = NaN;
     let right = NaN;
-    if (window) {
-      if (element) {
-        var subBox = element.getBoundingClientRect();
+    if (element) {
+      var subBox = element.getBoundingClientRect();
 
-        if (subBox.x + subBox.width + box.width > window.innerWidth) {
-          x = subBox.x;
-          if (box.width < x) right = window.innerWidth - x;
-          else right = window.innerWidth - (subBox.x + subBox.width);
-        } else x = subBox.x + subBox.width;
+      if (subBox.x + subBox.width + box.width > window.innerWidth) {
+        x = subBox.x;
+        if (box.width < x) right = window.innerWidth - x;
+        else right = window.innerWidth - (subBox.x + subBox.width);
+      } else x = subBox.x + subBox.width;
 
-        y = subBox.y + subBox.height;
+      y = subBox.y + subBox.height;
 
-        if (y + box.height >= window.innerHeight) {
-          if (y >= box.height) bottom = window.innerHeight - subBox.y;
-          else top = window.innerHeight - box.height;
-        } else top = y;
-      } else {
-        if (y + box.height >= window.innerHeight) {
-          if (y >= box.height) bottom = window.innerHeight - y;
-          else top = window.innerHeight - box.height;
-        } else top = y;
-
-        if (box.width >= window.innerWidth) {
-          right = 0;
-        } else if (x + box.width >= window.innerWidth) {
-          if (x >= box.width) right = window.innerWidth - x;
-          else left = window.innerWidth - box.width;
-        } else left = x;
-      }
-      this.fullscreenx = box.width === html.clientWidth;
-      this.fullscreeny = box.height >= html.clientHeight;
+      if (y + box.height >= window.innerHeight) {
+        if (y >= box.height) bottom = window.innerHeight - subBox.y;
+        else top = window.innerHeight - box.height;
+      } else top = y;
     } else {
-      top = 0;
-      left = 0;
+      if (y + box.height >= window.innerHeight) {
+        if (y >= box.height) bottom = window.innerHeight - y;
+        else top = window.innerHeight - box.height;
+      } else top = y;
+
+      if (box.width >= window.innerWidth) {
+        right = 0;
+      } else if (x + box.width >= window.innerWidth) {
+        if (x >= box.width) right = window.innerWidth - x;
+        else left = window.innerWidth - box.width;
+      } else left = x;
     }
+    this.fullscreenx = box.width === window.innerWidth;
+    this.fullscreeny = box.height >= window.innerHeight;
+
     this.style.top = top === top ? top + "px" : "";
     this.style.bottom = bottom === bottom ? bottom + "px" : "";
     this.style.left = left === left ? left + "px" : "";

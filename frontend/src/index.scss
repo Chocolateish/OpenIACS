@@ -2,9 +2,11 @@ div[id="app"] {
   display: none;
 }
 body {
-  overflow: scroll;
+  overflow: auto;
   touch-action: auto;
   align-content: flex-start;
+  width: 100vw;
+  height: 100vh;
 }
 
 :root {

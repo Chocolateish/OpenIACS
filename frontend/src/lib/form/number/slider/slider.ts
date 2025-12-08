@@ -226,9 +226,15 @@ export class FormSlider extends FormNumberWrite<number> {
       return Err(
         "Maximum value " + this.#max.toFixed(this.#decimals) + this.#unit
       );
-    return super.check_value(
-      number_step_start_decimal(val, this.#step, this.#start, this.#decimals)
+    let lim = number_step_start_decimal(
+      val,
+      this.#step,
+      this.#start,
+      this.#decimals
     );
+    if (lim < this.#min) lim += this.#step;
+    if (lim > this.#max) lim -= this.#step;
+    return super.check_value(lim);
   }
 
   #move_absolute(x: number, last?: number) {

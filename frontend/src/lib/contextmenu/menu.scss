@@ -2,7 +2,7 @@
 
 contextmenu-menu {
   display: block;
-  position: fixed;
+  position: absolute;
   overflow: auto;
   background-color: var(--contextmenu-background);
   box-sizing: border-box;

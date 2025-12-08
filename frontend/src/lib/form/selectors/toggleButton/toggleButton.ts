@@ -54,8 +54,7 @@ export class FormToggleButton<RT> extends FormSelectorBase<RT> {
     top.onclick = click;
     bot.onclick = click;
     top.onkeydown = (e) => {
-      if (e.key === " " || e.key === "Enter")
-        this.set_value_check(selection.value);
+      if (e.key === " " || e.key === "Enter") click();
       else if (e.key === "ArrowRight") this.#select_adjacent(true);
       else if (e.key === "ArrowLeft") this.#select_adjacent(false);
       else return;
@@ -68,6 +67,8 @@ export class FormToggleButton<RT> extends FormSelectorBase<RT> {
   /**Selects the previous or next selection in the element
    * @param dir false is next true is previous*/
   #select_adjacent(dir: boolean) {
+    let sel = this.#map.get(this.#values[this.#selected]);
+    if (sel) sel.top.appendChild(this.warn_input);
     let y = Math.min(
       this.#values.length - 1,
       Math.max(0, dir ? this.#selected + 1 : this.#selected - 1)

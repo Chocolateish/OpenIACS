@@ -1,22 +1,27 @@
-import { define_element } from "@libBase";
-import { FormElement, FormValue } from "../base";
+import { AccessTypes, define_element } from "@libBase";
+import { FormElement, FormValue, type FormValueOptions } from "../base";
 import "./group.scss";
 
-/**Defines options for group component
- * @typedef {Object} GroupComponentInternalOptions
- * @property {[Component]} components list of component to add to the group at creation
- * @property {Way} position positions the group absolutly in its container the group must still be at the correct position in the dom flow
- * @property {ComponentGroupBorderStyle} border the style of the border of the group
- *
- * Defines options for group component
- * @typedef {ComponentBaseOptions & GroupComponentInternalOptions} GroupComponentOptions*/
+/**Different border styles for the component group*/
+export const FormGroupBorderStyle = {
+  None: "none",
+  Inset: "inset",
+  Outset: "outset",
+} as const;
+export type FormGroupBorderStyle =
+  (typeof FormGroupBorderStyle)[keyof typeof FormGroupBorderStyle];
 
-/**Different border styles for the component group
- * @enum {number}*/
-export let ComponentGroupBorderStyle = { NONE: 0, OUTSET: 1, INSET: 2 };
+export interface FormGroupOptions<RT = number> extends FormValueOptions<RT> {
+  /**Components to add to the group*/
+  components?: FormElement[];
+  /**Wether the group is collapsible, meaning it has a button to collapse and expand all content to the size of that button*/
+  collapsible?: boolean;
+  /**Border style for group*/
+  border?: FormGroupBorderStyle;
+}
 
 /**Component group class which allows to add components and controls the flow of the components*/
-export class FormGroup extends FormElement {
+export class FormGroup<RT extends {}> extends FormValue<RT> {
   static element_name() {
     return "group";
   }
@@ -24,70 +29,86 @@ export class FormGroup extends FormElement {
     return "form";
   }
 
-  __valueComponents = {};
-  __container = this;
+  #collapsible?: HTMLDivElement;
+  #collapsed: boolean = false;
+  #value_components: Map<string, FormValue<any>> = new Map();
 
-  /**Options toggeler
-   * @param {GroupComponentOptions} options*/
-  options(options) {
-    super.options(options);
-    if (options.components instanceof Array) {
-      for (let i = 0, n = options.components.length; i < n; i++) {
-        this.add_component(options.components[i]);
-      }
-    }
-    if (typeof options.position !== "undefined") {
-      this.position = options.position;
-    }
-    if (typeof options.border !== "undefined") {
-      this.border = options.border;
-    }
-  }
-
-  /**This adds an element to the group*/
-  add_component(comp: FormElement) {
-    if (comp instanceof FormValue) {
-      let id = comp.id;
-      if (id) {
-        if (id in this.__valueComponents) {
-          console.warn("Component id already in group");
-        } else {
-          this.__valueComponents[id] = comp;
+  set components(components: FormElement[]) {
+    for (let i = 0, n = components.length; i < n; i++) {
+      let comp = components[i];
+      if (comp instanceof FormValue && comp.id) {
+        if (this.#value_components.has(comp.id)) {
+          console.error(
+            "Form element with id " + comp.id + " already exists in group"
+          );
+          continue;
         }
+        this.#value_components.set(comp.id, comp);
       }
+      if (this.#collapsible) this.#collapsible.appendChild(comp);
+      else this._body.appendChild(comp);
     }
-    this.__container.appendChild(comp);
+  }
+
+  get components(): FormElement[] {
+    return [...this.#value_components.values()];
   }
 
   /**This places the group at an absolute position in one of the corners of the container*/
-  set position(pos) {
-    this.classList.remove("drawTop", "drawBottom", "drawLeft", "drawRight");
-    if (typeof pos == "number") {
-      this.classList.add(
-        ["drawTop", "drawBottom", "drawLeft", "drawRight"][pos]
-      );
-    }
+  set border(border: FormGroupBorderStyle | undefined) {
+    this.classList.remove(
+      FormGroupBorderStyle.Inset,
+      FormGroupBorderStyle.Outset
+    );
+    if (border && border !== FormGroupBorderStyle.None)
+      this._body.classList.add(border);
   }
 
-  /**This places the group at an absolute position in one of the corners of the container*/
-  set border(border) {
-    if (typeof border == "number") {
-      this.classList.remove("bOut", "bIn");
-      this.classList.add(["", "bOut", "bIn"][border]);
+  set collapsible(collapsible: boolean) {
+    if (collapsible && !this.#collapsible) {
+      this.#collapsible = this.appendChild(document.createElement("div"));
+      if (this.children.length > 1)
+        this.#collapsible.replaceChildren(...this._body.children);
+    } else if (!collapsible && this.#collapsible) {
+      this._body.replaceChildren(...this.#collapsible.children);
+      this.#collapsible = undefined;
     }
   }
+  get collapsible(): boolean {
+    return this.#collapsible !== undefined;
+  }
 
-  /**Internal access call*/
-  on_access(a) {
-    switch (a) {
-      case AccessTypes.READ: {
+  set collapsed(collapsed: boolean) {
+    if (this.#collapsible) {
+      if (collapsed && !this.#collapsed)
+        this.#collapsible.style.display = "none";
+      else if (!collapsed && this.#collapsed)
+        this.#collapsible.style.display = "";
+      this.#collapsed = collapsed;
+    }
+  }
+  get collapsed(): boolean {
+    return this.#collapsed;
+  }
+
+  protected new_value(val: RT): void {
+    this.#value_components.forEach((comp) => {
+      if (comp.id in val) comp.value = val[comp.id as keyof RT];
+    });
+  }
+
+  protected new_error(_val: string): void {}
+
+  protected on_access(access: AccessTypes): void {
+    switch (access) {
+      case AccessTypes.Read: {
         this.tabIndex = 0;
         this.onfocus = () => {
           document.body.focus();
         };
         break;
       }
-      case AccessTypes.WRITE: {
+      case AccessTypes.Write: {
         this.removeAttribute("tabIndex");
         this.onfocus = null;
         break;
@@ -95,163 +116,73 @@ export class FormGroup extends FormElement {
     }
   }
 
-  /**Returns an object with the values of all components with id*/
-  get values() {
-    let vals = {};
-    for (const key in this.__valueComponents) {
-      vals[key] = this.__valueComponents[key].value;
-    }
-    return vals;
-  }
+  // /**Returns an object with the values of all components with id*/
+  // get values() {
+  //   let vals = {};
+  //   for (const key in this.__valueComponents) {
+  //     vals[key] = this.__valueComponents[key].value;
+  //   }
+  //   return vals;
+  // }
 
-  /**Returns an object with the values of all components with id and which value has changed*/
-  get changedValues() {
-    let vals = {};
-    for (const key in this.__valueComponents) {
-      let val = this.__valueComponents[key].changed;
-      if (typeof val !== "undefined") {
-        vals[key] = val;
-      }
-    }
-    return vals;
-  }
+  // /**Returns an object with the values of all components with id and which value has changed*/
+  // get changedValues() {
+  //   let vals = {};
+  //   for (const key in this.__valueComponents) {
+  //     let val = this.__valueComponents[key].changed;
+  //     if (typeof val !== "undefined") {
+  //       vals[key] = val;
+  //     }
+  //   }
+  //   return vals;
+  // }
 
-  /**Returns true if any of the value components with id has a changed value */
-  get hasChangedValue() {
-    for (const key in this.__valueComponents) {
-      if (typeof this.__valueComponents[key].changed !== "undefined") {
-        return true;
-      }
-    }
-    return false;
-  }
+  // /**Returns true if any of the value components with id has a changed value */
+  // get hasChangedValue() {
+  //   for (const key in this.__valueComponents) {
+  //     if (typeof this.__valueComponents[key].changed !== "undefined") {
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
 
-  /**Updates the internal buffers off all  */
-  updateValueBuffers() {
-    for (const key in this.__valueComponents) {
-      this.__valueComponents[key].updateValueBuffer();
-    }
-  }
+  // /**Updates the internal buffers off all  */
+  // updateValueBuffers() {
+  //   for (const key in this.__valueComponents) {
+  //     this.__valueComponents[key].updateValueBuffer();
+  //   }
+  // }
 
-  /**Changes the values of all value components with ids*/
-  set values(vals) {
-    for (const key in vals) {
-      if (key in this.__valueComponents) {
-        this.__valueComponents[key].value = vals[key];
-      }
-    }
-  }
+  // /**Changes the values of all value components with ids*/
+  // set values(vals) {
+  //   for (const key in vals) {
+  //     if (key in this.__valueComponents) {
+  //       this.__valueComponents[key].value = vals[key];
+  //     }
+  //   }
+  // }
 
-  /**Resets the values back to the originally set value before user influence*/
-  resetValues() {
-    for (const key in vals) {
-      if (key in this.__valueComponents) {
-        this.__valueComponents[key].resetValue();
-      }
-    }
-  }
+  // /**Resets the values back to the originally set value before user influence*/
+  // resetValues() {
+  //   for (const key in vals) {
+  //     if (key in this.__valueComponents) {
+  //       this.__valueComponents[key].resetValue();
+  //     }
+  //   }
+  // }
 }
 define_element(FormGroup);
 
-/**Defines options for group component
- * @typedef {Object} CollapsibleGroupComponentInternalOptions
- * @property {boolean} collapsed
- *
- * Defines options for group component
- * @typedef {GroupComponentOptions & CollapsibleGroupComponentInternalOptions} CollapsibleGroupComponentOptions*/
-
-export class FormCollapsibleGroup extends FormGroup {
-  constructor() {
-    super();
-    this.appendChild((this.__container = document.createElement("div")));
-    this.appendChild(
-      (this.__collapser = document.createElement("span"))
-    ).tabIndex = 0;
-    this.__collapser.appendChild((this.__text = document.createElement("div")));
-    this.__collapser.appendChild(unfold_less());
-    this.__collapser.onclick = () => {
-      this.collapsed = !this.collapsed;
-    };
-    this.__collapser.onkeyup = (e) => {
-      switch (e.key) {
-        case " ":
-        case "Enter": {
-          this.collapsed = !this.collapsed;
-        }
-      }
-    };
-  }
-
-  /**Options toggeler
-   * @param {CollapsibleGroupComponentOptions} options*/
-  options(options) {
-    super.options(options);
-    if (typeof options.collapsed === "boolean") {
-      this.collapsed = options.collapsed;
+export let form_group = {
+  /**Creates a dropdown form element */
+  from(options?: FormGroupOptions): FormGroup {
+    let slide = new FormGroup(options?.id);
+    if (options) {
+      if (options.border) slide.border = options.border;
+      if (options.components) slide.components = options.components;
+      FormValue.apply_options(slide, options);
     }
-  }
-
-  /**Name for component creation
-   * @returns {string} */
-  static get elementName() {
-    return componentNameStart + "collapsiblegroup";
-  }
-
-  /**Creates an instance of the component group
-   * @param {CollapsibleGroupComponentOptions} options
-   * @returns {FormCollapsibleGroup} */
-  static create(options) {
-    if (!options) {
-      console.warn("Parameter must be passed");
-      return;
-    }
-    let elem = new FormCollapsibleGroup(options);
-    elem.options(options);
-    return elem;
-  }
-
-  /**This sets if the group should be collapsed
-   * @param {boolean}*/
-  set collapsed(col) {
-    if (col) {
-      this.__container.classList.add("collapsed");
-      this.__collapser.replaceChild(unfold_more(), this.__collapser.lastChild);
-    } else {
-      this.__container.classList.remove("collapsed");
-      this.__collapser.replaceChild(unfold_less(), this.__collapser.lastChild);
-    }
-    this.__collapsed = Boolean(col);
-  }
-
-  /**Internal access call
-   * @param {Access} a
-   * @private*/
-  __onAccess(a) {
-    super.__onAccess(a);
-    switch (a) {
-      case AccessTypes.READ: {
-        this.__collapser.onfocus = () => {
-          document.body.focus();
-        };
-        break;
-      }
-      case AccessTypes.WRITE: {
-        this.__collapser.onfocus = null;
-        break;
-      }
-    }
-  }
-
-  /**This gets if the group is collapsed
-   * @returns {boolean}*/
-  get collapsed() {
-    return this.__collapsed;
-  }
-
-  /**Set text of collapser button*/
-  set text(text) {
-    this.__text.innerHTML = text;
-  }
-}
-customElements.define(FormCollapsibleGroup.elementName, FormCollapsibleGroup);
-export let collapsibleGroup = FormCollapsibleGroup.create;
+    return slide;
+  },
+};

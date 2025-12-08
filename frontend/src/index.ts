@@ -84,10 +84,16 @@ formCont.appendChild(
   })
 ).value_by_state = bool;
 
+//      _____  _____   ____  _____  _____   ______          ___   _
+//     |  __ \|  __ \ / __ \|  __ \|  __ \ / __ \ \        / / \ | |
+//     | |  | | |__) | |  | | |__) | |  | | |  | \ \  /\  / /|  \| |
+//     | |  | |  _  /| |  | |  ___/| |  | | |  | |\ \/  \/ / | . ` |
+//     | |__| | | \ \| |__| | |    | |__| | |__| | \  /\  /  | |\  |
+//     |_____/|_|  \_\\____/|_|    |_____/ \____/   \/  \/   |_| \_|
 let num = state.s.ros.ok(0);
 formCont.appendChild(
   form.dropdown.from({
-    label: "Status Lamp",
+    label: "Dropdown",
     selections: [
       {
         text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
@@ -110,7 +116,7 @@ formCont.appendChild(
 
 formCont.appendChild(
   form.dropdown.from({
-    label: "Status Lamp",
+    label: "Dropdown",
     default:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
     defaultIcon: material_av_add_to_queue_rounded,
@@ -126,7 +132,7 @@ formCont.appendChild(
 
 formCont.appendChild(
   form.dropdown.from({
-    label: "Status Lamp",
+    label: "Dropdown",
     default:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
     defaultIcon: material_av_add_to_queue_rounded,
@@ -139,9 +145,15 @@ formCont.appendChild(
   })
 ).value_by_state = num;
 
+//      _______ ____   _____  _____ _      ______   ____  _    _ _______ _______ ____  _   _  _____
+//     |__   __/ __ \ / ____|/ ____| |    |  ____| |  _ \| |  | |__   __|__   __/ __ \| \ | |/ ____|
+//        | | | |  | | |  __| |  __| |    | |__    | |_) | |  | |  | |     | | | |  | |  \| | (___
+//        | | | |  | | | |_ | | |_ | |    |  __|   |  _ <| |  | |  | |     | | | |  | | . ` |\___ \
+//        | | | |__| | |__| | |__| | |____| |____  | |_) | |__| |  | |     | | | |__| | |\  |____) |
+//        |_|  \____/ \_____|\_____|______|______| |____/ \____/   |_|     |_|  \____/|_| \_|_____/
 formCont.appendChild(
   form.toggle_button.from({
-    label: "Status Lamp",
+    label: "Toggle Buttons",
     selections: [
       {
         text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
@@ -164,7 +176,7 @@ formCont.appendChild(
 
 formCont.appendChild(
   form.toggle_button.from({
-    label: "Status Lamp",
+    label: "Toggle Buttons",
     selections: Array.from({ length: 20 }, (v, i) => {
       return {
         value: i,
@@ -177,7 +189,7 @@ formCont.appendChild(
 
 formCont.appendChild(
   form.toggle_button.from({
-    label: "Status Lamp",
+    label: "Toggle Buttons",
     selections: Array.from({ length: 20 }, (v, i) => {
       return {
         value: i,
@@ -239,35 +251,76 @@ formCont.appendChild(
   })
 ).value_by_state = slideNum;
 
+//       _____ _______ ______ _____  _____  ______ _____
+//      / ____|__   __|  ____|  __ \|  __ \|  ____|  __ \
+//     | (___    | |  | |__  | |__) | |__) | |__  | |__) |
+//      \___ \   | |  |  __| |  ___/|  ___/|  __| |  _  /
+//      ____) |  | |  | |____| |    | |    | |____| | \ \
+//     |_____/   |_|  |______|_|    |_|    |______|_|  \_\
+let stepperNum = state.s.ros_ws.ok(0);
 formCont.appendChild(
   form.stepper.from({
     label: "Stepper",
     unit: "mA",
+    step: 0.5,
+    start: 0.1,
+    decimals: 1,
   })
-).value_by_state = num;
+).value_by_state = stepperNum;
 formCont.appendChild(
   form.stepper.from({
     label: "Stepper",
     unit: "mA",
     live: true,
     max: 50,
+    step: 0.5,
+    start: 0.1,
+    decimals: 1,
   })
-).value_by_state = num;
+).value_by_state = stepperNum;
 formCont.appendChild(
   form.stepper.from({
     label: "Stepper",
     unit: "mA",
     min: -50,
     max: 50,
+    step: 0.5,
+    start: 0.1,
+    decimals: 1,
   })
-).value_by_state = num;
+).value_by_state = stepperNum;
 
+//      _____  _____   ____   _____ _____  ______  _____ _____
+//     |  __ \|  __ \ / __ \ / ____|  __ \|  ____|/ ____/ ____|
+//     | |__) | |__) | |  | | |  __| |__) | |__  | (___| (___
+//     |  ___/|  _  /| |  | | | |_ |  _  /|  __|  \___ \\___ \
+//     | |    | | \ \| |__| | |__| | | \ \| |____ ____) |___) |
+//     |_|    |_|  \_\\____/ \_____|_|  \_\______|_____/_____/
 formCont.appendChild(
   form.progress.from({
     label: "Progress",
     unit: "mA",
   })
 ).value_by_state = num;
+
+//       _____ _____   ____  _    _ _____
+//      / ____|  __ \ / __ \| |  | |  __ \
+//     | |  __| |__) | |  | | |  | | |__) |
+//     | | |_ |  _  /| |  | | |  | |  ___/
+//     | |__| | | \ \| |__| | |__| | |
+//      \_____|_|  \_\\____/ \____/|_|
+formCont.appendChild(
+  form.group.from({
+    label: "Group Box",
+    border: "outset",
+    components: [
+      form.text.from({ text: "Hello inside group!", size: 2 }),
+      form.button
+        .from({ label: "Button in Group", text: "Click Me" })
+        .opts({ access: "r" }),
+    ],
+  })
+);
 
 context_menu_default(
   context_menu([

@@ -1,6 +1,7 @@
 import { form_button } from "./boolean/button/button";
 import { form_lamp } from "./boolean/lamp/lamp";
 import { form_switch } from "./boolean/switch/switch";
+import { form_group } from "./group/group";
 import { form_number_input } from "./number/numberInput/numberInput";
 import { form_progress } from "./number/progress/progress";
 import { form_slider } from "./number/slider/slider";
@@ -15,6 +16,7 @@ export let form = {
   switch: form_switch,
   lamp: form_lamp,
   //Group
+  group: form_group,
 
   //Input
 

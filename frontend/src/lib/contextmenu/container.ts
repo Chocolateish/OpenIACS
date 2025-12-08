@@ -38,6 +38,7 @@ export class Container extends Base {
 
   /**Attaches a menu to the container */
   attach_menu(menu: ContextMenu) {
+    menu.container = this;
     this.#activeElementBuffer = this.ownerDocument
       .activeElement as HTMLOrSVGElement | null;
     this.replaceChildren(menu);

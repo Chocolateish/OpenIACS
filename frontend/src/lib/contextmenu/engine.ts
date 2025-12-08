@@ -1,6 +1,7 @@
 import { DOCUMENT_HANDLER } from "@libDocument";
 import type { Option } from "@libResult";
 import { Container } from "./container";
+import "./engine.scss";
 import { ContextMenu } from "./menu";
 
 declare global {
@@ -51,7 +52,7 @@ export function context_menu_attach(
       (e as MouseEvent).clientY
     );
   };
-  element.addEventListener("contextmenu", listener, { capture: true });
+  element.addEventListener("contextmenu", listener);
   element["@contextmenu"] = listener;
 }
 
@@ -104,12 +105,12 @@ export function context_menu_default(
 ) {
   if (default_menu)
     DOCUMENT_HANDLER.for_documents((doc) => {
-      context_menu_dettach(doc.body);
+      context_menu_dettach(doc.documentElement);
     });
   if (lines) {
     default_menu = lines;
     DOCUMENT_HANDLER.for_documents((doc) => {
-      context_menu_attach(doc.body, lines);
+      context_menu_attach(doc.documentElement, lines);
     });
   }
 }

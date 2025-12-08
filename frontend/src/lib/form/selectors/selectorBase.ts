@@ -1,6 +1,5 @@
 import type { SVGFunc } from "@libSVG";
 import { FormValueWrite, type FormValueOptions } from "../base";
-import "./selectorBase.scss";
 
 export interface FormSelectorOption<T> {
   /**Value to set when option is selected */
