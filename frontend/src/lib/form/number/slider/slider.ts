@@ -10,7 +10,10 @@ import { FormNumberWrite, type FormStepperBaseOptions } from "../numberBase";
 import "./slider.scss";
 
 /**Slide Selector, displays all options in a slider*/
-export class FormSlider extends FormNumberWrite<number> {
+export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
+  ID,
+  number
+> {
   static element_name() {
     return "slider";
   }
@@ -42,7 +45,7 @@ export class FormSlider extends FormNumberWrite<number> {
   #value_box = this.#slider.appendChild(document.createElement("span"));
   #unit_box = this.#slider.appendChild(document.createElement("span"));
 
-  constructor(id: string | undefined) {
+  constructor(id?: ID) {
     super(id);
     this.#slider.setAttribute("tabindex", "0");
     this._body.appendChild(this.warn_input);
@@ -319,8 +322,10 @@ define_element(FormSlider);
 
 export let form_slider = {
   /**Creates a dropdown form element */
-  from(options?: FormStepperBaseOptions): FormSlider {
-    let slide = new FormSlider(options?.id);
+  from<ID extends string | undefined>(
+    options?: FormStepperBaseOptions<ID>
+  ): FormSlider<ID> {
+    let slide = new FormSlider<ID>(options?.id);
     if (options) {
       if (options.live) slide.live = options.live;
       if (options.icon_decrease) slide.icon_decrease = options.icon_decrease;

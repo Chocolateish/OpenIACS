@@ -11,7 +11,10 @@ import { FormNumberWrite, type FormStepperBaseOptions } from "../numberBase";
 import "./stepper.scss";
 
 /**Slide Selector, displays all options in a slider*/
-export class FormStepper extends FormNumberWrite<number> {
+export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
+  ID,
+  number
+> {
   static element_name() {
     return "stepper";
   }
@@ -23,7 +26,6 @@ export class FormStepper extends FormNumberWrite<number> {
   #decimals: number = 0;
   #min: number = -Infinity;
   #max: number = Infinity;
-  #span: number = Infinity;
   #step: number = 0;
   #start: number = 0;
   #live: boolean = false;
@@ -42,7 +44,7 @@ export class FormStepper extends FormNumberWrite<number> {
   #min_legend = this.#legend.appendChild(document.createElement("span"));
   #max_legend = this.#legend.appendChild(document.createElement("span"));
 
-  constructor(id: string | undefined) {
+  constructor(id?: ID) {
     super(id);
     this._body.setAttribute("tabindex", "0");
     this._body.appendChild(this.warn_input);
@@ -306,8 +308,10 @@ define_element(FormStepper);
 
 export let form_stepper = {
   /**Creates a dropdown form element */
-  from(options?: FormStepperBaseOptions): FormStepper {
-    let slide = new FormStepper(options?.id);
+  from<ID extends string | undefined>(
+    options?: FormStepperBaseOptions<ID>
+  ): FormStepper<ID> {
+    let slide = new FormStepper<ID>(options?.id);
     if (options) {
       if (options.live) slide.live = options.live;
       if (options.icon_decrease) slide.icon_decrease = options.icon_decrease;

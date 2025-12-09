@@ -3,7 +3,8 @@ import type { SVGFunc } from "@libSVG";
 import { FormColors, FormValueWrite, type FormValueOptions } from "../../base";
 import "./switch.scss";
 
-interface FormSwitchOptions extends FormValueOptions<boolean> {
+interface FormSwitchOptions<ID extends string | undefined>
+  extends FormValueOptions<boolean, ID> {
   /**Icon to use for left side*/
   icon?: SVGFunc;
   /**Color when switch is on */
@@ -12,7 +13,10 @@ interface FormSwitchOptions extends FormValueOptions<boolean> {
   off_color?: FormColors;
 }
 
-export class FormSwitch extends FormValueWrite<boolean> {
+export class FormSwitch<ID extends string | undefined> extends FormValueWrite<
+  boolean,
+  ID
+> {
   static element_name() {
     return "switch";
   }
@@ -26,7 +30,7 @@ export class FormSwitch extends FormValueWrite<boolean> {
   #icon: SVGSVGElement | undefined;
   #preventClick: boolean = false;
 
-  constructor(id: string | undefined) {
+  constructor(id?: ID) {
     super(id);
 
     this._body.appendChild(this.warn_input);
@@ -128,8 +132,10 @@ define_element(FormSwitch);
 
 export let form_switch = {
   /**Creates a switch form element */
-  from(options?: FormSwitchOptions): FormSwitch {
-    let swit = new FormSwitch(options?.id);
+  from<ID extends string | undefined>(
+    options?: FormSwitchOptions<ID>
+  ): FormSwitch<ID> {
+    let swit = new FormSwitch<ID>(options?.id);
     if (options) {
       if (options.icon) swit.icon = options.icon;
       if (options.on_color) swit.on_color = options.on_color;

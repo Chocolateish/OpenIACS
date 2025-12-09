@@ -3,8 +3,11 @@ import type { SVGFunc } from "@libSVG";
 import { FormValue, type FormColors, type FormValueOptions } from "../../base";
 import "./lamp.scss";
 
-interface FormLampOptions<T extends boolean | number, C extends FormColors[]>
-  extends FormValueOptions<T> {
+interface FormLampOptions<
+  T extends boolean | number,
+  C extends FormColors[],
+  ID extends string | undefined
+> extends FormValueOptions<T, ID> {
   /**Sets the lamp colors */
   colors: C;
   /**Lamp text */
@@ -15,8 +18,9 @@ interface FormLampOptions<T extends boolean | number, C extends FormColors[]>
 
 class FormLamp<
   T extends boolean | number,
-  C extends FormColors[]
-> extends FormValue<T> {
+  C extends FormColors[],
+  ID extends string | undefined
+> extends FormValue<T, ID> {
   static element_name() {
     return "lamp";
   }
@@ -65,19 +69,22 @@ class FormLamp<
 define_element(FormLamp);
 
 /**Creates a button form element */
-function from(
+function from<ID extends string | undefined>(
   options?: FormLampOptions<
     number,
-    [FormColors, FormColors, FormColors, ...FormColors[]]
+    [FormColors, FormColors, FormColors, ...FormColors[]],
+    ID
   >
-): FormLamp<number, [FormColors, FormColors, FormColors, ...FormColors[]]>;
-function from(
-  options?: FormLampOptions<boolean, [FormColors, FormColors]>
-): FormLamp<boolean, [FormColors, FormColors]>;
-function from<T extends boolean | number, C extends FormColors[]>(
-  options?: FormLampOptions<T, C>
-): FormLamp<T, C> {
-  let lamp = new FormLamp<T, C>(options?.id);
+): FormLamp<number, [FormColors, FormColors, FormColors, ...FormColors[]], ID>;
+function from<ID extends string | undefined>(
+  options?: FormLampOptions<boolean, [FormColors, FormColors], ID>
+): FormLamp<boolean, [FormColors, FormColors], ID>;
+function from<
+  T extends boolean | number,
+  C extends FormColors[],
+  ID extends string | undefined
+>(options?: FormLampOptions<T, C, ID>): FormLamp<T, C, ID> {
+  let lamp = new FormLamp<T, C, ID>(options?.id);
   if (options) {
     lamp.colors = options.colors;
     if (options.text) lamp.text = options.text;

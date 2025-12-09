@@ -32,9 +32,9 @@ export abstract class FormElement extends Base {
 //        \  / ____ \| |___| |__| | |____  | | \ \| |____ / ____ \| |__| |
 //         \/_/    \_\______\____/|______| |_|  \_\______/_/    \_\_____/
 
-export interface FormValueOptions<RT> {
+export interface FormValueOptions<RT, ID extends string | undefined> {
   /**ID form form element */
-  id?: string;
+  id?: ID;
   /**Value for form element */
   value?: RT;
   value_by_state?: STATE<RT>;
@@ -45,12 +45,15 @@ export interface FormValueOptions<RT> {
 }
 
 /**Shared class for all components with values*/
-export abstract class FormValue<RT> extends FormElement {
+export abstract class FormValue<
+  RT,
+  ID extends string | undefined
+> extends FormElement {
   static element_name() {
     return "@abstract@";
   }
 
-  readonly formID?: string;
+  readonly formID: ID;
   protected _description?: string;
   protected _label: HTMLSpanElement = this.appendChild(
     document.createElement("span")
@@ -59,9 +62,9 @@ export abstract class FormValue<RT> extends FormElement {
     document.createElement("div")
   );
 
-  static apply_options<RT>(
-    element: FormValue<RT>,
-    options: FormValueOptions<RT>
+  static apply_options<RT, ID extends string | undefined>(
+    element: FormValue<RT, ID>,
+    options: FormValueOptions<RT, ID>
   ) {
     if (options.label) element.label = options.label;
     if (options.description) element.description = options.description;
@@ -69,9 +72,9 @@ export abstract class FormValue<RT> extends FormElement {
     else if (options.value !== undefined) element.value = options.value;
   }
 
-  constructor(id: string | undefined) {
+  constructor(id?: ID) {
     super();
-    this.formID = id;
+    this.formID = id as ID;
   }
 
   /**Sets the current label of the element*/
@@ -115,6 +118,15 @@ export abstract class FormValue<RT> extends FormElement {
     this.new_value(val);
   }
 
+  /**Returns value of the component*/
+  get value(): Result<RT, string> {
+    return this._state
+      ? Err("State based component")
+      : typeof this._buffer === "undefined"
+      ? Err("No value yet")
+      : Ok(this._buffer);
+  }
+
   set error(err: string) {
     this.new_error(err);
   }
@@ -124,15 +136,6 @@ export abstract class FormValue<RT> extends FormElement {
 
   /**Called when error is set by error or state*/
   protected abstract new_error(val: string): void;
-
-  /**Returns value of the component*/
-  get value(): Result<RT, string> {
-    return this._state
-      ? Err("State based component")
-      : typeof this._buffer === "undefined"
-      ? Err("No value yet")
-      : Ok(this._buffer);
-  }
 
   /**Overwriteable change listener*/
   change(_val: RT) {}
@@ -146,53 +149,26 @@ export abstract class FormValue<RT> extends FormElement {
 //        \  / ____ \| |___| |__| | |____     \  /\  /  | | \ \ _| |_   | |  | |____
 //         \/_/    \_\______\____/|______|     \/  \/   |_|  \_\_____|  |_|  |______|
 /**Shared class for all components with values*/
-export abstract class FormValueWrite<RT> extends FormValue<RT> {
+export abstract class FormValueWrite<
+  RT,
+  ID extends string | undefined
+> extends FormValue<RT, ID> {
   static element_name() {
     return "@abstract@";
   }
 
   protected warn_input: HTMLInputElement = document.createElement("input");
 
-  constructor(id: string | undefined) {
+  constructor(id?: ID) {
     super(id);
     this.warn_input.name = "val";
   }
 
   #changed: boolean = false;
-  #buffer?: RT;
-
-  get buffer(): RT | undefined {
-    return this.#buffer;
-  }
 
   /**Returns the value of the component if it has changed*/
   get changed(): boolean {
     return this.#changed;
-  }
-
-  /**This sets the value of the component*/
-  set value(val: RT) {
-    this.#buffer = val;
-    super.value = val;
-  }
-
-  set error(err: string) {
-    this.new_error(err);
-  }
-
-  /**Called when value is set by value setter or state*/
-  protected abstract new_value(val: RT): void;
-
-  /**Called when error is set by error or state*/
-  protected abstract new_error(val: string): void;
-
-  /**Returns value of the component*/
-  get value(): Result<RT, string> {
-    return this._state
-      ? Err("State based component")
-      : typeof this.#buffer === "undefined"
-      ? Err("No value yet")
-      : Ok(this.#buffer);
   }
 
   warn(message: string): void {
@@ -239,14 +215,14 @@ export abstract class FormValueWrite<RT> extends FormValue<RT> {
   }
 
   #set_value(val: RT) {
-    if (this.#buffer === val) this.new_value(val);
+    if (this._buffer === val) this.new_value(val);
     try {
       this.change(val);
     } catch (e) {
       console.error("Failed while updating change listener", e);
     }
     if (this._state) {
-      let buff = this.#buffer;
+      let buff = this._buffer;
       this._state.write!(val).then((err) => {
         if (err.err) {
           if (buff !== undefined) this.new_value(buff);
@@ -255,7 +231,7 @@ export abstract class FormValueWrite<RT> extends FormValue<RT> {
       });
     } else {
       this.new_value(val);
-      this.#buffer = val;
+      this._buffer = val;
       this.#changed = true;
     }
   }

@@ -17,15 +17,19 @@ interface SelOptions {
   icon?: SVGFunc;
 }
 
-export interface FormDropDownOptions<T> extends FormSelectorBaseOptions<T> {
+export interface FormDropDownOptions<RT, ID extends string | undefined>
+  extends FormSelectorBaseOptions<RT, ID> {
   /**Default text displayed*/
   default?: string;
   /**Default icon displayed*/
-  defaultIcon?: SVGFunc;
+  default_icon?: SVGFunc;
 }
 
 /**Dropdown box for selecting between multiple choices in a small space*/
-export class FormDropdown<RT> extends FormSelectorBase<RT> {
+export class FormDropdown<
+  RT,
+  ID extends string | undefined
+> extends FormSelectorBase<RT, ID> {
   static element_name() {
     return "dropdown";
   }
@@ -46,7 +50,7 @@ export class FormDropdown<RT> extends FormSelectorBase<RT> {
   #defaultIcon?: SVGFunc;
   private is_open: boolean = false;
 
-  constructor(id: string | undefined) {
+  constructor(id?: ID) {
     super(id);
     this.#text.append(this.#default);
     this._body.appendChild(this.warn_input);
@@ -177,11 +181,13 @@ define_element(FormDropdown);
 
 export let form_dropDown = {
   /**Creates a dropdown form element */
-  from<RT>(options?: FormDropDownOptions<RT>): FormDropdown<RT> {
-    let drop = new FormDropdown<RT>(options?.id);
+  from<RT, ID extends string | undefined>(
+    options?: FormDropDownOptions<RT, ID>
+  ): FormDropdown<RT, ID> {
+    let drop = new FormDropdown<RT, ID>(options?.id);
     if (options) {
       if (options.default) drop.default = options.default;
-      if (options.defaultIcon) drop.default_icon = options.defaultIcon;
+      if (options.default_icon) drop.default_icon = options.default_icon;
       FormSelectorBase.apply_options(drop, options);
     }
     return drop;
@@ -205,7 +211,7 @@ class DropDownBox extends Base {
   #table: HTMLDivElement = this.#scroll.appendChild(
     document.createElement("div")
   );
-  #dropdown: FormDropdown<any> | undefined;
+  #dropdown: FormDropdown<any, any> | undefined;
   #focus_out_handler = (e: FocusEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -270,7 +276,7 @@ class DropDownBox extends Base {
 
   open_menu(
     map: Map<any, SelOptions>,
-    parent: FormDropdown<any>,
+    parent: FormDropdown<any, any>,
     ref: HTMLDivElement,
     value: any
   ) {

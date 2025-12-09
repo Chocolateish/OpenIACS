@@ -8,7 +8,7 @@ import { form_slider } from "./number/slider/slider";
 import { form_stepper } from "./number/stepper/stepper";
 import { form_dropDown } from "./selectors/dropDown/dropDown";
 import { form_toggle_button } from "./selectors/toggleButton/toggleButton";
-import { form_text } from "./text/text";
+import { form_text } from "./text/text/text";
 
 export let form = {
   //Boolean

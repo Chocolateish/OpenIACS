@@ -12,7 +12,10 @@ interface SelOptions {
 }
 
 /**Toggle buttons, displays all options in a multi toggler*/
-export class FormToggleButton<RT> extends FormSelectorBase<RT> {
+export class FormToggleButton<
+  RT,
+  ID extends string | undefined
+> extends FormSelectorBase<RT, ID> {
   /**Returns the name used to define the element*/
   static element_name() {
     return "togglebutton";
@@ -99,8 +102,10 @@ define_element(FormToggleButton);
 
 export let form_toggle_button = {
   /**Creates a toggle button form element */
-  from<RT>(options?: FormSelectorBaseOptions<RT>): FormToggleButton<RT> {
-    let togg = new FormToggleButton<RT>(options?.id);
+  from<RT, ID extends string | undefined>(
+    options?: FormSelectorBaseOptions<RT, ID>
+  ): FormToggleButton<RT, ID> {
+    let togg = new FormToggleButton<RT, ID>(options?.id);
     if (options) FormSelectorBase.apply_options(togg, options);
     return togg;
   },

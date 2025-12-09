@@ -1,4 +1,10 @@
 import { AccessTypes, define_element } from "@libBase";
+import type { Prettify } from "@libCommon";
+import {
+  material_navigation_unfold_less_rounded,
+  material_navigation_unfold_more_rounded,
+} from "@libIcons";
+import { Err, Ok, type Result } from "@libResult";
 import { FormElement, FormValue, type FormValueOptions } from "../base";
 import "./group.scss";
 
@@ -7,21 +13,45 @@ export const FormGroupBorderStyle = {
   None: "none",
   Inset: "inset",
   Outset: "outset",
+  Line: "line",
 } as const;
 export type FormGroupBorderStyle =
   (typeof FormGroupBorderStyle)[keyof typeof FormGroupBorderStyle];
 
-export interface FormGroupOptions<RT = number> extends FormValueOptions<RT> {
+type ExtractB<Arr extends any[]> = Arr extends [infer Head, ...infer Tail]
+  ? Head extends FormValue<infer T, infer ID>
+    ? [FormValue<T, ID>, ...ExtractB<Tail>]
+    : [...ExtractB<Tail>]
+  : [];
+
+type ToKeyVal<Arr extends FormValue<any, any>[]> = {
+  [K in Arr[number] as K["formID"]]: K extends FormValue<infer T, any>
+    ? T
+    : never;
+};
+
+export interface FormGroupOptions<
+  L extends FormElement[],
+  ID extends string | undefined,
+  T
+> extends FormValueOptions<T, ID> {
   /**Components to add to the group*/
-  components?: FormElement[];
+  components?: [...L];
   /**Wether the group is collapsible, meaning it has a button to collapse and expand all content to the size of that button*/
   collapsible?: boolean;
+  /**Wether the group is collapsed initially*/
+  collapsed?: boolean;
+  /**Text to show on the collapse button*/
+  collapse_text?: string;
   /**Border style for group*/
   border?: FormGroupBorderStyle;
 }
 
 /**Component group class which allows to add components and controls the flow of the components*/
-export class FormGroup<RT extends {}> extends FormValue<RT> {
+export class FormGroup<
+  RT extends {},
+  ID extends string | undefined
+> extends FormValue<RT, ID> {
   static element_name() {
     return "group";
   }
@@ -31,19 +61,22 @@ export class FormGroup<RT extends {}> extends FormValue<RT> {
 
   #collapsible?: HTMLDivElement;
   #collapsed: boolean = false;
-  #value_components: Map<string, FormValue<any>> = new Map();
+  #collapse_button?: HTMLSpanElement;
+  #value_components: Map<string, FormValue<any, any>> = new Map();
 
   set components(components: FormElement[]) {
     for (let i = 0, n = components.length; i < n; i++) {
       let comp = components[i];
-      if (comp instanceof FormValue && comp.id) {
-        if (this.#value_components.has(comp.id)) {
+      if (comp instanceof FormValue && comp.formID) {
+        if (this.#value_components.has(comp.formID)) {
           console.error(
-            "Form element with id " + comp.id + " already exists in group"
+            "Form element with form id " +
+              comp.formID +
+              " already exists in group"
           );
           continue;
         }
-        this.#value_components.set(comp.id, comp);
+        this.#value_components.set(comp.formID, comp);
       }
       if (this.#collapsible) this.#collapsible.appendChild(comp);
       else this._body.appendChild(comp);
@@ -66,12 +99,22 @@ export class FormGroup<RT extends {}> extends FormValue<RT> {
 
   set collapsible(collapsible: boolean) {
     if (collapsible && !this.#collapsible) {
-      this.#collapsible = this.appendChild(document.createElement("div"));
+      this.#collapsible = document.createElement("div");
       if (this.children.length > 1)
         this.#collapsible.replaceChildren(...this._body.children);
+      this._body.appendChild(this.#collapsible);
+      this._body.classList.add("collapsible");
+      this._body.appendChild(
+        this.#collapse_button ||
+          (this.collapse_text = "") ||
+          this.#collapse_button!
+      );
+      this.collapsed = true;
     } else if (!collapsible && this.#collapsible) {
+      this.collapsed = false;
       this._body.replaceChildren(...this.#collapsible.children);
       this.#collapsible = undefined;
+      this._body.classList.remove("collapsible");
     }
   }
   get collapsible(): boolean {
@@ -80,10 +123,9 @@ export class FormGroup<RT extends {}> extends FormValue<RT> {
 
   set collapsed(collapsed: boolean) {
     if (this.#collapsible) {
-      if (collapsed && !this.#collapsed)
-        this.#collapsible.style.display = "none";
+      if (collapsed && !this.#collapsed) this._body.classList.add("collapsed");
       else if (!collapsed && this.#collapsed)
-        this.#collapsible.style.display = "";
+        this._body.classList.remove("collapsed");
       this.#collapsed = collapsed;
     }
   }
@@ -91,10 +133,43 @@ export class FormGroup<RT extends {}> extends FormValue<RT> {
     return this.#collapsed;
   }
 
+  set collapse_text(text: string) {
+    if (!this.#collapse_button) {
+      this.#collapse_button = document.createElement("span");
+      this.#collapse_button.appendChild(document.createElement("span"));
+      this.#collapse_button.appendChild(
+        material_navigation_unfold_less_rounded()
+      );
+      this.#collapse_button.appendChild(
+        material_navigation_unfold_more_rounded()
+      );
+      this.#collapse_button.onclick = () => (this.collapsed = !this.collapsed);
+    }
+    this.#collapse_button.firstChild!.textContent = text;
+  }
+
+  set value(val: RT) {
+    super.value = val;
+  }
+
+  /**Returns value of the component*/
+  get value(): Result<RT, string> {
+    if (this._state) return Err("State based component");
+    let result: any = {};
+    for (const [key, comp] of this.#value_components) {
+      comp.value.map((val) => {
+        result[key] = val;
+      });
+    }
+    return Ok(result);
+  }
+
   protected new_value(val: RT): void {
-    this.#value_components.forEach((comp) => {
-      if (comp.id in val) comp.value = val[comp.id as keyof RT];
-    });
+    for (const key in val) {
+      if (this.#value_components.has(key)) {
+        this.#value_components.get(key)!.value = val[key as keyof RT];
+      }
+    }
   }
 
   protected new_error(_val: string): void {}
@@ -115,72 +190,23 @@ export class FormGroup<RT extends {}> extends FormValue<RT> {
       }
     }
   }
-
-  // /**Returns an object with the values of all components with id*/
-  // get values() {
-  //   let vals = {};
-  //   for (const key in this.__valueComponents) {
-  //     vals[key] = this.__valueComponents[key].value;
-  //   }
-  //   return vals;
-  // }
-
-  // /**Returns an object with the values of all components with id and which value has changed*/
-  // get changedValues() {
-  //   let vals = {};
-  //   for (const key in this.__valueComponents) {
-  //     let val = this.__valueComponents[key].changed;
-  //     if (typeof val !== "undefined") {
-  //       vals[key] = val;
-  //     }
-  //   }
-  //   return vals;
-  // }
-
-  // /**Returns true if any of the value components with id has a changed value */
-  // get hasChangedValue() {
-  //   for (const key in this.__valueComponents) {
-  //     if (typeof this.__valueComponents[key].changed !== "undefined") {
-  //       return true;
-  //     }
-  //   }
-  //   return false;
-  // }
-
-  // /**Updates the internal buffers off all  */
-  // updateValueBuffers() {
-  //   for (const key in this.__valueComponents) {
-  //     this.__valueComponents[key].updateValueBuffer();
-  //   }
-  // }
-
-  // /**Changes the values of all value components with ids*/
-  // set values(vals) {
-  //   for (const key in vals) {
-  //     if (key in this.__valueComponents) {
-  //       this.__valueComponents[key].value = vals[key];
-  //     }
-  //   }
-  // }
-
-  // /**Resets the values back to the originally set value before user influence*/
-  // resetValues() {
-  //   for (const key in vals) {
-  //     if (key in this.__valueComponents) {
-  //       this.__valueComponents[key].resetValue();
-  //     }
-  //   }
-  // }
 }
 define_element(FormGroup);
 
 export let form_group = {
   /**Creates a dropdown form element */
-  from(options?: FormGroupOptions): FormGroup {
-    let slide = new FormGroup(options?.id);
+  from<
+    L extends FormElement[],
+    ID extends string | undefined,
+    T extends {} = Prettify<Partial<ToKeyVal<ExtractB<L>>>>
+  >(options?: FormGroupOptions<L, ID, T>): FormGroup<T, ID> {
+    let slide = new FormGroup<T, ID>(options?.id);
     if (options) {
       if (options.border) slide.border = options.border;
       if (options.components) slide.components = options.components;
+      if (options.collapse_text) slide.collapse_text = options.collapse_text;
+      if (options.collapsible) slide.collapsible = options.collapsible;
+      if (options.collapsed) slide.collapsed = options.collapsed;
       FormValue.apply_options(slide, options);
     }
     return slide;

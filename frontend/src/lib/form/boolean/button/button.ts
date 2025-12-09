@@ -9,7 +9,8 @@ import {
 import "../../shared";
 import "./button.scss";
 
-interface FormButtonOptions extends FormValueOptions<boolean> {
+interface FormButtonOptions<ID extends string | undefined>
+  extends FormValueOptions<boolean, ID> {
   /**Buttons text */
   text?: string;
   /**Icon for button */
@@ -22,7 +23,10 @@ interface FormButtonOptions extends FormValueOptions<boolean> {
   color?: FormColors;
 }
 
-class FormButton extends FormValueWrite<boolean> {
+class FormButton<ID extends string | undefined> extends FormValueWrite<
+  boolean,
+  ID
+> {
   static element_name() {
     return "button";
   }
@@ -37,7 +41,7 @@ class FormButton extends FormValueWrite<boolean> {
   #toggle?: boolean;
   #icon?: SVGSVGElement;
 
-  constructor(id: string | undefined) {
+  constructor(id?: ID) {
     super(id);
 
     this._body.appendChild(this.warn_input);
@@ -130,7 +134,7 @@ class FormButton extends FormValueWrite<boolean> {
   }
 
   /**Called when value is changed */
-  protected new_value(value: Boolean) {
+  protected new_value(value: boolean) {
     if (value) {
       this._body.classList.add("active");
     } else {
@@ -152,8 +156,10 @@ define_element(FormButton);
 
 export let form_button = {
   /**Creates a button form element */
-  from(options?: FormButtonOptions): FormButton {
-    let butt = new FormButton(options?.id);
+  from<ID extends string | undefined>(
+    options?: FormButtonOptions<ID>
+  ): FormButton<ID> {
+    let butt = new FormButton<ID>(options?.id);
     if (options) {
       if (options.text) butt.text = options.text;
       if (options.icon) butt.icon = options.icon;

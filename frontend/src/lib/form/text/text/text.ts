@@ -1,5 +1,5 @@
 import { define_element } from "@libBase";
-import { FormElement } from "../base";
+import { FormElement } from "../../base";
 import "./text.scss";
 
 interface FormTextOptions {

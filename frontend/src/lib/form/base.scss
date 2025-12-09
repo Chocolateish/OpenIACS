@@ -68,7 +68,7 @@ $animation: $animation_transitionType $animation_transitionDuration;
   position: relative;
 
   &[inert] > * {
-    opacity: 0.5;
+    opacity: 0.6;
     pointer-events: none;
   }
 

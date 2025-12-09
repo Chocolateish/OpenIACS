@@ -4,176 +4,108 @@ form-group {
   @include base.base;
 
   > div {
-    $padding: 0.8rem;
-    padding: $padding;
     display: flex;
     flex-direction: column;
     background-color: inherit;
 
     &.inset {
       border: base.$border;
-      border-radius: base.$size_cornerRadius;
       box-shadow: base.$shadow_in;
+      border-radius: base.$size_cornerRadius;
     }
 
     &.outset {
       border: base.$border;
       border-radius: base.$size_cornerRadius;
-      box-shadow: base.$shadow_out;
     }
 
-    .anim & {
-      transition: border-color var(--colorTransitionType)
-          var(--colorTransitionTime),
-        box-shadow var(--colorTransitionType) var(--colorTransitionTime);
-    }
-  }
-}
-
-comp-collapsiblegroup {
-  $padding: 0.8rem;
-  $basis: 2.5rem;
-  $touchBasis: 3rem;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  background-color: inherit;
-  position: relative;
-
-  &.READ {
-    filter: var(--readOpacityFilter);
-    pointer-events: none;
-  }
-
-  &.NONE {
-    display: none;
-  }
-
-  &.bIn {
-    border: 1px solid var(--componentBorderColor);
-    border-radius: var(--componentCornerRadius);
-    box-shadow: var(--componentShadowIn);
-  }
-
-  &.bOut {
-    border: 1px solid var(--componentBorderColor);
-    border-radius: var(--componentCornerRadius);
-    box-shadow: var(--componentShadowOut);
-  }
-
-  .anim & {
-    transition: border-color var(--colorTransitionType)
-        var(--colorTransitionTime),
-      box-shadow var(--colorTransitionType) var(--colorTransitionTime);
-  }
-
-  > span {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    padding: 0.5rem;
-    box-sizing: border-box;
-    background-color: var(--componentBackGroundColor);
-    border-radius: var(--componentCornerRadius);
-    border: 1px solid var(--componentBorderColor);
-    height: $basis;
-
-    &:focus {
-      outline: none;
-    }
-
-    &:focus-visible {
-      box-shadow: var(--componentShadowFocusIn);
-    }
-
-    .touch & {
-      padding: $padding;
-      height: $touchBasis;
-    }
-
-    .anim & {
-      transition: background-color var(--colorTransitionType)
-          var(--colorTransitionTime),
-        border-color var(--colorTransitionType) var(--colorTransitionTime),
-        height var(--sizeTransitionType) var(--sizeTransitionTime),
-        padding var(--sizeTransitionType) var(--sizeTransitionTime);
-    }
-
-    @media (hover: hover) and (pointer: fine) {
-      &:hover {
-        background-color: var(--componentHoverBackGroundColor);
+    &:not(.collapsible) {
+      padding: 0.8rem;
+      &.outset {
+        box-shadow: base.$shadow_out;
       }
     }
 
-    > div {
-      flex-grow: 1;
-      color: var(--componentTextColor);
-      text-align: center;
+    &.collapsible {
+      > div {
+        padding: 0.8rem;
 
-      &:empty {
-        flex-grow: 0;
+        &.collapsed {
+          display: none;
+        }
+      }
+      > span {
+        border: base.$border;
+        min-height: base.$size_height;
+        box-shadow: base.$shadow_out;
+        border-radius: base.$size_cornerRadius;
+        margin: -(base.$border_thickness);
+        background-color: base.$color_background;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+
+        .touch & {
+          min-height: base.$size_touchHeight;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+          &:hover {
+            background-color: base.$color_background_hover;
+          }
+        }
+
+        > span {
+          color: base.$color_text;
+          font-size: base.$font_size;
+          line-height: calc(base.$font_size + 0.2rem);
+          padding-left: 0.2rem;
+          flex-grow: 1;
+          text-align: center;
+
+          .touch & {
+            font-size: base.$touch_font_size;
+            line-height: calc(base.$touch_font_size + 0.2rem);
+          }
+        }
+
+        > svg {
+          fill: base.$color_text;
+          max-width: base.$size_height;
+          height: calc(base.$size_height - 2px);
+          box-sizing: border-box;
+          width: auto;
+          flex-shrink: 0;
+
+          .touch & {
+            height: base.$size_touchHeight;
+            max-width: base.$size_touchHeight + 1rem;
+            padding: 0.5rem;
+          }
+        }
+      }
+    }
+
+    &.collapsed.collapsible {
+      > div {
+        display: none;
       }
 
-      .anim & {
-        transition: color var(--colorTransitionType) var(--colorTransitionTime);
+      > span {
+        > :nth-last-child(2) {
+          display: none;
+        }
       }
     }
 
-    > svg {
-      height: 100%;
-      width: auto;
-      box-sizing: border-box;
-      fill: var(--componentSymbolColor);
-
-      .anim & {
-        transition: fill var(--colorTransitionType) var(--colorTransitionTime);
+    &:not(.collapsed).collapsible {
+      > span {
+        > :last-child {
+          display: none;
+        }
       }
-    }
-  }
-
-  > div {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: $padding;
-    overflow: auto;
-
-    &.READ {
-      filter: var(--readOpacityFilter);
-      pointer-events: none;
-    }
-
-    &.NONE {
-      display: none;
-    }
-
-    &.collapsed {
-      display: none;
-    }
-  }
-
-  &.vert > div {
-    flex-direction: column;
-
-    > * + * {
-      margin-top: 0.6rem;
-    }
-  }
-
-  &.horz > div {
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 0;
-    padding-left: $padding;
-    padding-bottom: $padding;
-
-    > * {
-      margin-top: $padding;
-      flex: 1 1 1px;
-      margin-right: $padding;
     }
   }
 }

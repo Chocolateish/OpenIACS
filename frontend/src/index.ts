@@ -49,6 +49,80 @@ formCont.style.flexGrow = "1";
 formCont.style.maxWidth = "40rem";
 formCont.style.overflow = "auto";
 
+//       _____ _____   ____  _    _ _____
+//      / ____|  __ \ / __ \| |  | |  __ \
+//     | |  __| |__) | |  | | |  | | |__) |
+//     | | |_ |  _  /| |  | | |  | |  ___/
+//     | |__| | | \ \| |__| | |__| | |
+//      \_____|_|  \_\\____/ \____/|_|
+let grouptest = formCont.appendChild(
+  form.group.from({
+    label: "Group Box",
+    border: "outset",
+    components: [
+      form.button
+        .from({
+          id: "test",
+          label: "Button in Group",
+          text: "Click Me",
+        })
+        .opts({ access: "r" }),
+      form.button
+        .from({
+          id: "test2",
+          label: "Button in Group",
+          text: "Click Me",
+        })
+        .opts({ access: "r" }),
+      form.slider.from({
+        label: "Slider in Group",
+        id: "slider_in_group",
+        unit: "mA",
+        min: -100,
+        max: 100,
+      }),
+    ],
+  })
+);
+
+grouptest.value = {
+  test: true,
+  slider_in_group: 50,
+};
+grouptest.value.map(console.error);
+
+formCont.appendChild(
+  form.group.from({
+    label: "Group Box",
+    border: "outset",
+    collapsible: true,
+    collapse_text: "Toggle",
+    components: [
+      form.text.from({ text: "Hello inside group!", size: 2 }),
+      form.button
+        .from({ label: "Button in Group", text: "Click Me" })
+        .opts({ access: "r" }),
+    ],
+  })
+);
+
+formCont.appendChild(
+  form.group.from({
+    label: "Group Box",
+    border: "inset",
+    collapsible: true,
+    collapsed: true,
+    collapse_text:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
+    components: [
+      form.text.from({ text: "Hello inside group!", size: 2 }),
+      form.button
+        .from({ label: "Button in Group", text: "Click Me" })
+        .opts({ access: "r" }),
+    ],
+  })
+);
+
 formCont.appendChild(
   form.text.from({
     text: "Hello World!",
@@ -60,6 +134,7 @@ let bool = state.s.ros_ws.ok(false);
 formCont.appendChild(
   form.button
     .from({
+      id: "test",
       label: "YOYOYOY",
       text: "YOYOYOYO",
       icon: material_av_add_to_queue_rounded,
@@ -119,7 +194,7 @@ formCont.appendChild(
     label: "Dropdown",
     default:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
-    defaultIcon: material_av_add_to_queue_rounded,
+    default_icon: material_av_add_to_queue_rounded,
     selections: Array.from({ length: 100 }, (v, i) => {
       return {
         value: i,
@@ -135,7 +210,7 @@ formCont.appendChild(
     label: "Dropdown",
     default:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
-    defaultIcon: material_av_add_to_queue_rounded,
+    default_icon: material_av_add_to_queue_rounded,
     selections: Array.from({ length: 100 }, (v, i) => {
       return {
         value: i,
@@ -302,25 +377,6 @@ formCont.appendChild(
     unit: "mA",
   })
 ).value_by_state = num;
-
-//       _____ _____   ____  _    _ _____
-//      / ____|  __ \ / __ \| |  | |  __ \
-//     | |  __| |__) | |  | | |  | | |__) |
-//     | | |_ |  _  /| |  | | |  | |  ___/
-//     | |__| | | \ \| |__| | |__| | |
-//      \_____|_|  \_\\____/ \____/|_|
-formCont.appendChild(
-  form.group.from({
-    label: "Group Box",
-    border: "outset",
-    components: [
-      form.text.from({ text: "Hello inside group!", size: 2 }),
-      form.button
-        .from({ label: "Button in Group", text: "Click Me" })
-        .opts({ access: "r" }),
-    ],
-  })
-);
 
 context_menu_default(
   context_menu([

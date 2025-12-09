@@ -3,7 +3,9 @@ import { FormNumberWrite, type FormNumberWriteOptions } from "../numberBase";
 import "./numberInput.scss";
 
 /**Slide Selector, displays all options in a slider*/
-export class FormNumberInput extends FormNumberWrite {
+export class FormNumberInput<
+  ID extends string | undefined
+> extends FormNumberWrite<ID> {
   static element_name() {
     return "numberinput";
   }
@@ -14,7 +16,7 @@ export class FormNumberInput extends FormNumberWrite {
   private _valueBox: HTMLSpanElement;
   private _legend: HTMLSpanElement;
 
-  constructor(id: string | undefined) {
+  constructor(id: ID) {
     super(id);
     this._valueBox = this._body.appendChild(document.createElement("span"));
     this._valueBox.contentEditable = "true";
@@ -69,7 +71,9 @@ define_element(FormNumberInput);
 
 export let form_number_input = {
   /**Creates a dropdown form element */
-  from(options?: FormNumberWriteOptions): FormNumberInput {
+  from<ID extends string | undefined>(
+    options?: FormNumberWriteOptions<ID>
+  ): FormNumberInput<ID> {
     let slide = new FormNumberInput(options?.id);
     if (options) {
       FormNumberWrite.apply_options(slide, options);
