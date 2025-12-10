@@ -67,8 +67,8 @@ export class FormSwitch<ID extends string | undefined> extends FormValueWrite<
         this.#switch.onpointermove = (ev) => {
           ev.stopPropagation();
           if (hasMoved) {
-            let box = this.#switch.getBoundingClientRect();
-            let midCord = box.x + box.width / 2;
+            const box = this.#switch.getBoundingClientRect();
+            const midCord = box.x + box.width / 2;
             if (ev.clientX > midCord) {
               if (!this.buffer) this.set_value_check(true);
             } else {
@@ -130,12 +130,12 @@ export class FormSwitch<ID extends string | undefined> extends FormValueWrite<
 }
 define_element(FormSwitch);
 
-export let form_switch = {
+export const form_switch = {
   /**Creates a switch form element */
   from<ID extends string | undefined>(
     options?: FormSwitchOptions<ID>
   ): FormSwitch<ID> {
-    let swit = new FormSwitch<ID>(options?.id);
+    const swit = new FormSwitch<ID>(options?.id);
     if (options) {
       if (options.icon) swit.icon = options.icon;
       if (options.on_color) swit.on_color = options.on_color;

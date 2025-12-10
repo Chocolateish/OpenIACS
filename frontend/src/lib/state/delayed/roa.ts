@@ -75,10 +75,10 @@ class ROA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
       this.set(this.ful_R_prom(value));
     };
 
-    let writeSync = this.write_sync.bind(this);
+    const writeSync = this.write_sync.bind(this);
     this.write_sync = (value) =>
       writeSync(value).map((val) => this.#clean() ?? val);
-    let write = this.write.bind(this);
+    const write = this.write.bind(this);
     this.write = async (value) =>
       (await write(value)).map((val) => this.#clean() ?? val);
   }
@@ -246,7 +246,7 @@ class ROA_WS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
       this.#clean();
       this.set(this.ful_R_prom(value));
     };
-    let writeSync = this.write_sync.bind(this);
+    const writeSync = this.write_sync.bind(this);
     this.write_sync = (value) =>
       writeSync(value).map((val) => this.#clean() ?? val);
   }
@@ -419,7 +419,7 @@ export class ROA_WA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
       this.#clean();
       this.set(this.ful_R_prom(value));
     };
-    let write = this.write.bind(this);
+    const write = this.write.bind(this);
     this.write = async (value) =>
       (await write(value)).map((val) => this.#clean() ?? val);
   }

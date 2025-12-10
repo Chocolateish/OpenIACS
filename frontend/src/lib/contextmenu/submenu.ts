@@ -22,17 +22,17 @@ export class ContextMenuSub extends ContextMenuLine {
     super();
     this.#menu = menu;
     this.tabIndex = 0;
-    let iconBox = this.appendChild(document.createElement("div"));
+    const iconBox = this.appendChild(document.createElement("div"));
     iconBox.className = "icon";
     if (icon) {
       iconBox.appendChild(icon);
     }
-    let textBox = this.appendChild(document.createElement("div"));
+    const textBox = this.appendChild(document.createElement("div"));
     textBox.innerHTML = text;
     textBox.className = "text";
-    let shortcutBox = this.appendChild(document.createElement("div"));
+    const shortcutBox = this.appendChild(document.createElement("div"));
     shortcutBox.className = "shortcut";
-    let chevronBox = this.appendChild(document.createElement("div"));
+    const chevronBox = this.appendChild(document.createElement("div"));
     chevronBox.appendChild(material_navigation_chevron_right_rounded());
     chevronBox.className = "chevron";
 
@@ -85,7 +85,7 @@ export class ContextMenuSub extends ContextMenuLine {
 
   /**Opens the sub menu */
   open() {
-    let sub = this.parentElement as Mutable<ContextMenu>;
+    const sub = this.parentElement as Mutable<ContextMenu>;
     if (sub) sub.close_down();
     (this.parentElement as Mutable<ContextMenu>).submenu = this;
     this.appendChild(this.#menu);

@@ -11,9 +11,9 @@ export function isosceles_triangle(
   width: number,
   height: number
 ): SVGPathElement {
-  let trig = create_SVG_element("path");
-  let halfW = width / 2;
-  let halfH = height / 2;
+  const trig = create_SVG_element("path");
+  const halfW = width / 2;
+  const halfH = height / 2;
   trig.setAttribute(
     "d",
     "M" +

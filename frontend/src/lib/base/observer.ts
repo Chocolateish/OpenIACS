@@ -9,7 +9,7 @@ export type BaseObserverOptions = {
   deffered_hidden?: number;
 } & IntersectionObserverInit;
 
-let V2 = "delay" in new IntersectionObserver(() => {});
+const V2 = "delay" in new IntersectionObserver(() => {});
 export class BaseObserver extends IntersectionObserver {
   #deffered_visible_time: number;
   #deffered_visible_timeout: number | null = null;
@@ -26,7 +26,7 @@ export class BaseObserver extends IntersectionObserver {
           this.#deffered_visible_time === 0
         ) {
           for (let i = 0; i < e.length; i++) {
-            //@ts-expect-error
+            //@ts-expect-error Call of private method, is private to prevent external usage
             (<Base>e[i].target)._set_visible(e[i].isIntersecting);
           }
           return;
@@ -34,13 +34,13 @@ export class BaseObserver extends IntersectionObserver {
         for (let i = 0; i < e.length; i++) {
           if (e[i].isIntersecting) {
             this.#deffered_visible_queue.push(e[i].target as Base);
-            let index = this.#deffered_hidden_queue.indexOf(
+            const index = this.#deffered_hidden_queue.indexOf(
               e[i].target as Base
             );
             if (index !== -1) this.#deffered_hidden_queue.splice(index, 1);
           } else {
             this.#deffered_hidden_queue.push(e[i].target as Base);
-            let index = this.#deffered_visible_queue.indexOf(
+            const index = this.#deffered_visible_queue.indexOf(
               e[i].target as Base
             );
             if (index !== -1) this.#deffered_visible_queue.splice(index, 1);
@@ -49,7 +49,7 @@ export class BaseObserver extends IntersectionObserver {
         if (!this.#deffered_visible_timeout) {
           this.#deffered_visible_timeout = window.setTimeout(() => {
             for (let i = 0; i < this.#deffered_visible_queue.length; i++) {
-              //@ts-expect-error
+              //@ts-expect-error Call of private method, is private to prevent external usage
               this.#deffered_visible_queue[i]._set_visible(true);
             }
             this.#deffered_visible_queue = [];
@@ -59,7 +59,7 @@ export class BaseObserver extends IntersectionObserver {
         if (!this.#deffered_hidden_timeout) {
           this.#deffered_hidden_timeout = window.setTimeout(() => {
             for (let i = 0; i < this.#deffered_hidden_queue.length; i++) {
-              //@ts-expect-error
+              //@ts-expect-error Call of private method, is private to prevent external usage
               this.#deffered_hidden_queue[i]._set_visible(false);
             }
             this.#deffered_hidden_queue = [];
@@ -68,7 +68,7 @@ export class BaseObserver extends IntersectionObserver {
         }
       },
       V2 && options.deffered_visible === options.deffered_hidden
-        ? ({ delay: options.deffered_visible, ...options } as any)
+        ? ({ delay: options.deffered_visible, ...options } as object)
         : options
     );
     if (V2 && options.deffered_visible === options.deffered_hidden) {

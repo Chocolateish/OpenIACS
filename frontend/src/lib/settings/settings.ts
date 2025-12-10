@@ -2,13 +2,13 @@ import type { ResultOk } from "@libResult";
 import type { STATE_ROA_WA } from "@libState";
 
 let name_transformer: ((name: string) => string) | undefined;
-export let settings_set_name_transform = (
+export const settings_set_name_transform = (
   transform: (name: string) => string
 ) => {
   name_transformer = transform;
 };
 
-let packages = localStorage["settings/packageVersions"] as string | undefined;
+const packages = localStorage["settings/packageVersions"] as string | undefined;
 let packageVersions: { [key: string]: string } = {};
 try {
   packageVersions = packages
@@ -16,7 +16,7 @@ try {
     : {};
 } catch (e) {}
 let storePackageVersionsTimeout: number | undefined;
-let bottomGroups: { [key: string]: SettingsGroup } = {};
+const bottomGroups: { [key: string]: SettingsGroup } = {};
 
 /**Initialises the settings for the package
  * @param packageName use import {name} from ("../package.json")
@@ -24,7 +24,7 @@ let bottomGroups: { [key: string]: SettingsGroup } = {};
  * @param versionChanged function to call when the version of the package changed
  * @param name name of group formatted for user reading
  * @param description a description of what the setting group is about*/
-export let settings_init = (
+export const settings_init = (
   packageName: string,
   packageVersion: string,
   name: string,
@@ -105,10 +105,10 @@ export class SettingsGroup {
     fallback: TYPE,
     versionChanged?: (existing: string, oldVersion: string) => TYPE
   ): TYPE {
-    let saved = localStorage[this.pathID + "/" + id];
+    const saved = localStorage[this.pathID + "/" + id];
     try {
       if (this.versionChanged && versionChanged) {
-        let changedValue = versionChanged(
+        const changedValue = versionChanged(
           JSON.parse(saved),
           this.versionChanged
         );

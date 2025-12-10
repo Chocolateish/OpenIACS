@@ -3,27 +3,27 @@ import { object_equals_deep } from "./equals";
 
 describe("Any Equals", async () => {
   it("Object Equals Deep", async () => {
-    let test1 = {
+    const test1 = {
       a: 1,
       b: 2,
       c: 3,
     };
-    let test2 = {
+    const test2 = {
       a: 1,
       b: 2,
       e: 4,
     };
-    let test3 = {
+    const test3 = {
       a: 1,
       b: 2,
       c: 3,
     };
-    let test4 = {
+    const test4 = {
       a: 2,
       b: 3,
       c: 4,
     };
-    let test5 = {
+    const test5 = {
       a: "2",
       b: "3",
       c: "4",

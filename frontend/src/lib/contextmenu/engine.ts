@@ -24,7 +24,7 @@ DOCUMENT_HANDLER.for_documents((doc) => {
 });
 
 function apply_to_doc(doc: Document) {
-  let container = new Container();
+  const container = new Container();
   doc["@contextmenu"] = container;
   doc.documentElement.appendChild(container);
   if (default_menu) context_menu_attach(doc.documentElement, default_menu);
@@ -39,10 +39,10 @@ export function context_menu_attach(
     console.error("Context menu already attached to node", element);
     return;
   }
-  var listener = (e: Event) => {
+  const listener = (e: Event) => {
     e.preventDefault();
     e.stopPropagation();
-    let lineses =
+    const lineses =
       typeof lines === "function" ? lines().unwrap_or(undefined) : lines;
     if (!lineses) return;
     context_menu_summon(
@@ -77,13 +77,13 @@ export function context_menu_summon(
   y?: number,
   dontCover?: boolean
 ) {
-  let container = element
+  const container = element
     ? element.ownerDocument["@contextmenu"]
     : DOCUMENT_HANDLER.main["@contextmenu"];
   if (container) {
     if (typeof x !== "number" || typeof y !== "number") {
       if (element) {
-        let box = element.getBoundingClientRect();
+        const box = element.getBoundingClientRect();
         x = box.left + box.width / 2;
         y = box.top + box.height / 2;
       } else {

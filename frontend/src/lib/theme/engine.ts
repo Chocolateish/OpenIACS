@@ -12,7 +12,7 @@ import {
 } from "./settings";
 import { BOTTOM_GROUPS } from "./shared";
 
-export let theme_engine = new (class ThemeEngine {
+export const theme_engine = new (class ThemeEngine {
   constructor() {
     DOCUMENT_HANDLER.events.on("added", (e) => {
       this.apply_all_to_doc(e.data);
@@ -57,12 +57,15 @@ export let theme_engine = new (class ThemeEngine {
   private apply_animation_to_doc(doc: Document, anim: AnimationLevels) {
     doc.documentElement.classList.remove("anim-all", "anim-most", "anim-some");
     switch (anim) {
-      //@ts-ignore
       case AnimationLevels.All:
         doc.documentElement.classList.add("anim-all");
-      //@ts-ignore
+        doc.documentElement.classList.add("anim-most");
+        doc.documentElement.classList.add("anim-some");
+        break;
       case AnimationLevels.Most:
         doc.documentElement.classList.add("anim-most");
+        doc.documentElement.classList.add("anim-some");
+        break;
       case AnimationLevels.Some:
         doc.documentElement.classList.add("anim-some");
         break;
@@ -97,7 +100,7 @@ export let theme_engine = new (class ThemeEngine {
     });
   }
   private apply_input_to_doc(doc: Document, mode: InputModes) {
-    let style = doc.documentElement.style;
+    const style = doc.documentElement.style;
     style.setProperty("--mouse", "0");
     style.setProperty("--pen", "0");
     style.setProperty("--touch", "0");
@@ -119,7 +122,7 @@ export let theme_engine = new (class ThemeEngine {
   }
 
   apply_single_property(key: string, variable: { [s: string]: string }) {
-    let themeBuff = THEME.ok();
+    const themeBuff = THEME.ok();
     DOCUMENT_HANDLER.for_documents((doc) => {
       doc.documentElement.style.setProperty(key, variable[themeBuff]);
     });

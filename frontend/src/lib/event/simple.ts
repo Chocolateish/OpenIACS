@@ -82,7 +82,7 @@ export class EventHandler<Events extends { [key: string]: any }, Target>
     eventName: K,
     subscriber: ESubscriber<K, Target, Events[K]>
   ): typeof subscriber {
-    let typeListeners = this.#subscribers[eventName];
+    const typeListeners = this.#subscribers[eventName];
     if (typeListeners) {
       if (typeListeners.has(subscriber))
         console.error("Subscriber already in handler");
@@ -123,7 +123,7 @@ export class EventHandler<Events extends { [key: string]: any }, Target>
   }
 
   emit<K extends keyof Events>(eventName: K, data: Events[K]) {
-    let funcs = this.#subscribers[eventName];
+    const funcs = this.#subscribers[eventName];
     if (funcs?.size || this.#proxies?.size)
       this.#emitE(
         Object.freeze(
@@ -170,7 +170,7 @@ export class EventHandler<Events extends { [key: string]: any }, Target>
 
   proxy_func(): ESubscriber<keyof Events, Target, Events[keyof Events]> {
     return (e: E<keyof Events, Target, Events[keyof Events]>) => {
-      let subs = this.#subscribers[e.type];
+      const subs = this.#subscribers[e.type];
       if (subs) this.#emitE(e, subs);
     };
   }

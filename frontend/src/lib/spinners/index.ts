@@ -4,7 +4,7 @@ import { svg_primitives } from "@libSVG";
 import { theme_init_variable_root } from "@libTheme";
 import "./index.scss";
 
-let variables = theme_init_variable_root(
+const variables = theme_init_variable_root(
   "spinners",
   "Spinner",
   "Spinner used as a placeholder for data with and unknown arrival time"
@@ -19,7 +19,7 @@ variables.make_variable(
   undefined
 );
 
-let spinnerSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+const spinnerSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 spinnerSVG.setAttribute("viewBox", "0 0 64 64");
 spinnerSVG.appendChild(svg_primitives.circle(32, 6, 0));
 spinnerSVG.appendChild(svg_primitives.circle(45, 9.483, 0));

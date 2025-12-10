@@ -48,9 +48,9 @@ export function apply_read<AT, TAT = AT>(
   read: STATE_ARRAY_READ<TAT & AT>,
   transform?: (value: TAT, index: number, array: readonly TAT[]) => AT
 ): AT[] {
-  let a = array;
-  let t = transform;
-  let { type: ty, index: ix, items: it } = read;
+  const a = array;
+  const t = transform;
+  const { type: ty, index: ix, items: it } = read;
   if (ty === "none") a.splice(ix, a.length, ...(t ? it.map(t) : it));
   else if (ty === "added") a.splice(ix, 0, ...(t ? it.map(t) : it));
   else if (ty === "removed") a.splice(ix, it.length);

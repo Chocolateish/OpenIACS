@@ -271,7 +271,7 @@ async function await_value<T>(
   timeout: number = 500
 ): Promise<boolean> {
   let func: STATE_SUB<Result<T, string>> = () => {};
-  let res = await Promise.race([
+  const res = await Promise.race([
     new Promise<false>((a) => setTimeout(a, timeout, false)),
     new Promise<true>((a) => {
       func = state.sub((res) => {
@@ -293,8 +293,8 @@ async function compare(
   state1: STATE<any>,
   state2: STATE<any>
 ): Promise<boolean> {
-  let res1 = await state1;
-  let res2 = await state2;
+  const res1 = await state1;
+  const res2 = await state2;
   if (res1.err || res2.err) return false;
   return res1.value === res2.value;
 }
@@ -306,8 +306,8 @@ async function compare(
  * @param state2 second state
  * @returns true if states are equal*/
 function compare_sync(state1: STATE_RES<any>, state2: STATE_RES<any>): boolean {
-  let res1 = state1.get();
-  let res2 = state2.get();
+  const res1 = state1.get();
+  const res2 = state2.get();
   if (res1.err || res2.err) return true;
   return res1.value !== res2.value;
 }

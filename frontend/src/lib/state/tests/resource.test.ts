@@ -13,7 +13,7 @@ describe("Resource states", function () {
   //     |_|  \_\______/_/    \_\
   describe("REA", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.r.rea.from<number>(
+      const init = st.r.rea.from<number>(
         () => {},
         () => {},
         () => {},
@@ -21,12 +21,12 @@ describe("Resource states", function () {
         50,
         200
       );
-      assertType<STATE_REA<Number>>(init);
-      assertType<STATE_RESOURCE_FUNC_REA<Number>>(init);
+      assertType<STATE_REA<number>>(init);
+      assertType<STATE_RESOURCE_FUNC_REA<number>>(init);
     });
-    let maker: TEST_STATE_ALL = () => {
+    const maker: TEST_STATE_ALL = () => {
       let val: Result<number, string> = Ok(1);
-      let state = st.r.rea.from<number>(
+      const state = st.r.rea.from<number>(
         (state) => state.update_resource(val),
         () => {},
         () => {},
@@ -34,7 +34,7 @@ describe("Resource states", function () {
         100,
         200
       );
-      let set = (v: Result<number, string>) => {
+      const set = (v: Result<number, string>) => {
         val = v;
       };
       return { o: false, s: false, w: false, ws: false, state, set };

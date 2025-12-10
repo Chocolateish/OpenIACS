@@ -69,12 +69,12 @@ export class FormNumberInput<
 }
 define_element(FormNumberInput);
 
-export let form_number_input = {
+export const form_number_input = {
   /**Creates a dropdown form element */
   from<ID extends string | undefined>(
     options?: FormNumberWriteOptions<ID>
   ): FormNumberInput<ID> {
-    let slide = new FormNumberInput(options?.id);
+    const slide = new FormNumberInput(options?.id);
     if (options) {
       FormNumberWrite.apply_options(slide, options);
     }

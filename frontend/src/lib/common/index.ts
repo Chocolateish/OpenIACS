@@ -9,8 +9,8 @@ export type Prettify<T> = {
 } & {};
 
 /**Checks of the given object is empty only checks for objects own properties*/
-export let object_empty = (obj: {}): boolean => {
-  for (let key in obj) if (obj.hasOwnProperty(key)) return false;
+export const object_empty = (obj: {}): boolean => {
+  for (const key in obj) if (obj.hasOwnProperty(key)) return false;
   return true;
 };
 
@@ -39,8 +39,8 @@ export function array_diff<T>(
   main: T[],
   second: T[]
 ): { added: T[]; removed: T[] } {
-  let added = second.filter((x) => !main.includes(x));
-  let removed = main.filter((x) => !second.includes(x));
+  const added = second.filter((x) => !main.includes(x));
+  const removed = main.filter((x) => !second.includes(x));
   return { added, removed };
 }
 

@@ -2,8 +2,8 @@
  * For any object type it will deep compare, with the exception of objects which have an objectEquals method, which can provide a custom comparisson
  * Will return true for NaN equal to NaN*/
 export function any_equals_deep(any1: any, any2: any): boolean {
-  let type1 = typeof any1;
-  let type2 = typeof any2;
+  const type1 = typeof any1;
+  const type2 = typeof any2;
   if (type1 !== type2) return false;
   switch (type1) {
     case "object":
@@ -22,16 +22,16 @@ export function any_equals_deep(any1: any, any2: any): boolean {
 /**This deep compares two objects, returns true if they are equal
  * It compares all keys in the object, with the exception of objects which have an objectEquals method, which can provide a custom comparisson*/
 export function object_equals_deep(object1: {}, object2: {}): boolean {
-  let props = Object.keys(object1);
-  let props2 = Object.keys(object2);
+  const props = Object.keys(object1);
+  const props2 = Object.keys(object2);
   if (props.length != props2.length) return false;
   for (let i = 0, m = props.length; i < m; i++) {
     if (!(props[i] in object2)) return false;
     //@ts-expect-error
-    let e1 = object1[props[i]];
+    const e1 = object1[props[i]];
     //@ts-expect-error
-    let e2 = object2[props[i]];
-    let type = typeof e1;
+    const e2 = object2[props[i]];
+    const type = typeof e1;
     if (type !== typeof e2) return false;
     switch (type) {
       case "object": {
@@ -57,10 +57,10 @@ export function object_equals_deep(object1: {}, object2: {}): boolean {
 export function array_equals_deep(array1: any[], array2: any[]): boolean {
   if (!array1 || !array2) return false;
   if (array1.length != array2.length) return false;
-  for (var i = 0, l = array1.length; i < l; i++) {
-    let e1 = array1[i];
-    let e2 = array2[i];
-    let type = typeof e1;
+  for (let i = 0, l = array1.length; i < l; i++) {
+    const e1 = array1[i];
+    const e2 = array2[i];
+    const type = typeof e1;
     if (type !== typeof e2) return false;
     switch (type) {
       case "object": {

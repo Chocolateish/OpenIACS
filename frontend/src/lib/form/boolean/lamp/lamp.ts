@@ -59,7 +59,7 @@ class FormLamp<
 
   /**Called when value is changed */
   protected new_value(value: number | boolean) {
-    let color = this.#colors[Number(value)];
+    const color = this.#colors[Number(value)];
     if (color) this._body.setAttribute("color", color);
     else this._body.removeAttribute("color");
   }
@@ -84,7 +84,7 @@ function from<
   C extends FormColors[],
   ID extends string | undefined
 >(options?: FormLampOptions<T, C, ID>): FormLamp<T, C, ID> {
-  let lamp = new FormLamp<T, C, ID>(options?.id);
+  const lamp = new FormLamp<T, C, ID>(options?.id);
   if (options) {
     lamp.colors = options.colors;
     if (options.text) lamp.text = options.text;
@@ -94,7 +94,7 @@ function from<
   return lamp;
 }
 
-export let form_lamp = {
+export const form_lamp = {
   /**Creates a button form element */
   from,
 };

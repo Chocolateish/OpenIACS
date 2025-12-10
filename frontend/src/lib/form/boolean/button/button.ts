@@ -154,12 +154,12 @@ class FormButton<ID extends string | undefined> extends FormValueWrite<
 }
 define_element(FormButton);
 
-export let form_button = {
+export const form_button = {
   /**Creates a button form element */
   from<ID extends string | undefined>(
     options?: FormButtonOptions<ID>
   ): FormButton<ID> {
-    let butt = new FormButton<ID>(options?.id);
+    const butt = new FormButton<ID>(options?.id);
     if (options) {
       if (options.text) butt.text = options.text;
       if (options.icon) butt.icon = options.icon;

@@ -4,15 +4,15 @@ import type { Radians } from "../shared";
  * @param width width of rectangle
  * @param height height of rectangle
  * @param angle angle of rotation in radians*/
-export let bounding_width_and_height_of_rotated_rectangle = (
+export const bounding_width_and_height_of_rotated_rectangle = (
   width: number,
   height: number,
   angle: Radians
 ) => {
-  let ct = Math.cos(angle);
-  let st = Math.sin(angle);
-  let x = -width / 2;
-  let y = height / 2;
+  const ct = Math.cos(angle);
+  const st = Math.sin(angle);
+  const x = -width / 2;
+  const y = height / 2;
 
   if (st > 0) {
     if (ct > 0) {

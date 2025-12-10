@@ -50,9 +50,9 @@ export class IpInput extends InputBase<string> {
         super();
         this._input.type = 'text';
         this._input.oninput = () => {
-            let parts = (this._input.value).split('.');
+            const parts = (this._input.value).split('.');
             for (let i = 0; i < parts.length; i++) {
-                let part = parseInt(parts[i]);
+                const part = parseInt(parts[i]);
                 if (i < parts.length - 1 || i == 3) {
                     if (part > 255) {
                         parts[i] = String(255);

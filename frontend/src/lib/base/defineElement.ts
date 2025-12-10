@@ -11,11 +11,11 @@ const RESERVED_NAMES = new Set([
   "missing-glyph",
 ]);
 
-var regex =
+const regex =
   /^[a-z](?:[\.0-9_a-z\xB7\xC0-\xD6\xD8-\xF6\xF8-\u037D\u037F-\u1FFF\u200C\u200D\u203F\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]|[\uD800-\uDB7F][\uDC00-\uDFFF])*-(?:[\x2D\.0-9_a-z\xB7\xC0-\xD6\xD8-\xF6\xF8-\u037D\u037F-\u1FFF\u200C\u200D\u203F\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]|[\uD800-\uDB7F][\uDC00-\uDFFF])*$/;
 
 /**Gives more information about whats wrong with the given element name */
-export let validate_element_name = (name: string) => {
+export const validate_element_name = (name: string) => {
   if (!name) return "Missing element name.";
   if (/[A-Z]/.test(name))
     return "Custom element names must not contain uppercase ASCII characters.";
@@ -33,20 +33,20 @@ export let validate_element_name = (name: string) => {
 };
 
 /**Defines elements inheriting from the base*/
-export let base_element_name = (
+export const base_element_name = (
   element: (abstract new (...options: any) => Base) & {
     element_name(): string;
     element_name_space(): string;
   }
 ): string => {
-  let namespace = element.element_name_space();
-  let check = element.element_name;
+  const namespace = element.element_name_space();
+  const check = element.element_name;
   let define_name = "";
   let runner = element;
   // @ts-expect-error
   while (runner !== HTMLElement) {
     if (namespace !== runner.element_name_space()) break;
-    let name = runner.element_name();
+    const name = runner.element_name();
     runner = Object.getPrototypeOf(runner);
     if (check === runner.element_name)
       throw new Error(
@@ -58,24 +58,24 @@ export let base_element_name = (
   return namespace + define_name;
 };
 
-export let elementList: Set<string> = new Set();
+export const elementList: Set<string> = new Set();
 
 /**Defines elements inheriting from the base*/
-export let define_element = (
+export const define_element = (
   element: (abstract new (...options: any) => Base) & {
     element_name(): string;
     element_name_space(): string;
   }
 ) => {
-  let namespace = element.element_name_space();
-  let check = element.element_name;
+  const namespace = element.element_name_space();
+  const check = element.element_name;
   let define_name = "";
   let runner = element;
   // @ts-expect-error
   while (runner !== HTMLElement) {
     if (namespace !== runner.element_name_space()) break;
 
-    let name = runner.element_name();
+    const name = runner.element_name();
     runner = Object.getPrototypeOf(runner);
     if (check === runner.element_name)
       throw new Error(

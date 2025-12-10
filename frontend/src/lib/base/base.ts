@@ -26,7 +26,7 @@ export type ConnectEventVal =
 /**Events for Base element */
 export interface BaseEvents {
   connect: ConnectEventVal;
-  visible: Boolean;
+  visible: boolean;
 }
 
 // Helpers for opts
@@ -127,8 +127,8 @@ export abstract class Base extends HTMLElement {
 
   /**Sets any attribute on the base element, to either a fixed value or a state value */
   opts(opts: WithStateROA<DataProps<this>>): this {
-    for (let key in opts) {
-      let opt = opts[key] as this[typeof key] | STATE_ROA<this[typeof key]>;
+    for (const key in opts) {
+      const opt = opts[key] as this[typeof key] | STATE_ROA<this[typeof key]>;
       if (state.h.is.roa(opt)) this.attach_STATE_ROA_to_prop(key, opt);
       else this[key] = opt;
     }
@@ -181,7 +181,7 @@ export abstract class Base extends HTMLElement {
 
   /**Dettaches the function from the state/component */
   dettach_STATE(func: STATE_SUB<any>): typeof func {
-    let state = this.#states.get(func);
+    const state = this.#states.get(func);
     if (state) {
       if (state[1] ? this.isVisible : this.#is_connected) state[0].unsub(func);
       this.#states.delete(func);
@@ -217,7 +217,7 @@ export abstract class Base extends HTMLElement {
       this.attach_STATE(
         state,
         (val) => {
-          let o = ok ? ok(val.value) : Some(val.value as this[K]);
+          const o = ok ? ok(val.value) : Some(val.value as this[K]);
           if (o.some) this[prop] = o.value;
         },
         visible
@@ -257,7 +257,7 @@ export abstract class Base extends HTMLElement {
       this.attach_STATE(
         state,
         (v) => {
-          let o = v.ok
+          const o = v.ok
             ? ok
               ? ok(v.value)
               : Some(v.value as this[K])
@@ -272,7 +272,7 @@ export abstract class Base extends HTMLElement {
 
   /**Dettaches the state from the property */
   dettach_STATE_from_prop<T extends keyof this>(prop: T): this {
-    let pro = this.#props.get(prop);
+    const pro = this.#props.get(prop);
     if (pro) this.dettach_STATE(pro);
     return this;
   }
@@ -300,7 +300,7 @@ export abstract class Base extends HTMLElement {
       this.attach_STATE(
         state,
         (val) => {
-          let o = ok ? ok(val.value) : Some(val.value as string);
+          const o = ok ? ok(val.value) : Some(val.value as string);
           if (o.some) this.setAttribute(qualifiedName, o.value);
         },
         visible
@@ -335,7 +335,7 @@ export abstract class Base extends HTMLElement {
       this.attach_STATE(
         state,
         (v) => {
-          let o = v.ok
+          const o = v.ok
             ? ok
               ? ok(v.value)
               : Some(v.value as string)
@@ -350,7 +350,7 @@ export abstract class Base extends HTMLElement {
 
   /**Dettaches the state from the property */
   dettach_STATE_from_attribute(qualifiedName: string): this {
-    let pro = this.#attr.get(qualifiedName);
+    const pro = this.#attr.get(qualifiedName);
     if (pro) this.dettach_STATE(pro);
     return this;
   }

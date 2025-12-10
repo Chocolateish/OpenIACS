@@ -65,7 +65,7 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
     this.#text.onpointerdown = (e) => {
       if (e.button === 0 && (e.target !== this.#value_box || !dragBlocker)) {
         e.stopPropagation();
-        let initialVal = this.buffer || 0;
+        const initialVal = this.buffer || 0;
         let moving = false;
         this.#text.setPointerCapture(e.pointerId);
         this.#text.onpointermove = (ev) => {
@@ -84,9 +84,9 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
           this.#value_box.contentEditable = "true";
           if (!moving && e.target !== this.#value_box) {
             this.#value_box.focus();
-            let range = document.createRange();
+            const range = document.createRange();
             range.setStartAfter(this.#value_box.firstChild!);
-            let selection = this.ownerDocument?.defaultView?.getSelection();
+            const selection = this.ownerDocument?.defaultView?.getSelection();
             if (selection) {
               selection.removeAllRanges();
               selection.addRange(range);
@@ -247,7 +247,7 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
     else {
       if (last) this.set_value_limit(value);
       else {
-        let lim = this.limit_value(value);
+        const lim = this.limit_value(value);
         if (lim.ok) this.#move_value(lim.value);
       }
     }
@@ -266,7 +266,7 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
         let interval = 0;
         let scalerInterval = 0;
         let scaler = 250;
-        let release = () => {
+        const release = () => {
           clearInterval(interval);
           clearInterval(scalerInterval);
           clearTimeout(timeout);
@@ -276,7 +276,7 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
         };
         icon.setPointerCapture(e.pointerId);
         icon.classList.add("active");
-        let timeout = setTimeout(() => {
+        const timeout = setTimeout(() => {
           this.#step_value(dir);
           interval = setInterval(() => this.#step_value(dir), scaler);
           scalerInterval = setInterval(() => {
@@ -295,7 +295,7 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
   }
 
   #step_value(dir: boolean) {
-    let step =
+    const step =
       this.#step ||
       Math.max(
         this.#decimals ? 1 / this.#decimals : 1,
@@ -306,12 +306,12 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
 }
 define_element(FormStepper);
 
-export let form_stepper = {
+export const form_stepper = {
   /**Creates a dropdown form element */
   from<ID extends string | undefined>(
     options?: FormStepperBaseOptions<ID>
   ): FormStepper<ID> {
-    let slide = new FormStepper<ID>(options?.id);
+    const slide = new FormStepper<ID>(options?.id);
     if (options) {
       if (options.live) slide.live = options.live;
       if (options.icon_decrease) slide.icon_decrease = options.icon_decrease;

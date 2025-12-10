@@ -23,7 +23,7 @@ describe("MD5", function () {
     ).toStrictEqual("03dd8807a93175fb062dfb55dc7d359c");
   });
   it("1 million a", function () {
-    let text = "".padEnd(1000000, "a");
+    const text = "".padEnd(1000000, "a");
     expect(md5(text).hex_small).toStrictEqual(
       "7707d6ae4e027c70eea2a935c2296f21"
     );

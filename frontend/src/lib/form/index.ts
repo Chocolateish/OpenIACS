@@ -10,7 +10,7 @@ import { form_dropDown } from "./selectors/dropDown/dropDown";
 import { form_toggle_button } from "./selectors/toggleButton/toggleButton";
 import { form_text } from "./text/text/text";
 
-export let form = {
+export const form = {
   //Boolean
   button: form_button,
   switch: form_switch,

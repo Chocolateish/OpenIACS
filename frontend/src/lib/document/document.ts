@@ -41,7 +41,7 @@ export const DOCUMENT_HANDLER = new (class DocumentHandler {
       return console.error("Document already registered");
     this.#documents.add(document);
     if (styles) {
-      let headElements = this.main.head.children;
+      const headElements = this.main.head.children;
       for (let i = 0; i < headElements.length; i++) {
         switch (headElements[i].nodeName) {
           case "LINK":

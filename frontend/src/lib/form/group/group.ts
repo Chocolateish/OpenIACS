@@ -66,7 +66,7 @@ export class FormGroup<
 
   set components(components: FormElement[]) {
     for (let i = 0, n = components.length; i < n; i++) {
-      let comp = components[i];
+      const comp = components[i];
       if (comp instanceof FormValue && comp.formID) {
         if (this.#value_components.has(comp.formID)) {
           console.error(
@@ -155,7 +155,7 @@ export class FormGroup<
   /**Returns value of the component*/
   get value(): Result<RT, string> {
     if (this._state) return Err("State based component");
-    let result: any = {};
+    const result: any = {};
     for (const [key, comp] of this.#value_components) {
       comp.value.map((val) => {
         result[key] = val;
@@ -193,14 +193,14 @@ export class FormGroup<
 }
 define_element(FormGroup);
 
-export let form_group = {
+export const form_group = {
   /**Creates a dropdown form element */
   from<
     L extends FormElement[],
     ID extends string | undefined,
     T extends {} = Prettify<Partial<ToKeyVal<ExtractB<L>>>>
   >(options?: FormGroupOptions<L, ID, T>): FormGroup<T, ID> {
-    let slide = new FormGroup<T, ID>(options?.id);
+    const slide = new FormGroup<T, ID>(options?.id);
     if (options) {
       if (options.border) slide.border = options.border;
       if (options.components) slide.components = options.components;

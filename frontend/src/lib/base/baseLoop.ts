@@ -53,7 +53,7 @@ export class Loop<T, E extends Node> extends Base {
     this.#stateArray = state;
     this.#subSubscriber = this.#stateArray.sub((val) => {
       if (val.ok) {
-        let value = val.value;
+        const value = val.value;
         this.#values = st.a.apply_read(this.#values, value);
         this.#children = st.a.apply_read(
           this.#children,
@@ -64,7 +64,7 @@ export class Loop<T, E extends Node> extends Base {
           case "none":
             return this.replaceChildren(...this.#children);
           case "added":
-            let childNodes = this.childNodes;
+            const childNodes = this.childNodes;
             if (value.index === childNodes.length) {
               this.append(...this.#children);
             } else {

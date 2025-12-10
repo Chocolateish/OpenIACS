@@ -21,20 +21,20 @@ export class ContextMenuOption extends ContextMenuLine {
     super();
     this.func = func;
     this.tabIndex = 0;
-    let iconBox = this.appendChild(document.createElement("div"));
+    const iconBox = this.appendChild(document.createElement("div"));
     iconBox.className = "icon";
     if (icon) {
       iconBox.appendChild(icon);
     }
-    let textBox = this.appendChild(document.createElement("div"));
+    const textBox = this.appendChild(document.createElement("div"));
     textBox.innerHTML = text;
     textBox.className = "text";
-    let shortcutBox = this.appendChild(document.createElement("div"));
+    const shortcutBox = this.appendChild(document.createElement("div"));
     if (shortcut) {
       shortcutBox.innerHTML = shortcut;
     }
     shortcutBox.className = "shortcut";
-    let checkMarkBox = this.appendChild(document.createElement("div"));
+    const checkMarkBox = this.appendChild(document.createElement("div"));
     if (checkmark) {
       checkMarkBox.innerHTML = "✓";
     }

@@ -1,7 +1,7 @@
 import { type ColorStruct } from "./shared";
 
 //List of material grey colors
-export let grey: ColorStruct = {
+export const grey: ColorStruct = {
   "50": "#FAFAFA",
   "100": "#F5F5F5",
   "200": "#EEEEEE",

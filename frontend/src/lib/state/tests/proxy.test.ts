@@ -15,10 +15,10 @@ describe("Proxy with sync states", function () {
     it("ok", async function () {
       st.p.ros(st.s.ros.ok(1));
     });
-    let maker: TEST_STATE_OK_SYNC = () => {
-      let stat = st.s.ros.ok(1);
-      let state = st.p.ros(stat);
-      let set = (val: ResultOk<number>) => stat.set(val);
+    const maker: TEST_STATE_OK_SYNC = () => {
+      const stat = st.s.ros.ok(1);
+      const state = st.p.ros(stat);
+      const set = (val: ResultOk<number>) => stat.set(val);
       return { o: true, s: true, w: false, ws: false, state, set };
     };
     it("Subscribing And Unsubscribing", async function () {
@@ -39,10 +39,10 @@ describe("Proxy with sync states", function () {
     it("ok", async function () {
       st.p.res(st.s.res.ok(1));
     });
-    let maker: TEST_STATE_SYNC = () => {
-      let stat = st.s.res.ok(1);
-      let state = st.p.res(stat);
-      let set = (val: Result<number, string>) => stat.set(val);
+    const maker: TEST_STATE_SYNC = () => {
+      const stat = st.s.res.ok(1);
+      const state = st.p.res(stat);
+      const set = (val: Result<number, string>) => stat.set(val);
       return { o: false, s: true, w: false, ws: false, state, set };
     };
     it("Subscribing And Unsubscribing", async function () {

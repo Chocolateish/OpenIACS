@@ -13,7 +13,7 @@ export function rectangle_from_center(
   height: number,
   corner_radius: number
 ): SVGRectElement {
-  let circle = create_SVG_element("rect");
+  const circle = create_SVG_element("rect");
   circle.setAttribute("x", String(centerX - width / 2));
   circle.setAttribute("y", String(centerY - height / 2));
   circle.setAttribute("width", String(width));
@@ -35,7 +35,7 @@ export function rectangle_from_corner(
   height: number,
   corner_radius: number
 ): SVGRectElement {
-  let circle = create_SVG_element("rect");
+  const circle = create_SVG_element("rect");
   circle.setAttribute("x", String(startX));
   circle.setAttribute("y", String(startY));
   circle.setAttribute("width", String(width));

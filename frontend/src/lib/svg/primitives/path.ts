@@ -2,7 +2,7 @@ import { create_SVG_element } from "./shared";
 
 /**This creates a path element*/
 export function path(path: string): SVGPathElement {
-  let node = create_SVG_element("path");
+  const node = create_SVG_element("path");
   node.setAttribute("d", path);
   return node;
 }
@@ -18,7 +18,7 @@ export function path_line(
   endX: number,
   endY: number
 ): SVGPathElement {
-  let line = create_SVG_element("path");
+  const line = create_SVG_element("path");
   line.setAttribute("d", `M ${startX} ${startY} L ${endX} ${endY}`);
   return line;
 }

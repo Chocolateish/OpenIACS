@@ -1,7 +1,7 @@
 import { type ColorStruct } from "./shared";
 
 //List of material indigo colors
-export let indigo: ColorStruct = {
+export const indigo: ColorStruct = {
   "50": "#E8EAF6",
   "100": "#C5CAE9",
   "200": "#9FA8DA",

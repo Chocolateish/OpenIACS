@@ -3,7 +3,7 @@ import { Themes } from "./settings";
 import { BOTTOM_GROUPS } from "./shared";
 
 let name_transformer: ((name: string) => string) | undefined;
-export let theme_set_name_transform = (transform: (name: string) => string) => {
+export const theme_set_name_transform = (transform: (name: string) => string) => {
   name_transformer = transform;
 };
 
@@ -11,7 +11,7 @@ export let theme_set_name_transform = (transform: (name: string) => string) => {
  * @param packageName use import {name} from "../package.json"
  * @param name name of group formatted for user reading
  * @param description a description of what the setting group is about*/
-export let theme_init_variable_root = (
+export const theme_init_variable_root = (
   packageName: string,
   name: string,
   description: string
@@ -86,10 +86,10 @@ export class ThemeVariableGroup {
   ): string {
     if (id.includes("-"))
       throw new Error("Dash not permitted in variable id " + id);
-    let key = "--" + this.path_ID + "-" + id;
+    const key = "--" + this.path_ID + "-" + id;
     if (key in this.variables)
       throw new Error("Settings already registered " + id);
-    let variable = (this.variables[key] = {
+    const variable = (this.variables[key] = {
       name,
       desc: description,
       vars: { [Themes.Light]: light, [Themes.Dark]: dark },

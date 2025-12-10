@@ -25,7 +25,7 @@ describe("SHA1", function () {
     ).toStrictEqual("a49b2446a02c645bf419f995b67091253a04a259");
   });
   it("1 million a", function () {
-    let text = "".padEnd(1000000, "a");
+    const text = "".padEnd(1000000, "a");
     expect(sha1(text).hex_small).toStrictEqual(
       "34aa973cd4c4daa4f61eeb2bdbad27316534016f"
     );

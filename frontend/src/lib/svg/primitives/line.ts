@@ -11,7 +11,7 @@ export function line(
   endX: number,
   endY: number
 ): SVGLineElement {
-  let line = create_SVG_element("line");
+  const line = create_SVG_element("line");
   line.setAttribute("x1", String(startX));
   line.setAttribute("y1", String(startY));
   line.setAttribute("x2", String(endX));

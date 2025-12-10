@@ -51,7 +51,7 @@ export class ContextMenu extends Base {
     super();
     lines = typeof lines === "function" ? lines() : lines;
     if (lines instanceof Promise) {
-      let buffer = this.appendChild(new Buffer());
+      const buffer = this.appendChild(new Buffer());
       lines.then((line) => {
         buffer.remove();
         this.lines = line;
@@ -70,7 +70,7 @@ export class ContextMenu extends Base {
           this.focus_next(e.shiftKey || e.code === "ArrowUp");
           break;
         case "ArrowLeft":
-          let parent = this.parentElement as ContextMenuSub | Container;
+          const parent = this.parentElement as ContextMenuSub | Container;
           if (!(parent instanceof Container)) {
             parent.focus();
             parent.close_down();
@@ -110,7 +110,7 @@ export class ContextMenu extends Base {
     this.replaceChildren();
     if (this.#closer) this.appendChild(this.#closer);
     for (let i = 0; i < lines.length; i++) {
-      let line = lines[i];
+      const line = lines[i];
       if (line) this.appendChild(line);
     }
   }
@@ -182,17 +182,17 @@ export class ContextMenu extends Base {
     this.#x = x;
     this.#y = y;
     this.#element = element;
-    let box = this.getBoundingClientRect();
-    let boxArea = box.width * box.height;
-    let window = this.ownerDocument.defaultView!;
-    let htmlArea = window.innerWidth * window.innerHeight;
+    const box = this.getBoundingClientRect();
+    const boxArea = box.width * box.height;
+    const window = this.ownerDocument.defaultView!;
+    const htmlArea = window.innerWidth * window.innerHeight;
     this.closer = boxArea > htmlArea * 0.5;
     let top = NaN;
     let bottom = NaN;
     let left = NaN;
     let right = NaN;
     if (element) {
-      var subBox = element.getBoundingClientRect();
+      const subBox = element.getBoundingClientRect();
 
       if (subBox.x + subBox.width + box.width > window.innerWidth) {
         x = subBox.x;

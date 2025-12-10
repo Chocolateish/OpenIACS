@@ -30,27 +30,27 @@ describe("Initialize delayed states", function () {
   //     |_|  \_\\____/_/    \_\
   describe("ROA", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.d.roa.ok(() => sleep(1, 1));
-      assertType<STATE_ROA<Number>>(init);
-      assertType<STATE_DELAYED_ROA<Number>>(init);
+      const init = st.d.roa.ok(() => sleep(1, 1));
+      assertType<STATE_ROA<number>>(init);
+      assertType<STATE_DELAYED_ROA<number>>(init);
     });
     it("result ok", async function () {
-      let init = st.d.roa.result(() => sleep(1, Ok(1)));
-      assertType<STATE_ROA<Number>>(init);
-      assertType<STATE_DELAYED_ROA<Number>>(init);
+      const init = st.d.roa.result(() => sleep(1, Ok(1)));
+      assertType<STATE_ROA<number>>(init);
+      assertType<STATE_DELAYED_ROA<number>>(init);
     });
     it("cleanup successfull", async function () {
-      let init = st.d.roa.result(() => sleep(1, Ok(1)));
-      let then = init.then;
-      let set = init.set;
+      const init = st.d.roa.result(() => sleep(1, Ok(1)));
+      const then = init.then;
+      const set = init.set;
       await init;
       expect(init.then).not.eq(then, "then");
       expect(init.set).not.eq(set, "set");
     });
     //# Standard Tests
-    let maker: TEST_STATE_ALL = () => {
-      let state = st.d.roa.ok(() => sleep(1, 1));
-      let set = (val: ResultOk<number>) => state.set(val);
+    const maker: TEST_STATE_ALL = () => {
+      const state = st.d.roa.ok(() => sleep(1, 1));
+      const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: false, w: false, ws: false, state, set };
     };
     it("Subscribing And Unsubscribing", async function () {
@@ -59,9 +59,9 @@ describe("Initialize delayed states", function () {
     describe("Then", async function () {
       await test_state_then(maker, 5);
     });
-    let makerDelay: TEST_STATE_ALL = () => {
-      let state = st.d.roa.ok(() => sleep(10, 1));
-      let set = (val: ResultOk<number>) => state.set(val);
+    const makerDelay: TEST_STATE_ALL = () => {
+      const state = st.d.roa.ok(() => sleep(10, 1));
+      const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: false, w: false, ws: false, state, set };
     };
     it("Subscribing And Unsubscribing With Actual Delay", async function () {
@@ -80,32 +80,32 @@ describe("Initialize delayed states", function () {
   //     |_|  \_\______/_/    \_\
   describe("REA", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.d.rea.ok(() => sleep(1, 1));
-      assertType<STATE_REA<Number>>(init);
-      assertType<STATE_DELAYED_REA<Number>>(init);
+      const init = st.d.rea.ok(() => sleep(1, 1));
+      assertType<STATE_REA<number>>(init);
+      assertType<STATE_DELAYED_REA<number>>(init);
     });
     it("err", async function () {
-      let init = st.d.rea.err<number>(() => sleep(1, "1"));
-      assertType<STATE_REA<Number>>(init);
-      assertType<STATE_DELAYED_REA<Number>>(init);
+      const init = st.d.rea.err<number>(() => sleep(1, "1"));
+      assertType<STATE_REA<number>>(init);
+      assertType<STATE_DELAYED_REA<number>>(init);
     });
     it("result ok", async function () {
-      let init = st.d.rea.result(() => sleep(1, Ok(1)));
-      assertType<STATE_REA<Number>>(init);
-      assertType<STATE_DELAYED_REA<Number>>(init);
+      const init = st.d.rea.result(() => sleep(1, Ok(1)));
+      assertType<STATE_REA<number>>(init);
+      assertType<STATE_DELAYED_REA<number>>(init);
     });
     it("cleanup successfull", async function () {
-      let init = st.d.rea.ok(() => sleep(1, 1));
-      let then = init.then;
-      let set = init.set;
+      const init = st.d.rea.ok(() => sleep(1, 1));
+      const then = init.then;
+      const set = init.set;
       await init;
       expect(init.then).not.eq(then, "then");
       expect(init.set).not.eq(set, "set");
     });
     //# Standard Tests
-    let maker: TEST_STATE_ALL = () => {
-      let state = st.d.rea.ok(() => sleep(1, 1));
-      let set = (val: Result<number, string>) => state.set(val);
+    const maker: TEST_STATE_ALL = () => {
+      const state = st.d.rea.ok(() => sleep(1, 1));
+      const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: false, w: false, ws: false, state, set };
     };
     it("Subscribing And Unsubscribing", async function () {
@@ -114,9 +114,9 @@ describe("Initialize delayed states", function () {
     describe("Then", async function () {
       await test_state_then(maker, 5);
     });
-    let makerDelay: TEST_STATE_ALL = () => {
-      let state = st.d.rea.ok(() => sleep(10, 1));
-      let set = (val: Result<number, string>) => state.set(val);
+    const makerDelay: TEST_STATE_ALL = () => {
+      const state = st.d.rea.ok(() => sleep(10, 1));
+      const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: false, w: false, ws: false, state, set };
     };
     it("Subscribing And Unsubscribing With Actual Delay", async function () {
@@ -135,29 +135,29 @@ describe("Initialize delayed states", function () {
   //     |_|  \_\\____/_/    \_\     \/  \/  |_____/
   describe("ROA_WS", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.d.roa_ws.ok(() => sleep(1, 1));
-      assertType<STATE_ROA_WS<Number>>(init);
-      assertType<STATE_DELAYED_ROA_WS<Number>>(init);
+      const init = st.d.roa_ws.ok(() => sleep(1, 1));
+      assertType<STATE_ROA_WS<number>>(init);
+      assertType<STATE_DELAYED_ROA_WS<number>>(init);
     });
     it("result ok", async function () {
-      let init = st.d.roa_ws.result(() => sleep(1, Ok(1)));
-      assertType<STATE_ROA_WS<Number>>(init);
-      assertType<STATE_DELAYED_ROA_WS<Number>>(init);
+      const init = st.d.roa_ws.result(() => sleep(1, Ok(1)));
+      assertType<STATE_ROA_WS<number>>(init);
+      assertType<STATE_DELAYED_ROA_WS<number>>(init);
     });
     it("cleanup successfull", async function () {
-      let init = st.d.roa_ws.ok(() => sleep(1, 1));
-      let then = init.then;
-      let set = init.set;
-      let writeSync = init.write_sync;
+      const init = st.d.roa_ws.ok(() => sleep(1, 1));
+      const then = init.then;
+      const set = init.set;
+      const writeSync = init.write_sync;
       await init;
       expect(init.then).not.eq(then, "then");
       expect(init.set).not.eq(set, "set");
       expect(init.write_sync).not.eq(writeSync, "writeSync");
     });
     //# Standard Tests
-    let maker: TEST_STATE_ALL = () => {
-      let state = st.d.roa_ws.ok(() => sleep(1, 1));
-      let set = (val: ResultOk<number>) => state.set(val);
+    const maker: TEST_STATE_ALL = () => {
+      const state = st.d.roa_ws.ok(() => sleep(1, 1));
+      const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: false, w: true, ws: true, state, set };
     };
     it("Subscribing And Unsubscribing", async function () {
@@ -166,9 +166,9 @@ describe("Initialize delayed states", function () {
     describe("Then", async function () {
       await test_state_then(maker, 5);
     });
-    let makerDelay: TEST_STATE_ALL = () => {
-      let state = st.d.roa_ws.ok(() => sleep(10, 1));
-      let set = (val: ResultOk<number>) => state.set(val);
+    const makerDelay: TEST_STATE_ALL = () => {
+      const state = st.d.roa_ws.ok(() => sleep(10, 1));
+      const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: false, w: true, ws: true, state, set };
     };
     it("Subscribing And Unsubscribing With Actual Delay", async function () {
@@ -177,9 +177,9 @@ describe("Initialize delayed states", function () {
     describe("Then With Actual Delay", async function () {
       await test_state_then(makerDelay, 20);
     });
-    let makerWrite: TEST_STATE_WRITESYNC = () => {
-      let state = st.d.roa_ws.ok(() => sleep(10, 1), true);
-      let set = (val: ResultOk<number>) => state.set(val);
+    const makerWrite: TEST_STATE_WRITESYNC = () => {
+      const state = st.d.roa_ws.ok(() => sleep(10, 1), true);
+      const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: false, w: true, ws: true, state, set };
     };
     it("Write", async function () {
@@ -198,34 +198,34 @@ describe("Initialize delayed states", function () {
   //     |_|  \_\______/_/    \_\     \/  \/  |_____/
   describe("REA_WS", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.d.rea_ws.ok(() => sleep(1, 1));
-      assertType<STATE_REA_WS<Number>>(init);
-      assertType<STATE_DELAYED_REA_WS<Number>>(init);
+      const init = st.d.rea_ws.ok(() => sleep(1, 1));
+      assertType<STATE_REA_WS<number>>(init);
+      assertType<STATE_DELAYED_REA_WS<number>>(init);
     });
     it("err", async function () {
-      let init = st.d.rea_ws.err<number>(() => sleep(1, "1"));
-      assertType<STATE_REA_WS<Number>>(init);
-      assertType<STATE_DELAYED_REA_WS<Number>>(init);
+      const init = st.d.rea_ws.err<number>(() => sleep(1, "1"));
+      assertType<STATE_REA_WS<number>>(init);
+      assertType<STATE_DELAYED_REA_WS<number>>(init);
     });
     it("result ok", async function () {
-      let init = st.d.rea_ws.result(() => sleep(1, Ok(1)));
-      assertType<STATE_REA_WS<Number>>(init);
-      assertType<STATE_DELAYED_REA_WS<Number>>(init);
+      const init = st.d.rea_ws.result(() => sleep(1, Ok(1)));
+      assertType<STATE_REA_WS<number>>(init);
+      assertType<STATE_DELAYED_REA_WS<number>>(init);
     });
     it("cleanup successfull", async function () {
-      let init = st.d.roa_ws.ok(() => sleep(1, 1));
-      let then = init.then;
-      let set = init.set;
-      let writeSync = init.write_sync;
+      const init = st.d.roa_ws.ok(() => sleep(1, 1));
+      const then = init.then;
+      const set = init.set;
+      const writeSync = init.write_sync;
       await init;
       expect(init.then).not.eq(then, "then");
       expect(init.set).not.eq(set, "set");
       expect(init.write_sync).not.eq(writeSync, "writeSync");
     });
     //# Standard Tests
-    let maker: TEST_STATE_ALL = () => {
-      let state = st.d.rea_ws.ok(() => sleep(1, 1));
-      let set = (val: Result<number, string>) => state.set(val);
+    const maker: TEST_STATE_ALL = () => {
+      const state = st.d.rea_ws.ok(() => sleep(1, 1));
+      const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: false, w: true, ws: true, state, set };
     };
     it("Subscribing And Unsubscribing", async function () {
@@ -234,9 +234,9 @@ describe("Initialize delayed states", function () {
     describe("Then", async function () {
       await test_state_then(maker, 5);
     });
-    let makerDelay: TEST_STATE_ALL = () => {
-      let state = st.d.rea_ws.ok(() => sleep(10, 1));
-      let set = (val: Result<number, string>) => state.set(val);
+    const makerDelay: TEST_STATE_ALL = () => {
+      const state = st.d.rea_ws.ok(() => sleep(10, 1));
+      const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: false, w: true, ws: true, state, set };
     };
     it("Subscribing And Unsubscribing With Actual Delay", async function () {
@@ -245,9 +245,9 @@ describe("Initialize delayed states", function () {
     describe("Then With Actual Delay", async function () {
       await test_state_then(makerDelay, 20);
     });
-    let makerWrite: TEST_STATE_WRITESYNC = () => {
-      let state = st.d.rea_ws.ok(() => sleep(10, 1), true);
-      let set = (val: Result<number, string>) => state.set(val);
+    const makerWrite: TEST_STATE_WRITESYNC = () => {
+      const state = st.d.rea_ws.ok(() => sleep(10, 1), true);
+      const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: false, w: true, ws: true, state, set };
     };
     it("Write", async function () {

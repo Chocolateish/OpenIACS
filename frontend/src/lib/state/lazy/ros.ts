@@ -47,7 +47,7 @@ class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
     if (helper) this.#helper = helper;
     this.get = () => this.#clean() ?? (this.#value = init());
     this.set = (value) => this.set(this.#clean() ?? value);
-    let writeSync = this.write_sync.bind(this);
+    const writeSync = this.write_sync.bind(this);
     this.write_sync = (value) =>
       writeSync(value).map((val) => this.#clean() ?? val);
   }
@@ -187,7 +187,7 @@ class ROS_WS<RT, WT, REL extends Option<RELATED>>
     if (helper) this.#helper = helper;
     this.get = () => this.#clean() ?? (this.#value = init());
     this.set = (value) => this.set(this.#clean() ?? value);
-    let writeSync = this.write_sync.bind(this);
+    const writeSync = this.write_sync.bind(this);
     this.write_sync = (value) =>
       writeSync(value).map((val) => this.#clean() ?? val);
   }

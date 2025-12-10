@@ -23,13 +23,13 @@ describe("Collected states", function () {
   //     |_|  \_\\____/|_____/
   describe("ROS", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.c.ros.from((val) => val[0], st.s.ros.ok(1));
+      const init = st.c.ros.from((val) => val[0], st.s.ros.ok(1));
       expect(init).instanceOf(st.c.ros.class);
     });
-    let makerSingle: TEST_STATE_OK_SYNC = () => {
-      let stat1 = st.s.ros.ok(1);
-      let state = st.c.ros.from((val) => val[0], stat1);
-      let set = (val: ResultOk<number>) => {
+    const makerSingle: TEST_STATE_OK_SYNC = () => {
+      const stat1 = st.s.ros.ok(1);
+      const state = st.c.ros.from((val) => val[0], stat1);
+      const set = (val: ResultOk<number>) => {
         stat1.set_ok(val.value);
       };
       return { o: true, s: true, w: false, ws: false, state, set };
@@ -46,19 +46,19 @@ describe("Collected states", function () {
     it("Single GetOk", async function () {
       await test_state_get_ok(makerSingle);
     });
-    let makerMultiple: TEST_STATE_OK_SYNC = () => {
-      let stat1 = st.s.ros.ok(0.25);
-      let stat2 = st.s.ros.ok(0.25);
-      let stat3 = st.s.ros.ok(0.25);
-      let stat4 = st.s.ros.ok(0.25);
-      let state = st.c.ros.from(
+    const makerMultiple: TEST_STATE_OK_SYNC = () => {
+      const stat1 = st.s.ros.ok(0.25);
+      const stat2 = st.s.ros.ok(0.25);
+      const stat3 = st.s.ros.ok(0.25);
+      const stat4 = st.s.ros.ok(0.25);
+      const state = st.c.ros.from(
         (val) => Ok(val[0].value + val[1].value + val[2].value + val[3].value),
         stat1,
         stat2,
         stat3,
         stat4
       );
-      let set = (val: ResultOk<number>) => {
+      const set = (val: ResultOk<number>) => {
         stat1.set_ok(val.value / 4);
         stat2.set_ok(val.value / 4);
         stat3.set_ok(val.value / 4);
@@ -88,13 +88,13 @@ describe("Collected states", function () {
   //     |_|  \_\______|_____/
   describe("RES", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.c.res.from((val) => val[0], st.s.res.ok(1));
+      const init = st.c.res.from((val) => val[0], st.s.res.ok(1));
       expect(init).instanceOf(st.c.res.class);
     });
-    let makerSingle: TEST_STATE_SYNC = () => {
-      let stat1 = st.s.res.ok(1);
-      let state = st.c.res.from((val) => val[0], stat1);
-      let set = (val: Result<number, string>) => {
+    const makerSingle: TEST_STATE_SYNC = () => {
+      const stat1 = st.s.res.ok(1);
+      const state = st.c.res.from((val) => val[0], stat1);
+      const set = (val: Result<number, string>) => {
         stat1.set(val.map((v) => v));
       };
       return { o: false, s: true, w: false, ws: false, state, set };
@@ -108,15 +108,15 @@ describe("Collected states", function () {
     it("Single Get", async function () {
       await test_state_get(makerSingle);
     });
-    let makerMultiple: TEST_STATE_SYNC = () => {
-      let stat1 = st.s.res.ok(0.25);
-      let stat2 = st.s.res.ok(0.25);
-      let stat3 = st.s.res.ok(0.25);
-      let stat4 = st.s.res.ok(0.25);
-      let state = st.c.res.from(
+    const makerMultiple: TEST_STATE_SYNC = () => {
+      const stat1 = st.s.res.ok(0.25);
+      const stat2 = st.s.res.ok(0.25);
+      const stat3 = st.s.res.ok(0.25);
+      const stat4 = st.s.res.ok(0.25);
+      const state = st.c.res.from(
         (values) => {
           let sum = 0;
-          for (let val of values) {
+          for (const val of values) {
             if (val.err) return val;
             sum += val.value;
           }
@@ -127,7 +127,7 @@ describe("Collected states", function () {
         stat3,
         stat4
       );
-      let set = (val: Result<number, string>) => {
+      const set = (val: Result<number, string>) => {
         stat1.set(val.map((v) => v / 4));
         stat2.set(val.map((v) => v / 4));
         stat3.set(val.map((v) => v / 4));
@@ -154,16 +154,16 @@ describe("Collected states", function () {
   //     |_|  \_\\____/_/    \_\
   describe("ROA", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.c.roa.from(
+      const init = st.c.roa.from(
         (val) => val[0],
         st.d.roa.ok(() => sleep(1, 1))
       );
       expect(init).instanceOf(st.c.roa.class);
     });
-    let makerSingle: TEST_STATE_OK = () => {
-      let stat1 = st.d.roa.ok(() => sleep(1, 1));
-      let state = st.c.roa.from((val) => val[0], stat1);
-      let set = (val: ResultOk<number>) => {
+    const makerSingle: TEST_STATE_OK = () => {
+      const stat1 = st.d.roa.ok(() => sleep(1, 1));
+      const state = st.c.roa.from((val) => val[0], stat1);
+      const set = (val: ResultOk<number>) => {
         stat1.set_ok(val.value);
       };
       return { o: true, s: false, w: false, ws: false, state, set };
@@ -174,19 +174,19 @@ describe("Collected states", function () {
     describe("Single Then", async function () {
       await test_state_then(makerSingle, 0);
     });
-    let makerMultiple: TEST_STATE_OK = () => {
-      let stat1 = st.d.roa.ok(() => sleep(1, 0.25));
-      let stat2 = st.d.roa.ok(() => sleep(1, 0.25));
-      let stat3 = st.d.roa.ok(() => sleep(1, 0.25));
-      let stat4 = st.d.roa.ok(() => sleep(1, 0.25));
-      let state = st.c.roa.from(
+    const makerMultiple: TEST_STATE_OK = () => {
+      const stat1 = st.d.roa.ok(() => sleep(1, 0.25));
+      const stat2 = st.d.roa.ok(() => sleep(1, 0.25));
+      const stat3 = st.d.roa.ok(() => sleep(1, 0.25));
+      const stat4 = st.d.roa.ok(() => sleep(1, 0.25));
+      const state = st.c.roa.from(
         (val) => Ok(val[0].value + val[1].value + val[2].value + val[3].value),
         stat1,
         stat2,
         stat3,
         stat4
       );
-      let set = (val: ResultOk<number>) => {
+      const set = (val: ResultOk<number>) => {
         stat1.set_ok(val.value / 4);
         stat2.set_ok(val.value / 4);
         stat3.set_ok(val.value / 4);
@@ -210,16 +210,16 @@ describe("Collected states", function () {
   //     |_|  \_\______/_/    \_\
   describe("REA", { timeout: 100 }, function () {
     it("ok", async function () {
-      let init = st.c.rea.from(
+      const init = st.c.rea.from(
         (val) => val[0],
         st.d.rea.ok(() => sleep(1, 1))
       );
       expect(init).instanceOf(st.c.rea.class);
     });
-    let makerSingle: TEST_STATE_ALL = () => {
-      let stat1 = st.d.rea.ok(() => sleep(1, 1));
-      let state = st.c.rea.from((values) => values[0], stat1);
-      let set = (val: Result<number, string>) => {
+    const makerSingle: TEST_STATE_ALL = () => {
+      const stat1 = st.d.rea.ok(() => sleep(1, 1));
+      const state = st.c.rea.from((values) => values[0], stat1);
+      const set = (val: Result<number, string>) => {
         stat1.set(val.map((v) => v));
       };
       return { o: false, s: false, w: false, ws: false, state, set };
@@ -230,15 +230,15 @@ describe("Collected states", function () {
     describe("Single Then", async function () {
       await test_state_then(makerSingle, 0);
     });
-    let makerMultiple: TEST_STATE_ALL = () => {
-      let stat1 = st.d.rea.ok(() => sleep(1, 0.25));
-      let stat2 = st.d.rea.ok(() => sleep(1, 0.25));
-      let stat3 = st.d.rea.ok(() => sleep(1, 0.25));
-      let stat4 = st.d.rea.ok(() => sleep(1, 0.25));
-      let state = st.c.rea.from(
+    const makerMultiple: TEST_STATE_ALL = () => {
+      const stat1 = st.d.rea.ok(() => sleep(1, 0.25));
+      const stat2 = st.d.rea.ok(() => sleep(1, 0.25));
+      const stat3 = st.d.rea.ok(() => sleep(1, 0.25));
+      const stat4 = st.d.rea.ok(() => sleep(1, 0.25));
+      const state = st.c.rea.from(
         (values) => {
           let sum = 0;
-          for (let val of values) {
+          for (const val of values) {
             if (val.err) return val;
             sum += val.value;
           }
@@ -249,7 +249,7 @@ describe("Collected states", function () {
         stat3,
         stat4
       );
-      let set = (val: Result<number, string>) => {
+      const set = (val: Result<number, string>) => {
         stat1.set(val.map((v) => v / 4));
         stat2.set(val.map((v) => v / 4));
         stat3.set(val.map((v) => v / 4));

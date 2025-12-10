@@ -13,7 +13,7 @@ class NUMBER_SUM_REA<
   }
   protected getter(values: Result<number, string>[]): Result<number, string> {
     let sum = 0;
-    for (let val of values) {
+    for (const val of values) {
       if (val.err) return val;
       sum += val.value;
     }
@@ -42,7 +42,7 @@ class NUMBER_SUM_RES<
   }
   protected getter(values: Result<number, string>[]): Result<number, string> {
     let sum = 0;
-    for (let val of values) {
+    for (const val of values) {
       if (val.err) return val;
       sum += val.value;
     }

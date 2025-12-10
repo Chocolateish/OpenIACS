@@ -10,7 +10,7 @@ export function circle(
   centerY: number,
   radius: number
 ): SVGCircleElement {
-  let circle = create_SVG_element("circle");
+  const circle = create_SVG_element("circle");
   circle.setAttribute("cx", String(centerX));
   circle.setAttribute("cy", String(centerY));
   circle.setAttribute("r", String(radius));

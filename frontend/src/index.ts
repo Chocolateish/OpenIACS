@@ -44,7 +44,7 @@ class Character {
 
 console.warn(Character.deserialize({ uuid: "1234", name: "Hero" }));
 
-let formCont = document.body.appendChild(document.createElement("div"));
+const formCont = document.body.appendChild(document.createElement("div"));
 formCont.style.flexGrow = "1";
 formCont.style.maxWidth = "40rem";
 formCont.style.overflow = "auto";
@@ -55,7 +55,7 @@ formCont.style.overflow = "auto";
 //     | | |_ |  _  /| |  | | |  | |  ___/
 //     | |__| | | \ \| |__| | |__| | |
 //      \_____|_|  \_\\____/ \____/|_|
-let grouptest = formCont.appendChild(
+const grouptest = formCont.appendChild(
   form.group.from({
     label: "Group Box",
     border: "outset",
@@ -130,7 +130,7 @@ formCont.appendChild(
   })
 );
 
-let bool = state.s.ros_ws.ok(false);
+const bool = state.s.ros_ws.ok(false);
 formCont.appendChild(
   form.button
     .from({
@@ -165,7 +165,7 @@ formCont.appendChild(
 //     | |  | |  _  /| |  | |  ___/| |  | | |  | |\ \/  \/ / | . ` |
 //     | |__| | | \ \| |__| | |    | |__| | |__| | \  /\  /  | |\  |
 //     |_____/|_|  \_\\____/|_|    |_____/ \____/   \/  \/   |_| \_|
-let num = state.s.ros.ok(0);
+const num = state.s.ros.ok(0);
 formCont.appendChild(
   form.dropdown.from({
     label: "Dropdown",
@@ -280,7 +280,7 @@ formCont.appendChild(
 //      \___ \| |      | | | |  | |  __| |  _  /
 //      ____) | |____ _| |_| |__| | |____| | \ \
 //     |_____/|______|_____|_____/|______|_|  \_\
-let slideNum = state.s.ros_ws.ok(0);
+const slideNum = state.s.ros_ws.ok(0);
 formCont.appendChild(
   form.slider.from({
     label: "Slider",
@@ -332,7 +332,7 @@ formCont.appendChild(
 //      \___ \   | |  |  __| |  ___/|  ___/|  __| |  _  /
 //      ____) |  | |  | |____| |    | |    | |____| | \ \
 //     |_____/   |_|  |______|_|    |_|    |______|_|  \_\
-let stepperNum = state.s.ros_ws.ok(0);
+const stepperNum = state.s.ros_ws.ok(0);
 formCont.appendChild(
   form.stepper.from({
     label: "Stepper",

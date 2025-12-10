@@ -22,16 +22,16 @@ describe("Initialize lazy states", function () {
       st.l.ros.result(() => Ok(1));
     });
     it("cleanup successfull", async function () {
-      let init = st.l.ros.result(() => Ok(1));
-      let get = init.get;
-      let set = init.set;
+      const init = st.l.ros.result(() => Ok(1));
+      const get = init.get;
+      const set = init.set;
       await init;
       expect(init.get).not.eq(get, "get");
       expect(init.set).not.eq(set, "set");
     });
-    let maker: TEST_STATE_OK_SYNC = () => {
-      let state = st.l.ros.ok(() => 1);
-      let set = (val: ResultOk<number>) => state.set(val);
+    const maker: TEST_STATE_OK_SYNC = () => {
+      const state = st.l.ros.ok(() => 1);
+      const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: true, w: false, ws: false, state, set };
     };
     it("Subscribing And Unsubscribing", async function () {
@@ -59,16 +59,16 @@ describe("Initialize lazy states", function () {
       st.l.res.result(() => Ok(1));
     });
     it("cleanup successfull", async function () {
-      let init = st.l.res.result(() => Ok(1));
-      let get = init.get;
-      let set = init.set;
+      const init = st.l.res.result(() => Ok(1));
+      const get = init.get;
+      const set = init.set;
       await init;
       expect(init.get).not.eq(get, "get");
       expect(init.set).not.eq(set, "set");
     });
-    let maker: TEST_STATE_SYNC = () => {
-      let state = st.l.res.ok(() => 1);
-      let set = (val: Result<number, string>) => state.set(val);
+    const maker: TEST_STATE_SYNC = () => {
+      const state = st.l.res.ok(() => 1);
+      const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: true, w: false, ws: false, state, set };
     };
     it("Subscribing And Unsubscribing", async function () {
@@ -90,16 +90,16 @@ describe("Initialize lazy states", function () {
       st.l.ros_ws.result(() => Ok(1));
     });
     it("cleanup successfull", async function () {
-      let init = st.l.ros_ws.ok(() => 1);
-      let set = init.set;
-      let writeSync = init.write_sync;
+      const init = st.l.ros_ws.ok(() => 1);
+      const set = init.set;
+      const writeSync = init.write_sync;
       await init;
       expect(init.set).not.eq(set, "set");
       expect(init.write_sync).not.eq(writeSync, "writeSync");
     });
-    let maker: TEST_STATE_OK_SYNC = () => {
-      let state = st.l.ros_ws.ok(() => 1);
-      let set = (val: ResultOk<number>) => state.set(val);
+    const maker: TEST_STATE_OK_SYNC = () => {
+      const state = st.l.ros_ws.ok(() => 1);
+      const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: true, w: true, ws: true, state, set };
     };
     it("Subscribing And Unsubscribing", async function () {
@@ -114,9 +114,9 @@ describe("Initialize lazy states", function () {
     it("GetOk", async function () {
       await test_state_get_ok(maker);
     });
-    let makerWrite: TEST_STATE_WRITESYNC = () => {
-      let state = st.l.ros_ws.ok(() => 1, true);
-      let set = (val: ResultOk<number>) => state.set(val);
+    const makerWrite: TEST_STATE_WRITESYNC = () => {
+      const state = st.l.ros_ws.ok(() => 1, true);
+      const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: true, w: true, ws: true, state, set };
     };
     it("Write", async function () {
@@ -138,16 +138,16 @@ describe("Initialize lazy states", function () {
       st.l.res_ws.result(() => Ok(1));
     });
     it("cleanup successfull", async function () {
-      let init = st.l.res_ws.ok(() => 1);
-      let set = init.set;
-      let writeSync = init.write_sync;
+      const init = st.l.res_ws.ok(() => 1);
+      const set = init.set;
+      const writeSync = init.write_sync;
       await init;
       expect(init.set).not.eq(set, "set");
       expect(init.write_sync).not.eq(writeSync, "writeSync");
     });
-    let maker: TEST_STATE_SYNC = () => {
-      let state = st.l.res_ws.ok(() => 1);
-      let set = (val: Result<number, string>) => state.set(val);
+    const maker: TEST_STATE_SYNC = () => {
+      const state = st.l.res_ws.ok(() => 1);
+      const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: true, w: true, ws: true, state, set };
     };
     it("Subscribing And Unsubscribing", async function () {
@@ -159,9 +159,9 @@ describe("Initialize lazy states", function () {
     it("Get", async function () {
       await test_state_get(maker);
     });
-    let makerWrite: TEST_STATE_WRITESYNC = () => {
-      let state = st.l.res_ws.ok(() => 1, true);
-      let set = (val: Result<number, string>) => state.set(val);
+    const makerWrite: TEST_STATE_WRITESYNC = () => {
+      const state = st.l.res_ws.ok(() => 1, true);
+      const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: true, w: true, ws: true, state, set };
     };
     it("Write", async function () {

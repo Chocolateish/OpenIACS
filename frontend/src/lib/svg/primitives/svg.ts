@@ -9,7 +9,7 @@ export function svg(
   height: number,
   viewbox: string = `0 0 ${width} ${height}`
 ): SVGSVGElement {
-  let svg = create_SVG_element("svg");
+  const svg = create_SVG_element("svg");
   svg.setAttribute("width", String(width));
   svg.setAttribute("height", String(height));
   svg.setAttribute("viewBox", String(viewbox));

@@ -67,9 +67,9 @@ export class REA<RT, IN extends STATE<any>[], WT>
       return (this.#buffer = Err("No states registered"));
     this.#stateBuffers.length = this.#states.length;
     //Creates a new scope to hold count and amount variables
-    scope: {
+    {
       let count = 0;
-      let amount = this.#states.length - 1;
+      const amount = this.#states.length - 1;
       Promise.all(this.#states).then((vals) => {
         for (let i = 0; i < this.#stateBuffers.length; i++)
           this.#stateBuffers[i] = this.#stateBuffers[i] ?? vals[i];

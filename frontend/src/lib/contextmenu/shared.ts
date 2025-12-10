@@ -1,7 +1,7 @@
 import { blue, grey } from "@libColors";
 import { theme_init_variable_root } from "@libTheme";
 
-let variables = theme_init_variable_root(
+const variables = theme_init_variable_root(
   "contextmenu",
   "Context Menu",
   "Right click or touch and hold context menu appearance"

@@ -98,14 +98,14 @@ export async function test_state_sub(
   stateMaker: TEST_STATE_ALL,
   wait: number
 ): Promise<void> {
-  let made = stateMaker();
-  let { state, set } = made;
-  let warnBackup = console.error;
+  const made = stateMaker();
+  const { state, set } = made;
+  const warnBackup = console.error;
   console.error = () => {
     count += 100000000;
   };
   let count = 0;
-  let sub1 = state.sub(() => {
+  const sub1 = state.sub(() => {
     count++;
   }, true) as STATE_SUB<any>;
   expect(state.in_use()).equal(state);
@@ -113,7 +113,7 @@ export async function test_state_sub(
   expect(state.amount()).equal(1);
   await sleep(wait ?? 1);
   expect(count).equal(1);
-  let sub2 = state.sub(() => {
+  const sub2 = state.sub(() => {
     count += 10;
   }) as STATE_SUB<any>;
   expect(state.in_use()).equal(state);
@@ -123,7 +123,7 @@ export async function test_state_sub(
   set(Ok(8));
   await sleep(1);
   expect(count).equal(12);
-  let sub3 = state.sub(() => {
+  const sub3 = state.sub(() => {
     count += 100;
     throw new Error("Gaurded against crash");
   }) as STATE_SUB<any>;
@@ -144,9 +144,9 @@ export async function test_state_sub(
   state.unsub(sub3);
   expect(state.in_use()).equal(undefined);
   expect(state.amount()).equal(0);
-  let [sub4, val] = await new Promise<[STATE_SUB<any>, Result<number, string>]>(
+  const [sub4, val] = await new Promise<[STATE_SUB<any>, Result<number, string>]>(
     (a) => {
-      let sub4 = state.sub((val) => {
+      const sub4 = state.sub((val) => {
         count += 1000;
         a([sub4, val]);
       }) as STATE_SUB<any>;
@@ -158,10 +158,10 @@ export async function test_state_sub(
   expect(count).equal(200001223);
   state.unsub(sub4);
   if (!made.o) {
-    let [sub5, val2] = await new Promise<
+    const [sub5, val2] = await new Promise<
       [STATE_SUB<any>, Result<number, string>]
     >((a) => {
-      let sub5 = state.sub((val) => {
+      const sub5 = state.sub((val) => {
         count += 10000;
         a([sub5, val]);
       }) as STATE_SUB<any>;
@@ -191,7 +191,7 @@ export async function test_state_then(
   wait: number
 ): Promise<void> {
   it("awaiting then setting trice", async function () {
-    let { state, set } = stateMaker();
+    const { state, set } = stateMaker();
     let awaited = await Promise.race([state, sleep(wait)]);
     expect(awaited).instanceOf(ResultOk);
     expect(awaited).toEqual(Ok(1));
@@ -205,7 +205,7 @@ export async function test_state_then(
     expect(awaited).toEqual(Ok(9999999999));
   });
   it("using then", async function () {
-    let { state } = stateMaker();
+    const { state } = stateMaker();
     await Promise.race([
       new Promise((a) => {
         state.then((val) => {
@@ -218,7 +218,7 @@ export async function test_state_then(
     ]);
   });
   it("using then", async function () {
-    let { state } = stateMaker();
+    const { state } = stateMaker();
     expect(
       await new Promise((a) => {
         state
@@ -235,7 +235,7 @@ export async function test_state_then(
     ).equal(12);
   });
   it("using then", async function () {
-    let { state } = stateMaker();
+    const { state } = stateMaker();
     expect(
       await new Promise((a) => {
         state
@@ -255,16 +255,16 @@ export async function test_state_then(
     ).equal(12);
   });
   it("setting then awaiting", async function () {
-    let { state, set } = stateMaker();
+    const { state, set } = stateMaker();
     set(Ok(7));
-    let awaited = await state;
+    const awaited = await state;
     expect(awaited).toEqual(Ok(7));
   });
   it("setting error then awaiting", async function () {
-    let made = stateMaker();
+    const made = stateMaker();
     if (made.o) return;
     made.set(Err(errGen()));
-    let awaited = await made.state;
+    const awaited = await made.state;
     expect(awaited).toEqual(Err(errGen()));
   });
 }
@@ -281,7 +281,7 @@ export async function test_state_then(
 export async function test_state_get(
   stateMaker: TEST_STATE_SYNC
 ): Promise<void> {
-  let made = stateMaker();
+  const made = stateMaker();
   expect(made.state.get()).toEqual(Ok(1));
   made.set(Ok(55));
   expect(made.state.get()).toEqual(Ok(55));
@@ -303,7 +303,7 @@ export async function test_state_get(
 export async function test_state_get_ok(
   stateMaker: TEST_STATE_OK_SYNC
 ): Promise<void> {
-  let { state } = stateMaker();
+  const { state } = stateMaker();
   expect(state.ok()).toEqual(1);
 }
 
@@ -319,9 +319,9 @@ export async function test_state_get_ok(
 export async function test_state_write(
   stateMaker: TEST_STATE_WRITE
 ): Promise<void> {
-  let { state } = stateMaker();
+  const { state } = stateMaker();
   expect(await state.write(15)).toEqual(Ok(undefined));
-  let awaited = await state;
+  const awaited = await state;
   expect(awaited).toEqual(Ok(15));
 }
 
@@ -337,9 +337,9 @@ export async function test_state_write(
 export async function test_state_writeSync(
   stateMaker: TEST_STATE_WRITESYNC
 ): Promise<void> {
-  let { state } = stateMaker();
+  const { state } = stateMaker();
   expect(state.write_sync(10)).toEqual(Ok(undefined));
-  let awaited = await state;
+  const awaited = await state;
   expect(awaited).toEqual(Ok(10));
 }
 

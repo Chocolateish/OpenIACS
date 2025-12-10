@@ -1,7 +1,7 @@
 import { type ColorStruct } from "./shared";
 
 //List of material purple colors
-export let purple: ColorStruct = {
+export const purple: ColorStruct = {
   "50": "#F3E5F5",
   "100": "#E1BEE7",
   "200": "#CE93D8",

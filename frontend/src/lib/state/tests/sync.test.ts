@@ -21,9 +21,9 @@ describe("Sync states", function () {
     it("result ok", async function () {
       st.s.ros.result(Ok(1));
     });
-    let maker: TEST_STATE_OK_SYNC = () => {
-      let state = st.s.ros.ok(1);
-      let set = (val: ResultOk<number>) => state.set(val);
+    const maker: TEST_STATE_OK_SYNC = () => {
+      const state = st.s.ros.ok(1);
+      const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: true, w: false, ws: false, state, set };
     };
     it("Subscribing And Unsubscribing", async function () {
@@ -50,9 +50,9 @@ describe("Sync states", function () {
     it("result ok", async function () {
       st.s.res.result(Ok(1));
     });
-    let maker: TEST_STATE_SYNC = () => {
-      let state = st.s.res.ok(1);
-      let set = (val: Result<number, string>) => state.set(val);
+    const maker: TEST_STATE_SYNC = () => {
+      const state = st.s.res.ok(1);
+      const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: true, w: false, ws: false, state, set };
     };
     it("Subscribing And Unsubscribing", async function () {
@@ -73,9 +73,9 @@ describe("Sync states", function () {
     it("result ok", async function () {
       st.s.ros_ws.result(Ok(1), true);
     });
-    let maker: TEST_STATE_OK_SYNC = () => {
-      let state = st.s.ros_ws.ok(1, true);
-      let set = (val: ResultOk<number>) => state.set(val);
+    const maker: TEST_STATE_OK_SYNC = () => {
+      const state = st.s.ros_ws.ok(1, true);
+      const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: true, w: true, ws: true, state, set };
     };
     it("Subscribing And Unsubscribing", async function () {
@@ -90,9 +90,9 @@ describe("Sync states", function () {
     it("GetOk", async function () {
       await test_state_get_ok(maker);
     });
-    let makerWrite: TEST_STATE_WRITESYNC = () => {
-      let state = st.s.ros_ws.ok(1, true);
-      let set = (val: ResultOk<number>) => state.set(val);
+    const makerWrite: TEST_STATE_WRITESYNC = () => {
+      const state = st.s.ros_ws.ok(1, true);
+      const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: true, w: true, ws: true, state, set };
     };
     it("Write", async function () {
@@ -113,9 +113,9 @@ describe("Sync states", function () {
     it("result ok", async function () {
       st.s.res_ws.result(Ok(1), true);
     });
-    let maker: TEST_STATE_SYNC = () => {
-      let state = st.s.res_ws.ok(1, true);
-      let set = (val: Result<number, string>) => state.set(val);
+    const maker: TEST_STATE_SYNC = () => {
+      const state = st.s.res_ws.ok(1, true);
+      const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: true, w: true, ws: true, state, set };
     };
     it("Test Subscribing And Unsubscribing", async function () {
@@ -127,9 +127,9 @@ describe("Sync states", function () {
     it("Get", async function () {
       await test_state_get(maker);
     });
-    let makerWrite: TEST_STATE_WRITESYNC = () => {
-      let state = st.s.res_ws.ok(1, true);
-      let set = (val: Result<number, string>) => state.set(val);
+    const makerWrite: TEST_STATE_WRITESYNC = () => {
+      const state = st.s.res_ws.ok(1, true);
+      const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: true, w: true, ws: true, state, set };
     };
     it("Write", async function () {

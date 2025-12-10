@@ -124,32 +124,32 @@ export class RES<AT, REL extends Option<RELATED>>
   }
 
   push(...items: AT[]): number {
-    let index = this.#a.length;
-    let newLen = this.#a.push(...items);
+    const index = this.#a.length;
+    const newLen = this.#a.push(...items);
     this.update_subs(Ok(this.#mr("added", index, items)));
     return newLen;
   }
 
   pop(): AT | undefined {
-    let p = this.#a.pop();
+    const p = this.#a.pop();
     if (p) this.update_subs(Ok(this.#mr("removed", this.#a.length + 1, [p!])));
     return p;
   }
 
   shift(): AT | undefined {
-    let shifted = this.#a.shift();
+    const shifted = this.#a.shift();
     if (shifted) this.update_subs(Ok(this.#mr("removed", 0, [shifted!])));
     return shifted;
   }
 
   unshift(...items: AT[]): number {
-    let newLen = this.#a.unshift(...items);
+    const newLen = this.#a.unshift(...items);
     this.update_subs(Ok(this.#mr("added", 0, items)));
     return newLen;
   }
 
   splice(start: number, deleteCount?: number, ...items: AT[]): AT[] {
-    let r = this.#a.splice(start, deleteCount!, ...items);
+    const r = this.#a.splice(start, deleteCount!, ...items);
     if (r.length > 0) this.update_subs(Ok(this.#mr("removed", start, r)));
     if (items.length > 0) this.update_subs(Ok(this.#mr("added", start, items)));
     return r;
@@ -170,8 +170,8 @@ export class RES<AT, REL extends Option<RELATED>>
     transform: (val: readonly B[], type: READ_TYPE) => AT[]
   ) {
     if (result.err) return this.set(result);
-    let { index, items: its, type } = result.value;
-    let items = transform(its, type);
+    const { index, items: its, type } = result.value;
+    const items = transform(its, type);
     if (type === "none") return this.set(Ok(items));
     else if (type === "added") this.#a.splice(index, 0, ...items);
     else if (type === "removed") this.#a.splice(index, items.length);
@@ -318,32 +318,32 @@ export class RES_WS<AT, REL extends Option<RELATED>>
   }
 
   push(...items: AT[]): number {
-    let index = this.#a.length;
-    let newLen = this.#a.push(...items);
+    const index = this.#a.length;
+    const newLen = this.#a.push(...items);
     this.update_subs(Ok(this.#mr("added", index, items)));
     return newLen;
   }
 
   pop(): AT | undefined {
-    let p = this.#a.pop();
+    const p = this.#a.pop();
     if (p) this.update_subs(Ok(this.#mr("removed", this.#a.length + 1, [p!])));
     return p;
   }
 
   shift(): AT | undefined {
-    let shifted = this.#a.shift();
+    const shifted = this.#a.shift();
     if (shifted) this.update_subs(Ok(this.#mr("removed", 0, [shifted!])));
     return shifted;
   }
 
   unshift(...items: AT[]): number {
-    let newLen = this.#a.unshift(...items);
+    const newLen = this.#a.unshift(...items);
     this.update_subs(Ok(this.#mr("added", 0, items)));
     return newLen;
   }
 
   splice(start: number, deleteCount?: number, ...items: AT[]): AT[] {
-    let r = this.#a.splice(start, deleteCount!, ...items);
+    const r = this.#a.splice(start, deleteCount!, ...items);
     if (r.length > 0) this.update_subs(Ok(this.#mr("removed", start, r)));
     if (items.length > 0) this.update_subs(Ok(this.#mr("added", start, items)));
     return r;
@@ -364,8 +364,8 @@ export class RES_WS<AT, REL extends Option<RELATED>>
     transform: (val: readonly B[], type: READ_TYPE) => AT[]
   ) {
     if (result.err) return this.set(result);
-    let { index, items: its, type } = result.value;
-    let items = transform(its, type);
+    const { index, items: its, type } = result.value;
+    const items = transform(its, type);
     if (type === "none") return this.set(Ok(items));
     else if (type === "added") this.#a.splice(index, 0, ...items);
     else if (type === "removed") this.#a.splice(index, items.length);

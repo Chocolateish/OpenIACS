@@ -1,7 +1,7 @@
 import { type ColorStruct } from "./shared";
 
 //List of material orange colors
-export let orange: ColorStruct = {
+export const orange: ColorStruct = {
   "50": "#FFF3E0",
   "100": "#FFE0B2",
   "200": "#FFCC80",

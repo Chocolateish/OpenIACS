@@ -11,37 +11,37 @@ import { Err, None, Ok, Some, type Option, type Result } from ".";
 //###########################################################################################################################################################
 describe("Result Ok", function () {
   it("Value from valid result", function () {
-    let result = Ok(42);
+    const result = Ok(42);
     expect(result.value).equal(42);
   });
   it("Ok from valid result", function () {
-    let result = Ok(42);
+    const result = Ok(42);
     expect(result.ok).equal(true);
   });
   it("Err from valid result", function () {
-    let result = Ok(42);
+    const result = Ok(42);
     expect(result.err).equal(false);
   });
   it("Expect value from valid result", function () {
-    let result = Ok(42);
+    const result = Ok(42);
     expect(result.expect()).equal(42);
   });
   it("Expect err value from valid result", function () {
-    let result = Ok(42);
+    const result = Ok(42);
     expect(() => {
       result.expect_err("YOYO");
     }).to.throw();
   });
   it("Unwrap value from valid result", function () {
-    let result = Ok(42);
+    const result = Ok(42);
     expect(result.unwrap).equal(42);
   });
   it("UnwrapOr value from valid result", function () {
-    let result = Ok(42);
+    const result = Ok(42);
     expect(result.unwrap_or()).equal(42);
   });
   it("andThen from valid result returning valid result", function () {
-    let result = Ok(42);
+    const result = Ok(42);
     expect(
       result
         .and_then((val) => {
@@ -52,7 +52,7 @@ describe("Result Ok", function () {
     ).equal("42");
   });
   it("andThen from valid result returning error result", function () {
-    let result = Ok(42);
+    const result = Ok(42);
     expect(
       result
         .and_then((val) => {
@@ -63,11 +63,11 @@ describe("Result Ok", function () {
     ).equal("42");
   });
   it("orElse from valid result", function () {
-    let result = Ok(42);
+    const result = Ok(42);
     expect(result.or_else().expect()).equal(42);
   });
   it("map from valid result", function () {
-    let result = Ok(42);
+    const result = Ok(42);
     expect(
       result
         .map((val) => {
@@ -78,11 +78,11 @@ describe("Result Ok", function () {
     ).equal("42");
   });
   it("mapErr from valid result", function () {
-    let result = Ok(42);
+    const result = Ok(42);
     expect(result.map_err().expect()).equal(42);
   });
   it("toOptional from valid result", function () {
-    let result = Ok(42);
+    const result = Ok(42);
     expect(result.to_option.expect()).equal(42);
   });
 });
@@ -97,41 +97,41 @@ describe("Result Ok", function () {
 //###########################################################################################################################################################
 describe("Result Error", function () {
   it("Value from error result", function () {
-    let result = Err(42);
+    const result = Err(42);
     expect(result.error).equal(42);
   });
   it("Valid from error result", function () {
-    let result = Err(42);
+    const result = Err(42);
     expect(result.valid).equal(false);
   });
   it("Ok from error result", function () {
-    let result = Err(42);
+    const result = Err(42);
     expect(result.ok).equal(false);
   });
   it("Err from error result", function () {
-    let result = Err(42);
+    const result = Err(42);
     expect(result.err).equal(true);
   });
   it("Expect err value from error result", function () {
-    let result = Err(42);
+    const result = Err(42);
     expect(result.expect_err()).equal(42);
   });
   it("Unwrap value from error result", function () {
-    let result = Err(42);
+    const result = Err(42);
     expect(() => {
       result.unwrap;
     }).to.throw();
   });
   it("UnwrapOr value from error result", function () {
-    let result = Err(42);
+    const result = Err(42);
     expect(result.unwrap_or(42)).equal(42);
   });
   it("andThen from error result", function () {
-    let result = Err(42);
+    const result = Err(42);
     expect(result.and_then().expect_err()).equal(42);
   });
   it("orElse from error result", function () {
-    let result = Err(42);
+    const result = Err(42);
     expect(
       result
         .or_else((val) => {
@@ -142,11 +142,11 @@ describe("Result Error", function () {
     ).equal("42");
   });
   it("map from error result", function () {
-    let result = Err(42);
+    const result = Err(42);
     expect(result.map().expect_err()).equal(42);
   });
   it("mapErr from error result", function () {
-    let result = Err(42);
+    const result = Err(42);
     expect(
       result
         .map_err((val) => {
@@ -157,7 +157,7 @@ describe("Result Error", function () {
     ).equal("42");
   });
   it("toOptional from error result", function () {
-    let result = Err(42);
+    const result = Err(42);
     expect(result.to_option.none).equal(true);
   });
 });
@@ -171,31 +171,31 @@ describe("Result Error", function () {
 //###########################################################################################################################################################
 describe("Option Some", function () {
   it("Value from Some", function () {
-    let result = Some(42);
+    const result = Some(42);
     expect(result.value).equal(42);
   });
   it("Some from Some", function () {
-    let result = Some(42);
+    const result = Some(42);
     expect(result.some).equal(true);
   });
   it("None from Some", function () {
-    let result = Some(42);
+    const result = Some(42);
     expect(result.none).equal(false);
   });
   it("Expect value from Some", function () {
-    let result = Some(42);
+    const result = Some(42);
     expect(result.expect()).equal(42);
   });
   it("Unwrap value from Some", function () {
-    let result = Some(42);
+    const result = Some(42);
     expect(result.unwrap).equal(42);
   });
   it("UnwrapOr value from Some", function () {
-    let result = Some(42);
+    const result = Some(42);
     expect(result.unwrap_or()).equal(42);
   });
   it("andThen from Some returning Some", function () {
-    let result = Some(42);
+    const result = Some(42);
     expect(
       result
         .and_then((val) => {
@@ -206,7 +206,7 @@ describe("Option Some", function () {
     ).equal("42");
   });
   it("andThen from Some returning error result", function () {
-    let result = Some(42);
+    const result = Some(42);
     expect(
       result.and_then((val) => {
         expect(val).equal(42);
@@ -215,11 +215,11 @@ describe("Option Some", function () {
     ).equal(true);
   });
   it("orElse from Some", function () {
-    let result = Some(42);
+    const result = Some(42);
     expect(result.or_else().expect()).equal(42);
   });
   it("map from Some", function () {
-    let result = Some(42);
+    const result = Some(42);
     expect(
       result
         .map((val) => {
@@ -230,7 +230,7 @@ describe("Option Some", function () {
     ).equal("42");
   });
   it("toResult from Some", function () {
-    let result = Some(42);
+    const result = Some(42);
     expect(result.to_result().expect()).equal(42);
   });
 });
@@ -245,35 +245,35 @@ describe("Option Some", function () {
 //###########################################################################################################################################################
 describe("Option None", function () {
   it("Some from None", function () {
-    let result = None();
+    const result = None();
     expect(result.some).equal(false);
   });
   it("None from None", function () {
-    let result = None();
+    const result = None();
     expect(result.none).equal(true);
   });
   it("Expect value from None", function () {
-    let result = None();
+    const result = None();
     expect(() => {
       result.expect("YOYO");
     }).to.throw();
   });
   it("Unwrap value from None", function () {
-    let result = None();
+    const result = None();
     expect(() => {
       result.unwrap;
     }).to.throw();
   });
   it("UnwrapOr value from None", function () {
-    let result = None();
+    const result = None();
     expect(result.unwrap_or(42)).equal(42);
   });
   it("andThen from None returning error result", function () {
-    let result = None();
+    const result = None();
     expect(result.and_then().none).equal(true);
   });
   it("orElse from Some returning Some", function () {
-    let result = None();
+    const result = None();
     expect(
       result
         .or_else(() => {
@@ -283,7 +283,7 @@ describe("Option None", function () {
     ).equal("42");
   });
   it("orElse from Some returning error result", function () {
-    let result = None();
+    const result = None();
     expect(
       result.or_else(() => {
         return None();
@@ -291,11 +291,11 @@ describe("Option None", function () {
     ).equal(true);
   });
   it("map from None", function () {
-    let result = None();
+    const result = None();
     expect(result.map()).equal(result);
   });
   it("toResult from None", function () {
-    let result = None();
+    const result = None();
     expect(result.to_result("YOYO").err).equal(true);
   });
 });
@@ -310,7 +310,7 @@ describe("Option None", function () {
 //###########################################################################################################################################################
 describe("Option", function () {
   it("Type narrowing", function () {
-    let result = ((): Option<boolean> => {
+    const result = ((): Option<boolean> => {
       return None();
     })();
     expectTypeOf(result).toEqualTypeOf<Option<boolean>>();
@@ -330,7 +330,7 @@ describe("Option", function () {
 //###########################################################################################################################################################
 describe("Result", function () {
   it("Type narrowing", function () {
-    let result = ((): Result<boolean, string> => {
+    const result = ((): Result<boolean, string> => {
       return Err("YOYO");
     })();
     expectTypeOf(result).toEqualTypeOf<Result<boolean, string>>();

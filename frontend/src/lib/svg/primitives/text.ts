@@ -14,7 +14,7 @@ export function text(
   size: number,
   anchor: SVGAnchorPoint
 ): SVGTextElement {
-  let text_elem = create_SVG_element("text");
+  const text_elem = create_SVG_element("text");
   text_elem.setAttribute("x", String(x));
   text_elem.setAttribute("y", String(y));
   text_elem.setAttribute("font-size", String(size));
@@ -79,8 +79,8 @@ export function multi_line_text(
   size: number,
   anchor: SVGAnchorPoint
 ): SVGForeignObjectElement {
-  let text_element = create_SVG_element("foreignObject");
-  let text_div = text_element.appendChild(document.createElement("div"));
+  const text_element = create_SVG_element("foreignObject");
+  const text_div = text_element.appendChild(document.createElement("div"));
   text_element.setAttribute("width", String(width));
   text_element.setAttribute("height", String(height));
   text_element.setAttribute("x", String(x));

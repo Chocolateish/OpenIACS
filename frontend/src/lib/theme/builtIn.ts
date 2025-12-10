@@ -4,18 +4,18 @@ import { theme_init_variable_root } from "./variables";
 
 export const BUILT_IN = 0;
 
-let root = theme_init_variable_root(
+const root = theme_init_variable_root(
   "common",
   "Shared Variables",
   "Shared variables across features"
 );
 
-let scroll_bar = root.make_sub_group(
+const scroll_bar = root.make_sub_group(
   "scrollbar",
   "Scrollbar",
   "Scrollbar variables"
 );
-let scroll_bar_thumb = scroll_bar.make_sub_group(
+const scroll_bar_thumb = scroll_bar.make_sub_group(
   "thumb",
   "Thumb",
   "Scrollbar Thumb variables"
@@ -48,7 +48,7 @@ scroll_bar_thumb.make_variable(
   undefined
 );
 
-let fonts = root.make_sub_group("fonts", "Fonts", "Font variables");
+const fonts = root.make_sub_group("fonts", "Fonts", "Font variables");
 fonts.make_variable(
   "base",
   "UI Base Font",
@@ -59,7 +59,7 @@ fonts.make_variable(
   undefined
 );
 
-let colors = root.make_sub_group("colors", "Colors", "Color variables");
+const colors = root.make_sub_group("colors", "Colors", "Color variables");
 colors.make_variable(
   "layer1",
   "UI Layer 1",

@@ -103,7 +103,7 @@ export class FormDropdown<
       this.#selected = -1;
     }
     for (let i = 0; selections && i < selections.length; i++) {
-      let { value, text, icon } = selections[i];
+      const { value, text, icon } = selections[i];
       this.#map.set(value, { text, icon });
       this.#values.push(value);
     }
@@ -124,7 +124,7 @@ export class FormDropdown<
   /**Changes the icon of the button*/
   set #set_icon(icon: SVGFunc | undefined) {
     if (icon) {
-      let i = icon();
+      const i = icon();
       if (this.#icon) this._body.replaceChild(i, this.#icon);
       else this._body.insertBefore(i, this.#text);
       this.#icon = i;
@@ -137,7 +137,7 @@ export class FormDropdown<
   /**Selects the previous or next selection in the element
    * @param dir false is next true is previous*/
   #select_adjacent(dir: boolean) {
-    let y = Math.min(
+    const y = Math.min(
       this.#values.length - 1,
       Math.max(0, dir ? this.#selected + 1 : this.#selected - 1)
     );
@@ -158,7 +158,7 @@ export class FormDropdown<
       this.#selected = -1;
       return;
     }
-    let opt = this.#map.get(value)!;
+    const opt = this.#map.get(value)!;
     this.#text.innerText = opt.text;
     this.#selected = this.#values.indexOf(value);
     if (opt.icon) this.#set_icon = opt.icon;
@@ -179,12 +179,12 @@ export class FormDropdown<
 }
 define_element(FormDropdown);
 
-export let form_dropDown = {
+export const form_dropDown = {
   /**Creates a dropdown form element */
   from<RT, ID extends string | undefined>(
     options?: FormDropDownOptions<RT, ID>
   ): FormDropdown<RT, ID> {
-    let drop = new FormDropdown<RT, ID>(options?.id);
+    const drop = new FormDropdown<RT, ID>(options?.id);
     if (options) {
       if (options.default) drop.default = options.default;
       if (options.default_icon) drop.default_icon = options.default_icon;
@@ -280,17 +280,17 @@ class DropDownBox extends Base {
     ref: HTMLDivElement,
     value: any
   ) {
-    let inner_height = this.ownerDocument.defaultView?.innerHeight || 0;
+    const inner_height = this.ownerDocument.defaultView?.innerHeight || 0;
     this.classList.add("open");
-    let bounds = ref.getBoundingClientRect();
+    const bounds = ref.getBoundingClientRect();
     if (bounds.y + bounds.height / 2 < inner_height / 2) {
-      let top = bounds.y + bounds.height;
+      const top = bounds.y + bounds.height;
       this.#container.style.top = top + "px";
       this.#container.style.bottom = "";
       this.#container.style.maxHeight = inner_height - top - 10 + "px";
       this.#container.style.flexDirection = "column";
     } else {
-      let bottom = inner_height - bounds.y;
+      const bottom = inner_height - bounds.y;
       this.#container.style.top = "";
       this.#container.style.bottom = bottom + "px";
       this.#container.style.maxHeight = inner_height - bottom - 10 + "px";
@@ -307,10 +307,10 @@ class DropDownBox extends Base {
     let focus: HTMLElement | undefined = undefined as HTMLElement | undefined;
     this.#table.replaceChildren(
       ...Array.from(map).map(([val, opt]) => {
-        let line = document.createElement("div");
-        let icon = line.appendChild(document.createElement("div"));
+        const line = document.createElement("div");
+        const icon = line.appendChild(document.createElement("div"));
         if (opt.icon) icon.appendChild(opt.icon());
-        let text = line.appendChild(document.createElement("div"));
+        const text = line.appendChild(document.createElement("div"));
         text.textContent = opt.text;
         line.onpointerup = (e) => {
           if (e.pointerType !== "touch") this.#set_value(val);
@@ -329,10 +329,10 @@ class DropDownBox extends Base {
     );
 
     //Show closer or not
-    let box = this.#scroll.getBoundingClientRect();
-    let boxArea = box.width * box.height;
-    let html = this.ownerDocument.documentElement;
-    let htmlArea = html.clientWidth * html.clientHeight;
+    const box = this.#scroll.getBoundingClientRect();
+    const boxArea = box.width * box.height;
+    const html = this.ownerDocument.documentElement;
+    const htmlArea = html.clientWidth * html.clientHeight;
     if (boxArea > htmlArea * 0.5) {
       this.#table.prepend(this.#closer);
     }
@@ -367,4 +367,4 @@ class DropDownBox extends Base {
   }
 }
 define_element(DropDownBox);
-let box = document.documentElement.appendChild(new DropDownBox());
+const box = document.documentElement.appendChild(new DropDownBox());

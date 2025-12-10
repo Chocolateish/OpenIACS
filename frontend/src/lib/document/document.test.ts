@@ -9,7 +9,7 @@ describe("Document", async () => {
   });
   it("Attach event listener then register document", async () => {
     await new Promise<void>((a) => {
-      let newDoc: Document = document.implementation.createHTMLDocument("test");
+      const newDoc: Document = document.implementation.createHTMLDocument("test");
       docs.events.on("added", (doc) => {
         expect(doc.data).toEqual(newDoc);
         a();
@@ -31,7 +31,7 @@ describe("Document", async () => {
   });
   it("Itterate all existing documents", async () => {
     await new Promise<void>((a) => {
-      let newDoc = document.implementation.createHTMLDocument("test");
+      const newDoc = document.implementation.createHTMLDocument("test");
       docs.register_document(newDoc);
       let prog = 0;
       docs.for_documents(() => {

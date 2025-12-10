@@ -54,8 +54,8 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
       if (e.button === 0) {
         e.stopPropagation();
         this.#slider.classList.add("active");
-        let box = this.#slider.getBoundingClientRect();
-        let offset =
+        const box = this.#slider.getBoundingClientRect();
+        const offset =
           e.clientX >= box.x
             ? e.clientX <= box.x + box.width
               ? box.x - e.clientX
@@ -63,8 +63,8 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
             : 0;
         if (this.#min === -Infinity || this.#max === Infinity) {
           let value = this.buffer || 0;
-          let interval = setInterval(() => {
-            let val = (value += diff / 50);
+          const interval = setInterval(() => {
+            const val = (value += diff / 50);
             if (this.#live) this.set_value_limit(val).map((v) => (value = v));
             else {
               this.limit_value(val).map((v) => {
@@ -78,7 +78,7 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
           this.#slider.setPointerCapture(e.pointerId);
           this.#slider.onpointermove = (ev) => {
             ev.stopPropagation();
-            let perc = this.#x_to_perc(ev.clientX + offset);
+            const perc = this.#x_to_perc(ev.clientX + offset);
             diff = (this.#step || 1) * ((perc - 50) * 2);
             this.#move_slide(perc);
           };
@@ -93,7 +93,7 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
             clearInterval(interval);
           };
         } else {
-          let value = this.buffer || 0;
+          const value = this.buffer || 0;
           this.#move_absolute(e.clientX + offset);
           this.#slider.setPointerCapture(e.pointerId);
           this.#slider.onpointermove = (ev) => {
@@ -241,11 +241,11 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
   }
 
   #move_absolute(x: number, last?: number) {
-    let perc = this.#x_to_perc(x);
+    const perc = this.#x_to_perc(x);
     if (this.#live) this.set_value_limit(this.#perc_to_value(perc));
     else {
       if (last === undefined) {
-        let value = this.limit_value(this.#perc_to_value(perc));
+        const value = this.limit_value(this.#perc_to_value(perc));
         if (value.ok) {
           this.#move_slide(((-this.#min + value.value) / this.#span) * 100);
           this.#move_value(value.value);
@@ -257,7 +257,7 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
   }
 
   #x_to_perc(x: number) {
-    let box = this.#slide.getBoundingClientRect();
+    const box = this.#slide.getBoundingClientRect();
     return Math.min(100, Math.max(0, ((x - box.x) / box.width) * 100));
   }
 
@@ -273,7 +273,7 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
         let interval = 0;
         let scalerInterval = 0;
         let scaler = 250;
-        let release = () => {
+        const release = () => {
           clearInterval(interval);
           clearInterval(scalerInterval);
           clearTimeout(timeout);
@@ -283,7 +283,7 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
         };
         icon.setPointerCapture(e.pointerId);
         icon.classList.add("active");
-        let timeout = setTimeout(() => {
+        const timeout = setTimeout(() => {
           this.#step_value(dir);
           interval = setInterval(() => this.#step_value(dir), scaler);
           scalerInterval = setInterval(() => {
@@ -302,7 +302,7 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
   }
 
   #step_value(dir: boolean) {
-    let step =
+    const step =
       this.#step ||
       Math.max(
         this.#decimals ? 1 / this.#decimals : 1,
@@ -320,12 +320,12 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
 }
 define_element(FormSlider);
 
-export let form_slider = {
+export const form_slider = {
   /**Creates a dropdown form element */
   from<ID extends string | undefined>(
     options?: FormStepperBaseOptions<ID>
   ): FormSlider<ID> {
-    let slide = new FormSlider<ID>(options?.id);
+    const slide = new FormSlider<ID>(options?.id);
     if (options) {
       if (options.live) slide.live = options.live;
       if (options.icon_decrease) slide.icon_decrease = options.icon_decrease;

@@ -19,7 +19,7 @@ export class Container extends Base {
   constructor() {
     super();
     this.tabIndex = -1;
-    let preventer = (e: Event) => {
+    const preventer = (e: Event) => {
       e.preventDefault();
       e.stopPropagation();
     };

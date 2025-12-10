@@ -5,7 +5,7 @@ import type { Radians } from "../shared";
  * @param centerY y coordinate of circle center
  * @param radius radius of circle
  * @param angle angle of point in radians*/
-export let point_on_circle = (
+export const point_on_circle = (
   centerX: number,
   centerY: number,
   radius: number,

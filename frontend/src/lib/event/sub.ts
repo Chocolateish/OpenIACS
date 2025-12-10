@@ -115,11 +115,11 @@ export class EventHandlerSub<Events extends {}, Target>
       };
     if (sub)
       for (let i = 0; i < sub.length; i++) {
-        let subLevelBuffer = subLevel!.subs[sub[i]];
+        const subLevelBuffer = subLevel!.subs[sub[i]];
         if (subLevelBuffer) subLevel = subLevelBuffer;
         else subLevel = subLevel!.subs[sub[i]] = { subs: {}, funcs: new Set() };
       }
-    var typeListeners = subLevel!.funcs;
+    const typeListeners = subLevel!.funcs;
     if (typeListeners.has(subscriber))
       console.error("Subscriber already in handler");
     else typeListeners.add(subscriber);
@@ -131,11 +131,11 @@ export class EventHandlerSub<Events extends {}, Target>
     subscriber: ESubSubscriber<K, Target, Events[K]>,
     sub?: SubPath
   ): typeof subscriber {
-    var subLevel = this.#subStorage[eventName];
+    let subLevel = this.#subStorage[eventName];
     if (subLevel) {
       if (sub)
         for (let i = 0; i < sub.length; i++) {
-          let subLevelBuffer = subLevel!.subs[sub[i]];
+          const subLevelBuffer = subLevel!.subs[sub[i]];
           if (subLevelBuffer) subLevel = subLevelBuffer;
           else {
             console.error("Subscriber not in handler");
@@ -176,10 +176,10 @@ export class EventHandlerSub<Events extends {}, Target>
     sub?: SubPath
   ): void {
     if (sub) {
-      var subLevel = this.#subStorage[eventName];
+      let subLevel = this.#subStorage[eventName];
       if (subLevel)
         for (let i = 0; i < sub.length; i++) {
-          let subLevelBuffer = subLevel!.subs[sub[i]];
+          const subLevelBuffer = subLevel!.subs[sub[i]];
           if (subLevelBuffer) subLevel = subLevelBuffer;
           else if (this.#proxies?.size)
             return this.#emitE(
@@ -235,7 +235,7 @@ export class EventHandlerSub<Events extends {}, Target>
         if (sub) {
           let subLevel = typeBuff;
           for (var i = 0; i < sub.length - 1; i++) {
-            let subLevelBuffer = subLevel!.subs[sub[i]];
+            const subLevelBuffer = subLevel!.subs[sub[i]];
             if (subLevelBuffer) subLevel = subLevelBuffer;
             else return;
           }
@@ -248,7 +248,7 @@ export class EventHandlerSub<Events extends {}, Target>
       } else {
         if (sub)
           for (let i = 0; i < sub.length; i++) {
-            let subLevelBuffer = typeBuff!.subs[sub[i]];
+            const subLevelBuffer = typeBuff!.subs[sub[i]];
             if (subLevelBuffer) typeBuff = subLevelBuffer;
             else return;
           }
@@ -262,7 +262,7 @@ export class EventHandlerSub<Events extends {}, Target>
     if (typeBuff) {
       if (sub)
         for (let i = 0; i < sub.length; i++) {
-          let subLevelBuffer = typeBuff!.subs[sub[i]];
+          const subLevelBuffer = typeBuff!.subs[sub[i]];
           if (subLevelBuffer) typeBuff = subLevelBuffer;
           else return false;
         }
@@ -279,7 +279,7 @@ export class EventHandlerSub<Events extends {}, Target>
     if (typeBuff) {
       if (sub)
         for (let i = 0; i < sub.length; i++) {
-          let subLevelBuffer = typeBuff!.subs[sub[i]];
+          const subLevelBuffer = typeBuff!.subs[sub[i]];
           if (subLevelBuffer) typeBuff = subLevelBuffer;
           else return false;
         }
@@ -292,7 +292,7 @@ export class EventHandlerSub<Events extends {}, Target>
     if (typeBuff) {
       if (sub)
         for (let i = 0; i < sub.length; i++) {
-          let subLevelBuffer = typeBuff!.subs[sub[i]];
+          const subLevelBuffer = typeBuff!.subs[sub[i]];
           if (subLevelBuffer) typeBuff = subLevelBuffer;
           else return 0;
         }
@@ -303,10 +303,10 @@ export class EventHandlerSub<Events extends {}, Target>
   proxy_func(): ESubSubscriber<keyof Events, Target, Events[keyof Events]> {
     return (e: ESub<keyof Events, Target, Events[keyof Events]>) => {
       if (e.sub) {
-        var subLevel = this.#subStorage[e.type];
+        let subLevel = this.#subStorage[e.type];
         if (subLevel)
           for (let i = 0; i < e.sub.length; i++) {
-            let subLevelBuffer = subLevel!.subs[e.sub[i]];
+            const subLevelBuffer = subLevel!.subs[e.sub[i]];
             if (subLevelBuffer) subLevel = subLevelBuffer;
             else return;
           }

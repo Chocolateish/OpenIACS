@@ -12,7 +12,7 @@ export function ellipse(
   radiusX: number,
   radiusY: number
 ): SVGEllipseElement {
-  let ellipse = create_SVG_element("ellipse");
+  const ellipse = create_SVG_element("ellipse");
   ellipse.setAttribute("cx", String(centerX));
   ellipse.setAttribute("cy", String(centerY));
   ellipse.setAttribute("rx", String(radiusX));
@@ -35,15 +35,15 @@ export function ellipse_arc(
   start_angle: number,
   end_angle: number
 ): SVGPathElement {
-  let circ_arc = create_SVG_element("path");
-  let start_radian = degrees_to_radians(start_angle);
+  const circ_arc = create_SVG_element("path");
+  const start_radian = degrees_to_radians(start_angle);
   end_angle = degrees_to_radians(end_angle - start_angle);
-  let sX = radiusX * Math.cos(start_radian) + centerX;
-  let sY = radiusY * Math.sin(start_radian) + centerY;
-  let eX = radiusX * Math.cos(start_radian + end_angle) + centerX;
-  let eY = radiusY * Math.sin(start_radian + end_angle) + centerY;
-  let fA = end_angle > Math.PI ? 1 : 0;
-  let fS = end_angle > 0 ? 1 : 0;
+  const sX = radiusX * Math.cos(start_radian) + centerX;
+  const sY = radiusY * Math.sin(start_radian) + centerY;
+  const eX = radiusX * Math.cos(start_radian + end_angle) + centerX;
+  const eY = radiusY * Math.sin(start_radian + end_angle) + centerY;
+  const fA = end_angle > Math.PI ? 1 : 0;
+  const fS = end_angle > 0 ? 1 : 0;
   circ_arc.setAttribute(
     "d",
     `M ${sX} ${sY} A ${radiusX} ${radiusY} 0 ${fA} ${fS} ${eX} ${eY}`

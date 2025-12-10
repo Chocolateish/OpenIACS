@@ -1,7 +1,7 @@
 import { type ColorStruct } from "./shared";
 
 //List of material cyan colors
-export let cyan: ColorStruct = {
+export const cyan: ColorStruct = {
   "50": "#E0F7FA",
   "100": "#B2EBF2",
   "200": "#80DEEA",

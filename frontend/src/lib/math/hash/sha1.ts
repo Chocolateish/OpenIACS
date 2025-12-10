@@ -3,7 +3,7 @@ import { Hash } from "./common";
 /** Calculates SHA-1 hash of string and returns hex
  * @param msg */
 export function sha1(msg: string) {
-  let W = new Array<number>(80);
+  const W = new Array<number>(80);
   let H0 = 0x67452301;
   let H1 = 0xefcdab89;
   let H2 = 0x98badcfe;
@@ -15,10 +15,10 @@ export function sha1(msg: string) {
   let D: number;
   let E: number;
   msg = utf8_encode(msg);
-  let msg_len = msg.length;
-  let word_array = new Array();
+  const msg_len = msg.length;
+  const word_array = [];
   for (let i = 0; i < msg_len - 3; i += 4) {
-    let j =
+    const j =
       (msg.charCodeAt(i) << 24) |
       (msg.charCodeAt(i + 1) << 16) |
       (msg.charCodeAt(i + 2) << 8) |
@@ -66,7 +66,7 @@ export function sha1(msg: string) {
     D = H3;
     E = H4;
     for (let i = 0; i <= 19; i++) {
-      let temp =
+      const temp =
         (rotate_left(A, 5) + ((B & C) | (~B & D)) + E + W[i] + 0x5a827999) &
         0x0ffffffff;
       E = D;
@@ -76,7 +76,7 @@ export function sha1(msg: string) {
       A = temp;
     }
     for (let i = 20; i <= 39; i++) {
-      let temp =
+      const temp =
         (rotate_left(A, 5) + (B ^ C ^ D) + E + W[i] + 0x6ed9eba1) & 0x0ffffffff;
       E = D;
       D = C;
@@ -85,7 +85,7 @@ export function sha1(msg: string) {
       A = temp;
     }
     for (let i = 40; i <= 59; i++) {
-      let temp =
+      const temp =
         (rotate_left(A, 5) +
           ((B & C) | (B & D) | (C & D)) +
           E +
@@ -99,7 +99,7 @@ export function sha1(msg: string) {
       A = temp;
     }
     for (let i = 60; i <= 79; i++) {
-      let temp =
+      const temp =
         (rotate_left(A, 5) + (B ^ C ^ D) + E + W[i] + 0xca62c1d6) & 0x0ffffffff;
       E = D;
       D = C;
@@ -113,8 +113,8 @@ export function sha1(msg: string) {
     H3 = (H3 + D) & 0x0ffffffff;
     H4 = (H4 + E) & 0x0ffffffff;
   }
-  let d = Array(H0, H1, H2, H3, H4);
-  let numbers = new Uint8Array(20);
+  const d = [H0, H1, H2, H3, H4];
+  const numbers = new Uint8Array(20);
   for (let i = 0; i < d.length; i++) {
     numbers[i * 4] = (d[i] >>> 24) & 255;
     numbers[i * 4 + 1] = (d[i] >>> 16) & 255;
@@ -125,15 +125,15 @@ export function sha1(msg: string) {
 }
 
 function rotate_left(n: number, s: number) {
-  var t4 = (n << s) | (n >>> (32 - s));
+  const t4 = (n << s) | (n >>> (32 - s));
   return t4;
 }
 
 function utf8_encode(string: string) {
   string = string.replace(/\r\n/g, "\n");
-  var utftext = "";
-  for (var n = 0; n < string.length; n++) {
-    var c = string.charCodeAt(n);
+  let utftext = "";
+  for (let n = 0; n < string.length; n++) {
+    const c = string.charCodeAt(n);
     if (c < 128) {
       utftext += String.fromCharCode(c);
     } else if (c > 127 && c < 2048) {

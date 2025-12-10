@@ -9,7 +9,7 @@ export function number_step_start_decimal(
   decimals: number = -1
 ): number {
   if (step === 0) return value;
-  let val = start
+  const val = start
     ? Math.round((value - start + Number.EPSILON) / step) * step + start
     : Math.round((value + Number.EPSILON) / step) * step;
   return decimals === -1 ? val : parseFloat(val.toFixed(decimals));

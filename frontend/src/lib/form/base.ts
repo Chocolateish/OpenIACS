@@ -194,7 +194,7 @@ export abstract class FormValueWrite<
 
   /**Function to update value*/
   protected set_value_limit(val: RT): Result<RT, string> {
-    let limited = this.limit_value(val);
+    const limited = this.limit_value(val);
     if (limited.err) {
       this.warn(limited.error);
       return limited;
@@ -205,7 +205,7 @@ export abstract class FormValueWrite<
 
   /**Function to update value*/
   protected set_value_check(val: RT): Result<RT, string> {
-    let checked = this.check_value(val);
+    const checked = this.check_value(val);
     if (checked.err) {
       this.warn(checked.error);
       return checked;
@@ -222,7 +222,7 @@ export abstract class FormValueWrite<
       console.error("Failed while updating change listener", e);
     }
     if (this._state) {
-      let buff = this._buffer;
+      const buff = this._buffer;
       this._state.write!(val).then((err) => {
         if (err.err) {
           if (buff !== undefined) this.new_value(buff);

@@ -6,8 +6,8 @@ export function md5(data: string) {
 }
 
 function Y(data: string) {
-  let _ = 8 * data.length;
-  let aaaa = Array<number>(data.length >> 2);
+  const _ = 8 * data.length;
+  const aaaa = Array<number>(data.length >> 2);
   for (let m = 0; m < aaaa.length; m++) {
     aaaa[m] = 0;
   }
@@ -20,10 +20,10 @@ function Y(data: string) {
   let r = -1732584194;
   let i = 271733878;
   for (let n = 0; n < aaaa.length; n += 16) {
-    let h = m;
-    let t = f;
-    let g = r;
-    let e = i;
+    const h = m;
+    const t = f;
+    const g = r;
+    const e = i;
     (f = md5_ii(
       (f = md5_ii(
         (f = md5_ii(
@@ -470,8 +470,8 @@ function Y(data: string) {
       (r = safe_add(r, g)),
       (i = safe_add(i, e));
   }
-  let d = Array(m, f, r, i);
-  let numbers = new Uint8Array(16);
+  const d = [m, f, r, i];
+  const numbers = new Uint8Array(16);
   for (let i = 0, m = 0; m < 32 * d.length; m += 8, i++) {
     numbers[i] = (d[m >> 5] >>> m % 32) & 255;
   }
@@ -538,7 +538,7 @@ function md5_ii(
 }
 
 function safe_add(a: number, b: number) {
-  let c = (65535 & a) + (65535 & b);
+  const c = (65535 & a) + (65535 & b);
   return (((a >> 16) + (b >> 16) + (c >> 16)) << 16) | (65535 & c);
 }
 
