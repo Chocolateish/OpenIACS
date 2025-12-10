@@ -160,10 +160,6 @@ describe("Result Error", function () {
     let result = Err(42);
     expect(result.to_option.none).equal(true);
   });
-  it("stack from error result", function () {
-    let result = Err(42);
-    expect(typeof result.stack).equal("string");
-  });
 });
 //###########################################################################################################################################################
 //       _____

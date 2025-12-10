@@ -243,7 +243,6 @@ export class ResultOk<T> implements ResultBase<T, never> {
 
 export class ResultErr<E> implements ResultBase<never, E> {
   readonly error: E;
-  #stack: string | undefined = new Error().stack;
 
   constructor(error: E) {
     this.error = error;
@@ -260,7 +259,7 @@ export class ResultErr<E> implements ResultBase<never, E> {
   }
 
   expect(msg: string): never {
-    throw new Error(msg + "\nOriginal " + this.#stack + "\nExpect Error");
+    throw new Error(msg + "\nOriginal " + this.error);
   }
 
   expect_err(): E {
@@ -268,9 +267,7 @@ export class ResultErr<E> implements ResultBase<never, E> {
   }
 
   get unwrap(): never {
-    throw new Error(
-      "Tried to unwrap Error\nOriginal " + this.#stack + "\nUnwrap Error"
-    );
+    throw new Error("Tried to unwrap Error\nOriginal " + this.error);
   }
 
   unwrap_or<T2>(val: T2): T2 {
@@ -298,11 +295,6 @@ export class ResultErr<E> implements ResultBase<never, E> {
 
   get to_option(): OptionNone {
     return new OptionNone();
-  }
-
-  /**Returns the stored stack string to the error*/
-  get stack(): string | undefined {
-    return this.#stack;
   }
 }
 

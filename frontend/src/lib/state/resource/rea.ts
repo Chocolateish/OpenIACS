@@ -123,8 +123,15 @@ export abstract class STATE_RESOURCE_REA<
     this.ful_R_prom(value);
     this.#fetching = false;
     clearTimeout(this.#timeout_timout);
-    if (value.ok && this.#buffer?.ok && value.value !== this.#buffer.value)
-      this.update_subs(value);
+    if (value.ok) {
+      if (this.#buffer?.ok) {
+        if (value.value !== this.#buffer.value) this.update_subs(value);
+      } else this.update_subs(value);
+    } else {
+      if (this.#buffer?.err) {
+        if (value.error !== this.#buffer.error) this.update_subs(value);
+      } else this.update_subs(value);
+    }
     this.#buffer = value;
   }
 
@@ -395,8 +402,15 @@ export abstract class STATE_RESOURCE_REA_WA<
     this.ful_R_prom(value);
     this.#fetching = false;
     clearTimeout(this.#timeout_timout);
-    if (value.ok && this.#buffer?.ok && value.value !== this.#buffer.value)
-      this.update_subs(value);
+    if (value.ok) {
+      if (this.#buffer?.ok) {
+        if (value.value !== this.#buffer.value) this.update_subs(value);
+      } else this.update_subs(value);
+    } else {
+      if (this.#buffer?.err) {
+        if (value.error !== this.#buffer.error) this.update_subs(value);
+      } else this.update_subs(value);
+    }
     this.#buffer = value;
   }
   get buffer(): Result<RT, string> | undefined {
