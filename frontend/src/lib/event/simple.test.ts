@@ -9,9 +9,9 @@ describe("Init", { timeout: 50 }, function () {
   it("Create Simple Event Handler With Types", function () {
     const handler = new EventHandler<{ test: number }, undefined>(undefined);
     handler.consumer.on("test", (e) => {
-      e.type;
-      e.target;
-      e.data;
+      expect(e.type).equal("test");
+      expect(e.target).equal(undefined);
+      expect(e.data).equal(10);
     });
   });
 });
@@ -188,10 +188,10 @@ describe("Target override", { timeout: 50 }, function () {
 describe("Proxy Event Handler", { timeout: 50 }, function () {
   it("Attaching Proxy Event Handler Then emitting event", async function () {
     const target = {};
-    const handler = new EventHandler<{ test: number }, {}>(target);
-    const proxyHandler = new EventHandler<{ test: number }, {}>(target);
+    const handler = new EventHandler<{ test: number }, object>(target);
+    const proxyHandler = new EventHandler<{ test: number }, object>(target);
     const proxFunc = handler.proxy_on(proxyHandler.proxy_func());
-    const e = await new Promise<E<"test", {}, number>>((done) => {
+    const e = await new Promise<E<"test", object, number>>((done) => {
       proxyHandler.on("test", (e) => {
         done(e);
       });
@@ -202,7 +202,7 @@ describe("Proxy Event Handler", { timeout: 50 }, function () {
     expect(e.data).equal(10);
     handler.proxy_off(proxFunc);
     const f = await Promise.race([
-      new Promise<E<"test", {}, number>>((done) => {
+      new Promise<E<"test", object, number>>((done) => {
         proxyHandler.on("test", (e) => {
           done(e);
         });

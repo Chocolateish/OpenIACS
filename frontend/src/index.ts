@@ -195,7 +195,7 @@ formCont.appendChild(
     default:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
     default_icon: material_av_add_to_queue_rounded,
-    selections: Array.from({ length: 100 }, (v, i) => {
+    selections: Array.from({ length: 100 }, (_v, i) => {
       return {
         value: i,
         text: `Option ${i + 1}`,
@@ -211,7 +211,7 @@ formCont.appendChild(
     default:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
     default_icon: material_av_add_to_queue_rounded,
-    selections: Array.from({ length: 100 }, (v, i) => {
+    selections: Array.from({ length: 100 }, (_v, i) => {
       return {
         value: i,
         text: `Option ${i + 1}`,
@@ -252,7 +252,7 @@ formCont.appendChild(
 formCont.appendChild(
   form.toggle_button.from({
     label: "Toggle Buttons",
-    selections: Array.from({ length: 20 }, (v, i) => {
+    selections: Array.from({ length: 20 }, (_v, i) => {
       return {
         value: i,
         text: `Option ${i + 1}`,
@@ -265,7 +265,7 @@ formCont.appendChild(
 formCont.appendChild(
   form.toggle_button.from({
     label: "Toggle Buttons",
-    selections: Array.from({ length: 20 }, (v, i) => {
+    selections: Array.from({ length: 20 }, (_v, i) => {
       return {
         value: i,
         text: `Option ${i + 1}`,

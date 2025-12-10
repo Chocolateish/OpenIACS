@@ -8,13 +8,11 @@ export function md5(data: string) {
 function Y(data: string) {
   const _ = 8 * data.length;
   const aaaa = Array<number>(data.length >> 2);
-  for (let m = 0; m < aaaa.length; m++) {
-    aaaa[m] = 0;
-  }
-  for (let m = 0; m < 8 * data.length; m += 8) {
+  for (let m = 0; m < aaaa.length; m++) aaaa[m] = 0;
+  for (let m = 0; m < 8 * data.length; m += 8)
     aaaa[m >> 5] |= (255 & data.charCodeAt(m / 8)) << m % 32;
-  }
-  (aaaa[_ >> 5] |= 128 << _ % 32), (aaaa[14 + (((_ + 64) >>> 9) << 4)] = _);
+  aaaa[_ >> 5] |= 128 << _ % 32;
+  aaaa[14 + (((_ + 64) >>> 9) << 4)] = _;
   let m = 1732584193;
   let f = -271733879;
   let r = -1732584194;
@@ -24,7 +22,7 @@ function Y(data: string) {
     const t = f;
     const g = r;
     const e = i;
-    (f = md5_ii(
+    f = md5_ii(
       (f = md5_ii(
         (f = md5_ii(
           (f = md5_ii(
@@ -464,17 +462,16 @@ function Y(data: string) {
       aaaa[n + 9],
       21,
       -343485551
-    )),
-      (m = safe_add(m, h)),
-      (f = safe_add(f, t)),
-      (r = safe_add(r, g)),
-      (i = safe_add(i, e));
+    );
+    m = safe_add(m, h);
+    f = safe_add(f, t);
+    r = safe_add(r, g);
+    i = safe_add(i, e);
   }
   const d = [m, f, r, i];
   const numbers = new Uint8Array(16);
-  for (let i = 0, m = 0; m < 32 * d.length; m += 8, i++) {
+  for (let i = 0, m = 0; m < 32 * d.length; m += 8, i++)
     numbers[i] = (d[m >> 5] >>> m % 32) & 255;
-  }
   return numbers;
 }
 

@@ -16,10 +16,7 @@ describe("Resource states", function () {
       const init = st.r.rea.from<number>(
         () => {},
         () => {},
-        () => {},
-        100,
-        50,
-        200
+        () => {}
       );
       assertType<STATE_REA<number>>(init);
       assertType<STATE_RESOURCE_FUNC_REA<number>>(init);
@@ -29,10 +26,7 @@ describe("Resource states", function () {
       const state = st.r.rea.from<number>(
         (state) => state.update_resource(val),
         () => {},
-        () => {},
-        25,
-        100,
-        200
+        () => {}
       );
       const set = (v: Result<number, string>) => {
         val = v;

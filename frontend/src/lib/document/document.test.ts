@@ -9,7 +9,8 @@ describe("Document", async () => {
   });
   it("Attach event listener then register document", async () => {
     await new Promise<void>((a) => {
-      const newDoc: Document = document.implementation.createHTMLDocument("test");
+      const newDoc: Document =
+        document.implementation.createHTMLDocument("test");
       docs.events.on("added", (doc) => {
         expect(doc.data).toEqual(newDoc);
         a();
@@ -19,12 +20,11 @@ describe("Document", async () => {
   });
   it("Attach event listener then deregister document", async () => {
     await new Promise<void>((a) => {
-      let newDoc: Document;
+      const newDoc = document.implementation.createHTMLDocument("test");
       docs.events.on("removed", (doc) => {
         expect(doc.data === newDoc).to.equal(true);
         a();
       });
-      newDoc = document.implementation.createHTMLDocument("test");
       docs.register_document(newDoc);
       docs.deregister_document(newDoc);
     });

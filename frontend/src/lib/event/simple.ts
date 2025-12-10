@@ -20,7 +20,7 @@ export type ESubscriber<Type, Target, Data> = (
   event: E<Type, Target, Data>
 ) => void;
 
-export interface EventConsumer<Events extends {}, Target> {
+export interface EventConsumer<Events extends object, Target> {
   /**This add the subscriber to the event handler
    * Returning true in subscriber will remove the subscriber from the event handler after call*/
   on<K extends keyof Events>(
@@ -43,7 +43,7 @@ export interface EventConsumer<Events extends {}, Target> {
   ): typeof subscriber;
 }
 
-export interface EventProducer<Events extends {}, Target>
+export interface EventProducer<Events extends object, Target>
   extends EventConsumer<Events, Target> {
   /**Override for target */
   target: Target | undefined;

@@ -140,10 +140,10 @@ export class RES<
     if (!this.transformWrite) return Err("State not writable");
     return this.#state.write_sync(this.transformWrite(value));
   }
-  limit(_value: WOUT): Result<WOUT, string> {
+  limit(): Result<WOUT, string> {
     return Err("Limit not supported on proxy states");
   }
-  check(_value: WOUT): Result<WOUT, string> {
+  check(): Result<WOUT, string> {
     return Err("Check not supported on proxy states");
   }
 }
@@ -331,10 +331,10 @@ export class RES_WS<
   write_sync(value: WOUT): Result<void, string> {
     return this.#state.write_sync(this.transform_write(value));
   }
-  limit(_value: WOUT): Result<WOUT, string> {
+  limit(): Result<WOUT, string> {
     return Err("Limit not supported on proxy states");
   }
-  check(_value: WOUT): Result<WOUT, string> {
+  check(): Result<WOUT, string> {
     return Err("Check not supported on proxy states");
   }
 }
@@ -523,10 +523,10 @@ export class RES_WA<
   write(value: WOUT): Promise<Result<void, string>> {
     return this.#state.write(this.transform_write(value));
   }
-  limit(_value: WOUT): Result<WOUT, string> {
+  limit(): Result<WOUT, string> {
     return Err("Limit not supported on proxy states");
   }
-  check(_value: WOUT): Result<WOUT, string> {
+  check(): Result<WOUT, string> {
     return Err("Check not supported on proxy states");
   }
 }

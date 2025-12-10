@@ -1,13 +1,13 @@
 // @ts-check
 
-import eslint from "@eslint/js";
 import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
 
-export default defineConfig(
-  eslint.configs.recommended,
-  tseslint.configs.recommended,
-  {
-    ignores: ["dist/**", "src/pages/**"],
-  }
-);
+export default defineConfig(tseslint.configs.recommended, {
+  ignores: ["dist/**", "src/pages/**"],
+  rules: {
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-empty-object-type": "off",
+  },
+});

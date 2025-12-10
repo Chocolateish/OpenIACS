@@ -31,6 +31,7 @@ export interface BaseEvents {
 
 // Helpers for opts
 type DataProps<T> = {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [K in keyof T as T[K] extends Function ? never : K]: T[K];
 };
 type WithStateROA<T> = {
@@ -114,7 +115,7 @@ export abstract class Base extends HTMLElement {
 
   private _set_visible(is: boolean) {
     if (this.isVisible !== is) {
-      //@ts-expect-error
+      //@ts-expect-error Change readonly, in same class
       this.isVisible = is;
       this.#base_events.emit("visible", is);
       if (is) {

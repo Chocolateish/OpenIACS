@@ -21,15 +21,15 @@ export function any_equals_deep(any1: any, any2: any): boolean {
 
 /**This deep compares two objects, returns true if they are equal
  * It compares all keys in the object, with the exception of objects which have an objectEquals method, which can provide a custom comparisson*/
-export function object_equals_deep(object1: {}, object2: {}): boolean {
+export function object_equals_deep(object1: object, object2: object): boolean {
   const props = Object.keys(object1);
   const props2 = Object.keys(object2);
   if (props.length != props2.length) return false;
   for (let i = 0, m = props.length; i < m; i++) {
     if (!(props[i] in object2)) return false;
-    //@ts-expect-error
+    //@ts-expect-error Accessing dynamic property
     const e1 = object1[props[i]];
-    //@ts-expect-error
+    //@ts-expect-error Accessing dynamic property
     const e2 = object2[props[i]];
     const type = typeof e1;
     if (type !== typeof e2) return false;

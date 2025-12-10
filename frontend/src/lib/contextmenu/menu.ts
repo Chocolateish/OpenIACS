@@ -63,23 +63,15 @@ export class ContextMenu extends Base {
       this.close_down();
     };
     this.onkeydown = (e) => {
-      switch (e.code) {
-        case "Tab":
-        case "ArrowUp":
-        case "ArrowDown":
-          this.focus_next(e.shiftKey || e.code === "ArrowUp");
-          break;
-        case "ArrowLeft":
-          const parent = this.parentElement as ContextMenuSub | Container;
-          if (!(parent instanceof Container)) {
-            parent.focus();
-            parent.close_down();
-          }
-          break;
-        case "Escape":
-          this.close_up();
-          break;
-      }
+      if (e.code === "Tab" || e.code === "ArrowUp" || e.code === "ArrowDown")
+        this.focus_next(e.shiftKey || e.code === "ArrowUp");
+      else if (e.code === "ArrowLeft") {
+        const parent = this.parentElement as ContextMenuSub | Container;
+        if (!(parent instanceof Container)) {
+          parent.focus();
+          parent.close_down();
+        }
+      } else if (e.code === "Escape") this.close_up();
       e.preventDefault();
       e.stopPropagation();
     };
@@ -161,7 +153,7 @@ export class ContextMenu extends Base {
   /**Closes the context menu down the tree*/
   close_down() {
     if (this.submenu) this.submenu.close_down();
-    //@ts-expect-error
+    //@ts-expect-error Writing to readonly property, from inside class itself
     this.submenu = undefined;
   }
 

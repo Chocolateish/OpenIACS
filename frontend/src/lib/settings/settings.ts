@@ -14,7 +14,7 @@ try {
   packageVersions = packages
     ? (JSON.parse(packages) as { [key: string]: string })
     : {};
-} catch (e) {}
+} catch (_e) {}
 let storePackageVersionsTimeout: number | undefined;
 const bottomGroups: { [key: string]: SettingsGroup } = {};
 

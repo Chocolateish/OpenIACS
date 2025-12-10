@@ -47,7 +47,7 @@ export class FormDropdown<
     material_navigation_unfold_more_rounded()
   );
   #default: Text = document.createTextNode("Select something");
-  #defaultIcon?: SVGFunc;
+  #default_icon?: SVGFunc;
   private is_open: boolean = false;
 
   constructor(id?: ID) {
@@ -91,7 +91,7 @@ export class FormDropdown<
 
   /**Sets the default text displayed when nothing has been selected yet */
   set default_icon(def: SVGFunc | undefined) {
-    this.#defaultIcon = def;
+    this.#default_icon = def;
     if (def && this.#selected === -1) this.#set_icon = def;
   }
 
@@ -145,8 +145,8 @@ export class FormDropdown<
   }
 
   #clear() {
-    this.#defaultIcon
-      ? (this.#set_icon = this.#defaultIcon)
+    this.default_icon = this.#default_icon
+      ? (this.#set_icon = this.#default_icon)
       : (this.#set_icon = undefined);
     this.#text.replaceChildren(this.#default);
   }
@@ -227,13 +227,13 @@ class DropDownBox extends Base {
     this.#container.onkeydown = (e) => {
       if (e.key === "Escape") this.close_menu();
       else if (e.key === "ArrowUp" || (e.shiftKey && e.key === "Tab")) {
-        var elem =
+        const elem =
           e.target === this.#container
             ? this.#table.lastElementChild
             : (e.target as HTMLElement).previousElementSibling;
         if (elem) (elem as HTMLElement).focus();
       } else if (e.key === "ArrowDown" || e.key === "Tab") {
-        var elem =
+        const elem =
           e.target === this.#container
             ? this.#table.firstElementChild
             : (e.target as HTMLElement).nextElementSibling;
@@ -268,8 +268,8 @@ class DropDownBox extends Base {
     });
   }
 
-  #set_value(value: any) {
-    //@ts-expect-error
+  #set_value(value: unknown) {
+    //@ts-expect-error Call private method from sister class
     if (this.#dropdown) this.#dropdown.set_value_check(value);
     this.close_menu();
   }
@@ -357,7 +357,7 @@ class DropDownBox extends Base {
     this.#table.replaceChildren();
     if (this.#dropdown) {
       this.#dropdown.focus();
-      //@ts-expect-error
+      //@ts-expect-error Overwrite private property from sister class
       this.#dropdown.is_open = false;
     }
     this.ownerDocument.defaultView?.removeEventListener(

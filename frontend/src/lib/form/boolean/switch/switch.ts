@@ -126,7 +126,9 @@ export class FormSwitch<ID extends string | undefined> extends FormValueWrite<
     else this.#switch.classList.remove("on");
   }
 
-  protected new_error(_val: string): void {}
+  protected new_error(err: string): void {
+    console.error(err);
+  }
 }
 define_element(FormSwitch);
 

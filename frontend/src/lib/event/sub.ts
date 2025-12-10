@@ -26,7 +26,7 @@ export type ESubSubscriber<Type, Target, Data> = (
   event: ESub<Type, Target, Data>
 ) => void;
 
-export interface EventSubConsumer<Events extends {}, Target> {
+export interface EventSubConsumer<Events extends object, Target> {
   /**This add the subscriber to the event handler
    * Returning true in subscriber will remove the subscriber from the event handler after call*/
   on<K extends keyof Events>(
@@ -50,7 +50,7 @@ export interface EventSubConsumer<Events extends {}, Target> {
   ): typeof subscriber;
 }
 
-export interface EventSubProducer<Events extends {}, Target>
+export interface EventSubProducer<Events extends object, Target>
   extends EventSubConsumer<Events, Target> {
   /**Override for target */
   target: Target | undefined;
@@ -87,7 +87,7 @@ interface ListenerStorage<K, Handler, Type> {
 }
 
 /**Extension to event handler with support for sub events*/
-export class EventHandlerSub<Events extends {}, Target>
+export class EventHandlerSub<Events extends object, Target>
   implements EventSubProducer<Events, Target>
 {
   target: Target;
@@ -175,6 +175,7 @@ export class EventHandlerSub<Events extends {}, Target>
     data: Events[K],
     sub?: SubPath
   ): void {
+    let funcs: Set<ESubSubscriber<K, Target, Events[K]>> | undefined;
     if (sub) {
       let subLevel = this.#subStorage[eventName];
       if (subLevel)
@@ -197,8 +198,8 @@ export class EventHandlerSub<Events extends {}, Target>
             );
           else return;
         }
-      var funcs = subLevel?.funcs;
-    } else var funcs = this.#subStorage[eventName]?.funcs;
+      funcs = subLevel?.funcs;
+    } else funcs = this.#subStorage[eventName]?.funcs;
     if (funcs?.size || this.#proxies?.size)
       this.#emitE(
         Object.freeze(
@@ -233,8 +234,9 @@ export class EventHandlerSub<Events extends {}, Target>
     if (typeBuff) {
       if (anyLevel) {
         if (sub) {
+          let i = 0;
           let subLevel = typeBuff;
-          for (var i = 0; i < sub.length - 1; i++) {
+          for (i; i < sub.length - 1; i++) {
             const subLevelBuffer = subLevel!.subs[sub[i]];
             if (subLevelBuffer) subLevel = subLevelBuffer;
             else return;
@@ -302,6 +304,9 @@ export class EventHandlerSub<Events extends {}, Target>
 
   proxy_func(): ESubSubscriber<keyof Events, Target, Events[keyof Events]> {
     return (e: ESub<keyof Events, Target, Events[keyof Events]>) => {
+      let funcs:
+        | Set<ESubSubscriber<keyof Events, Target, Events[keyof Events]>>
+        | undefined;
       if (e.sub) {
         let subLevel = this.#subStorage[e.type];
         if (subLevel)
@@ -310,8 +315,8 @@ export class EventHandlerSub<Events extends {}, Target>
             if (subLevelBuffer) subLevel = subLevelBuffer;
             else return;
           }
-        var funcs = subLevel?.funcs;
-      } else var funcs = this.#subStorage[e.type]?.funcs;
+        funcs = subLevel?.funcs;
+      } else funcs = this.#subStorage[e.type]?.funcs;
       if (funcs && funcs.size) this.#emitE(e, funcs);
     };
   }

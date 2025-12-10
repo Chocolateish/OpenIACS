@@ -64,7 +64,9 @@ class FormLamp<
     else this._body.removeAttribute("color");
   }
 
-  protected new_error(_val: string): void {}
+  protected new_error(err: string): void {
+    console.error(err);
+  }
 }
 define_element(FormLamp);
 

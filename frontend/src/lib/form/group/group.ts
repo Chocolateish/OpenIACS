@@ -49,7 +49,7 @@ export interface FormGroupOptions<
 
 /**Component group class which allows to add components and controls the flow of the components*/
 export class FormGroup<
-  RT extends {},
+  RT extends object,
   ID extends string | undefined
 > extends FormValue<RT, ID> {
   static element_name() {
@@ -155,11 +155,11 @@ export class FormGroup<
   /**Returns value of the component*/
   get value(): Result<RT, string> {
     if (this._state) return Err("State based component");
-    const result: any = {};
+    const result: RT = {} as RT;
     for (const [key, comp] of this.#value_components) {
-      comp.value.map((val) => {
-        result[key] = val;
-      });
+      const val = comp.value;
+      if (val.err) return Err("Component with id " + key + " has no value");
+      result[key as keyof RT] = val.value;
     }
     return Ok(result);
   }
@@ -172,7 +172,9 @@ export class FormGroup<
     }
   }
 
-  protected new_error(_val: string): void {}
+  protected new_error(err: string): void {
+    console.error(err);
+  }
 
   protected on_access(access: AccessTypes): void {
     switch (access) {
@@ -198,7 +200,7 @@ export const form_group = {
   from<
     L extends FormElement[],
     ID extends string | undefined,
-    T extends {} = Prettify<Partial<ToKeyVal<ExtractB<L>>>>
+    T extends object = Prettify<Partial<ToKeyVal<ExtractB<L>>>>
   >(options?: FormGroupOptions<L, ID, T>): FormGroup<T, ID> {
     const slide = new FormGroup<T, ID>(options?.id);
     if (options) {

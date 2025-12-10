@@ -118,8 +118,9 @@ describe("Result Error", function () {
   });
   it("Unwrap value from error result", function () {
     const result = Err(42);
+    let yo;
     expect(() => {
-      result.unwrap;
+      yo = result.unwrap;
     }).to.throw();
   });
   it("UnwrapOr value from error result", function () {
@@ -260,8 +261,9 @@ describe("Option None", function () {
   });
   it("Unwrap value from None", function () {
     const result = None();
+    let yo;
     expect(() => {
-      result.unwrap;
+      yo = result.unwrap;
     }).to.throw();
   });
   it("UnwrapOr value from None", function () {

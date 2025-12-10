@@ -142,7 +142,9 @@ class FormButton<ID extends string | undefined> extends FormValueWrite<
     }
   }
 
-  protected new_error(_val: string): void {}
+  protected new_error(err: string): void {
+    console.error(err);
+  }
 
   /**Changes whether the button is maintained or momentary*/
   set toggle(toggle: boolean | undefined) {

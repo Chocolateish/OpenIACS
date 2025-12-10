@@ -207,7 +207,9 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
     this.#move_value(value);
   }
 
-  protected new_error(_val: string): void {}
+  protected new_error(err: string): void {
+    console.error(err);
+  }
 
   protected limit_value(val: number): Result<number, string> {
     let lim = number_step_start_decimal(

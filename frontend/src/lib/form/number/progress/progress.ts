@@ -55,7 +55,9 @@ export class FormProgress<ID extends string | undefined> extends FormValue<
     this.#val.innerHTML = value.toFixed(this.#decimals);
   }
 
-  protected new_error(_val: string): void {}
+  protected new_error(err: string): void {
+    console.error(err);
+  }
 }
 define_element(FormProgress);
 

@@ -9,7 +9,7 @@ export type Prettify<T> = {
 } & {};
 
 /**Checks of the given object is empty only checks for objects own properties*/
-export const object_empty = (obj: {}): boolean => {
+export const object_empty = (obj: object): boolean => {
   for (const key in obj) if (obj.hasOwnProperty(key)) return false;
   return true;
 };
@@ -44,7 +44,7 @@ export function array_diff<T>(
   return { added, removed };
 }
 
-export function object_key_diff<T1 extends {}, T2 extends {}>(
+export function object_key_diff<T1 extends object, T2 extends object>(
   main: T1,
   second: T2
 ): { added: string[]; removed: string[] } {

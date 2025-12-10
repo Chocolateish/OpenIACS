@@ -42,6 +42,8 @@ export interface FormValueOptions<RT, ID extends string | undefined> {
   label?: string;
   /**Longer description what form element does */
   description?: string;
+  /**Change listener function*/
+  change?: (val: RT) => void;
 }
 
 /**Shared class for all components with values*/
@@ -61,6 +63,9 @@ export abstract class FormValue<
   protected _body: HTMLDivElement = this.appendChild(
     document.createElement("div")
   );
+  protected _state?: STATE<RT>;
+  protected _buffer?: RT;
+  #func?: STATE_SUB<Result<RT, string>>;
 
   static apply_options<RT, ID extends string | undefined>(
     element: FormValue<RT, ID>,
@@ -92,10 +97,6 @@ export abstract class FormValue<
   get description(): string {
     return this._description || "";
   }
-
-  protected _state?: STATE<RT>;
-  protected _buffer?: RT;
-  #func?: STATE_SUB<Result<RT, string>>;
 
   get buffer(): RT | undefined {
     return this._buffer;
@@ -136,9 +137,6 @@ export abstract class FormValue<
 
   /**Called when error is set by error or state*/
   protected abstract new_error(val: string): void;
-
-  /**Overwriteable change listener*/
-  change(_val: RT) {}
 }
 
 //##################################################################################################
@@ -158,13 +156,20 @@ export abstract class FormValueWrite<
   }
 
   protected warn_input: HTMLInputElement = document.createElement("input");
+  #changed: boolean = false;
+  #change?: (val: RT) => void;
 
   constructor(id?: ID) {
     super(id);
     this.warn_input.name = "val";
   }
 
-  #changed: boolean = false;
+  set change(func: (val: RT) => void) {
+    this.#change = func;
+  }
+  get change(): ((val: RT) => void) | undefined {
+    return this.#change;
+  }
 
   /**Returns the value of the component if it has changed*/
   get changed(): boolean {
@@ -216,11 +221,12 @@ export abstract class FormValueWrite<
 
   #set_value(val: RT) {
     if (this._buffer === val) this.new_value(val);
-    try {
-      this.change(val);
-    } catch (e) {
-      console.error("Failed while updating change listener", e);
-    }
+    if (this.#change)
+      try {
+        this.#change(val);
+      } catch (e) {
+        console.error("Failed while updating change listener", e);
+      }
     if (this._state) {
       const buff = this._buffer;
       this._state.write!(val).then((err) => {
@@ -235,7 +241,4 @@ export abstract class FormValueWrite<
       this.#changed = true;
     }
   }
-
-  /**Overwriteable change listener*/
-  change(_val: RT) {}
 }

@@ -43,7 +43,7 @@ export const base_element_name = (
   const check = element.element_name;
   let define_name = "";
   let runner = element;
-  // @ts-expect-error
+  // @ts-expect-error Very dynamic stuff
   while (runner !== HTMLElement) {
     if (namespace !== runner.element_name_space()) break;
     const name = runner.element_name();
@@ -71,7 +71,7 @@ export const define_element = (
   const check = element.element_name;
   let define_name = "";
   let runner = element;
-  // @ts-expect-error
+  // @ts-expect-error Very dynamic stuff
   while (runner !== HTMLElement) {
     if (namespace !== runner.element_name_space()) break;
 
@@ -92,7 +92,7 @@ export const define_element = (
   }
   define_name = namespace + define_name;
   try {
-    // @ts-expect-error
+    // @ts-expect-error Dynamic custom element definition
     customElements.define(define_name, element);
     elementList.add(define_name);
   } catch (e) {
