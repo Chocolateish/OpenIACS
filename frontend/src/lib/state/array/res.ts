@@ -132,13 +132,13 @@ export class RES<AT, REL extends Option<RELATED>>
 
   pop(): AT | undefined {
     const p = this.#a.pop();
-    if (p) this.update_subs(Ok(this.#mr("removed", this.#a.length + 1, [p!])));
+    if (p) this.update_subs(Ok(this.#mr("removed", this.#a.length + 1, [p])));
     return p;
   }
 
   shift(): AT | undefined {
     const shifted = this.#a.shift();
-    if (shifted) this.update_subs(Ok(this.#mr("removed", 0, [shifted!])));
+    if (shifted) this.update_subs(Ok(this.#mr("removed", 0, [shifted])));
     return shifted;
   }
 
@@ -326,13 +326,13 @@ export class RES_WS<AT, REL extends Option<RELATED>>
 
   pop(): AT | undefined {
     const p = this.#a.pop();
-    if (p) this.update_subs(Ok(this.#mr("removed", this.#a.length + 1, [p!])));
+    if (p) this.update_subs(Ok(this.#mr("removed", this.#a.length + 1, [p])));
     return p;
   }
 
   shift(): AT | undefined {
     const shifted = this.#a.shift();
-    if (shifted) this.update_subs(Ok(this.#mr("removed", 0, [shifted!])));
+    if (shifted) this.update_subs(Ok(this.#mr("removed", 0, [shifted])));
     return shifted;
   }
 

@@ -81,7 +81,7 @@ export abstract class STATE_RESOURCE_REA<
         this.#debounce_timout = setTimeout(() => {
           this.setup_connection(this);
           this.#debounce_timout = 0;
-        }, this.debounce) as any;
+        }, this.debounce);
       else this.setup_connection(this);
     }
   }
@@ -95,7 +95,7 @@ export abstract class STATE_RESOURCE_REA<
         this.#retention_timout = setTimeout(() => {
           this.teardown_connection(this);
           this.#retention_timout = 0;
-        }, this.retention) as any;
+        }, this.retention);
       } else {
         this.teardown_connection(this);
       }
@@ -354,7 +354,7 @@ export abstract class STATE_RESOURCE_REA_WA<
         this.#debounce_timout = setTimeout(() => {
           this.setup_connection(this);
           this.#debounce_timout = 0;
-        }, this.debounce) as any;
+        }, this.debounce);
       else this.setup_connection(this);
     }
   }
@@ -368,7 +368,7 @@ export abstract class STATE_RESOURCE_REA_WA<
         this.#retention_timout = setTimeout(() => {
           this.teardown_connection(this);
           this.#retention_timout = 0;
-        }, this.retention) as any;
+        }, this.retention);
       } else {
         this.teardown_connection(this);
       }

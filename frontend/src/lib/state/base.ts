@@ -41,7 +41,7 @@ export abstract class STATE_BASE<
     if (this.#subscribers.delete(func as STATE_SUB<RRT>)) {
       if (this.#subscribers.size == 0) this.on_unsubscribe();
     } else console.error("Subscriber not found with state", this, func);
-    return func as T;
+    return func;
   }
   /**This returns related states if any*/
   abstract related(): REL;

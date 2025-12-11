@@ -24,9 +24,11 @@ describe("Initialize lazy states", function () {
     it("cleanup successfull", async function () {
       const init = st.l.ros.result(() => Ok(1));
       const get = init.get;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const set = init.set;
       await init;
       expect(init.get).not.eq(get, "get");
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(init.set).not.eq(set, "set");
     });
     const maker: TEST_STATE_OK_SYNC = () => {
@@ -61,9 +63,11 @@ describe("Initialize lazy states", function () {
     it("cleanup successfull", async function () {
       const init = st.l.res.result(() => Ok(1));
       const get = init.get;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const set = init.set;
       await init;
       expect(init.get).not.eq(get, "get");
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(init.set).not.eq(set, "set");
     });
     const maker: TEST_STATE_SYNC = () => {
@@ -91,10 +95,14 @@ describe("Initialize lazy states", function () {
     });
     it("cleanup successfull", async function () {
       const init = st.l.ros_ws.ok(() => 1);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const set = init.set;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const writeSync = init.write_sync;
       await init;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(init.set).not.eq(set, "set");
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(init.write_sync).not.eq(writeSync, "writeSync");
     });
     const maker: TEST_STATE_OK_SYNC = () => {
@@ -139,9 +147,11 @@ describe("Initialize lazy states", function () {
     });
     it("cleanup successfull", async function () {
       const init = st.l.res_ws.ok(() => 1);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const set = init.set;
       const writeSync = init.write_sync;
       await init;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(init.set).not.eq(set, "set");
       expect(init.write_sync).not.eq(writeSync, "writeSync");
     });

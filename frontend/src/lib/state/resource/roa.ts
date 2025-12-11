@@ -71,7 +71,7 @@ export abstract class STATE_RESOURCE_ROA<
         this.#debounce_timout = setTimeout(() => {
           this.setup_connection(this);
           this.#debounce_timout = 0;
-        }, this.debounce) as any;
+        }, this.debounce);
       else this.setup_connection(this);
     }
   }
@@ -85,7 +85,7 @@ export abstract class STATE_RESOURCE_ROA<
         this.#retention_timout = setTimeout(() => {
           this.teardown_connection(this);
           this.#retention_timout = 0;
-        }, this.retention) as any;
+        }, this.retention);
       } else {
         this.teardown_connection(this);
       }

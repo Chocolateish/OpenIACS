@@ -107,17 +107,17 @@ export async function test_state_sub(
   let count = 0;
   const sub1 = state.sub(() => {
     count++;
-  }, true) as STATE_SUB<any>;
+  }, true);
   expect(state.in_use()).equal(state);
-  expect(state.has(sub1)).equal(state);
+  expect(state.has(sub1 as STATE_SUB<Result<number, string>>)).equal(state);
   expect(state.amount()).equal(1);
   await sleep(wait ?? 1);
   expect(count).equal(1);
   const sub2 = state.sub(() => {
     count += 10;
-  }) as STATE_SUB<any>;
+  });
   expect(state.in_use()).equal(state);
-  expect(state.has(sub2)).equal(state);
+  expect(state.has(sub2 as STATE_SUB<Result<number, string>>)).equal(state);
   expect(state.amount()).equal(2);
   expect(count).equal(1);
   set(Ok(8));
@@ -126,9 +126,9 @@ export async function test_state_sub(
   const sub3 = state.sub(() => {
     count += 100;
     throw new Error("Gaurded against crash");
-  }) as STATE_SUB<any>;
+  });
   expect(state.in_use()).equal(state);
-  expect(state.has(sub3)).equal(state);
+  expect(state.has(sub3 as STATE_SUB<Result<number, string>>)).equal(state);
   expect(state.amount()).equal(3);
   set(Ok(12));
   await sleep(1);
@@ -136,7 +136,7 @@ export async function test_state_sub(
   state.unsub(sub1);
   state.unsub(sub2);
   expect(state.in_use()).equal(state);
-  expect(state.has(sub3)).equal(state);
+  expect(state.has(sub3 as STATE_SUB<Result<number, string>>)).equal(state);
   expect(state.amount()).equal(1);
   set(Ok(12));
   await sleep(1);
@@ -144,15 +144,15 @@ export async function test_state_sub(
   state.unsub(sub3);
   expect(state.in_use()).equal(undefined);
   expect(state.amount()).equal(0);
-  const [sub4, val] = await new Promise<[STATE_SUB<any>, Result<number, string>]>(
-    (a) => {
-      const sub4 = state.sub((val) => {
-        count += 1000;
-        a([sub4, val]);
-      }) as STATE_SUB<any>;
-      set(Ok(15));
-    }
-  );
+  const [sub4, val] = await new Promise<
+    [STATE_SUB<any>, Result<number, string>]
+  >((a) => {
+    const sub4 = state.sub((val) => {
+      count += 1000;
+      a([sub4, val]);
+    });
+    set(Ok(15));
+  });
   await sleep(1);
   expect(val).toEqual(Ok(15));
   expect(count).equal(200001223);
@@ -164,7 +164,7 @@ export async function test_state_sub(
       const sub5 = state.sub((val) => {
         count += 10000;
         a([sub5, val]);
-      }) as STATE_SUB<any>;
+      });
       made.set(Err(errGen()));
     });
     await sleep(1);
@@ -242,7 +242,7 @@ export async function test_state_then(
           .then((val) => {
             expect(val).instanceOf(ResultOk);
             expect(val).toEqual(Ok(1));
-            throw 8;
+            throw new Error("8");
           })
           .then(
             () => {},

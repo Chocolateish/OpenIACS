@@ -41,10 +41,14 @@ describe("Initialize delayed states", function () {
     });
     it("cleanup successfull", async function () {
       const init = st.d.roa.result(() => sleep(1, Ok(1)));
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const then = init.then;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const set = init.set;
       await init;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(init.then).not.eq(then, "then");
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(init.set).not.eq(set, "set");
     });
     //# Standard Tests
@@ -96,10 +100,14 @@ describe("Initialize delayed states", function () {
     });
     it("cleanup successfull", async function () {
       const init = st.d.rea.ok(() => sleep(1, 1));
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const then = init.then;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const set = init.set;
       await init;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(init.then).not.eq(then, "then");
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(init.set).not.eq(set, "set");
     });
     //# Standard Tests
@@ -146,11 +154,15 @@ describe("Initialize delayed states", function () {
     });
     it("cleanup successfull", async function () {
       const init = st.d.roa_ws.ok(() => sleep(1, 1));
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const then = init.then;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const set = init.set;
       const writeSync = init.write_sync;
       await init;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(init.then).not.eq(then, "then");
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(init.set).not.eq(set, "set");
       expect(init.write_sync).not.eq(writeSync, "writeSync");
     });
@@ -214,11 +226,15 @@ describe("Initialize delayed states", function () {
     });
     it("cleanup successfull", async function () {
       const init = st.d.roa_ws.ok(() => sleep(1, 1));
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const then = init.then;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       const set = init.set;
       const writeSync = init.write_sync;
       await init;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(init.then).not.eq(then, "then");
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(init.set).not.eq(set, "set");
       expect(init.write_sync).not.eq(writeSync, "writeSync");
     });

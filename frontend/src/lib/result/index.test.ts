@@ -122,6 +122,7 @@ describe("Result Error", function () {
     expect(() => {
       yo = result.unwrap;
     }).to.throw();
+    yo = yo;
   });
   it("UnwrapOr value from error result", function () {
     const result = Err(42);
@@ -265,6 +266,7 @@ describe("Option None", function () {
     expect(() => {
       yo = result.unwrap;
     }).to.throw();
+    yo = yo;
   });
   it("UnwrapOr value from None", function () {
     const result = None();
