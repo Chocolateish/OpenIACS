@@ -68,7 +68,7 @@ export class FormGroup<
     for (let i = 0, n = components.length; i < n; i++) {
       const comp = components[i];
       if (comp instanceof FormValue && comp.formID) {
-        if (this.#value_components.has(comp.formID)) {
+        if (this.#value_components.has(comp.formID as string)) {
           console.error(
             "Form element with form id " +
               comp.formID +
@@ -76,7 +76,7 @@ export class FormGroup<
           );
           continue;
         }
-        this.#value_components.set(comp.formID, comp);
+        this.#value_components.set(comp.formID as string, comp);
       }
       if (this.#collapsible) this.#collapsible.appendChild(comp);
       else this._body.appendChild(comp);
@@ -159,7 +159,7 @@ export class FormGroup<
     for (const [key, comp] of this.#value_components) {
       const val = comp.value;
       if (val.err) return Err("Component with id " + key + " has no value");
-      result[key as keyof RT] = val.value;
+      result[key as keyof RT] = val.value as RT[keyof RT];
     }
     return Ok(result);
   }

@@ -1,4 +1,4 @@
-import type { ResultOk } from "@libResult";
+import type { Option, ResultOk } from "@libResult";
 import type { STATE_ROA_WA } from "@libState";
 
 let name_transformer: ((name: string) => string) | undefined;
@@ -86,7 +86,8 @@ export class SettingsGroup {
    * @param name name of group formatted for user reading
    * @param description a description of what the setting group is about formatted for user reading*/
   make_sub_group(id: string, name: string, description: string) {
-    if (id in this.subGroups) throw "Sub group already registered " + id;
+    if (id in this.subGroups)
+      throw new Error("Sub group already registered " + id);
     return (this.subGroups[id] = new SettingsGroup(
       this.pathID + "/" + id,
       name,
@@ -103,19 +104,22 @@ export class SettingsGroup {
   get<TYPE>(
     id: string,
     fallback: TYPE,
+    check?: (parsed: unknown) => Option<TYPE>,
     versionChanged?: (existing: string, oldVersion: string) => TYPE
   ): TYPE {
-    const saved = localStorage[this.pathID + "/" + id];
+    const saved = localStorage.getItem(this.pathID + "/" + id);
+    if (saved === null) return fallback;
     try {
       if (this.versionChanged && versionChanged) {
-        const changedValue = versionChanged(
-          JSON.parse(saved),
-          this.versionChanged
+        const changedValue = versionChanged(saved, this.versionChanged);
+        localStorage.setItem(
+          this.pathID + "/" + id,
+          JSON.stringify(changedValue)
         );
-        localStorage[this.pathID + "/" + id] = JSON.stringify(changedValue);
         return changedValue;
       }
-      return JSON.parse(saved);
+      if (check) return check(JSON.parse(saved)).unwrap_or(fallback);
+      return JSON.parse(saved) as TYPE;
     } catch (e) {
       return fallback;
     }

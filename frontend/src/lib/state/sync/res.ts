@@ -112,6 +112,7 @@ const res = {
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
+    this: void,
     init: RT,
     helper?: Helper<WT, REL>
   ) {
@@ -125,6 +126,7 @@ const res = {
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
+    this: void,
     init: string,
     helper?: Helper<WT, REL>
   ) {
@@ -261,6 +263,7 @@ const res_ws = {
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
+    this: void,
     init: RT,
     setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
@@ -275,6 +278,7 @@ const res_ws = {
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
+    this: void,
     init: string,
     setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>

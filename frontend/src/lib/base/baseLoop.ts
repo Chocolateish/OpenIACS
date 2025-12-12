@@ -8,9 +8,9 @@ import type { STATE_ARRAY_RES } from "../state/array/res";
 import { Base } from "./base";
 
 interface A<T, E extends Node> {
-  generator(val: T): E;
-  error(err: string): Node;
-  destructor?(val: T, element: E): void;
+  generator: (val: T) => E;
+  error: (err: string) => Node;
+  destructor?: (val: T, element: E) => void;
   array?: T[];
   state?: STATE_ARRAY_RES<T>;
 }

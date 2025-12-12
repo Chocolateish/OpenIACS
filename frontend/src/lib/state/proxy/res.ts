@@ -50,7 +50,7 @@ export class RES<
 {
   constructor(
     state: S,
-    transform_read?: (value: Result<RIN, string>) => Result<ROUT, string>
+    transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>
   ) {
     super();
     this.#state = state;
@@ -177,7 +177,12 @@ function res_from<
   ROUT = RIN,
   WIN = S extends STATE<any, infer RT> ? RT : any,
   WOUT = WIN
->(state: S, transform: any): STATE_PROXY_RES<S, RIN, ROUT, WIN, WOUT> {
+>(
+  state: S,
+  transform?:
+    | ((value: ResultOk<RIN>) => Result<ROUT, string>)
+    | ((value: Result<RIN, string>) => Result<ROUT, string>)
+): STATE_PROXY_RES<S, RIN, ROUT, WIN, WOUT> {
   return new RES<S, RIN, ROUT, WIN, WOUT>(state, transform) as STATE_PROXY_RES<
     S,
     RIN,
@@ -234,7 +239,7 @@ export class RES_WS<
 {
   constructor(
     state: S,
-    transform_read?: (value: Result<RIN, string>) => Result<ROUT, string>,
+    transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>,
     transform_write?: (value: WOUT) => WIN
   ) {
     super();
@@ -372,8 +377,10 @@ function res_ws_from<
   WOUT = WIN
 >(
   state: S,
-  transform_read: any,
-  transform_write: any
+  transform_read?:
+    | ((value: ResultOk<RIN>) => Result<ROUT, string>)
+    | ((value: Result<RIN, string>) => Result<ROUT, string>),
+  transform_write?: (value: WOUT) => WIN
 ): STATE_PROXY_RES_WS<S, RIN, WIN, ROUT, WOUT> {
   return new RES_WS<S, RIN, WIN, ROUT, WOUT>(
     state,
@@ -429,7 +436,7 @@ export class RES_WA<
 {
   constructor(
     state: S,
-    transform_read: (value: ResultOk<RIN>) => Result<ROUT, string>,
+    transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>,
     transform_write?: (value: WOUT) => WIN
   ) {
     super();
@@ -564,8 +571,10 @@ function res_wa_from<
   WOUT = WIN
 >(
   state: S,
-  transform_read: any,
-  transform_write: any
+  transform_read?:
+    | ((value: ResultOk<RIN>) => Result<ROUT, string>)
+    | ((value: Result<RIN, string>) => Result<ROUT, string>),
+  transform_write?: (value: WOUT) => WIN
 ): STATE_PROXY_RES_WA<S, RIN, WIN, ROUT, WOUT> {
   return new RES_WA<S, RIN, WIN, ROUT, WOUT>(
     state,

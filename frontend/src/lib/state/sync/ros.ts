@@ -114,6 +114,7 @@ const ros = {
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
+    this: void,
     init: RT,
     helper?: Helper<WT, REL>
   ) {
@@ -249,6 +250,7 @@ const ros_ws = {
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
+    this: void,
     init: RT,
     setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>

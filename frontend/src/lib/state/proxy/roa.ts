@@ -178,7 +178,12 @@ function roa_from<
   ROUT = RIN,
   WIN = S extends STATE<any, infer RT> ? RT : any,
   WOUT = WIN
->(state: S, transform: any): STATE_PROXY_ROA<S, RIN, ROUT, WIN, WOUT> {
+>(
+  state: S,
+  transform?:
+    | ((value: ResultOk<RIN>) => ResultOk<ROUT>)
+    | ((value: Result<RIN, string>) => ResultOk<ROUT>)
+): STATE_PROXY_ROA<S, RIN, ROUT, WIN, WOUT> {
   return new ROA<S, RIN, ROUT, WIN, WOUT>(state, transform) as STATE_PROXY_ROA<
     S,
     RIN,
@@ -365,8 +370,10 @@ function roa_ws_from<
   WOUT = WIN
 >(
   state: S,
-  transform_read: any,
-  transform_write: any
+  transform_read?:
+    | ((value: ResultOk<RIN>) => ResultOk<ROUT>)
+    | ((value: Result<RIN, string>) => ResultOk<ROUT>),
+  transform_write?: (value: WOUT) => WIN
 ): STATE_PROXY_ROA_WS<S, RIN, WIN, ROUT, WOUT> {
   return new ROA_WS<S, RIN, WIN, ROUT, WOUT>(
     state,
@@ -549,8 +556,10 @@ function roa_wa_from<
   WOUT = WIN
 >(
   state: S,
-  transform_read: any,
-  transform_write: any
+  transform_read?:
+    | ((value: ResultOk<RIN>) => ResultOk<ROUT>)
+    | ((value: Result<RIN, string>) => ResultOk<ROUT>),
+  transform_write?: (value: WOUT) => WIN
 ): STATE_PROXY_ROA_WA<S, RIN, WIN, ROUT, WOUT> {
   return new ROA_WA<S, RIN, WIN, ROUT, WOUT>(
     state,

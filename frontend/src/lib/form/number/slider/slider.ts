@@ -160,7 +160,7 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
   #update_min_max() {
     this.#span = this.#max - this.#min;
     if (this.#span === Infinity) this.#move_slide(50);
-    else if (this.buffer !== undefined) this.new_value(this.buffer!);
+    else if (this.buffer !== undefined) this.new_value(this.buffer);
   }
 
   set decimals(dec: number | undefined) {

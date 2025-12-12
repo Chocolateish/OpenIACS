@@ -233,9 +233,9 @@ export class STATE_ENUM_HELPER<
 }
 
 /**Iterates a enum description list*/
-function iterate<T, R extends STATE_ENUM_RELATED<any>>(
+function iterate<T, R extends STATE_ENUM_RELATED<STATE_ENUM_HELPER_LIST<any>>>(
   related: R,
-  func: (key: keyof R["list"], val: R["list"][keyof R["list"]]) => T
+  func: (key: keyof R["list"], val: ENUM_HELPER_ENTRY) => T
 ): T[] {
   return Object.keys(related.list).map((key) => {
     return func(key, related.list[key]);

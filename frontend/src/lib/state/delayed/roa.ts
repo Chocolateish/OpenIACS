@@ -114,7 +114,7 @@ class ROA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
   //Becomes sync compatible once evaluated
   get rsync(): boolean {
-    return Boolean(this.#value) as any;
+    return Boolean(this.#value);
   }
   get(): ResultOk<RT> {
     return this.#value!;
@@ -282,7 +282,7 @@ class ROA_WS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   }
   //Becomes sync compatible once evaluated
   get rsync(): boolean {
-    return Boolean(this.#value) as any;
+    return Boolean(this.#value);
   }
   get(): ResultOk<RT> {
     return this.#value!;
@@ -455,7 +455,7 @@ export class ROA_WA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   }
   //Becomes sync compatible once evaluated
   get rsync(): boolean {
-    return Boolean(this.#value) as any;
+    return Boolean(this.#value);
   }
   get(): ResultOk<RT> {
     return this.#value!;

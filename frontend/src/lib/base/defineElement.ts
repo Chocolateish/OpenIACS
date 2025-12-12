@@ -1,5 +1,3 @@
-import type { Base } from "./base";
-
 const RESERVED_NAMES = new Set([
   "annotation-xml",
   "color-profile",
@@ -32,13 +30,13 @@ export const validate_element_name = (name: string) => {
   return "Unknown fault";
 };
 
+interface ElementConstructor {
+  element_name: () => string;
+  element_name_space: () => string;
+}
+
 /**Defines elements inheriting from the base*/
-export const base_element_name = (
-  element: (abstract new (...options: any) => Base) & {
-    element_name(): string;
-    element_name_space(): string;
-  }
-): string => {
+export const base_element_name = (element: ElementConstructor): string => {
   const namespace = element.element_name_space();
   const check = element.element_name;
   let define_name = "";
@@ -47,7 +45,7 @@ export const base_element_name = (
   while (runner !== HTMLElement) {
     if (namespace !== runner.element_name_space()) break;
     const name = runner.element_name();
-    runner = Object.getPrototypeOf(runner);
+    runner = Object.getPrototypeOf(runner) as ElementConstructor;
     if (check === runner.element_name)
       throw new Error(
         "Element uses same name as ancestor, abstract classes should return '@abstract@'"
@@ -61,12 +59,7 @@ export const base_element_name = (
 export const elementList: Set<string> = new Set();
 
 /**Defines elements inheriting from the base*/
-export const define_element = (
-  element: (abstract new (...options: any) => Base) & {
-    element_name(): string;
-    element_name_space(): string;
-  }
-) => {
+export const define_element = (element: ElementConstructor) => {
   const namespace = element.element_name_space();
   const check = element.element_name;
   let define_name = "";
@@ -76,7 +69,7 @@ export const define_element = (
     if (namespace !== runner.element_name_space()) break;
 
     const name = runner.element_name();
-    runner = Object.getPrototypeOf(runner);
+    runner = Object.getPrototypeOf(runner) as ElementConstructor;
     if (check === runner.element_name)
       throw new Error(
         'Failed to define element "' +

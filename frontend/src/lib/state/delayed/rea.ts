@@ -118,7 +118,7 @@ class REA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
   //Becomes sync compatible once evaluated
   get rsync(): boolean {
-    return Boolean(this.#value) as any;
+    return Boolean(this.#value);
   }
   get(): Result<RT, string> {
     return this.#value!;
@@ -300,7 +300,7 @@ class REA_WS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   }
   //Becomes sync compatible once evaluated
   get rsync(): boolean {
-    return Boolean(this.#value) as any;
+    return Boolean(this.#value);
   }
   get(): Result<RT, string> {
     return this.#value!;
@@ -489,7 +489,7 @@ export class REA_WA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   }
   //Becomes sync compatible once evaluated
   get rsync(): boolean {
-    return Boolean(this.#value) as any;
+    return Boolean(this.#value);
   }
   get(): Result<RT, string> {
     return this.#value!;

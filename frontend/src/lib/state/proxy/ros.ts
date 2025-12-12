@@ -184,7 +184,12 @@ function ros_from<
   ROUT = RIN,
   WIN = S extends STATE<any, infer RT> ? RT : any,
   WOUT = WIN
->(state: S, transform: any): STATE_PROXY_ROS<S, RIN, ROUT, WIN, WOUT> {
+>(
+  state: S,
+  transform?:
+    | ((value: ResultOk<RIN>) => ResultOk<ROUT>)
+    | ((value: Result<RIN, string>) => ResultOk<ROUT>)
+): STATE_PROXY_ROS<S, RIN, ROUT, WIN, WOUT> {
   return new ROS<S, RIN, ROUT, WIN, WOUT>(state, transform) as STATE_PROXY_ROS<
     S,
     RIN,
@@ -377,8 +382,10 @@ function ros_ws_from<
   WOUT = WIN
 >(
   state: S,
-  transform_read: any,
-  transform_write: any
+  transform_read?:
+    | ((value: ResultOk<RIN>) => ResultOk<ROUT>)
+    | ((value: Result<RIN, string>) => ResultOk<ROUT>),
+  transform_write?: (value: WOUT) => WIN
 ): STATE_PROXY_ROS_WS<S, RIN, WIN, ROUT, WOUT> {
   return new ROS_WS<S, RIN, WIN, ROUT, WOUT>(
     state,
@@ -566,8 +573,10 @@ function ros_wa_from<
   WOUT = WIN
 >(
   state: S,
-  transform_read: any,
-  transform_write: any
+  transform_read?:
+    | ((value: ResultOk<RIN>) => ResultOk<ROUT>)
+    | ((value: Result<RIN, string>) => ResultOk<ROUT>),
+  transform_write?: (value: WOUT) => WIN
 ): STATE_PROXY_ROS_WA<S, RIN, WIN, ROUT, WOUT> {
   return new ROS_WA<S, RIN, WIN, ROUT, WOUT>(
     state,

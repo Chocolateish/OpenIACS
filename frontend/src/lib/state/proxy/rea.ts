@@ -50,7 +50,7 @@ export class REA<
 {
   constructor(
     state: S,
-    transform_read?: (value: Result<RIN, string>) => Result<ROUT, string>
+    transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>
   ) {
     super();
     this.#state = state;
@@ -174,7 +174,12 @@ function rea_from<
   ROUT = RIN,
   WIN = S extends STATE<any, infer RT> ? RT : any,
   WOUT = WIN
->(state: S, transform: any): STATE_PROXY_REA<S, RIN, ROUT, WIN, WOUT> {
+>(
+  state: S,
+  transform?:
+    | ((value: ResultOk<RIN>) => Result<ROUT, string>)
+    | ((value: Result<RIN, string>) => Result<ROUT, string>)
+): STATE_PROXY_REA<S, RIN, ROUT, WIN, WOUT> {
   return new REA<S, RIN, ROUT, WIN, WOUT>(state, transform) as STATE_PROXY_REA<
     S,
     RIN,
@@ -231,7 +236,7 @@ export class REA_WS<
 {
   constructor(
     state: S,
-    transform_read?: (value: Result<RIN, string>) => Result<ROUT, string>,
+    transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>,
     transform_write?: (value: WOUT) => WIN
   ) {
     super();
@@ -362,8 +367,10 @@ function rea_ws_from<
   WOUT = WIN
 >(
   state: S,
-  transform_read: any,
-  transform_write: any
+  transform_read?:
+    | ((value: ResultOk<RIN>) => Result<ROUT, string>)
+    | ((value: Result<RIN, string>) => Result<ROUT, string>),
+  transform_write?: (value: WOUT) => WIN
 ): STATE_PROXY_REA_WS<S, RIN, WIN, ROUT, WOUT> {
   return new REA_WS<S, RIN, WIN, ROUT, WOUT>(
     state,
@@ -419,7 +426,7 @@ export class REA_WA<
 {
   constructor(
     state: S,
-    transform_read?: (value: Result<RIN, string>) => Result<ROUT, string>,
+    transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>,
     transform_write?: (value: WOUT) => WIN
   ) {
     super();
@@ -549,8 +556,10 @@ function rea_wa_from<
   WOUT = WIN
 >(
   state: S,
-  transformRead: any,
-  transformWrite: any
+  transformRead?:
+    | ((value: ResultOk<RIN>) => Result<ROUT, string>)
+    | ((value: Result<RIN, string>) => Result<ROUT, string>),
+  transformWrite?: (value: WOUT) => WIN
 ): STATE_PROXY_REA_WA<S, RIN, WIN, ROUT, WOUT> {
   return new REA_WA<S, RIN, WIN, ROUT, WOUT>(
     state,

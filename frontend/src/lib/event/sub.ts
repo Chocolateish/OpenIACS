@@ -237,11 +237,11 @@ export class EventHandlerSub<Events extends object, Target>
           let i = 0;
           let subLevel = typeBuff;
           for (i; i < sub.length - 1; i++) {
-            const subLevelBuffer = subLevel!.subs[sub[i]];
+            const subLevelBuffer = subLevel.subs[sub[i]];
             if (subLevelBuffer) subLevel = subLevelBuffer;
             else return;
           }
-          subLevel!.subs[sub[i]] = { subs: {}, funcs: new Set() };
+          subLevel.subs[sub[i]] = { subs: {}, funcs: new Set() };
         } else
           this.#subStorage[eventName] = {
             subs: {},

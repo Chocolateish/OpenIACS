@@ -208,7 +208,7 @@ describe("Proxy Event Handler", { timeout: 50 }, function () {
         });
         handler.emit("test", 10);
       }),
-      await new Promise<999>((a) => setTimeout(a, 20, 999)),
+      new Promise<999>((a) => setTimeout(a, 20, 999)),
     ]);
     expect(f).equal(999);
   });
