@@ -1,7 +1,7 @@
 @use "../../base";
 @use "../numberBase";
 
-chocolatelibui-form-numberinput {
+form-numberinput {
   @include base.base;
 
   > div {
@@ -59,7 +59,7 @@ chocolatelibui-form-numberinput {
       flex-direction: column;
       text-align: end;
       flex-grow: 1;
-      padding-inline: 0.4rem;
+      padding-right: 0.3rem;
       align-items: flex-end;
 
       > span {

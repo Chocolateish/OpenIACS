@@ -45,6 +45,8 @@ export interface FormGroupOptions<
   collapse_text?: string;
   /**Border style for group*/
   border?: FormGroupBorderStyle;
+  /**Group max height in rem, undefined means no limit*/
+  max_height?: number;
 }
 
 /**Component group class which allows to add components and controls the flow of the components*/
@@ -148,6 +150,16 @@ export class FormGroup<
     this.#collapse_button.firstChild!.textContent = text;
   }
 
+  set max_height(height: number | undefined) {
+    if (height !== undefined) {
+      this._body.style.maxHeight = height + "rem";
+      this._body.style.overflowY = "auto";
+    } else {
+      this._body.style.maxHeight = "";
+      this._body.style.overflowY = "";
+    }
+  }
+
   set value(val: RT) {
     super.value = val;
   }
@@ -209,6 +221,7 @@ export const form_group = {
       if (options.collapse_text) slide.collapse_text = options.collapse_text;
       if (options.collapsible) slide.collapsible = options.collapsible;
       if (options.collapsed) slide.collapsed = options.collapsed;
+      if (options.max_height) slide.max_height = options.max_height;
       FormValue.apply_options(slide, options);
     }
     return slide;

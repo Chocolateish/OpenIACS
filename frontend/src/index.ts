@@ -49,6 +49,24 @@ formCont.style.flexGrow = "1";
 formCont.style.maxWidth = "40rem";
 formCont.style.overflow = "auto";
 
+//      _   _ _    _ __  __ ____  ______ _____    _____ _   _ _____  _    _ _______
+//     | \ | | |  | |  \/  |  _ \|  ____|  __ \  |_   _| \ | |  __ \| |  | |__   __|
+//     |  \| | |  | | \  / | |_) | |__  | |__) |   | | |  \| | |__) | |  | |  | |
+//     | . ` | |  | | |\/| |  _ <|  __| |  _  /    | | | . ` |  ___/| |  | |  | |
+//     | |\  | |__| | |  | | |_) | |____| | \ \   _| |_| |\  | |    | |__| |  | |
+//     |_| \_|\____/|_|  |_|____/|______|_|  \_\ |_____|_| \_|_|     \____/   |_|
+formCont.appendChild(
+  form.input_number.from({
+    label: "Number Input",
+    unit: "mA",
+    min: -100,
+    max: 100,
+    step: 0.5,
+    start: 0.1,
+    decimals: 1,
+  })
+);
+
 //       _____ _____   ____  _    _ _____
 //      / ____|  __ \ / __ \| |  | |  __ \
 //     | |  __| |__) | |  | | |  | | |__) |
@@ -59,6 +77,7 @@ const grouptest = formCont.appendChild(
   form.group.from({
     label: "Group Box",
     border: "outset",
+    max_height: 6,
     components: [
       form.button
         .from({
