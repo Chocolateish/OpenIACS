@@ -11,6 +11,7 @@ import {
 import { Err, Ok, type Result } from "@libResult";
 import type { STATE_SYNC_ROS_WS } from "@libState";
 import { default as st, default as state } from "@libState";
+import { ANIMATION_LEVEL, INPUT_MODE, THEME } from "@libTheme";
 import "./index.scss";
 import { form } from "./lib/form";
 import { FormColors } from "./lib/form/base";
@@ -48,6 +49,46 @@ const formCont = document.body.appendChild(document.createElement("div"));
 formCont.style.flexGrow = "1";
 formCont.style.maxWidth = "40rem";
 formCont.style.overflow = "auto";
+
+formCont.appendChild(
+  form.group.from({
+    label: "Group Box",
+    border: "inset",
+    max_height: 16,
+    collapsible: true,
+    collapsed: true,
+    collapse_text: "Theme",
+    components: [
+      form.toggle_button.from({
+        label: "Theme",
+        value_by_state: THEME,
+      }),
+      form.toggle_button.from({
+        label: "Input Mode",
+        value_by_state: INPUT_MODE,
+      }),
+      form.toggle_button.from({
+        label: "Animation Level",
+        value_by_state: ANIMATION_LEVEL,
+      }),
+    ],
+  })
+);
+
+//      _______ ________   _________   _____ _   _ _____  _    _ _______
+//     |__   __|  ____\ \ / /__   __| |_   _| \ | |  __ \| |  | |__   __|
+//        | |  | |__   \ V /   | |      | | |  \| | |__) | |  | |  | |
+//        | |  |  __|   > <    | |      | | | . ` |  ___/| |  | |  | |
+//        | |  | |____ / . \   | |     _| |_| |\  | |    | |__| |  | |
+//        |_|  |______/_/ \_\  |_|    |_____|_| \_|_|     \____/   |_|
+formCont.appendChild(
+  form.input_text.from({
+    label: "Text Input",
+    placeholder: "Enter text here...",
+    max_length: 50,
+    max_bytes: 100,
+  })
+);
 
 //      _   _ _    _ __  __ ____  ______ _____    _____ _   _ _____  _    _ _______
 //     | \ | | |  | |  \/  |  _ \|  ____|  __ \  |_   _| \ | |  __ \| |  | |__   __|

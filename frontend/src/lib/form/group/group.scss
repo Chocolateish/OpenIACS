@@ -4,6 +4,8 @@ form-group {
   @include base.base;
 
   > div {
+    --max_height: none;
+
     display: flex;
     flex-direction: column;
     background-color: inherit;
@@ -20,6 +22,8 @@ form-group {
     }
 
     &:not(.collapsible) {
+      max-height: var(--max_height);
+      overflow-y: auto;
       padding: 0.8rem;
       &.outset {
         box-shadow: base.$shadow_out;
@@ -28,6 +32,8 @@ form-group {
 
     &.collapsible {
       > div {
+        max-height: var(--max_height);
+        overflow-y: auto;
         padding: 0.8rem;
 
         &.collapsed {
@@ -46,6 +52,7 @@ form-group {
         align-items: center;
         cursor: pointer;
         user-select: none;
+        outline: none;
 
         .touch & {
           min-height: base.$size_touchHeight;
@@ -54,6 +61,14 @@ form-group {
         @media (hover: hover) and (pointer: fine) {
           &:hover {
             background-color: base.$color_background_hover;
+          }
+        }
+
+        &:focus-visible {
+          box-shadow: base.$focus_out;
+
+          &.active {
+            box-shadow: base.$focus_out;
           }
         }
 

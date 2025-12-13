@@ -3,9 +3,6 @@
 form-dropdown {
   @include base.base;
 
-  -webkit-user-select: none;
-  user-select: none;
-
   > div {
     background-color: base.$color_background;
     border: base.$border;
@@ -19,6 +16,8 @@ form-dropdown {
     box-sizing: border-box;
     outline: none;
     position: relative;
+    -webkit-user-select: none;
+    user-select: none;
 
     .touch & {
       min-height: base.$size_touchHeight;

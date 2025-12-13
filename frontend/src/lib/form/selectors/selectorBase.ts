@@ -1,3 +1,4 @@
+import { STATE_ENUM_HELPER, type STATE } from "@libState";
 import type { SVGFunc } from "@libSVG";
 import { FormValueWrite, type FormValueOptions } from "../base";
 
@@ -30,5 +31,20 @@ export abstract class FormSelectorBase<
   ) {
     if (options.selections) element.selections = options.selections;
     super.apply_options(element, options);
+  }
+
+  set value_by_state(st: STATE<RT> | undefined) {
+    st?.related().map((val) => {
+      if (val instanceof STATE_ENUM_HELPER) {
+        this.selections = val.map((key, val) => {
+          return {
+            text: val.name,
+            value: key as RT,
+            icon: val.icon,
+          };
+        });
+      }
+    });
+    super.value_by_state = st;
   }
 }

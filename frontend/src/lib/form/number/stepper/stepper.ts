@@ -41,8 +41,8 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
   #value_box = this.#text.appendChild(document.createElement("span"));
   #unit_box = this.#text.appendChild(document.createElement("span"));
   #legend = this.#text.appendChild(document.createElement("span"));
-  #min_legend = this.#legend.appendChild(document.createElement("span"));
   #max_legend = this.#legend.appendChild(document.createElement("span"));
+  #min_legend = this.#legend.appendChild(document.createElement("span"));
 
   constructor(id?: ID) {
     super(id);

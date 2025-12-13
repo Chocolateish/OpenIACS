@@ -138,6 +138,7 @@ export class FormGroup<
   set collapse_text(text: string) {
     if (!this.#collapse_button) {
       this.#collapse_button = document.createElement("span");
+      this.#collapse_button.tabIndex = 0;
       this.#collapse_button.appendChild(document.createElement("span"));
       this.#collapse_button.appendChild(
         material_navigation_unfold_less_rounded()
@@ -146,18 +147,21 @@ export class FormGroup<
         material_navigation_unfold_more_rounded()
       );
       this.#collapse_button.onclick = () => (this.collapsed = !this.collapsed);
+      this.#collapse_button.onkeydown = (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          this.collapsed = !this.collapsed;
+        }
+      };
     }
     this.#collapse_button.firstChild!.textContent = text;
   }
 
   set max_height(height: number | undefined) {
-    if (height !== undefined) {
-      this._body.style.maxHeight = height + "rem";
-      this._body.style.overflowY = "auto";
-    } else {
-      this._body.style.maxHeight = "";
-      this._body.style.overflowY = "";
-    }
+    this._body.style.setProperty(
+      "--max_height",
+      height ? height + "rem" : "none"
+    );
   }
 
   set value(val: RT) {

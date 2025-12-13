@@ -1,11 +1,17 @@
 import { define_element } from "@libBase";
+import {
+  get_cursor_position,
+  set_cursor_end,
+  set_cursor_position,
+  set_selection_all,
+} from "@libCommon";
+import { number_step_start_decimal } from "@libMath";
+import { Err, type Result } from "@libResult";
 import { FormNumberWrite, type FormNumberWriteOptions } from "../numberBase";
 import "./numberInput.scss";
 
 /**Slide Selector, displays all options in a slider*/
-export class FormNumberInput<
-  ID extends string | undefined
-> extends FormNumberWrite<ID> {
+class NumberInput<ID extends string | undefined> extends FormNumberWrite<ID> {
   static element_name() {
     return "numberinput";
   }
@@ -13,6 +19,7 @@ export class FormNumberInput<
     return "form";
   }
 
+  #selected: boolean = false;
   #unit: string = "";
   #min: number = -Infinity;
   #max: number = Infinity;
@@ -23,42 +30,73 @@ export class FormNumberInput<
   #value_box = this._body.appendChild(document.createElement("span"));
   #unit_box = this._body.appendChild(document.createElement("span"));
   #legend = this._body.appendChild(document.createElement("div"));
-  #min_legend = this.#legend.appendChild(document.createElement("span"));
   #max_legend = this.#legend.appendChild(document.createElement("span"));
+  #min_legend = this.#legend.appendChild(document.createElement("span"));
 
   constructor(id?: ID) {
     super(id);
+    this._body.appendChild(this.warn_input);
     this.#value_box.contentEditable = "true";
-    this.#value_box.onfocus = () => {};
+    this._body.onpointerdown = (e) => {
+      this.#selected = true;
+      if (e.target !== this.#value_box) {
+        e.preventDefault();
+        set_cursor_end(this.#value_box);
+      } else this.#value_box.focus();
+    };
+    this.#value_box.addEventListener("focusin", (e) => {
+      e.preventDefault();
+      if (this.#selected) return;
+      set_selection_all(this.#value_box);
+      this.#selected = true;
+    });
     this.#value_box.onblur = () => {
+      this.#selected = false;
       setTimeout(() => {
-        this.set_value_check(
-          parseFloat(this.#value_box.textContent?.replace(",", ".") || "") || 0
-        );
+        this.#set(false);
       }, 0);
     };
-    this._body.onclick = () => {
-      this.#value_box.focus();
-    };
     this._body.onkeydown = (e) => {
-      if (e.key === "Enter") {
-        this.#value_box.blur();
+      if (e.key === "Enter") this.#set(true);
+      else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        e.stopPropagation();
+        return this.#step_value(true);
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        e.stopPropagation();
+        return this.#step_value(false);
       }
     };
     this._body.onbeforeinput = (e) => {
-      if (e.inputType === "insertParagraph") {
-        e.preventDefault();
-      }
+      if (e.inputType === "insertParagraph") e.preventDefault();
       if (e.data) {
-        if (!/[\d,.-]/g.test(e.data)) {
+        if (!/[\d,.-]/g.test(e.data)) e.preventDefault();
+        else if (/[,.]/g.test(e.data) && this.#decimals === 0)
           e.preventDefault();
-        } else if (/[,.]/g.test(e.data) && this.#decimals === 0) {
-          e.preventDefault();
-        } else if (this.#min >= 0 && /-/g.test(e.data)) {
-          e.preventDefault();
-        }
+        else if (this.#min >= 0 && /-/g.test(e.data)) e.preventDefault();
       }
     };
+  }
+
+  #set(cur: boolean) {
+    const sel = get_cursor_position(this.#value_box);
+    const buff = this.buffer;
+    this.set_value_check(
+      parseFloat(this.#value_box.textContent?.replace(",", ".") || "") || 0
+    )
+      .map_err(() => {
+        this.new_value(buff || Math.max(Math.min(0, this.#max), this.#min));
+        set_cursor_end(this.#value_box);
+      })
+      .map(() => {
+        if (!cur) return;
+        set_cursor_position(this.#value_box, sel);
+      });
+  }
+
+  focus(options?: FocusOptions): void {
+    this.#value_box.focus(options);
   }
 
   set unit(unit: string | undefined) {
@@ -109,15 +147,57 @@ export class FormNumberInput<
   }
 
   protected new_error(_val: string): void {}
+
+  protected limit_value(val: number): Result<number, string> {
+    let lim = number_step_start_decimal(
+      Math.min(Math.max(val, this.#min), this.#max),
+      this.#step,
+      this.#start,
+      this.#decimals
+    );
+    if (lim < this.#min) lim += this.#step;
+    if (lim > this.#max) lim -= this.#step;
+    return super.limit_value(lim);
+  }
+
+  protected check_value(val: number): Result<number, string> {
+    if (val < this.#min)
+      return Err(
+        "Minimum value " + this.#min.toFixed(this.#decimals) + this.#unit
+      );
+    if (val > this.#max)
+      return Err(
+        "Maximum value " + this.#max.toFixed(this.#decimals) + this.#unit
+      );
+    let lim = number_step_start_decimal(
+      val,
+      this.#step,
+      this.#start,
+      this.#decimals
+    );
+    if (lim < this.#min) lim += this.#step;
+    if (lim > this.#max) lim -= this.#step;
+    return super.check_value(lim);
+  }
+
+  #step_value(dir: boolean) {
+    const step =
+      this.#step ||
+      Math.max(
+        this.#decimals ? 1 / this.#decimals : 1,
+        Math.floor(Math.abs(this.buffer || 0) / 150)
+      );
+    return this.set_value_check((this.buffer || 0) + (dir ? step : -step));
+  }
 }
-define_element(FormNumberInput);
+define_element(NumberInput);
 
 export const form_number_input = {
   /**Creates a dropdown form element */
   from<ID extends string | undefined>(
     options?: FormNumberWriteOptions<ID>
-  ): FormNumberInput<ID> {
-    const input = new FormNumberInput<ID>(options?.id);
+  ): NumberInput<ID> {
+    const input = new NumberInput<ID>(options?.id);
     if (options) {
       FormNumberWrite.apply_options(input, options);
     }

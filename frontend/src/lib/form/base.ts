@@ -156,6 +156,7 @@ export abstract class FormValueWrite<
   }
 
   protected warn_input: HTMLInputElement = document.createElement("input");
+  #warn_timeout?: number;
   #changed: boolean = false;
   #change?: (val: RT) => void;
 
@@ -179,6 +180,11 @@ export abstract class FormValueWrite<
   warn(message: string): void {
     this.warn_input.setCustomValidity(message);
     this.warn_input.reportValidity();
+    if (this.#warn_timeout) clearTimeout(this.#warn_timeout);
+    this.#warn_timeout = setTimeout(() => {
+      this.warn_input.setCustomValidity("");
+      this.warn_input.reportValidity();
+    }, 5000);
   }
 
   /**Function to limit value entered */

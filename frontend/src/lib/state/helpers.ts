@@ -220,6 +220,11 @@ export class STATE_ENUM_HELPER<
     this.list = list;
   }
 
+  map<T>(func: (key: K, val: ENUM_HELPER_ENTRY) => T): T[] {
+    return Object.keys(this.list).map((key) =>
+      func(key as K, this.list[key as K])
+    );
+  }
   limit(value: K): Result<K, string> {
     return Ok(value);
   }
@@ -232,18 +237,7 @@ export class STATE_ENUM_HELPER<
   }
 }
 
-/**Iterates a enum description list*/
-function iterate<T, R extends STATE_ENUM_RELATED<STATE_ENUM_HELPER_LIST<any>>>(
-  related: R,
-  func: (key: keyof R["list"], val: ENUM_HELPER_ENTRY) => T
-): T[] {
-  return Object.keys(related.list).map((key) => {
-    return func(key, related.list[key]);
-  });
-}
-
 const enums = {
-  iterate,
   /**Creates an enum helper struct, use list method to make a list with correct typing*/
   helper<
     L extends STATE_ENUM_HELPER_LIST<any>,
