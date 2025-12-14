@@ -85,8 +85,8 @@ formCont.appendChild(
   form.input_text.from({
     label: "Text Input",
     placeholder: "Enter text here...",
-    max_length: 50,
-    max_bytes: 100,
+    max_length: 20,
+    max_bytes: 20,
   })
 );
 

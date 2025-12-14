@@ -1,9 +1,11 @@
 import { define_element } from "@libBase";
 import type { Result } from "@libResult";
+import { string_byte_length } from "@libString";
 import {
   get_cursor_position,
   set_cursor_end,
   set_cursor_position,
+  set_selection_all,
 } from "../../../common/selection";
 import { FormValueWrite, type FormValueOptions } from "../../base";
 import "./textInput.scss";
@@ -31,6 +33,7 @@ class FormTextInput<ID extends string | undefined> extends FormValueWrite<
     return "form";
   }
 
+  #selected: boolean = false;
   #placeholder: string = "";
   #max_length?: number;
   #max_bytes?: number;
@@ -40,7 +43,21 @@ class FormTextInput<ID extends string | undefined> extends FormValueWrite<
     super(id);
     this._body.appendChild(this.warn_input);
     this.#value_box.contentEditable = "true";
+    this._body.onpointerdown = (e) => {
+      this.#selected = true;
+      if (e.target !== this.#value_box) {
+        e.preventDefault();
+        set_cursor_end(this.#value_box);
+      } else this.#value_box.focus();
+    };
+    this.#value_box.addEventListener("focusin", (e) => {
+      e.preventDefault();
+      if (this.#selected) return;
+      set_selection_all(this.#value_box);
+      this.#selected = true;
+    });
     this.#value_box.onblur = () => {
+      this.#selected = false;
       setTimeout(() => {
         this.#set(false);
       }, 0);
@@ -48,15 +65,30 @@ class FormTextInput<ID extends string | undefined> extends FormValueWrite<
     this._body.onkeydown = (e) => {
       if (e.key === "Enter") this.#set(true);
     };
-    // this._body.onbeforeinput = (e) => {
-    //   if (e.inputType === "insertParagraph") e.preventDefault();
-    //   if (e.data) {
-    //     if (!/[\d,.-]/g.test(e.data)) e.preventDefault();
-    //     else if (/[,.]/g.test(e.data) && this.#decimals === 0)
-    //       e.preventDefault();
-    //     else if (this.#min >= 0 && /-/g.test(e.data)) e.preventDefault();
-    //   }
-    // };
+    this._body.onbeforeinput = (e) => {
+      if (e.inputType === "insertParagraph") {
+        e.preventDefault();
+        this.warn("Multiple lines are not allowed");
+      }
+      if (e.data) {
+        if (
+          this.#max_length &&
+          this.#value_box.textContent.length + e.data.length > this.#max_length
+        ) {
+          e.preventDefault();
+          this.warn(`A maximum of ${this.#max_length} characters is allowed`);
+        }
+        if (
+          this.#max_bytes &&
+          string_byte_length(this.#value_box.textContent) +
+            string_byte_length(e.data) >
+            this.#max_bytes
+        ) {
+          e.preventDefault();
+          this.warn(`A maximum of ${this.#max_bytes} bytes is allowed`);
+        }
+      }
+    };
   }
 
   #set(cur: boolean) {
