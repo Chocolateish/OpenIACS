@@ -13,30 +13,51 @@ form-textmultiline {
     user-select: none;
     -webkit-user-select: none;
     outline: none;
-    overflow-x: auto;
 
     &:focus-within {
       box-shadow: base.$shadow_in_focus_out;
     }
 
-    @media (pointer: fine) {
-      &:hover {
-        background-color: base.$color_background_hover;
-      }
-    }
-
-    > span {
-      @include base.value-font;
+    > textarea {
+      all: unset;
       display: block;
       padding: 0.3rem;
       box-sizing: border-box;
       outline: none;
-      width: max-content;
-      min-width: 100%;
-      height: base.$size_height;
+      width: 100%;
+      min-height: base.$size_height;
+      border-bottom: base.$color_border solid base.$border_thickness;
 
       .touch & {
-        height: base.$size_touchHeight;
+        min-height: base.$size_touchHeight;
+      }
+
+      @media (pointer: fine) {
+        &:hover {
+          background-color: base.$color_background_hover;
+        }
+      }
+    }
+
+    > div {
+      display: flex;
+      height: calc(base.$size_height / 2);
+      cursor: ns-resize;
+      align-items: center;
+      justify-content: center;
+
+      .touch & {
+        height: calc(base.$size_touchHeight / 2);
+      }
+
+      @media (pointer: fine) {
+        &:hover {
+          background-color: base.$color_background_hover;
+        }
+      }
+
+      > svg {
+        fill: base.$color_text;
       }
     }
 

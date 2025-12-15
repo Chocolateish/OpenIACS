@@ -8,6 +8,7 @@ import { form_slider } from "./number/slider/slider";
 import { form_stepper } from "./number/stepper/stepper";
 import { form_dropDown } from "./selectors/dropDown/dropDown";
 import { form_toggle_button } from "./selectors/toggleButton/toggleButton";
+import { form_color_input } from "./special/color/colorInput";
 import { form_text_input } from "./text/input/textInput";
 import { form_text_multiline } from "./text/multiLine/textMultiLine";
 import { form_text } from "./text/text/text";
@@ -20,7 +21,8 @@ export const form = {
   //Group
   group: form_group,
 
-  //Input
+  //Special
+  color_input: form_color_input,
 
   //Number
   progress: form_progress,

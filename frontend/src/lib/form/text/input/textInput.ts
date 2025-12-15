@@ -1,12 +1,7 @@
 import { define_element } from "@libBase";
-import type { Result } from "@libResult";
-import { string_byte_length } from "@libString";
-import {
-  get_cursor_position,
-  set_cursor_end,
-  set_cursor_position,
-  set_selection_all,
-} from "../../../common/selection";
+import { Err, type Result } from "@libResult";
+import { string_byte_length, string_byte_limit } from "@libString";
+import { set_cursor_end } from "../../../common/selection";
 import { FormValueWrite, type FormValueOptions } from "../../base";
 import "./textInput.scss";
 
@@ -33,55 +28,28 @@ class FormTextInput<ID extends string | undefined> extends FormValueWrite<
     return "form";
   }
 
-  #selected: boolean = false;
-  #placeholder: string = "";
   #max_length?: number;
   #max_bytes?: number;
-  #value_box = this._body.appendChild(document.createElement("span"));
 
   constructor(id?: ID) {
     super(id);
+    this.warn_input.type = "text";
     this._body.appendChild(this.warn_input);
-    this.#value_box.contentEditable = "true";
-    this._body.onpointerdown = (e) => {
-      this.#selected = true;
-      if (e.target !== this.#value_box) {
-        e.preventDefault();
-        set_cursor_end(this.#value_box);
-      } else this.#value_box.focus();
-    };
-    this.#value_box.addEventListener("focusin", (e) => {
-      e.preventDefault();
-      if (this.#selected) return;
-      set_selection_all(this.#value_box);
-      this.#selected = true;
-    });
-    this.#value_box.onblur = () => {
-      this.#selected = false;
-      setTimeout(() => {
-        this.#set(false);
-      }, 0);
-    };
-    this._body.onkeydown = (e) => {
-      if (e.key === "Enter") this.#set(true);
-    };
+    this.warn_input.onchange = () => this.#set();
     this._body.onbeforeinput = (e) => {
-      if (e.inputType === "insertParagraph") {
-        e.preventDefault();
-        this.warn("Multiple lines are not allowed");
-      }
-      if (e.data) {
+      this.warn("");
+      const data = e.data || e.dataTransfer?.getData("text/plain");
+      if (data) {
         if (
           this.#max_length &&
-          this.#value_box.textContent.length + e.data.length > this.#max_length
+          this.warn_input.value.length + data.length > this.#max_length
         ) {
           e.preventDefault();
           this.warn(`A maximum of ${this.#max_length} characters is allowed`);
         }
         if (
           this.#max_bytes &&
-          string_byte_length(this.#value_box.textContent) +
-            string_byte_length(e.data) >
+          string_byte_length(this.warn_input.value) + string_byte_length(data) >
             this.#max_bytes
         ) {
           e.preventDefault();
@@ -91,61 +59,54 @@ class FormTextInput<ID extends string | undefined> extends FormValueWrite<
     };
   }
 
-  #set(cur: boolean) {
-    const sel = get_cursor_position(this.#value_box);
+  #set() {
     const buff = this.buffer;
-    this.set_value_check(this.#value_box.textContent || "")
-      .map_err(() => {
-        this.new_value(buff || "");
-        set_cursor_end(this.#value_box);
-      })
-      .map(() => {
-        if (!cur) return;
-        set_cursor_position(this.#value_box, sel);
-      });
+    this.set_value_check(this.warn_input.value || "").map_err(() => {
+      this.new_value(buff || "");
+      set_cursor_end(this.warn_input);
+    });
   }
 
-  get placeholder(): string {
-    return this.#placeholder;
-  }
   set placeholder(val: string) {
-    this.#placeholder = val;
-    this.#value_box.setAttribute("data-placeholder", val);
+    this.warn_input.placeholder = val;
+  }
+  get placeholder(): string {
+    return this.warn_input.placeholder;
   }
 
+  set max_length(val: number | undefined) {
+    this.#max_length = val;
+    this.warn_input.maxLength = val ?? -1;
+  }
   get max_length(): number | undefined {
     return this.#max_length;
   }
-  set max_length(val: number | undefined) {
-    this.#max_length = val;
-  }
 
-  get max_bytes(): number | undefined {
-    return this.#max_bytes;
-  }
   set max_bytes(val: number | undefined) {
     this.#max_bytes = val;
   }
+  get max_bytes(): number | undefined {
+    return this.#max_bytes;
+  }
 
   protected new_value(val: string): void {
-    this.#value_box.textContent = val;
+    this.warn_input.value = val;
   }
 
   protected new_error(_val: string): void {}
 
   protected limit_value(val: string): Result<string, string> {
+    if (this.#max_length && val.length > this.#max_length)
+      val = val.slice(0, this.#max_length);
+    if (this.#max_bytes) val = string_byte_limit(val, this.#max_bytes);
     return super.limit_value(val);
   }
 
   protected check_value(val: string): Result<string, string> {
-    // if (val < this.#min)
-    //   return Err(
-    //     "Minimum value " + this.#min.toFixed(this.#decimals) + this.#unit
-    //   );
-    // if (val > this.#max)
-    //   return Err(
-    //     "Maximum value " + this.#max.toFixed(this.#decimals) + this.#unit
-    //   );
+    if (this.#max_length && val.length > this.#max_length)
+      return Err(`A maximum of ${this.#max_length} characters is allowed`);
+    if (this.#max_bytes && string_byte_length(val) > this.#max_bytes)
+      return Err(`A maximum of ${this.#max_bytes} bytes is allowed`);
     return super.check_value(val);
   }
 }

@@ -25,7 +25,8 @@ form-textinput {
       }
     }
 
-    > span {
+    > input {
+      all: unset;
       @include base.value-font;
       display: block;
       padding: 0.3rem;
@@ -38,15 +39,6 @@ form-textinput {
       .touch & {
         height: base.$size_touchHeight;
       }
-    }
-
-    > input {
-      all: unset;
-      visibility: hidden;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      inset: 0;
     }
   }
 }

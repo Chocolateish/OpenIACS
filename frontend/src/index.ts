@@ -75,18 +75,72 @@ formCont.appendChild(
   })
 );
 
+//       _____ ____  _      ____  _____    _____ _   _ _____  _    _ _______
+//      / ____/ __ \| |    / __ \|  __ \  |_   _| \ | |  __ \| |  | |__   __|
+//     | |   | |  | | |   | |  | | |__) |   | | |  \| | |__) | |  | |  | |
+//     | |   | |  | | |   | |  | |  _  /    | | | . ` |  ___/| |  | |  | |
+//     | |___| |__| | |___| |__| | | \ \   _| |_| |\  | |    | |__| |  | |
+//      \_____\____/|______\____/|_|  \_\ |_____|_| \_|_|     \____/   |_|
+const colorState = state.s.ros_ws.ok("#00ff00");
+formCont.appendChild(
+  form.color_input.from({
+    label: "Color Input",
+    value_by_state: colorState,
+  })
+);
+
+formCont.appendChild(
+  form.color_input.from({
+    label: "Color Input 2",
+    live: true,
+    value_by_state: colorState,
+  })
+);
+
 //      _______ ________   _________   _____ _   _ _____  _    _ _______
 //     |__   __|  ____\ \ / /__   __| |_   _| \ | |  __ \| |  | |__   __|
 //        | |  | |__   \ V /   | |      | | |  \| | |__) | |  | |  | |
 //        | |  |  __|   > <    | |      | | | . ` |  ___/| |  | |  | |
 //        | |  | |____ / . \   | |     _| |_| |\  | |    | |__| |  | |
 //        |_|  |______/_/ \_\  |_|    |_____|_| \_|_|     \____/   |_|
+const textState = state.s.ros_ws.ok("");
 formCont.appendChild(
   form.input_text.from({
     label: "Text Input",
     placeholder: "Enter text here...",
     max_length: 20,
     max_bytes: 20,
+    value_by_state: textState,
+  })
+);
+formCont.appendChild(
+  form.input_text.from({
+    label: "Text Input2",
+    placeholder: "Enter text here...",
+    max_length: 20,
+    max_bytes: 20,
+    value_by_state: textState,
+  })
+);
+
+const multilineTextState = state.s.ros_ws.ok("");
+formCont.appendChild(
+  form.multiline_text.from({
+    label: "Multiline Text Input",
+    placeholder: "Enter text here...",
+    max_length: 20,
+    max_bytes: 20,
+    value_by_state: multilineTextState,
+  })
+);
+
+formCont.appendChild(
+  form.multiline_text.from({
+    label: "Multiline Text Input2",
+    placeholder: "Enter text here...",
+    max_length: 20,
+    max_bytes: 20,
+    value_by_state: multilineTextState,
   })
 );
 
