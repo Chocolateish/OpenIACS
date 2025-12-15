@@ -2,7 +2,7 @@ import { define_element } from "@libBase";
 import { FormValueWrite, type FormValueOptions } from "../../base";
 import "./colorInput.scss";
 
-export interface FormTextInputOptions<
+export interface FormColorInputOptions<
   ID extends string | undefined,
   RT = string
 > extends FormValueOptions<RT, ID> {
@@ -10,7 +10,7 @@ export interface FormTextInputOptions<
   live?: boolean;
 }
 
-export class ColorInput<ID extends string | undefined> extends FormValueWrite<
+class FormColorInput<ID extends string | undefined> extends FormValueWrite<
   string,
   ID
 > {
@@ -48,14 +48,14 @@ export class ColorInput<ID extends string | undefined> extends FormValueWrite<
 
   protected new_error(_val: string): void {}
 }
-define_element(ColorInput);
+define_element(FormColorInput);
 
 export const form_color_input = {
   /**Creates a color input form element */
   from<ID extends string | undefined>(
-    options?: FormTextInputOptions<ID, string>
-  ): ColorInput<ID> {
-    const input = new ColorInput<ID>(options?.id);
+    options?: FormColorInputOptions<ID, string>
+  ): FormColorInput<ID> {
+    const input = new FormColorInput<ID>(options?.id);
     if (options) {
       if (options.live) input.live = options.live;
       FormValueWrite.apply_options(input, options);
