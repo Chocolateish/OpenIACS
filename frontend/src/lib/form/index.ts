@@ -9,6 +9,7 @@ import { form_stepper } from "./number/stepper/stepper";
 import { form_dropDown } from "./selectors/dropDown/dropDown";
 import { form_toggle_button } from "./selectors/toggleButton/toggleButton";
 import { form_text_input } from "./text/input/textInput";
+import { form_text_multiline } from "./text/multiLine/textMultiLine";
 import { form_text } from "./text/text/text";
 
 export const form = {
@@ -32,4 +33,5 @@ export const form = {
   //Text
   text: form_text,
   input_text: form_text_input,
+  multiline_text: form_text_multiline,
 };

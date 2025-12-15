@@ -1,16 +1,30 @@
-import "./phoneInput.scss"
-import { defineElement } from "@chocolatelibui/core";
-import { InputBase } from "../inputBase";
+import { define_element } from "@libBase";
+import { FormValueWrite } from "../../base";
+import "./phoneInput.scss";
 
 /**Color selector*/
-export class PhoneInput extends InputBase<string> {
-    /**Returns the name used to define the element*/
-    static elementName() { return 'phoneinput' }
+export class PhoneInput<ID extends string | undefined> extends FormValueWrite<
+  string,
+  ID
+> {
+  static element_name() {
+    return "phoneinput";
+  }
+  static element_name_space(): string {
+    return "form";
+  }
 
-    constructor() {
-        super();
-        this._input.type = 'tel';
-        this._input.pattern = '[0-9]{3}-[0-9]{2}-[0-9]{3}';
-    }
+  constructor(id?: ID) {
+    super(id);
+    this._body.appendChild(this.warn_input);
+    this.warn_input.type = "tel";
+    this.warn_input.pattern = "[0-9]{3}-[0-9]{2}-[0-9]{3}";
+  }
+
+  protected new_value(val: string): void {
+    this.warn_input.value = val;
+  }
+
+  protected new_error(_val: string): void {}
 }
-defineElement(PhoneInput);
+define_element(PhoneInput);

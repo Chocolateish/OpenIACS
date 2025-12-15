@@ -1,0 +1,52 @@
+@use "../../base";
+
+form-textmultiline {
+  @include base.base;
+
+  > div {
+    border: base.$border;
+    box-shadow: base.$shadow_in;
+    border-radius: base.$size_cornerRadius;
+    background-color: base.$color_background;
+    position: relative;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    outline: none;
+    overflow-x: auto;
+
+    &:focus-within {
+      box-shadow: base.$shadow_in_focus_out;
+    }
+
+    @media (pointer: fine) {
+      &:hover {
+        background-color: base.$color_background_hover;
+      }
+    }
+
+    > span {
+      @include base.value-font;
+      display: block;
+      padding: 0.3rem;
+      box-sizing: border-box;
+      outline: none;
+      width: max-content;
+      min-width: 100%;
+      height: base.$size_height;
+
+      .touch & {
+        height: base.$size_touchHeight;
+      }
+    }
+
+    > input {
+      all: unset;
+      visibility: hidden;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      inset: 0;
+    }
+  }
+}

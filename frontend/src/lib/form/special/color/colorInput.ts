@@ -1,28 +1,32 @@
-import "./colorInput.scss"
-import { defineElement } from "@chocolatelibui/core";
-import { InputBase } from "../inputBase";
+import { define_element } from "@libBase";
+import { FormValueWrite } from "../../base";
+import "./colorInput.scss";
 
 /**Color selector*/
-export class ColorInput extends InputBase<string> {
-    /**Returns the name used to define the element*/
-    static elementName() { return 'colorinput' }
+export class ColorInput<ID extends string | undefined> extends FormValueWrite<
+  string,
+  ID
+> {
+  static element_name() {
+    return "colorinput";
+  }
+  static element_name_space(): string {
+    return "form";
+  }
 
-    constructor() {
-        super();
-        this._input.type = 'color';
-        this._input.onchange = () => {
-            this._valueSet(this._input.value);
-        }
-    }
+  constructor(id?: ID) {
+    super(id);
+    this._body.appendChild(this.warn_input);
+    this.warn_input.type = "color";
+    this.warn_input.onchange = () => {
+      this.set_value_check(this.warn_input.value);
+    };
+  }
 
-    /**Called when value is changed */
-    protected _valueUpdate(value: string) {
-        this._input.value = value;
-    }
+  protected new_value(val: string): void {
+    this.warn_input.value = val;
+  }
 
-    /**Called when value cleared */
-    protected _valueClear() {
-        this._input.value = ''
-    }
+  protected new_error(_val: string): void {}
 }
-defineElement(ColorInput);
+define_element(ColorInput);
