@@ -1,5 +1,5 @@
 import { define_element } from "@libBase";
-import { FormValueWrite } from "../../base";
+import { FormValueWrite, type FormValueOptions } from "../../base";
 import "./ipInput.scss";
 
 // if (!/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}$/g.test(val)) {
@@ -41,7 +41,18 @@ import "./ipInput.scss";
 //     }
 //     break;
 
-/**IP Address input*/
+export const FormIpType = {
+  IPV4: "ipv4",
+  IPV6: "ipv6",
+} as const;
+export type FormIpType = (typeof FormIpType)[keyof typeof FormIpType];
+
+export interface IpInputOptions<ID extends string | undefined>
+  extends FormValueOptions<string, ID> {
+  /**Ip address type*/
+  type: FormIpType;
+}
+
 class FormIpInput<ID extends string | undefined> extends FormValueWrite<
   string,
   ID
@@ -55,7 +66,7 @@ class FormIpInput<ID extends string | undefined> extends FormValueWrite<
 
   constructor(id?: ID) {
     super(id);
-    // this._input.type = "text";
+    this.warn_input.type = "text";
     // this._input.oninput = () => {
     //   const parts = this._input.value.split(".");
     //   for (let i = 0; i < parts.length; i++) {
@@ -88,3 +99,16 @@ class FormIpInput<ID extends string | undefined> extends FormValueWrite<
   protected new_error(_val: string): void {}
 }
 define_element(FormIpInput);
+
+export const form_ip_input = {
+  /**Creates a color input form element */
+  from<ID extends string | undefined>(
+    options?: IpInputOptions<ID>
+  ): FormIpInput<ID> {
+    const input = new FormIpInput<ID>(options?.id);
+    if (options) {
+      FormValueWrite.apply_options(input, options);
+    }
+    return input;
+  },
+};

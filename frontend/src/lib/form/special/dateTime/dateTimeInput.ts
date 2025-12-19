@@ -1,170 +1,117 @@
-import { defineElement } from "@chocolatelibui/core";
+import { define_element } from "@libBase";
 import {
   material_action_calendar_month_rounded,
   material_action_schedule_rounded,
-} from "@chocolatelibui/icons";
-import { FormValueOptions } from "../../base";
-import { InputBase } from "../inputBase";
+} from "@libIcons";
+import { FormValueWrite, type FormValueOptions } from "../../base";
 import "./dateTimeInput.scss";
 
-export interface DateTimeInputOptions<T> extends FormValueOptions<T> {
+export interface DateTimeInputOptions<RT, ID extends string | undefined>
+  extends FormValueOptions<RT, ID> {
   /**Type of date time*/
-  type?: DateTimeType;
-  mode?: DateTimeMode;
+  type?: FormDateTimeType;
 }
 
-export const enum DateTimeType {
-  DATE = "date",
-  TIME = "time",
-  DATETIME = "datetime",
-}
+export const FormDateTimeType = {
+  DATE: "date",
+  TIME: "time",
+  DATETIME: "datetime",
+} as const;
+export type FormDateTimeType =
+  (typeof FormDateTimeType)[keyof typeof FormDateTimeType];
 
-export const enum DateTimeMode {
-  DATE = "date",
-  STRING = "string",
-  NUMBER = "number",
-}
+const DateTimeMode = {
+  DATE: "date",
+  STRING: "string",
+  NUMBER: "number",
+} as const;
 
-/**Date Input*/
-export class DateTimeInput<
-  T extends Date | string | number
-> extends InputBase<T> {
-  private _type: DateTimeType = DateTimeType.DATETIME;
-  private _mode: DateTimeMode = DateTimeMode.DATE;
-
-  /**Returns the name used to define the element*/
-  static elementName() {
-    return "datetime";
+class FormDateTimeInput<
+  RT extends Date | string | number,
+  ID extends string | undefined
+> extends FormValueWrite<RT, ID> {
+  static element_name() {
+    return "datetimeinput";
+  }
+  static element_name_space(): string {
+    return "form";
   }
 
-  constructor() {
-    super();
-    this._input.type = "datetime-local";
-    this._input.step = "1";
+  #type: FormDateTimeType = FormDateTimeType.DATETIME;
+  #mode: string = DateTimeMode.DATE;
+
+  constructor(id?: ID) {
+    super(id);
+    this.warn_input.type = "datetime-local";
+    this.warn_input.lang = "da-DK";
+    this.warn_input.step = "0.1";
+    this._body.appendChild(this.warn_input);
     this._body.appendChild(material_action_calendar_month_rounded()).onclick =
-      () => {
-        this._input.showPicker();
-      };
-    this._body.appendChild(material_action_schedule_rounded()).onclick = () => {
-      this._input.showPicker();
-    };
-    this._input.onchange = () => {
-      if (this._input.value) {
-        switch (this._mode) {
-          case DateTimeMode.DATE:
-            this._valueSet(<any>new Date(this._input.valueAsNumber));
-            break;
-          case DateTimeMode.STRING:
-            this._valueSet(<any>this._input.value);
-            break;
-          case DateTimeMode.NUMBER:
-            this._valueSet(<any>this._input.valueAsNumber);
-            break;
-        }
+      () => this.warn_input.showPicker();
+    this._body.appendChild(material_action_schedule_rounded()).onclick = () =>
+      this.warn_input.showPicker();
+    this.warn_input.onchange = () => {
+      if (this.warn_input.value) {
+        if (this.#mode === DateTimeMode.DATE)
+          this.set_value_check(new Date(this.warn_input.valueAsNumber) as RT);
+        else if (this.#mode === DateTimeMode.STRING)
+          this.set_value_check(this.warn_input.value as RT);
+        else if (this.#mode === DateTimeMode.NUMBER)
+          this.set_value_check(this.warn_input.valueAsNumber as RT);
       }
     };
   }
 
-  /**Called when value is changed */
-  protected _valueUpdate(value: T) {
-    let time: number;
-    switch (typeof value) {
-      case "number":
-        time = value;
-        break;
-      case "string":
-        time = new Date(value).getTime();
-        break;
-      case "object":
-        time = value.getTime();
-        break;
-    }
-    switch (this._type) {
-      case DateTimeType.DATE:
-        this._input.valueAsNumber = time;
-        break;
-      case DateTimeType.TIME:
-        this._input.valueAsNumber = time;
-        break;
-      case DateTimeType.DATETIME:
-        this._input.valueAsNumber = time;
-        break;
-    }
-  }
-
-  /**Called when value cleared */
-  protected _valueClear() {
-    this._input.value = "";
-  }
-
-  /**Sets options for the element*/
-  options(options: DateTimeInputOptions<T>) {
-    if (options.type) {
-      this.type = options.type;
-    }
-    super.options(options);
-    if (options.mode) {
-      this.mode = options.mode;
-    }
-    return this;
-  }
-
   /**Returns the date time type*/
   get type() {
-    return this._type;
+    return this.#type;
   }
 
   /**Sets the date time type*/
-  set type(type: DateTimeType) {
-    switch (type) {
-      case DateTimeType.DATE:
-        this._input.type = "date";
-        break;
-      case DateTimeType.TIME:
-        this._input.type = "time";
-        break;
-      case DateTimeType.DATETIME:
-        this._input.type = "datetime-local";
-        break;
-    }
-
-    this._type = type;
-  }
-
-  /**Returns the date time type*/
-  get mode() {
-    return this._mode;
-  }
-  /**Sets the date time type*/
-  set mode(mode: DateTimeMode) {
-    this._mode = mode;
+  set type(type: FormDateTimeType) {
+    if (type === FormDateTimeType.DATE) this.warn_input.type = "date";
+    if (type === FormDateTimeType.TIME) this.warn_input.type = "time";
+    if (type === FormDateTimeType.DATETIME)
+      this.warn_input.type = "datetime-local";
+    this.#type = type;
   }
 
   /**Returns the date time type*/
   get step() {
-    return Number(this._input.step);
+    return Number(this.warn_input.step);
   }
   /**Sets the date time type*/
   set step(step: number) {
-    this._input.step = String(step);
+    this.warn_input.step = String(step);
   }
 
-  /**Returns the date time type*/
-  get min() {
-    return Number(this._input.min);
-  }
-  /**Sets the date time type*/
-  set min(min: number) {
-    this._input.min = String(min);
+  protected new_value(value: RT): void {
+    if (!this.#mode) {
+      if (typeof value === "number") this.#mode = DateTimeMode.NUMBER;
+      else if (typeof value === "string") this.#mode = DateTimeMode.STRING;
+      else this.#mode = DateTimeMode.DATE;
+    }
+    let time: number;
+    if (typeof value === "number") time = value;
+    else if (typeof value === "string") time = new Date(value).getTime();
+    else time = value.getTime();
+    this.warn_input.valueAsNumber = time;
   }
 
-  /**Returns the date time type*/
-  get max() {
-    return Number(this._input.max);
-  }
-  /**Sets the date time type*/
-  set max(max: number) {
-    this._input.max = String(max);
-  }
+  protected new_error(_val: string): void {}
 }
-defineElement(DateTimeInput);
+define_element(FormDateTimeInput);
+
+export const form_date_time_input = {
+  /**Creates a color input form element */
+  from<RT extends Date | string | number, ID extends string | undefined>(
+    options?: DateTimeInputOptions<RT, ID>
+  ): FormDateTimeInput<RT, ID> {
+    const input = new FormDateTimeInput<RT, ID>(options?.id);
+    if (options) {
+      if (options.type) input.type = options.type;
+      FormValueWrite.apply_options(input, options);
+    }
+    return input;
+  },
+};

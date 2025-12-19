@@ -43,12 +43,9 @@ class FormTextMultiline<ID extends string | undefined> extends FormValueWrite<
     this.#resizer.appendChild(material_editor_drag_handle_rounded());
     this.#resizer.onpointerdown = (e) => {
       this.#resizer.setPointerCapture(e.pointerId);
-
       this.#resizer.onpointermove = (ev) => {
         const new_height =
-          ev.clientY -
-          this.#value_box.getBoundingClientRect().top -
-          8; /* 8 for padding */
+          ev.clientY - this.#value_box.getBoundingClientRect().top - 8;
         this.#value_box.style.height = `${new_height}px`;
       };
       this.#resizer.onpointerup = (_ev) => {

@@ -15,6 +15,7 @@ import { ANIMATION_LEVEL, INPUT_MODE, THEME } from "@libTheme";
 import "./index.scss";
 import { form } from "./lib/form";
 import { FormColors } from "./lib/form/base";
+import { FormDateTimeType } from "./lib/form/special/dateTime/dateTimeInput";
 
 interface CharacterData {
   uuid: string;
@@ -94,6 +95,33 @@ formCont.appendChild(
     label: "Color Input 2",
     live: true,
     value_by_state: colorState,
+  })
+);
+
+//      _____       _______ ______ _______ _____ __  __ ______
+//     |  __ \   /\|__   __|  ____|__   __|_   _|  \/  |  ____|
+//     | |  | | /  \  | |  | |__     | |    | | | \  / | |__
+//     | |  | |/ /\ \ | |  |  __|    | |    | | | |\/| |  __|
+//     | |__| / ____ \| |  | |____   | |   _| |_| |  | | |____
+//     |_____/_/    \_\_|  |______|  |_|  |_____|_|  |_|______|
+const dateTimeState = state.s.ros_ws.ok(new Date());
+formCont.appendChild(
+  form.date_time_input.from({
+    label: "Date Time Input",
+    type: FormDateTimeType.TIME,
+    value_by_state: dateTimeState,
+  })
+);
+formCont.appendChild(
+  form.date_time_input.from({
+    label: "Date Time Input",
+    value_by_state: dateTimeState,
+  })
+);
+formCont.appendChild(
+  form.date_time_input.from({
+    label: "Date Time Input",
+    value: 5000 as number,
   })
 );
 

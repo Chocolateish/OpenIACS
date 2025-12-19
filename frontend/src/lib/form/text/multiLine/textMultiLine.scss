@@ -26,7 +26,6 @@ form-textmultiline {
       outline: none;
       width: 100%;
       min-height: base.$size_height;
-      border-bottom: base.$color_border solid base.$border_thickness;
 
       .touch & {
         min-height: base.$size_touchHeight;
@@ -40,8 +39,10 @@ form-textmultiline {
     }
 
     > div {
-      display: flex;
       height: calc(base.$size_height / 2);
+      border-radius: base.$size_cornerRadius;
+      border-top: base.$color_border solid base.$border_thickness;
+      display: flex;
       cursor: ns-resize;
       align-items: center;
       justify-content: center;
