@@ -11,7 +11,7 @@ import {
   type TEST_STATE_OK_SYNC,
   type TEST_STATE_SYNC,
   type TEST_STATE_WRITESYNC,
-} from "./shared";
+} from "../tests_shared";
 
 describe("Sync states", function () {
   describe("ROS", { timeout: 100 }, function () {

@@ -11,7 +11,7 @@ import {
   type TEST_STATE_OK,
   type TEST_STATE_OK_SYNC,
   type TEST_STATE_SYNC,
-} from "./shared";
+} from "../tests_shared";
 
 describe("Collected states", function () {
   //##################################################################################################################################################
@@ -169,10 +169,10 @@ describe("Collected states", function () {
       return { o: true, s: false, w: false, ws: false, state, set };
     };
     it("Single Subscribing And Unsubscribing", async function () {
-      await test_state_sub(makerSingle, 0);
+      await test_state_sub(makerSingle, 50);
     });
     describe("Single Then", async function () {
-      await test_state_then(makerSingle, 0);
+      await test_state_then(makerSingle, 50);
     });
     const makerMultiple: TEST_STATE_OK = () => {
       const stat1 = st.d.roa.ok(() => sleep(1, 0.25));
@@ -195,10 +195,10 @@ describe("Collected states", function () {
       return { o: true, s: false, w: false, ws: false, state, set };
     };
     it("Multiple Subscribing And Unsubscribing", async function () {
-      await test_state_sub(makerMultiple, 0);
+      await test_state_sub(makerMultiple, 50);
     });
     describe("Multiple Then", async function () {
-      await test_state_then(makerMultiple, 0);
+      await test_state_then(makerMultiple, 50);
     });
   });
   //##################################################################################################################################################
@@ -225,10 +225,10 @@ describe("Collected states", function () {
       return { o: false, s: false, w: false, ws: false, state, set };
     };
     it("Single Subscribing And Unsubscribing", async function () {
-      await test_state_sub(makerSingle, 0);
+      await test_state_sub(makerSingle, 50);
     });
     describe("Single Then", async function () {
-      await test_state_then(makerSingle, 0);
+      await test_state_then(makerSingle, 50);
     });
     const makerMultiple: TEST_STATE_ALL = () => {
       const stat1 = st.d.rea.ok(() => sleep(1, 0.25));
@@ -258,10 +258,10 @@ describe("Collected states", function () {
       return { o: false, s: false, w: false, ws: false, state, set };
     };
     it("Multiple Subscribing And Unsubscribing", async function () {
-      await test_state_sub(makerMultiple, 0);
+      await test_state_sub(makerMultiple, 50);
     });
     describe("Multiple Then", async function () {
-      await test_state_then(makerMultiple, 0);
+      await test_state_then(makerMultiple, 50);
     });
   });
 });

@@ -21,6 +21,13 @@ import {
   type STATE_SUB,
 } from "./types";
 
+//##################################################################################################################################################
+//      _   _ _    _ __  __ ____  ______ _____
+//     | \ | | |  | |  \/  |  _ \|  ____|  __ \
+//     |  \| | |  | | \  / | |_) | |__  | |__) |
+//     | . ` | |  | | |\/| |  _ <|  __| |  _  /
+//     | |\  | |__| | |  | | |_) | |____| | \ \
+//     |_| \_|\____/|_|  |_|____/|______|_|  \_\
 export interface STATE_NUMBER_RELATED extends STATE_RELATED {
   min?: number;
   max?: number;
@@ -95,10 +102,10 @@ export class STATE_NUMBER_HELPER
   }
 
   check(value: number): Result<number, string> {
-    if ("max" in this && value > (this.max as number))
+    if (this.max !== undefined && value > this.max)
       return Err(value + " is bigger than the limit of " + this.max);
-    if ("min" in this && value < (this.min as number))
-      return Err(value + " is smaller than the limit of " + this.max);
+    if (this.min !== undefined && value < this.min)
+      return Err(value + " is smaller than the limit of " + this.min);
     return Ok(value);
   }
 
@@ -128,8 +135,12 @@ const nums = {
 };
 
 //##################################################################################################################################################
-//##################################################################################################################################################
-
+//       _____ _______ _____  _____ _   _  _____
+//      / ____|__   __|  __ \|_   _| \ | |/ ____|
+//     | (___    | |  | |__) | | | |  \| | |  __
+//      \___ \   | |  |  _  /  | | | . ` | | |_ |
+//      ____) |  | |  | | \ \ _| |_| |\  | |__| |
+//     |_____/   |_|  |_|  \_\_____|_| \_|\_____|
 export interface STATE_STRING_RELATED extends STATE_RELATED {
   max_length?: number;
   max_length_bytes?: number;
@@ -159,15 +170,15 @@ export class STATE_STRING_HELPER
     return Ok(value);
   }
   check(value: string): Result<string, string> {
-    if ("maxLength" in this && value.length > this.max_length!)
+    if (this.max_length !== undefined && value.length > this.max_length)
       return Err(
         "the text is longer than the limit of " +
           this.max_length +
           " characters"
       );
     if (
-      "maxLengthBytes" in this &&
-      new TextEncoder().encode(value).length > this.max_length_bytes!
+      this.max_length_bytes !== undefined &&
+      new TextEncoder().encode(value).length > this.max_length_bytes
     )
       return Err(
         "the text is longer than the limit of " +
@@ -191,8 +202,12 @@ const strings = {
 };
 
 //##################################################################################################################################################
-//##################################################################################################################################################
-
+//      ______ _   _ _    _ __  __
+//     |  ____| \ | | |  | |  \/  |
+//     | |__  |  \| | |  | | \  / |
+//     |  __| | . ` | |  | | |\/| |
+//     | |____| |\  | |__| | |  | |
+//     |______|_| \_|\____/|_|  |_|
 type ENUM_HELPER_ENTRY = {
   name: string;
   description?: string;

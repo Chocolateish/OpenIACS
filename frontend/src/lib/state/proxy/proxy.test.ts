@@ -8,7 +8,7 @@ import {
   test_state_then,
   type TEST_STATE_OK_SYNC,
   type TEST_STATE_SYNC,
-} from "./shared";
+} from "../tests_shared";
 
 describe("Proxy with sync states", function () {
   describe("ROS", { timeout: 100 }, function () {

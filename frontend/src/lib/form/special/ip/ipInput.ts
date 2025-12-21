@@ -1,4 +1,5 @@
 import { define_element } from "@libBase";
+import type { IPAddress } from "../../../common/ip";
 import { FormValueWrite, type FormValueOptions } from "../../base";
 import "./ipInput.scss";
 
@@ -41,12 +42,6 @@ import "./ipInput.scss";
 //     }
 //     break;
 
-export const FormIpType = {
-  IPV4: "ipv4",
-  IPV6: "ipv6",
-} as const;
-export type FormIpType = (typeof FormIpType)[keyof typeof FormIpType];
-
 export interface IpInputOptions<ID extends string | undefined>
   extends FormValueOptions<string, ID> {
   /**Ip address type*/
@@ -54,7 +49,7 @@ export interface IpInputOptions<ID extends string | undefined>
 }
 
 class FormIpInput<ID extends string | undefined> extends FormValueWrite<
-  string,
+  IPAddress,
   ID
 > {
   static element_name() {
@@ -64,9 +59,16 @@ class FormIpInput<ID extends string | undefined> extends FormValueWrite<
     return "form";
   }
 
+  #parts: HTMLInputElement[] = Array.from({ length: 6 }, () => {
+    const inp = this.appendChild(document.createElement("input"));
+    inp.type = "number";
+    inp.maxLength = 3;
+    return inp;
+  });
+
   constructor(id?: ID) {
     super(id);
-    this.warn_input.type = "text";
+    this.appendChild(this.warn_input);
     // this._input.oninput = () => {
     //   const parts = this._input.value.split(".");
     //   for (let i = 0; i < parts.length; i++) {
@@ -94,7 +96,7 @@ class FormIpInput<ID extends string | undefined> extends FormValueWrite<
     // };
   }
 
-  protected new_value(val: string): void {}
+  protected new_value(val: IPAddress): void {}
 
   protected new_error(_val: string): void {}
 }

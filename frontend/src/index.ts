@@ -17,6 +17,23 @@ import { form } from "./lib/form";
 import { FormColors } from "./lib/form/base";
 import { FormDateTimeType } from "./lib/form/special/dateTime/dateTimeInput";
 
+const stat = state.ok(10);
+stat
+  .then((val) => {
+    console.log("Stat then:", val);
+    let yo = new Error("Stat then error");
+    throw yo;
+    return val.value + 5;
+  })
+  .then(
+    (val) => {
+      console.log("Stat then 2:", val);
+    },
+    (err) => {
+      console.error("Stat then 2 err:", err);
+    }
+  );
+
 interface CharacterData {
   uuid: string;
   name: string;

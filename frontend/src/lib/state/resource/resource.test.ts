@@ -1,9 +1,36 @@
 import { Ok, type Result } from "@libResult";
-import st, { type STATE_REA, type STATE_RESOURCE_FUNC_REA } from "@libState";
+import st, {
+  type STATE_REA,
+  type STATE_RESOURCE_FUNC_REA,
+  type STATE_RESOURCE_FUNC_ROA,
+  type STATE_ROA,
+} from "@libState";
 import { assertType, describe, it } from "vitest";
-import { test_state_sub, test_state_then, type TEST_STATE_ALL } from "./shared";
+import {
+  test_state_sub,
+  test_state_then,
+  type TEST_STATE_ALL,
+} from "../tests_shared";
 
 describe("Resource states", function () {
+  //##################################################################################################################################################
+  //      _____   ____
+  //     |  __ \ / __ \   /\
+  //     | |__) | |  | | /  \
+  //     |  _  /| |  | |/ /\ \
+  //     | | \ \| |__| / ____ \
+  //     |_|  \_\\____/_/    \_\
+  describe("ROA", { timeout: 100 }, function () {
+    it("ok", async function () {
+      const init = st.r.roa.from<number>(
+        () => {},
+        () => {},
+        () => {}
+      );
+      assertType<STATE_ROA<number>>(init);
+      assertType<STATE_RESOURCE_FUNC_ROA<number>>(init);
+    });
+  });
   //##################################################################################################################################################
   //      _____  ______
   //     |  __ \|  ____|   /\
@@ -47,59 +74,59 @@ describe("Resource states", function () {
   //     |  _  /|  __|   / /\ \      \ \/  \/ / /\ \
   //     | | \ \| |____ / ____ \      \  /\  / ____ \
   //     |_|  \_\______/_/    \_\      \/  \/_/    \_\
-  // describe("REA", { timeout: 100 }, function () {
-  //   it("ok", async function () {
-  //     let init = st.c.rea.from((val) => val[0], st.d.rea.ok(sleep(1, 1)));
-  //     expect(init).instanceOf(st.c.rea.class);
-  //   });
-  //   let makerSingle: TEST_STATE_ALL = () => {
-  //     let stat1 = st.d.rea.ok(sleep(1, 1));
-  //     let state = st.c.rea.from((values) => values[0], stat1);
-  //     let set = (val: Result<number, string>) => {
-  //       stat1.set(val.map((v) => v));
-  //     };
-  //     return { o: false, s: false, w: false, ws: false, state, set };
-  //   };
-  //   it("Subscribing And Unsubscribing", async function () {
-  //     await test_state_sub(makerSingle, 0);
-  //   });
-  //   describe("Single Then", async function () {
-  //     await test_state_then(makerSingle, 0);
-  //   });
-  //   let makerMultiple: TEST_STATE_ALL = () => {
-  //     let stat1 = st.d.rea.ok(sleep(1, 0.25));
-  //     let stat2 = st.d.rea.ok(sleep(1, 0.25));
-  //     let stat3 = st.d.rea.ok(sleep(1, 0.25));
-  //     let stat4 = st.d.rea.ok(sleep(1, 0.25));
-  //     let state = st.c.rea.from(
-  //       (values) => {
-  //         let sum = 0;
-  //         for (let val of values) {
-  //           if (val.err) return val;
-  //           sum += val.value;
-  //         }
-  //         return Ok(sum);
-  //       },
-  //       stat1,
-  //       stat2,
-  //       stat3,
-  //       stat4
-  //     );
-  //     let set = (val: Result<number, string>) => {
-  //       stat1.set(val.map((v) => v / 4));
-  //       stat2.set(val.map((v) => v / 4));
-  //       stat3.set(val.map((v) => v / 4));
-  //       stat4.set(val.map((v) => v / 4));
-  //     };
-  //     return { o: false, s: false, w: false, ws: false, state, set };
-  //   };
-  //   it("Multiple Subscribing And Unsubscribing", async function () {
-  //     await test_state_sub(makerMultiple, 0);
-  //   });
-  //   describe("Multiple Then", async function () {
-  //     await test_state_then(makerMultiple, 0);
-  //   });
-  // });
+  describe("REA WA", { timeout: 100 }, function () {
+    it("ok", async function () {
+      let init = st.c.rea.from((val) => val[0], st.d.rea.ok(sleep(1, 1)));
+      expect(init).instanceOf(st.c.rea.class);
+    });
+    let makerSingle: TEST_STATE_ALL = () => {
+      let stat1 = st.d.rea.ok(sleep(1, 1));
+      let state = st.c.rea.from((values) => values[0], stat1);
+      let set = (val: Result<number, string>) => {
+        stat1.set(val.map((v) => v));
+      };
+      return { o: false, s: false, w: false, ws: false, state, set };
+    };
+    it("Subscribing And Unsubscribing", async function () {
+      await test_state_sub(makerSingle, 0);
+    });
+    describe("Single Then", async function () {
+      await test_state_then(makerSingle, 0);
+    });
+    let makerMultiple: TEST_STATE_ALL = () => {
+      let stat1 = st.d.rea.ok(sleep(1, 0.25));
+      let stat2 = st.d.rea.ok(sleep(1, 0.25));
+      let stat3 = st.d.rea.ok(sleep(1, 0.25));
+      let stat4 = st.d.rea.ok(sleep(1, 0.25));
+      let state = st.c.rea.from(
+        (values) => {
+          let sum = 0;
+          for (let val of values) {
+            if (val.err) return val;
+            sum += val.value;
+          }
+          return Ok(sum);
+        },
+        stat1,
+        stat2,
+        stat3,
+        stat4
+      );
+      let set = (val: Result<number, string>) => {
+        stat1.set(val.map((v) => v / 4));
+        stat2.set(val.map((v) => v / 4));
+        stat3.set(val.map((v) => v / 4));
+        stat4.set(val.map((v) => v / 4));
+      };
+      return { o: false, s: false, w: false, ws: false, state, set };
+    };
+    it("Multiple Subscribing And Unsubscribing", async function () {
+      await test_state_sub(makerMultiple, 0);
+    });
+    describe("Multiple Then", async function () {
+      await test_state_then(makerMultiple, 0);
+    });
+  });
 });
 
 // import { Err, Ok } from "@libResult";

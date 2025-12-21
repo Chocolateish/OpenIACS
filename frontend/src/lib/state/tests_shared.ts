@@ -15,7 +15,7 @@ import type {
   STATE_ROS_WA,
   STATE_ROS_WS,
   STATE_SUB,
-} from "../types";
+} from "./types";
 
 function errGen() {
   return "Test Error";
@@ -247,7 +247,7 @@ export async function test_state_then(
           .then(
             () => {},
             (val) => {
-              expect(val).equal(8);
+              expect(val).toEqual(new Error("8"));
               a(12);
             }
           );
