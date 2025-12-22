@@ -274,7 +274,10 @@ export abstract class Base extends HTMLElement {
   /**Dettaches the state from the property */
   dettach_STATE_from_prop<T extends keyof this>(prop: T): this {
     const pro = this.#props.get(prop);
-    if (pro) this.dettach_STATE(pro);
+    if (pro) {
+      this.dettach_STATE(pro);
+      this.#props.delete(prop);
+    }
     return this;
   }
 
