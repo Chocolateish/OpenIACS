@@ -15,6 +15,8 @@ export interface FormTextInputOptions<
   max_length?: number;
   /**Maximum bytes of the input */
   max_bytes?: number;
+  /**Allowed characters for the text input */
+  filter?: RegExp;
 }
 
 class FormTextInput<ID extends string | undefined> extends FormValueWrite<
@@ -28,6 +30,7 @@ class FormTextInput<ID extends string | undefined> extends FormValueWrite<
     return "form";
   }
 
+  #filter?: RegExp;
   #max_length?: number;
   #max_bytes?: number;
 
@@ -40,20 +43,26 @@ class FormTextInput<ID extends string | undefined> extends FormValueWrite<
       this.warn("");
       const data = e.data || e.dataTransfer?.getData("text/plain");
       if (data) {
-        if (
-          this.#max_length &&
-          this.warn_input.value.length + data.length > this.#max_length
-        ) {
+        if (this.#filter && !this.#filter.test(data)) {
           e.preventDefault();
-          this.warn(`A maximum of ${this.#max_length} characters is allowed`);
-        }
-        if (
-          this.#max_bytes &&
-          string_byte_length(this.warn_input.value) + string_byte_length(data) >
-            this.#max_bytes
-        ) {
-          e.preventDefault();
-          this.warn(`A maximum of ${this.#max_bytes} bytes is allowed`);
+          this.warn("Invalid character entered");
+        } else {
+          if (
+            this.#max_length &&
+            this.warn_input.value.length + data.length > this.#max_length
+          ) {
+            e.preventDefault();
+            this.warn(`A maximum of ${this.#max_length} characters is allowed`);
+          }
+          if (
+            this.#max_bytes &&
+            string_byte_length(this.warn_input.value) +
+              string_byte_length(data) >
+              this.#max_bytes
+          ) {
+            e.preventDefault();
+            this.warn(`A maximum of ${this.#max_bytes} bytes is allowed`);
+          }
         }
       }
     };
@@ -73,6 +82,13 @@ class FormTextInput<ID extends string | undefined> extends FormValueWrite<
       this.new_value(buff || "");
       set_cursor_end(this.warn_input);
     });
+  }
+
+  set filter(val: RegExp | undefined) {
+    this.#filter = val;
+  }
+  get filter(): RegExp | undefined {
+    return this.#filter;
   }
 
   set placeholder(val: string) {
@@ -131,10 +147,10 @@ export const form_text_input = {
   ): FormTextInput<ID> {
     const input = new FormTextInput<ID>(options?.id);
     if (options) {
+      if (options.filter) input.filter = options.filter;
       if (options.placeholder) input.placeholder = options.placeholder;
       if (options.max_length) input.max_length = options.max_length;
       if (options.max_bytes) input.max_bytes = options.max_bytes;
-
       FormValueWrite.apply_options(input, options);
     }
     return input;

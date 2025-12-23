@@ -16,6 +16,8 @@ export interface FormTextInputOptions<
   max_length?: number;
   /**Maximum bytes of the input */
   max_bytes?: number;
+  /**Allowed characters for the text input */
+  filter?: RegExp;
 }
 
 class FormTextMultiline<ID extends string | undefined> extends FormValueWrite<
@@ -28,6 +30,8 @@ class FormTextMultiline<ID extends string | undefined> extends FormValueWrite<
   static element_name_space(): string {
     return "form";
   }
+
+  #filter?: RegExp;
   #max_length?: number;
   #max_bytes?: number;
   #value_box: HTMLTextAreaElement = this._body.appendChild(
@@ -64,20 +68,26 @@ class FormTextMultiline<ID extends string | undefined> extends FormValueWrite<
       this.warn("");
       const data = e.data || e.dataTransfer?.getData("text/plain");
       if (data) {
-        if (
-          this.#max_length &&
-          this.#value_box.value.length + data.length > this.#max_length
-        ) {
+        if (this.#filter && !this.#filter.test(data)) {
           e.preventDefault();
-          this.warn(`A maximum of ${this.#max_length} characters is allowed`);
-        }
-        if (
-          this.#max_bytes &&
-          string_byte_length(this.#value_box.value) + string_byte_length(data) >
-            this.#max_bytes
-        ) {
-          e.preventDefault();
-          this.warn(`A maximum of ${this.#max_bytes} bytes is allowed`);
+          this.warn("Invalid character entered");
+        } else {
+          if (
+            this.#max_length &&
+            this.#value_box.value.length + data.length > this.#max_length
+          ) {
+            e.preventDefault();
+            this.warn(`A maximum of ${this.#max_length} characters is allowed`);
+          }
+          if (
+            this.#max_bytes &&
+            string_byte_length(this.#value_box.value) +
+              string_byte_length(data) >
+              this.#max_bytes
+          ) {
+            e.preventDefault();
+            this.warn(`A maximum of ${this.#max_bytes} bytes is allowed`);
+          }
         }
       }
     };
@@ -100,6 +110,13 @@ class FormTextMultiline<ID extends string | undefined> extends FormValueWrite<
       this.new_value(buff || "");
       set_cursor_end(this.#value_box);
     });
+  }
+
+  set filter(val: RegExp | undefined) {
+    this.#filter = val;
+  }
+  get filter(): RegExp | undefined {
+    return this.#filter;
   }
 
   set placeholder(val: string) {

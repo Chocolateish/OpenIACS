@@ -178,6 +178,7 @@ formCont.appendChild(
     max_length: 20,
     max_bytes: 20,
     value_by_state: textState,
+    filter: /[a-zA-Z ]/,
   })
 );
 formCont.appendChild(

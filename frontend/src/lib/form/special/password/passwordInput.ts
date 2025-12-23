@@ -30,7 +30,10 @@ class FormPasswordInput<ID extends string | undefined> extends FormValueWrite<
     };
     this.warn_input.onbeforeinput = (ev) => {
       if (ev.data) {
-        if (this.#filter && !this.#filter.test(ev.data)) ev.preventDefault();
+        if (this.#filter && !this.#filter.test(ev.data)) {
+          ev.preventDefault();
+          this.warn("Invalid character entered");
+        }
       }
     };
   }
