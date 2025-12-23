@@ -82,15 +82,27 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
             diff = (this.#step || 1) * ((perc - 50) * 2);
             this.#move_slide(perc);
           };
-          this.#slider.onpointerup = (ev) => {
-            ev.stopPropagation();
+          const reset = () => {
             this.#slider.classList.remove("active");
             this.#slider.releasePointerCapture(e.pointerId);
             this.#slider.onpointermove = null;
             this.#slider.onpointerup = null;
             this.#move_slide(50);
-            if (!this.#live) this.set_value_limit(value);
             clearInterval(interval);
+          };
+          this.#slider.onpointerup = (ev) => {
+            ev.stopPropagation();
+            reset();
+            if (!this.#live) this.set_value_limit(value);
+          };
+          this.#slider.onkeydown = (e) => {
+            if (e.key === "Escape") {
+              e.preventDefault();
+              e.stopPropagation();
+              reset();
+              if (this.buffer !== undefined) this.new_value(this.buffer);
+              else this.clear_value();
+            }
           };
         } else {
           const value = this.buffer || 0;
@@ -100,28 +112,35 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
             ev.stopPropagation();
             this.#move_absolute(ev.clientX + offset);
           };
-          this.#slider.onpointerup = (ev) => {
-            ev.stopPropagation();
+          const reset = () => {
             this.#slider.classList.remove("active");
             this.#slider.releasePointerCapture(e.pointerId);
             this.#slider.onpointermove = null;
             this.#slider.onpointerup = null;
+          };
+          this.#slider.onpointerup = (ev) => {
+            ev.stopPropagation();
+            reset();
             this.#move_absolute(ev.clientX + offset, value);
+          };
+          this.#slider.onkeydown = (e) => {
+            if (e.key === "Escape") {
+              e.preventDefault();
+              e.stopPropagation();
+              reset();
+              if (this.buffer !== undefined) this.new_value(this.buffer);
+              else this.clear_value();
+            }
           };
         }
       }
     };
     this.#slider.onkeydown = (e) => {
-      switch (e.key) {
-        case "ArrowRight":
-          e.stopPropagation();
-          this.#step_value(true);
-          break;
-        case "ArrowLeft":
-          e.stopPropagation();
-          this.#step_value(false);
-          break;
-      }
+      if (e.key === "ArrowRight") this.#step_value(true);
+      else if (e.key === "ArrowLeft") this.#step_value(false);
+      else return;
+      e.preventDefault();
+      e.stopPropagation();
     };
   }
 
@@ -204,6 +223,11 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
     this.#move_slide(
       Math.min(Math.max(((-this.#min + value) / this.#span) * 100, 0), 100)
     );
+  }
+
+  protected clear_value(): void {
+    this.#value_box.textContent = "";
+    this.#move_slide(50);
   }
 
   protected new_error(err: string): void {

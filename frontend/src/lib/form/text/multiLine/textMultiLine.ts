@@ -81,6 +81,17 @@ class FormTextMultiline<ID extends string | undefined> extends FormValueWrite<
         }
       }
     };
+    this.#value_box.onkeydown = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        if (this.buffer) this.new_value(this.buffer);
+        else this.clear_value();
+      } else if (e.key === "Enter" && e.ctrlKey) {
+        e.preventDefault();
+        this.#set();
+      }
+    };
   }
 
   #set() {
@@ -115,6 +126,10 @@ class FormTextMultiline<ID extends string | undefined> extends FormValueWrite<
 
   protected new_value(val: string): void {
     this.#value_box.value = val;
+  }
+
+  protected clear_value(): void {
+    this.#value_box.value = "";
   }
 
   protected new_error(_val: string): void {}

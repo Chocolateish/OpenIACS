@@ -39,7 +39,7 @@ export class FormToggleButton<
       this.#map.set(value, this.#add_selection(selections[i]));
       this.#values.push(selections[i].value);
     }
-    if (this.buffer) this.new_value(this.buffer);
+    if (this.buffer !== undefined) this.new_value(this.buffer);
   }
 
   #add_selection(selection: FormSelectorOption<RT>) {

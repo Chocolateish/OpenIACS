@@ -81,12 +81,11 @@ export class FormSwitch<ID extends string | undefined> extends FormValueWrite<
             hasMoved = true;
           }
         };
-
         this.#switch.onpointerup = (ev) => {
           ev.stopPropagation();
           this.#switch.classList.remove("active");
           if (!hasMoved) this.set_value_check(!this.buffer);
-          this.#switch.releasePointerCapture(ev.pointerId);
+          this.#switch.releasePointerCapture(e.pointerId);
           this.#switch.onpointerup = null;
           this.#switch.onpointermove = null;
         };
@@ -124,6 +123,10 @@ export class FormSwitch<ID extends string | undefined> extends FormValueWrite<
   protected new_value(value: boolean) {
     if (value) this.#switch.classList.add("on");
     else this.#switch.classList.remove("on");
+  }
+
+  protected clear_value(): void {
+    this.new_value(false);
   }
 
   protected new_error(err: string): void {

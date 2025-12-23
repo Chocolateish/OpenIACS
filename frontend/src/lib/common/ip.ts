@@ -7,7 +7,7 @@ export type IPVersion = (typeof IPVersion)[keyof typeof IPVersion];
 
 export class IPAddress {
   private readonly value: bigint;
-  private readonly version: IPVersion;
+  readonly version: IPVersion;
 
   constructor(input: string | number | bigint | number[]) {
     if (typeof input === "string") {
@@ -26,19 +26,15 @@ export class IPAddress {
       // IPv6 as a 128-bit bigint
       this.value = input;
       this.version = 6;
-    } else if (Array.isArray(input)) {
+    } else {
       this.version = input.length === 4 ? 4 : 6;
       this.value = this.from_array(input);
-    } else {
-      throw new Error("Unsupported input type");
     }
   }
 
   // --- Helpers ---
   private parse_v4_string(ip: string): bigint {
     const octets = ip.split(".").map(Number);
-    if (octets.length !== 4 || octets.some((o) => o < 0 || o > 255))
-      throw new Error("Invalid IPv4 string");
     return octets.reduce((acc, octet) => (acc << 8n) + BigInt(octet), 0n);
   }
 

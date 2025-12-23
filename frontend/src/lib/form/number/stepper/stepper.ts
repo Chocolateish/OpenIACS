@@ -62,6 +62,7 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
         parseFloat(this.#value_box.textContent?.replace(",", ".") || "") || 0
       );
     };
+    let reset = () => {};
     this.#text.onpointerdown = (e) => {
       if (e.button === 0 && (e.target !== this.#value_box || !dragBlocker)) {
         e.stopPropagation();
@@ -79,9 +80,15 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
             }
           }
         };
+        reset = () => {
+          this.#value_box.contentEditable = "true";
+          this.#text.releasePointerCapture(e.pointerId);
+          this.#text.onpointermove = null;
+          this.#text.onpointerup = null;
+        };
         this.#text.onpointerup = (ev) => {
           ev.stopPropagation();
-          this.#value_box.contentEditable = "true";
+          reset();
           if (!moving && e.target !== this.#value_box) {
             this.#value_box.focus();
             const range = document.createRange();
@@ -95,9 +102,6 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
             this.#move_diff(initialVal + (ev.clientX - e.clientX) / 5, true);
             moving = false;
           }
-          this.#text.releasePointerCapture(e.pointerId);
-          this.#text.onpointermove = null;
-          this.#text.onpointerup = null;
         };
       }
     };
@@ -107,6 +111,12 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
         e.preventDefault();
         e.stopPropagation();
         this.#step_value(e.key === "ArrowRight");
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        if (reset) reset();
+        if (this.buffer !== undefined) this.new_value(this.buffer);
+        else this.clear_value();
       } else {
         if (
           this.ownerDocument.activeElement !== this.#value_box &&
@@ -119,7 +129,12 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
     };
     this.#value_box.onkeydown = (e) => {
       if (e.key === "Enter") this.#value_box.blur();
-      else if (e.key === "ArrowRight" || e.key === "ArrowLeft")
+      else if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        if (this.buffer !== undefined) this.new_value(this.buffer);
+        else this.clear_value();
+      } else if (e.key === "ArrowRight" || e.key === "ArrowLeft")
         e.stopPropagation();
     };
     this.#value_box.onbeforeinput = (e) => {
@@ -202,9 +217,12 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
     );
   }
 
-  /**Called when value is changed */
   protected new_value(value: number) {
     this.#move_value(value);
+  }
+
+  protected clear_value(): void {
+    this.#value_box.textContent = "";
   }
 
   protected new_error(err: string): void {

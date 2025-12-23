@@ -25,6 +25,8 @@ form-group {
       max-height: var(--max_height);
       overflow-y: auto;
       padding: 0.8rem;
+      min-width: fit-content;
+
       &.outset {
         box-shadow: base.$shadow_out;
       }
@@ -35,12 +37,14 @@ form-group {
         max-height: var(--max_height);
         overflow-y: auto;
         padding: 0.8rem;
+        min-width: fit-content;
 
         &.collapsed {
           display: none;
         }
       }
       > span {
+        z-index: 1;
         border: base.$border;
         min-height: base.$size_height;
         box-shadow: base.$shadow_out;

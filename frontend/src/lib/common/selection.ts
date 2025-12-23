@@ -42,11 +42,8 @@ export function set_cursor_position(
       }
       chars += nodeLength;
     } else {
-      for (let i = 0; i < node.childNodes.length; i++) {
-        if (setCaret(node.childNodes[i])) {
-          return true;
-        }
-      }
+      for (let i = 0; i < node.childNodes.length; i++)
+        if (setCaret(node.childNodes[i])) return true;
     }
     return false;
   };
@@ -60,10 +57,18 @@ export function set_cursor_end(element: HTMLElement): void {
   const selection = window.getSelection();
   if (selection) {
     const range = document.createRange();
-    range.selectNodeContents(element);
-    range.collapse(false);
-    selection.removeAllRanges();
-    selection.addRange(range);
+    const lastNode = element.lastChild;
+    if (lastNode) {
+      if (lastNode.nodeType === Node.TEXT_NODE) {
+        range.setStart(lastNode, (lastNode as Text).length);
+        range.setEnd(lastNode, (lastNode as Text).length);
+      } else {
+        range.selectNodeContents(element);
+        range.collapse(false);
+      }
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
   }
 }
 

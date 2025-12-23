@@ -50,16 +50,6 @@ describe("IPAddress Class", () => {
   });
 
   describe("Edge Cases and Errors", () => {
-    it("should throw on invalid IPv4 segments", () => {
-      expect(() => new IPAddress("256.1.1.1")).toThrow();
-      expect(() => new IPAddress("1.1.1")).toThrow();
-    });
-
-    it("should throw on unsupported input types", () => {
-      // @ts-expect-error testing runtime error
-      expect(() => new IPAddress({})).toThrow("Unsupported input type");
-    });
-
     it("should handle loopback addresses correctly", () => {
       const v4 = new IPAddress("127.0.0.1");
       const v6 = new IPAddress("0:0:0:0:0:0:0:1");

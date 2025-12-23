@@ -1,3 +1,4 @@
+import { IPAddress, IPVersion } from "@libCommon";
 import {
   context_line,
   context_menu,
@@ -16,23 +17,6 @@ import "./index.scss";
 import { form } from "./lib/form";
 import { FormColors } from "./lib/form/base";
 import { FormDateTimeType } from "./lib/form/special/dateTime/dateTimeInput";
-
-const stat = state.ok(10);
-stat
-  .then((val) => {
-    console.log("Stat then:", val);
-    let yo = new Error("Stat then error");
-    throw yo;
-    return val.value + 5;
-  })
-  .then(
-    (val) => {
-      console.log("Stat then 2:", val);
-    },
-    (err) => {
-      console.error("Stat then 2 err:", err);
-    }
-  );
 
 interface CharacterData {
   uuid: string;
@@ -90,6 +74,44 @@ formCont.appendChild(
         value_by_state: ANIMATION_LEVEL,
       }),
     ],
+  })
+);
+
+//      _____         _____ _______          ______  _____  _____
+//     |  __ \ /\    / ____/ ____\ \        / / __ \|  __ \|  __ \
+//     | |__) /  \  | (___| (___  \ \  /\  / / |  | | |__) | |  | |
+//     |  ___/ /\ \  \___ \\___ \  \ \/  \/ /| |  | |  _  /| |  | |
+//     | |  / ____ \ ____) |___) |  \  /\  / | |__| | | \ \| |__| |
+//     |_| /_/    \_\_____/_____/    \/  \/   \____/|_|  \_\_____/
+const passwordState = state.s.ros_ws.ok("");
+passwordState.sub(console.error);
+formCont.appendChild(
+  form.password_input.from({
+    label: "IP Input",
+    value_by_state: passwordState,
+    filter: /[0-9]/,
+  })
+);
+
+//      _____ _____    _____ _   _ _____  _    _ _______
+//     |_   _|  __ \  |_   _| \ | |  __ \| |  | |__   __|
+//       | | | |__) |   | | |  \| | |__) | |  | |  | |
+//       | | |  ___/    | | | . ` |  ___/| |  | |  | |
+//      _| |_| |       _| |_| |\  | |    | |__| |  | |
+//     |_____|_|      |_____|_| \_|_|     \____/   |_|
+const ipState = state.s.ros_ws.ok(new IPAddress("192.168.1.1"));
+ipState.sub(console.error);
+formCont.appendChild(
+  form.ip_input.from({
+    type: IPVersion.V4,
+    label: "IP Input",
+    value_by_state: ipState,
+  })
+);
+formCont.appendChild(
+  form.ip_input.from({
+    type: IPVersion.V6,
+    label: "IP Input",
   })
 );
 
@@ -485,6 +507,19 @@ formCont.appendChild(
   })
 ).value_by_state = slideNum;
 
+formCont.appendChild(
+  form.slider.from({
+    label: "Slider",
+    unit: "mA",
+    min: -50,
+    max: 50,
+    step: 0.5,
+    start: 0.1,
+    decimals: 1,
+    live: true,
+  })
+);
+
 //       _____ _______ ______ _____  _____  ______ _____
 //      / ____|__   __|  ____|  __ \|  __ \|  ____|  __ \
 //     | (___    | |  | |__  | |__) | |__) | |__  | |__) |
@@ -523,6 +558,17 @@ formCont.appendChild(
     decimals: 1,
   })
 ).value_by_state = stepperNum;
+formCont.appendChild(
+  form.stepper.from({
+    label: "Stepper",
+    unit: "mA",
+    min: -50,
+    max: 50,
+    step: 0.5,
+    start: 0.1,
+    decimals: 1,
+  })
+);
 
 //      _____  _____   ____   _____ _____  ______  _____ _____
 //     |  __ \|  __ \ / __ \ / ____|  __ \|  ____|/ ____/ ____|

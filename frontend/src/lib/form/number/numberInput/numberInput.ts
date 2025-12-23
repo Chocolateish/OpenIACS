@@ -58,19 +58,18 @@ class NumberInput<ID extends string | undefined> extends FormNumberWrite<ID> {
     };
     this._body.onkeydown = (e) => {
       if (e.key === "Enter") this.#set(true);
-      else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        e.stopPropagation();
-        return this.#step_value(true);
-      } else if (e.key === "ArrowDown") {
-        e.preventDefault();
-        e.stopPropagation();
-        return this.#step_value(false);
-      }
+      else if (e.key === "Escape") {
+        if (this.buffer !== undefined) this.new_value(this.buffer);
+        else this.clear_value();
+      } else if (e.key === "ArrowUp") this.#step_value(true);
+      else if (e.key === "ArrowDown") this.#step_value(false);
+      else return;
+      e.preventDefault();
+      e.stopPropagation();
     };
     this._body.onbeforeinput = (e) => {
       if (e.inputType === "insertParagraph") e.preventDefault();
-      if (e.data) {
+      else if (e.data) {
         if (!/[\d,.-]/g.test(e.data)) e.preventDefault();
         else if (/[,.]/g.test(e.data) && this.#decimals === 0)
           e.preventDefault();
@@ -144,6 +143,10 @@ class NumberInput<ID extends string | undefined> extends FormNumberWrite<ID> {
 
   protected new_value(val: number): void {
     this.#value_box.textContent = val.toFixed(this.#decimals);
+  }
+
+  protected clear_value(): void {
+    this.#value_box.textContent = "";
   }
 
   protected new_error(_val: string): void {}

@@ -132,8 +132,18 @@ export abstract class FormValue<
     this.new_error(err);
   }
 
+  /**Clears the value of the component if not state based*/
+  clear(): void {
+    if (this._state) return;
+    this._buffer = undefined;
+    this.clear_value();
+  }
+
   /**Called when value is set by value setter or state*/
   protected abstract new_value(val: RT): void;
+
+  /**Clears form element graphically*/
+  protected abstract clear_value(): void;
 
   /**Called when error is set by error or state*/
   protected abstract new_error(val: string): void;

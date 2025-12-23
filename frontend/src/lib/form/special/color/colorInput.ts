@@ -46,6 +46,10 @@ class FormColorInput<ID extends string | undefined> extends FormValueWrite<
     this.warn_input.value = val;
   }
 
+  protected clear_value(): void {
+    this.warn_input.value = "#000000";
+  }
+
   protected new_error(_val: string): void {}
 }
 define_element(FormColorInput);

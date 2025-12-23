@@ -135,15 +135,16 @@ class FormButton<ID extends string | undefined> extends FormValueWrite<
 
   /**Called when value is changed */
   protected new_value(value: boolean) {
-    if (value) {
-      this._body.classList.add("active");
-    } else {
-      this._body.classList.remove("active");
-    }
+    if (value) this._body.classList.add("active");
+    else this._body.classList.remove("active");
+  }
+
+  protected clear_value(): void {
+    this.new_value(false);
   }
 
   protected new_error(err: string): void {
-    console.error(err);
+    console.error("TODO", err);
   }
 
   /**Changes whether the button is maintained or momentary*/

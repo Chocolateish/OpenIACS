@@ -10,6 +10,8 @@ import { form_dropDown } from "./selectors/dropDown/dropDown";
 import { form_toggle_button } from "./selectors/toggleButton/toggleButton";
 import { form_color_input } from "./special/color/colorInput";
 import { form_date_time_input } from "./special/dateTime/dateTimeInput";
+import { form_ip_input } from "./special/ip/ipInput";
+import { form_password_input } from "./special/password/passwordInput";
 import { form_text_input } from "./text/input/textInput";
 import { form_text_multiline } from "./text/multiLine/textMultiLine";
 import { form_text } from "./text/text/text";
@@ -25,6 +27,8 @@ export const form = {
   //Special
   color_input: form_color_input,
   date_time_input: form_date_time_input,
+  ip_input: form_ip_input,
+  password_input: form_password_input,
 
   //Number
   progress: form_progress,

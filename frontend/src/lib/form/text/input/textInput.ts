@@ -57,6 +57,14 @@ class FormTextInput<ID extends string | undefined> extends FormValueWrite<
         }
       }
     };
+    this._body.onkeydown = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        if (this.buffer) this.new_value(this.buffer);
+        else this.clear_value();
+      }
+    };
   }
 
   #set() {
@@ -91,6 +99,10 @@ class FormTextInput<ID extends string | undefined> extends FormValueWrite<
 
   protected new_value(val: string): void {
     this.warn_input.value = val;
+  }
+
+  protected clear_value(): void {
+    this.warn_input.value = "";
   }
 
   protected new_error(_val: string): void {}

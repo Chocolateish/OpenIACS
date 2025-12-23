@@ -107,7 +107,7 @@ export class FormDropdown<
       this.#map.set(value, { text, icon });
       this.#values.push(value);
     }
-    if (this.buffer) this.new_value(this.buffer);
+    if (this.buffer !== undefined) this.new_value(this.buffer);
   }
 
   set open(open: boolean) {

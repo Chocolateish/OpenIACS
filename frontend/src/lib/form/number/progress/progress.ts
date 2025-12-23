@@ -52,7 +52,12 @@ export class FormProgress<ID extends string | undefined> extends FormValue<
     this.#bar.style.width =
       Math.min(Math.max(((value - this.#min) / this.#span) * 100, 0), 100) +
       "%";
-    this.#val.innerHTML = value.toFixed(this.#decimals);
+    this.#val.textContent = value.toFixed(this.#decimals);
+  }
+
+  protected clear_value(): void {
+    this.#bar.style.width = "0%";
+    this.#val.textContent = "";
   }
 
   protected new_error(err: string): void {
