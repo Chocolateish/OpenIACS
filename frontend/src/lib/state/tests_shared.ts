@@ -138,7 +138,7 @@ export async function test_state_sub(
   expect(state.in_use()).equal(state);
   expect(state.has(sub3 as STATE_SUB<Result<number, string>>)).equal(state);
   expect(state.amount()).equal(1);
-  set(Ok(12));
+  set(Ok(13));
   await sleep(1);
   expect(count).equal(200000223);
   state.unsub(sub3);

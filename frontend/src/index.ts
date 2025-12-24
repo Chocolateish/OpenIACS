@@ -17,6 +17,7 @@ import "./index.scss";
 import { form } from "./lib/form";
 import { FormColors } from "./lib/form/base";
 import { FormDateTimeType } from "./lib/form/special/dateTime/dateTimeInput";
+import "./lib/state/resource/examples";
 
 interface CharacterData {
   uuid: string;

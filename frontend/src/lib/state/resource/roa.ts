@@ -30,11 +30,13 @@ import {
  * @template RT - The type of the state’s value when read.
  * @template REL - The type of related states, defaults to an empty object.*/
 export interface STATE_RESOURCE_ROA_OWNER<RT, WT, REL extends Option<RELATED>> {
+  update_single(value: ResultOk<RT>): void;
   update_resource(value: ResultOk<RT>): void;
   get buffer(): ResultOk<RT> | undefined;
   get state(): STATE<RT, WT, REL>;
   get read_only(): STATE_ROA<RT, REL, WT>;
 }
+
 export abstract class STATE_RESOURCE_ROA<
     RT,
     REL extends Option<RELATED> = OptionNone,
@@ -108,16 +110,19 @@ export abstract class STATE_RESOURCE_ROA<
     state: STATE_RESOURCE_ROA_OWNER<RT, WT, REL>
   ): void;
 
-  update_resource(value: ResultOk<RT>) {
+  update_single(value: ResultOk<RT>) {
     this.#valid = this.validity === true ? true : Date.now() + this.validity;
-    this.ful_R_prom(value);
     this.#fetching = false;
     clearTimeout(this.#timeout_timout);
-    if (this.#buffer?.ok) {
-      if (value.value !== this.#buffer.value) this.update_subs(value);
-    } else this.update_subs(value);
+    this.ful_R_prom(value);
+  }
+
+  update_resource(value: ResultOk<RT>) {
+    this.#valid = this.validity === true ? true : Date.now() + this.validity;
+    if (!this.#buffer?.compare(value)) this.update_subs(value);
     this.#buffer = value;
   }
+
   get buffer(): ResultOk<RT> | undefined {
     return this.#buffer;
   }
@@ -140,17 +145,20 @@ export abstract class STATE_RESOURCE_ROA<
   ): Promise<T> {
     if (this.#valid === true || this.#valid >= Date.now())
       return func(this.#buffer!);
-    else if (!this.#fetching) {
-      this.#fetching = true;
-      this.#timeout_timout = setTimeout(
-        () => (this.#fetching = false),
-        this.timeout
-      );
-      if (this.debounce > 0)
-        setTimeout(() => this.single_get(this), this.debounce);
-      else this.single_get(this);
+    else {
+      const prom = this.append_R_prom(func);
+      if (!this.#fetching) {
+        this.#fetching = true;
+        this.#timeout_timout = setTimeout(
+          () => (this.#fetching = false),
+          this.timeout
+        );
+        if (this.debounce > 0)
+          setTimeout(() => this.single_get(this), this.debounce);
+        else this.single_get(this);
+      }
+      return prom;
     }
-    return this.append_R_prom(func);
   }
 
   //#Writer Context
@@ -252,7 +260,7 @@ const roa = {
       times?.validity ?? 0,
       times?.retention ?? 0,
       helper
-    ) as STATE_RESOURCE_ROA<RT, REL, WT>;
+    ) as STATE_RESOURCE_FUNC_ROA<RT, REL, WT>;
   },
   class: STATE_RESOURCE_ROA,
 };

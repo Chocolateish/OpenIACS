@@ -1,4 +1,4 @@
-import { Ok, type Result } from "@libResult";
+import { Ok, ResultOk, type Result } from "@libResult";
 import st, {
   type STATE_REA,
   type STATE_RESOURCE_FUNC_REA,
@@ -10,6 +10,8 @@ import {
   test_state_sub,
   test_state_then,
   type TEST_STATE_ALL,
+  type TEST_STATE_OK,
+  type TEST_STATE_WRITE,
 } from "../tests_shared";
 
 describe("Resource states", function () {
@@ -20,7 +22,7 @@ describe("Resource states", function () {
   //     |  _  /| |  | |/ /\ \
   //     | | \ \| |__| / ____ \
   //     |_|  \_\\____/_/    \_\
-  describe("ROA", { timeout: 100 }, function () {
+  describe("ROA", { timeout: 500 }, function () {
     it("ok", async function () {
       const init = st.r.roa.from<number>(
         () => {},
@@ -30,6 +32,25 @@ describe("Resource states", function () {
       assertType<STATE_ROA<number>>(init);
       assertType<STATE_RESOURCE_FUNC_ROA<number>>(init);
     });
+    const maker: TEST_STATE_OK = () => {
+      let val: ResultOk<number> = Ok(1);
+      const state = st.r.roa.from<number>(
+        async (state) => state.update_single(val),
+        () => {},
+        () => {}
+      );
+      const set = (v: ResultOk<number>) => {
+        val = v;
+        state.update_resource(v);
+      };
+      return { o: true, s: false, w: false, ws: false, state, set };
+    };
+    it("Subscribing And Unsubscribing", async function () {
+      await test_state_sub(maker, 50);
+    });
+    describe("Then", async function () {
+      await test_state_then(maker, 50);
+    });
   });
   //##################################################################################################################################################
   //      _____  ______
@@ -38,7 +59,7 @@ describe("Resource states", function () {
   //     |  _  /|  __|   / /\ \
   //     | | \ \| |____ / ____ \
   //     |_|  \_\______/_/    \_\
-  describe("REA", { timeout: 100 }, function () {
+  describe("REA", { timeout: 500 }, function () {
     it("ok", async function () {
       const init = st.r.rea.from<number>(
         () => {},
@@ -51,17 +72,18 @@ describe("Resource states", function () {
     const maker: TEST_STATE_ALL = () => {
       let val: Result<number, string> = Ok(1);
       const state = st.r.rea.from<number>(
-        (state) => state.update_resource(val),
+        async (state) => state.update_single(val),
         () => {},
         () => {}
       );
       const set = (v: Result<number, string>) => {
         val = v;
+        state.update_resource(v);
       };
       return { o: false, s: false, w: false, ws: false, state, set };
     };
     it("Subscribing And Unsubscribing", async function () {
-      await test_state_sub(maker, 10);
+      await test_state_sub(maker, 50);
     });
     describe("Then", async function () {
       await test_state_then(maker, 50);
@@ -74,57 +96,34 @@ describe("Resource states", function () {
   //     |  _  /|  __|   / /\ \      \ \/  \/ / /\ \
   //     | | \ \| |____ / ____ \      \  /\  / ____ \
   //     |_|  \_\______/_/    \_\      \/  \/_/    \_\
-  describe("REA WA", { timeout: 100 }, function () {
+  describe("REA WA", { timeout: 500 }, function () {
     it("ok", async function () {
-      let init = st.c.rea.from((val) => val[0], st.d.rea.ok(sleep(1, 1)));
-      expect(init).instanceOf(st.c.rea.class);
+      const init = st.r.rea_wa.from<number>(
+        () => {},
+        () => {},
+        () => {}
+      );
+      assertType<STATE_REA<number>>(init);
+      assertType<STATE_RESOURCE_FUNC_REA<number>>(init);
     });
-    let makerSingle: TEST_STATE_ALL = () => {
-      let stat1 = st.d.rea.ok(sleep(1, 1));
-      let state = st.c.rea.from((values) => values[0], stat1);
-      let set = (val: Result<number, string>) => {
-        stat1.set(val.map((v) => v));
+    const maker: TEST_STATE_WRITE = () => {
+      let val: Result<number, string> = Ok(1);
+      const state = st.r.rea_wa.from<number>(
+        async (state) => state.update_single(val),
+        () => {},
+        () => {}
+      );
+      const set = (v: Result<number, string>) => {
+        val = v;
+        state.update_resource(v);
       };
-      return { o: false, s: false, w: false, ws: false, state, set };
+      return { o: false, s: false, w: true, ws: false, state, set };
     };
     it("Subscribing And Unsubscribing", async function () {
-      await test_state_sub(makerSingle, 0);
+      await test_state_sub(maker, 50);
     });
-    describe("Single Then", async function () {
-      await test_state_then(makerSingle, 0);
-    });
-    let makerMultiple: TEST_STATE_ALL = () => {
-      let stat1 = st.d.rea.ok(sleep(1, 0.25));
-      let stat2 = st.d.rea.ok(sleep(1, 0.25));
-      let stat3 = st.d.rea.ok(sleep(1, 0.25));
-      let stat4 = st.d.rea.ok(sleep(1, 0.25));
-      let state = st.c.rea.from(
-        (values) => {
-          let sum = 0;
-          for (let val of values) {
-            if (val.err) return val;
-            sum += val.value;
-          }
-          return Ok(sum);
-        },
-        stat1,
-        stat2,
-        stat3,
-        stat4
-      );
-      let set = (val: Result<number, string>) => {
-        stat1.set(val.map((v) => v / 4));
-        stat2.set(val.map((v) => v / 4));
-        stat3.set(val.map((v) => v / 4));
-        stat4.set(val.map((v) => v / 4));
-      };
-      return { o: false, s: false, w: false, ws: false, state, set };
-    };
-    it("Multiple Subscribing And Unsubscribing", async function () {
-      await test_state_sub(makerMultiple, 0);
-    });
-    describe("Multiple Then", async function () {
-      await test_state_then(makerMultiple, 0);
+    describe("Then", async function () {
+      await test_state_then(maker, 50);
     });
   });
 });

@@ -41,6 +41,10 @@ interface OptionBase<T> {
    * This function can be used to compose the Options of two functions.*/
   map<U>(mapper: (value: T) => U): Option<U>;
 
+  /**Compares two `Optional<T>` values for equality.
+   * @returns true if equal, false otherwise. */
+  compare(other: Option<T>): boolean;
+
   /**Maps an `Optional<T>` to a `Result<T, E>`.*/
   to_result<E>(error: E): Result<T, E>;
 }
@@ -85,6 +89,10 @@ export class OptionSome<T> implements OptionBase<T> {
     return new OptionSome(mapper(this.value));
   }
 
+  compare(other: Option<T>): boolean {
+    return other.some && this.value === other.value;
+  }
+
   to_result(): ResultOk<T> {
     return new ResultOk(this.value);
   }
@@ -123,6 +131,10 @@ export class OptionNone implements OptionBase<never> {
 
   map(): OptionNone {
     return this;
+  }
+
+  compare(other: Option<never>): boolean {
+    return other.none;
   }
 
   to_result<E>(error: E): ResultErr<E> {
@@ -184,6 +196,10 @@ interface ResultBase<T, E> {
    * This function can be used to pass through a successful result while handling an error.*/
   map_err<F>(mapper: (error: E) => F): Result<T, F>;
 
+  /**Compares two `Result<T, E>` values for equality.
+   * @returns true if equal, false otherwise. */
+  compare(other: Result<T, E>): boolean;
+
   /**Converts from `Result<T, E>` to `Optional<T>`, discarding the error if any*/
   get to_option(): Option<T>;
 }
@@ -234,6 +250,10 @@ export class ResultOk<T> implements ResultBase<T, never> {
 
   map_err(): ResultOk<T> {
     return this;
+  }
+
+  compare(other: Result<T, any>): boolean {
+    return other.ok && this.value === other.value;
   }
 
   get to_option(): OptionSome<T> {
@@ -291,6 +311,10 @@ export class ResultErr<E> implements ResultBase<never, E> {
 
   map_err<F>(mapper: (error: E) => F): ResultErr<F> {
     return new ResultErr(mapper(this.error));
+  }
+
+  compare(other: Result<any, E>): boolean {
+    return other.err && this.error === other.error;
   }
 
   get to_option(): OptionNone {

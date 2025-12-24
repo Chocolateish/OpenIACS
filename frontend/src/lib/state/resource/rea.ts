@@ -1,4 +1,3 @@
-import { sleep } from "@libCommon";
 import {
   Err,
   None,
@@ -39,6 +38,7 @@ import {
  * @template RT - The type of the state’s value when read.
  * @template REL - The type of related states, defaults to an empty object.*/
 export interface STATE_RESOURCE_REA_OWNER<RT, WT, REL extends Option<RELATED>> {
+  update_single(value: Result<RT, string>): void;
   update_resource(value: Result<RT, string>): void;
   get buffer(): Result<RT, string> | undefined;
   get state(): STATE<RT, WT, REL>;
@@ -118,20 +118,16 @@ export abstract class STATE_RESOURCE_REA<
     state: STATE_RESOURCE_REA_OWNER<RT, WT, REL>
   ): void;
 
-  update_resource(value: Result<RT, string>) {
+  update_single(value: Result<RT, string>) {
     this.#valid = this.validity === true ? true : Date.now() + this.validity;
-    this.ful_R_prom(value);
     this.#fetching = false;
     clearTimeout(this.#timeout_timout);
-    if (value.ok) {
-      if (this.#buffer?.ok) {
-        if (value.value !== this.#buffer.value) this.update_subs(value);
-      } else this.update_subs(value);
-    } else {
-      if (this.#buffer?.err) {
-        if (value.error !== this.#buffer.error) this.update_subs(value);
-      } else this.update_subs(value);
-    }
+    this.ful_R_prom(value);
+  }
+
+  update_resource(value: Result<RT, string>) {
+    this.#valid = this.validity === true ? true : Date.now() + this.validity;
+    if (!this.#buffer?.compare(value)) this.update_subs(value);
     this.#buffer = value;
   }
 
@@ -158,17 +154,20 @@ export abstract class STATE_RESOURCE_REA<
   ): Promise<T> {
     if (this.#valid === true || this.#valid >= Date.now())
       return func(this.#buffer!);
-    else if (!this.#fetching) {
-      this.#fetching = true;
-      this.#timeout_timout = setTimeout(
-        () => (this.#fetching = false),
-        this.timeout
-      );
-      if (this.debounce > 0)
-        setTimeout(() => this.single_get(this), this.debounce);
-      else this.single_get(this);
+    else {
+      const prom = this.append_R_prom(func);
+      if (!this.#fetching) {
+        this.#fetching = true;
+        this.#timeout_timout = setTimeout(
+          () => (this.#fetching = false),
+          this.timeout
+        );
+        if (this.debounce > 0)
+          setTimeout(() => this.single_get(this), this.debounce);
+        else this.single_get(this);
+      }
+      return prom;
     }
-    return this.append_R_prom(func);
   }
 
   //#Writer Context
@@ -305,6 +304,7 @@ export interface STATE_RESOURCE_REA_OWNER_WA<
   WT,
   REL extends Option<RELATED>
 > {
+  update_single(value: Result<RT, string>): void;
   update_resource(value: Result<RT, string>): void;
   get buffer(): Result<RT, string> | undefined;
   get state(): STATE<RT, WT, REL>;
@@ -397,22 +397,19 @@ export abstract class STATE_RESOURCE_REA_WA<
     state: STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL>
   ): Promise<Result<void, string>>;
 
-  update_resource(value: Result<RT, string>) {
+  update_single(value: Result<RT, string>) {
     this.#valid = this.validity === true ? true : Date.now() + this.validity;
-    this.ful_R_prom(value);
     this.#fetching = false;
     clearTimeout(this.#timeout_timout);
-    if (value.ok) {
-      if (this.#buffer?.ok) {
-        if (value.value !== this.#buffer.value) this.update_subs(value);
-      } else this.update_subs(value);
-    } else {
-      if (this.#buffer?.err) {
-        if (value.error !== this.#buffer.error) this.update_subs(value);
-      } else this.update_subs(value);
-    }
+    this.ful_R_prom(value);
+  }
+
+  update_resource(value: Result<RT, string>) {
+    this.#valid = this.validity === true ? true : Date.now() + this.validity;
+    if (!this.#buffer?.compare(value)) this.update_subs(value);
     this.#buffer = value;
   }
+
   get buffer(): Result<RT, string> | undefined {
     return this.#buffer;
   }
@@ -438,18 +435,20 @@ export abstract class STATE_RESOURCE_REA_WA<
   ): Promise<T> {
     if (this.#valid === true || this.#valid >= Date.now())
       return func(this.#buffer!);
-    else if (!this.#fetching) {
-      this.#fetching = true;
-      (async () => {
-        if (this.debounce > 0) await sleep(this.debounce);
-        this.single_get(this);
+    else {
+      const prom = this.append_R_prom(func);
+      if (!this.#fetching) {
+        this.#fetching = true;
         this.#timeout_timout = setTimeout(
           () => (this.#fetching = false),
           this.timeout
         );
-      })();
+        if (this.debounce > 0)
+          setTimeout(() => this.single_get(this), this.debounce);
+        else this.single_get(this);
+      }
+      return prom;
     }
-    return this.append_R_prom(func);
   }
 
   //Writer Context
@@ -485,6 +484,7 @@ export abstract class STATE_RESOURCE_REA_WA<
 //##################################################################################################################################################
 interface OWNER_WA<RT, WT, REL extends Option<RELATED>>
   extends STATE_RESOURCE_REA_OWNER_WA<RT, WT, REL> {}
+
 export type STATE_RESOURCE_FUNC_REA_WA<
   RT,
   REL extends Option<RELATED> = OptionNone,
@@ -494,6 +494,7 @@ export type STATE_RESOURCE_FUNC_REA_WA<
  * @template RT - The type of the state’s value when read.
  * @template WT - The type which can be written to the state.
  * @template REL - The type of related states, defaults to an empty object.*/
+
 class FUNC_REA_WA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   extends STATE_RESOURCE_REA_WA<RT, WT, REL>
   implements OWNER_WA<RT, WT, REL>

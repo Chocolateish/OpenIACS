@@ -81,6 +81,22 @@ describe("Result Ok", function () {
     const result = Ok(42);
     expect(result.map_err().expect()).equal(42);
   });
+  it("Compare equal valid results", function () {
+    const result1 = Ok(42);
+    const result2 = Ok(42);
+    expect(result1.compare(result2)).equal(true);
+  });
+  it("Compare unequal valid results", function () {
+    const result1 = Ok(42);
+    const result2 = Ok(43);
+    expect(result1.compare(result2)).equal(false);
+  });
+  it("Compare valid and error results", function () {
+    const result1 = Ok(42) as Result<number, string>;
+    const result2 = Err("42") as Result<number, string>;
+    expect(result1.compare(result2)).equal(false);
+  });
+
   it("toOptional from valid result", function () {
     const result = Ok(42);
     expect(result.to_option.expect()).equal(42);
@@ -158,6 +174,21 @@ describe("Result Error", function () {
         .expect_err()
     ).equal("42");
   });
+  it("Compare equal error results", function () {
+    const result1 = Err(42);
+    const result2 = Err(42);
+    expect(result1.compare(result2)).equal(true);
+  });
+  it("Compare unequal error results", function () {
+    const result1 = Err(42);
+    const result2 = Err(43);
+    expect(result1.compare(result2)).equal(false);
+  });
+  it("Compare error and valid results", function () {
+    const result1 = Err(42) as Result<number, number>;
+    const result2 = Ok(42) as Result<number, number>;
+    expect(result1.compare(result2)).equal(false);
+  });
   it("toOptional from error result", function () {
     const result = Err(42);
     expect(result.to_option.none).equal(true);
@@ -231,6 +262,21 @@ describe("Option Some", function () {
         .expect()
     ).equal("42");
   });
+  it("Compare equal Some", function () {
+    const result1 = Some(42);
+    const result2 = Some(42);
+    expect(result1.compare(result2)).equal(true);
+  });
+  it("Compare unequal Some", function () {
+    const result1 = Some(42);
+    const result2 = Some(43);
+    expect(result1.compare(result2)).equal(false);
+  });
+  it("Compare Some and None", function () {
+    const result1 = Some(42);
+    const result2 = None();
+    expect(result1.compare(result2)).equal(false);
+  });
   it("toResult from Some", function () {
     const result = Some(42);
     expect(result.to_result().expect()).equal(42);
@@ -297,6 +343,16 @@ describe("Option None", function () {
   it("map from None", function () {
     const result = None();
     expect(result.map()).equal(result);
+  });
+  it("Compare equal None", function () {
+    const result1 = None();
+    const result2 = None();
+    expect(result1.compare(result2)).equal(true);
+  });
+  it("Compare Some and None", function () {
+    const result1 = Some(42);
+    const result2 = None();
+    expect(result1.compare(result2)).equal(false);
   });
   it("toResult from None", function () {
     const result = None();
