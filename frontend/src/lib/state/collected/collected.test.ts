@@ -1,5 +1,5 @@
 import { sleep } from "@libCommon";
-import { Ok, ResultOk, type Result } from "@libResult";
+import { ok, ResultOk, type Result } from "@libResult";
 import st from "@libState";
 import { describe, expect, it } from "vitest";
 import {
@@ -7,10 +7,10 @@ import {
   test_state_get_ok,
   test_state_sub,
   test_state_then,
-  type TEST_STATE_ALL,
-  type TEST_STATE_OK,
-  type TEST_STATE_OK_SYNC,
-  type TEST_STATE_SYNC,
+  type TestStateAll,
+  type TestStateOk,
+  type TestStateOkSync,
+  type TestStateSync,
 } from "../tests_shared";
 
 describe("Collected states", function () {
@@ -26,7 +26,7 @@ describe("Collected states", function () {
       const init = st.c.ros.from((val) => val[0], st.s.ros.ok(1));
       expect(init).instanceOf(st.c.ros.class);
     });
-    const makerSingle: TEST_STATE_OK_SYNC = () => {
+    const makerSingle: TestStateOkSync = () => {
       const stat1 = st.s.ros.ok(1);
       const state = st.c.ros.from((val) => val[0], stat1);
       const set = (val: ResultOk<number>) => {
@@ -46,13 +46,13 @@ describe("Collected states", function () {
     it("Single GetOk", async function () {
       await test_state_get_ok(makerSingle);
     });
-    const makerMultiple: TEST_STATE_OK_SYNC = () => {
+    const makerMultiple: TestStateOkSync = () => {
       const stat1 = st.s.ros.ok(0.25);
       const stat2 = st.s.ros.ok(0.25);
       const stat3 = st.s.ros.ok(0.25);
       const stat4 = st.s.ros.ok(0.25);
       const state = st.c.ros.from(
-        (val) => Ok(val[0].value + val[1].value + val[2].value + val[3].value),
+        (val) => ok(val[0].value + val[1].value + val[2].value + val[3].value),
         stat1,
         stat2,
         stat3,
@@ -91,7 +91,7 @@ describe("Collected states", function () {
       const init = st.c.res.from((val) => val[0], st.s.res.ok(1));
       expect(init).instanceOf(st.c.res.class);
     });
-    const makerSingle: TEST_STATE_SYNC = () => {
+    const makerSingle: TestStateSync = () => {
       const stat1 = st.s.res.ok(1);
       const state = st.c.res.from((val) => val[0], stat1);
       const set = (val: Result<number, string>) => {
@@ -108,7 +108,7 @@ describe("Collected states", function () {
     it("Single Get", async function () {
       await test_state_get(makerSingle);
     });
-    const makerMultiple: TEST_STATE_SYNC = () => {
+    const makerMultiple: TestStateSync = () => {
       const stat1 = st.s.res.ok(0.25);
       const stat2 = st.s.res.ok(0.25);
       const stat3 = st.s.res.ok(0.25);
@@ -120,7 +120,7 @@ describe("Collected states", function () {
             if (val.err) return val;
             sum += val.value;
           }
-          return Ok(sum);
+          return ok(sum);
         },
         stat1,
         stat2,
@@ -160,7 +160,7 @@ describe("Collected states", function () {
       );
       expect(init).instanceOf(st.c.roa.class);
     });
-    const makerSingle: TEST_STATE_OK = () => {
+    const makerSingle: TestStateOk = () => {
       const stat1 = st.d.roa.ok(() => sleep(1, 1));
       const state = st.c.roa.from((val) => val[0], stat1);
       const set = (val: ResultOk<number>) => {
@@ -174,13 +174,13 @@ describe("Collected states", function () {
     describe("Single Then", async function () {
       await test_state_then(makerSingle, 50);
     });
-    const makerMultiple: TEST_STATE_OK = () => {
+    const makerMultiple: TestStateOk = () => {
       const stat1 = st.d.roa.ok(() => sleep(1, 0.25));
       const stat2 = st.d.roa.ok(() => sleep(1, 0.25));
       const stat3 = st.d.roa.ok(() => sleep(1, 0.25));
       const stat4 = st.d.roa.ok(() => sleep(1, 0.25));
       const state = st.c.roa.from(
-        (val) => Ok(val[0].value + val[1].value + val[2].value + val[3].value),
+        (val) => ok(val[0].value + val[1].value + val[2].value + val[3].value),
         stat1,
         stat2,
         stat3,
@@ -216,7 +216,7 @@ describe("Collected states", function () {
       );
       expect(init).instanceOf(st.c.rea.class);
     });
-    const makerSingle: TEST_STATE_ALL = () => {
+    const makerSingle: TestStateAll = () => {
       const stat1 = st.d.rea.ok(() => sleep(1, 1));
       const state = st.c.rea.from((values) => values[0], stat1);
       const set = (val: Result<number, string>) => {
@@ -230,7 +230,7 @@ describe("Collected states", function () {
     describe("Single Then", async function () {
       await test_state_then(makerSingle, 50);
     });
-    const makerMultiple: TEST_STATE_ALL = () => {
+    const makerMultiple: TestStateAll = () => {
       const stat1 = st.d.rea.ok(() => sleep(1, 0.25));
       const stat2 = st.d.rea.ok(() => sleep(1, 0.25));
       const stat3 = st.d.rea.ok(() => sleep(1, 0.25));
@@ -242,7 +242,7 @@ describe("Collected states", function () {
             if (val.err) return val;
             sum += val.value;
           }
-          return Ok(sum);
+          return ok(sum);
         },
         stat1,
         stat2,

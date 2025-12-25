@@ -1,4 +1,4 @@
-import { Err, None, OptionNone, ResultOk, type Result } from "@libResult";
+import { err, none, OptionNone, ResultOk, type Result } from "@libResult";
 import { STATE_BASE } from "../base";
 import {
   type STATE,
@@ -121,7 +121,7 @@ export class ROA<
     return func(this.transform_read(await this.#state));
   }
   related(): OptionNone {
-    return None();
+    return none();
   }
 
   //#Writer Context
@@ -132,20 +132,20 @@ export class ROA<
     return this.#state.wsync;
   }
   async write(value: WOUT): Promise<Result<void, string>> {
-    if (!this.#state.write) return Err("State not writable");
-    if (!this.transformWrite) return Err("State not writable");
+    if (!this.#state.write) return err("State not writable");
+    if (!this.transformWrite) return err("State not writable");
     return this.#state.write(this.transformWrite(value));
   }
   write_sync(value: WOUT): Result<void, string> {
-    if (!this.#state.write_sync) return Err("State not writable");
-    if (!this.transformWrite) return Err("State not writable");
+    if (!this.#state.write_sync) return err("State not writable");
+    if (!this.transformWrite) return err("State not writable");
     return this.#state.write_sync(this.transformWrite(value));
   }
   limit(_value: WOUT): Result<WOUT, string> {
-    return Err("Limit not supported on proxy states");
+    return err("Limit not supported on proxy states");
   }
   check(_value: WOUT): Result<WOUT, string> {
-    return Err("Check not supported on proxy states");
+    return err("Check not supported on proxy states");
   }
 }
 
@@ -313,7 +313,7 @@ export class ROA_WS<
     return func(this.transform_read(await this.#state));
   }
   related(): OptionNone {
-    return None();
+    return none();
   }
 
   //#Writer Context
@@ -330,10 +330,10 @@ export class ROA_WS<
     return this.#state.write_sync(this.transform_write(value));
   }
   limit(_value: WOUT): Result<WOUT, string> {
-    return Err("Limit not supported on proxy states");
+    return err("Limit not supported on proxy states");
   }
   check(_value: WOUT): Result<WOUT, string> {
-    return Err("Check not supported on proxy states");
+    return err("Check not supported on proxy states");
   }
 }
 
@@ -502,7 +502,7 @@ export class ROA_WA<
     return func(this.transform_read(await this.#state));
   }
   related(): OptionNone {
-    return None();
+    return none();
   }
 
   //#Writer Context
@@ -516,10 +516,10 @@ export class ROA_WA<
     return this.#state.write(this.transform_write(value));
   }
   limit(_value: WOUT): Result<WOUT, string> {
-    return Err("Limit not supported on proxy states");
+    return err("Limit not supported on proxy states");
   }
   check(_value: WOUT): Result<WOUT, string> {
-    return Err("Check not supported on proxy states");
+    return err("Check not supported on proxy states");
   }
 }
 

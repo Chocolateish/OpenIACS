@@ -1,7 +1,7 @@
 import {
-  Err,
-  None,
-  Ok,
+  err,
+  none,
+  ok,
   OptionNone,
   ResultOk,
   type Option,
@@ -65,7 +65,7 @@ class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
     this.update_subs((this.#value = value));
   }
   set_ok(value: RT): void {
-    this.set(Ok(value));
+    this.set(ok(value));
   }
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
@@ -93,7 +93,7 @@ class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
     return this.get().value;
   }
   related(): REL {
-    return this.#helper?.related ? this.#helper.related() : (None() as REL);
+    return this.#helper?.related ? this.#helper.related() : (none() as REL);
   }
 
   //#Writer Context
@@ -108,13 +108,13 @@ class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
   write_sync(value: WT): Result<void, string> {
     if (this.setter) return this.setter(value, this, this.#value);
-    return Err("State not writable");
+    return err("State not writable");
   }
   limit(value: WT): Result<WT, string> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
+    return this.#helper?.limit ? this.#helper.limit(value) : ok(value);
   }
   check(value: WT): Result<WT, string> {
-    return this.#helper?.check ? this.#helper.check(value) : Ok(value);
+    return this.#helper?.check ? this.#helper.check(value) : ok(value);
   }
 }
 const ros = {
@@ -125,7 +125,7 @@ const ros = {
     init: () => RT,
     helper?: Helper<WT, REL>
   ) {
-    return new ROS<RT, REL, WT>(() => Ok(init()), helper) as STATE_LAZY_ROS<
+    return new ROS<RT, REL, WT>(() => ok(init()), helper) as STATE_LAZY_ROS<
       RT,
       REL,
       WT
@@ -176,12 +176,12 @@ class ROS_WS<RT, WT, REL extends Option<RELATED>>
     if (setter === true)
       this.#setter = (value, state, old) => {
         if (old && !old.err && (value as unknown as RT) === old.value)
-          return Ok(undefined);
+          return ok(undefined);
         return this.#helper?.limit
           ? this.#helper
               ?.limit(value)
               .map((e) => state.set_ok(e as unknown as RT))
-          : Ok(state.set_ok(value as unknown as RT));
+          : ok(state.set_ok(value as unknown as RT));
       };
     else this.#setter = setter;
     if (helper) this.#helper = helper;
@@ -205,7 +205,7 @@ class ROS_WS<RT, WT, REL extends Option<RELATED>>
     this.update_subs((this.#value = value));
   }
   set_ok(value: RT): void {
-    this.set(Ok(value));
+    this.set(ok(value));
   }
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
@@ -236,7 +236,7 @@ class ROS_WS<RT, WT, REL extends Option<RELATED>>
     return this.get().value;
   }
   related(): REL {
-    return this.#helper?.related ? this.#helper.related() : (None() as REL);
+    return this.#helper?.related ? this.#helper.related() : (none() as REL);
   }
 
   //#Writer Context
@@ -253,10 +253,10 @@ class ROS_WS<RT, WT, REL extends Option<RELATED>>
     return this.#setter(value, this, this.#value);
   }
   limit(value: WT): Result<WT, string> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
+    return this.#helper?.limit ? this.#helper.limit(value) : ok(value);
   }
   check(value: WT): Result<WT, string> {
-    return this.#helper?.check ? this.#helper.check(value) : Ok(value);
+    return this.#helper?.check ? this.#helper.check(value) : ok(value);
   }
 }
 const ros_ws = {
@@ -269,7 +269,7 @@ const ros_ws = {
     helper?: Helper<WT, REL>
   ) {
     return new ROS_WS<RT, WT, REL>(
-      () => Ok(init()),
+      () => ok(init()),
       setter,
       helper
     ) as STATE_LAZY_ROS_WS<RT, WT, REL>;

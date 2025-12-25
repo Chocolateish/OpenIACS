@@ -1,7 +1,7 @@
 import {
-  Err,
-  None,
-  Ok,
+  err,
+  none,
+  ok,
   OptionNone,
   type Option,
   type Result,
@@ -30,7 +30,7 @@ import type {
 //     | | \ \| |____ ____) |
 //     |_|  \_\______|_____/
 
-interface OWNER<AT, REL extends Option<RELATED>> extends STATE_ARRAY<AT> {
+interface Owner<AT, REL extends Option<RELATED>> extends STATE_ARRAY<AT> {
   set(value: Result<AT[], string>): void;
   get state(): STATE<SAR<AT>, SAW<AT>, REL>;
   get read_only(): STATE_RES<SAR<AT>, REL, SAW<AT>>;
@@ -38,11 +38,11 @@ interface OWNER<AT, REL extends Option<RELATED>> extends STATE_ARRAY<AT> {
 export type STATE_ARRAY_RES<
   AT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_RES<SAR<AT>, REL, SAW<AT>> & OWNER<AT, REL>;
+> = STATE_RES<SAR<AT>, REL, SAW<AT>> & Owner<AT, REL>;
 
-export class RES<AT, REL extends Option<RELATED>>
+export class Res<AT, REL extends Option<RELATED>>
   extends STATE_BASE<SAR<AT>, SAW<AT>, REL, Result<SAR<AT>, string>>
-  implements OWNER<AT, REL>
+  implements Owner<AT, REL>
 {
   constructor(init: Result<AT[], string>, helper?: HELPER<SAW<AT>, REL>) {
     super();
@@ -54,7 +54,7 @@ export class RES<AT, REL extends Option<RELATED>>
   #e?: string;
   #a: AT[] = [];
   #helper?: HELPER<SAW<AT>, REL>;
-  setter?: STATE_SET_REX_WS<SAR<AT>, OWNER<AT, REL>, SAW<AT>>;
+  setter?: STATE_SET_REX_WS<SAR<AT>, Owner<AT, REL>, SAW<AT>>;
 
   #mr(type: READ_TYPE, index: number, items: AT[]): SAR<AT> {
     return { array: this.#a, type, index, items };
@@ -80,11 +80,11 @@ export class RES<AT, REL extends Option<RELATED>>
     return func(this.get());
   }
   get(): Result<SAR<AT>, string> {
-    if (this.#e) return Err(this.#e);
-    return Ok(this.#mr("none", 0, this.#a));
+    if (this.#e) return err(this.#e);
+    return ok(this.#mr("none", 0, this.#a));
   }
   related(): REL {
-    return this.#helper?.related ? this.#helper.related() : (None() as REL);
+    return this.#helper?.related ? this.#helper.related() : (none() as REL);
   }
 
   //#Writer Context
@@ -99,20 +99,20 @@ export class RES<AT, REL extends Option<RELATED>>
   }
   write_sync(value: SAW<AT>): Result<void, string> {
     if (this.setter) return this.setter(value, this, this.get());
-    return Err("State not writable");
+    return err("State not writable");
   }
   limit(value: SAW<AT>): Result<SAW<AT>, string> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
+    return this.#helper?.limit ? this.#helper.limit(value) : ok(value);
   }
   check(value: SAW<AT>): Result<SAW<AT>, string> {
-    return this.#helper?.check ? this.#helper.check(value) : Ok(value);
+    return this.#helper?.check ? this.#helper.check(value) : ok(value);
   }
 
   //Array/Owner Context
   set(value: Result<AT[], string>) {
     this.#a = value.ok ? value.value : [];
     this.#e = value.ok ? undefined : value.error;
-    this.update_subs(Ok(this.#mr("none", 0, this.#a)));
+    this.update_subs(ok(this.#mr("none", 0, this.#a)));
   }
 
   get array(): readonly AT[] {
@@ -125,33 +125,33 @@ export class RES<AT, REL extends Option<RELATED>>
 
   push(...items: AT[]): number {
     const index = this.#a.length;
-    const newLen = this.#a.push(...items);
-    this.update_subs(Ok(this.#mr("added", index, items)));
-    return newLen;
+    const new_len = this.#a.push(...items);
+    this.update_subs(ok(this.#mr("added", index, items)));
+    return new_len;
   }
 
   pop(): AT | undefined {
     const p = this.#a.pop();
-    if (p) this.update_subs(Ok(this.#mr("removed", this.#a.length + 1, [p])));
+    if (p) this.update_subs(ok(this.#mr("removed", this.#a.length + 1, [p])));
     return p;
   }
 
   shift(): AT | undefined {
     const shifted = this.#a.shift();
-    if (shifted) this.update_subs(Ok(this.#mr("removed", 0, [shifted])));
+    if (shifted) this.update_subs(ok(this.#mr("removed", 0, [shifted])));
     return shifted;
   }
 
   unshift(...items: AT[]): number {
-    const newLen = this.#a.unshift(...items);
-    this.update_subs(Ok(this.#mr("added", 0, items)));
-    return newLen;
+    const new_len = this.#a.unshift(...items);
+    this.update_subs(ok(this.#mr("added", 0, items)));
+    return new_len;
   }
 
-  splice(start: number, deleteCount?: number, ...items: AT[]): AT[] {
-    const r = this.#a.splice(start, deleteCount!, ...items);
-    if (r.length > 0) this.update_subs(Ok(this.#mr("removed", start, r)));
-    if (items.length > 0) this.update_subs(Ok(this.#mr("added", start, items)));
+  splice(start: number, delete_count?: number, ...items: AT[]): AT[] {
+    const r = this.#a.splice(start, delete_count!, ...items);
+    if (r.length > 0) this.update_subs(ok(this.#mr("removed", start, r)));
+    if (items.length > 0) this.update_subs(ok(this.#mr("added", start, items)));
     return r;
   }
 
@@ -159,7 +159,7 @@ export class RES<AT, REL extends Option<RELATED>>
   delete(val: AT) {
     for (let i = 0; i < this.#a.length; i++)
       if ((this.#a[i] = val)) {
-        this.update_subs(Ok(this.#mr("removed", i, [val])));
+        this.update_subs(ok(this.#mr("removed", i, [val])));
         i--;
       }
   }
@@ -172,12 +172,12 @@ export class RES<AT, REL extends Option<RELATED>>
     if (result.err) return this.set(result);
     const { index, items: its, type } = result.value;
     const items = transform(its, type);
-    if (type === "none") return this.set(Ok(items));
+    if (type === "none") return this.set(ok(items));
     else if (type === "added") this.#a.splice(index, 0, ...items);
     else if (type === "removed") this.#a.splice(index, items.length);
     else if (type === "changed")
       for (let i = 0; i < its.length; i++) this.#a[index + i] = items[i];
-    this.update_subs(Ok(this.#mr(type, index, items)));
+    this.update_subs(ok(this.#mr(type, index, items)));
   }
 }
 
@@ -189,16 +189,16 @@ const res = {
     init: AT[] = [],
     helper?: HELPER<SAW<AT>, REL>
   ) {
-    return new RES<AT, REL>(Ok(init), helper) as STATE_ARRAY_RES<AT, REL>;
+    return new Res<AT, REL>(ok(init), helper) as STATE_ARRAY_RES<AT, REL>;
   },
   /**Creates a state representing an array
    * @param init initial error
    * @param helper functions to make related*/
   err<AT, REL extends Option<RELATED> = OptionNone>(
-    err: string,
+    error: string,
     helper?: HELPER<SAW<AT>, REL>
   ) {
-    return new RES<AT, REL>(Err(err), helper) as STATE_ARRAY_RES<AT, REL>;
+    return new Res<AT, REL>(err(error), helper) as STATE_ARRAY_RES<AT, REL>;
   },
 };
 
@@ -209,7 +209,7 @@ const res = {
 //     |  _  /|  __|  \___ \    \ \/  \/ / \___ \
 //     | | \ \| |____ ____) |    \  /\  /  ____) |
 //     |_|  \_\______|_____/      \/  \/  |_____/
-interface OWNER_WS<AT, REL extends Option<RELATED>> extends STATE_ARRAY<AT> {
+interface OwnerWs<AT, REL extends Option<RELATED>> extends STATE_ARRAY<AT> {
   set(value: Result<AT[], string>): void;
   get state(): STATE<SAR<AT>, SAW<AT>, REL>;
   get read_only(): STATE_RES<SAR<AT>, REL, SAW<AT>>;
@@ -218,11 +218,11 @@ interface OWNER_WS<AT, REL extends Option<RELATED>> extends STATE_ARRAY<AT> {
 export type STATE_ARRAY_RES_WS<
   AT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_RES_WS<SAR<AT>, SAW<AT>, REL> & OWNER_WS<AT, REL>;
+> = STATE_RES_WS<SAR<AT>, SAW<AT>, REL> & OwnerWs<AT, REL>;
 
-export class RES_WS<AT, REL extends Option<RELATED>>
+export class ResWs<AT, REL extends Option<RELATED>>
   extends STATE_BASE<SAR<AT>, SAW<AT>, REL, Result<SAR<AT>, string>>
-  implements OWNER_WS<AT, REL>
+  implements OwnerWs<AT, REL>
 {
   /**Creates a state which holds a value
    * @param init initial value for state, use a promise for an eager async value, use a function returning a promise for a lazy async value
@@ -230,13 +230,13 @@ export class RES_WS<AT, REL extends Option<RELATED>>
    * @param helper functions to check and limit*/
   constructor(
     init: Result<AT[], string>,
-    setter: STATE_SET_REX_WS<SAR<AT>, OWNER_WS<AT, REL>, SAW<AT>> | true,
+    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWs<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>
   ) {
     super();
     if (setter === true)
       this.#setter = (val) =>
-        Ok(this.apply_read(Ok(val as SAR<AT>), (v) => [...v]));
+        ok(this.apply_read(ok(val as SAR<AT>), (v) => [...v]));
     else this.#setter = setter;
     if (helper) this.#h = helper;
     this.set(init);
@@ -246,7 +246,7 @@ export class RES_WS<AT, REL extends Option<RELATED>>
   #e?: string;
   #a: AT[] = [];
   #h?: HELPER<SAW<AT>, REL>;
-  #setter: STATE_SET_REX_WS<SAR<AT>, OWNER_WS<AT, REL>, SAW<AT>>;
+  #setter: STATE_SET_REX_WS<SAR<AT>, OwnerWs<AT, REL>, SAW<AT>>;
 
   #mr(type: READ_TYPE, index: number, items: AT[]): SAR<AT> {
     return { array: this.#a, type, index, items };
@@ -275,11 +275,11 @@ export class RES_WS<AT, REL extends Option<RELATED>>
     return func(this.get());
   }
   get(): Result<SAR<AT>, string> {
-    if (this.#e) return Err(this.#e);
-    return Ok(this.#mr("none", 0, this.#a));
+    if (this.#e) return err(this.#e);
+    return ok(this.#mr("none", 0, this.#a));
   }
   related(): REL {
-    return this.#h?.related ? this.#h.related() : (None() as REL);
+    return this.#h?.related ? this.#h.related() : (none() as REL);
   }
 
   //#Writer Context
@@ -296,17 +296,17 @@ export class RES_WS<AT, REL extends Option<RELATED>>
     return this.#setter(value, this, this.get());
   }
   limit(value: SAW<AT>): Result<SAW<AT>, string> {
-    return this.#h?.limit ? this.#h.limit(value) : Ok(value);
+    return this.#h?.limit ? this.#h.limit(value) : ok(value);
   }
   check(value: SAW<AT>): Result<SAW<AT>, string> {
-    return this.#h?.check ? this.#h.check(value) : Ok(value);
+    return this.#h?.check ? this.#h.check(value) : ok(value);
   }
 
   //Array/Owner Context
   set(value: Result<AT[], string>) {
     this.#a = value.ok ? value.value : [];
     this.#e = value.ok ? undefined : value.error;
-    this.update_subs(Ok(this.#mr("none", 0, this.#a)));
+    this.update_subs(ok(this.#mr("none", 0, this.#a)));
   }
 
   get array(): readonly AT[] {
@@ -319,33 +319,33 @@ export class RES_WS<AT, REL extends Option<RELATED>>
 
   push(...items: AT[]): number {
     const index = this.#a.length;
-    const newLen = this.#a.push(...items);
-    this.update_subs(Ok(this.#mr("added", index, items)));
-    return newLen;
+    const new_len = this.#a.push(...items);
+    this.update_subs(ok(this.#mr("added", index, items)));
+    return new_len;
   }
 
   pop(): AT | undefined {
     const p = this.#a.pop();
-    if (p) this.update_subs(Ok(this.#mr("removed", this.#a.length + 1, [p])));
+    if (p) this.update_subs(ok(this.#mr("removed", this.#a.length + 1, [p])));
     return p;
   }
 
   shift(): AT | undefined {
     const shifted = this.#a.shift();
-    if (shifted) this.update_subs(Ok(this.#mr("removed", 0, [shifted])));
+    if (shifted) this.update_subs(ok(this.#mr("removed", 0, [shifted])));
     return shifted;
   }
 
   unshift(...items: AT[]): number {
-    const newLen = this.#a.unshift(...items);
-    this.update_subs(Ok(this.#mr("added", 0, items)));
-    return newLen;
+    const new_len = this.#a.unshift(...items);
+    this.update_subs(ok(this.#mr("added", 0, items)));
+    return new_len;
   }
 
-  splice(start: number, deleteCount?: number, ...items: AT[]): AT[] {
-    const r = this.#a.splice(start, deleteCount!, ...items);
-    if (r.length > 0) this.update_subs(Ok(this.#mr("removed", start, r)));
-    if (items.length > 0) this.update_subs(Ok(this.#mr("added", start, items)));
+  splice(start: number, delete_count?: number, ...items: AT[]): AT[] {
+    const r = this.#a.splice(start, delete_count!, ...items);
+    if (r.length > 0) this.update_subs(ok(this.#mr("removed", start, r)));
+    if (items.length > 0) this.update_subs(ok(this.#mr("added", start, items)));
     return r;
   }
 
@@ -353,7 +353,7 @@ export class RES_WS<AT, REL extends Option<RELATED>>
   delete(val: AT) {
     for (let i = 0; i < this.#a.length; i++)
       if ((this.#a[i] = val)) {
-        this.update_subs(Ok(this.#mr("removed", i, [val])));
+        this.update_subs(ok(this.#mr("removed", i, [val])));
         i--;
       }
   }
@@ -366,12 +366,12 @@ export class RES_WS<AT, REL extends Option<RELATED>>
     if (result.err) return this.set(result);
     const { index, items: its, type } = result.value;
     const items = transform(its, type);
-    if (type === "none") return this.set(Ok(items));
+    if (type === "none") return this.set(ok(items));
     else if (type === "added") this.#a.splice(index, 0, ...items);
     else if (type === "removed") this.#a.splice(index, items.length);
     else if (type === "changed")
       for (let i = 0; i < its.length; i++) this.#a[index + i] = items[i];
-    this.update_subs(Ok(this.#mr(type, index, items)));
+    this.update_subs(ok(this.#mr(type, index, items)));
   }
 }
 
@@ -382,10 +382,10 @@ const res_ws = {
    * @param helper functions to check and limit*/
   ok<AT, REL extends Option<RELATED> = OptionNone>(
     init: AT[] = [],
-    setter: STATE_SET_REX_WS<SAR<AT>, OWNER_WS<AT, REL>, SAW<AT>> | true,
+    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWs<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>
   ) {
-    return new RES_WS<AT, REL>(Ok(init), setter, helper) as STATE_ARRAY_RES_WS<
+    return new ResWs<AT, REL>(ok(init), setter, helper) as STATE_ARRAY_RES_WS<
       AT,
       REL
     >;
@@ -395,11 +395,11 @@ const res_ws = {
    * @param setter function called when state value is set via setter, set true let write set it's value
    * @param helper functions to check and limit*/
   err<AT, REL extends Option<RELATED> = OptionNone>(
-    err: string,
-    setter: STATE_SET_REX_WS<SAR<AT>, OWNER_WS<AT, REL>, SAW<AT>> | true,
+    error: string,
+    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWs<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>
   ) {
-    return new RES_WS<AT, REL>(Err(err), setter, helper) as STATE_ARRAY_RES_WS<
+    return new ResWs<AT, REL>(err(error), setter, helper) as STATE_ARRAY_RES_WS<
       AT,
       REL
     >;

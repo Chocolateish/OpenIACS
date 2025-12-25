@@ -1,7 +1,7 @@
 import {
-  Err,
-  None,
-  Ok,
+  err,
+  none,
+  ok,
   OptionNone,
   ResultOk,
   type Option,
@@ -79,13 +79,13 @@ export class ROS<AT, REL extends Option<RELATED> = OptionNone>
     return func(this.get());
   }
   get(): ResultOk<SAR<AT>> {
-    return Ok(this.ok());
+    return ok(this.ok());
   }
   ok(): SAR<AT> {
     return this.#mr("none", 0, this.#a);
   }
   related(): REL {
-    return this.#helper?.related ? this.#helper.related() : (None() as REL);
+    return this.#helper?.related ? this.#helper.related() : (none() as REL);
   }
 
   //#Writer Context
@@ -100,13 +100,13 @@ export class ROS<AT, REL extends Option<RELATED> = OptionNone>
   }
   write_sync(value: SAW<AT>): Result<void, string> {
     if (this.setter) return this.setter(value, this, this.get());
-    return Err("State not writable");
+    return err("State not writable");
   }
   limit(value: SAW<AT>): Result<SAW<AT>, string> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
+    return this.#helper?.limit ? this.#helper.limit(value) : ok(value);
   }
   check(value: SAW<AT>): Result<SAW<AT>, string> {
-    return this.#helper?.check ? this.#helper.check(value) : Ok(value);
+    return this.#helper?.check ? this.#helper.check(value) : ok(value);
   }
 
   //Array/Owner Context
@@ -126,32 +126,32 @@ export class ROS<AT, REL extends Option<RELATED> = OptionNone>
   push(...items: AT[]): number {
     const index = this.#a.length;
     const newLen = this.#a.push(...items);
-    this.update_subs(Ok(this.#mr("added", index, items)));
+    this.update_subs(ok(this.#mr("added", index, items)));
     return newLen;
   }
 
   pop(): AT | undefined {
     const p = this.#a.pop();
-    if (p) this.update_subs(Ok(this.#mr("removed", this.#a.length + 1, [p])));
+    if (p) this.update_subs(ok(this.#mr("removed", this.#a.length + 1, [p])));
     return p;
   }
 
   shift(): AT | undefined {
     const shifted = this.#a.shift();
-    if (shifted) this.update_subs(Ok(this.#mr("removed", 0, [shifted])));
+    if (shifted) this.update_subs(ok(this.#mr("removed", 0, [shifted])));
     return shifted;
   }
 
   unshift(...items: AT[]): number {
     const newLen = this.#a.unshift(...items);
-    this.update_subs(Ok(this.#mr("added", 0, items)));
+    this.update_subs(ok(this.#mr("added", 0, items)));
     return newLen;
   }
 
   splice(start: number, deleteCount?: number, ...items: AT[]): AT[] {
     const r = this.#a.splice(start, deleteCount!, ...items);
-    if (r.length > 0) this.update_subs(Ok(this.#mr("removed", start, r)));
-    if (items.length > 0) this.update_subs(Ok(this.#mr("added", start, items)));
+    if (r.length > 0) this.update_subs(ok(this.#mr("removed", start, r)));
+    if (items.length > 0) this.update_subs(ok(this.#mr("added", start, items)));
     return r;
   }
 
@@ -159,7 +159,7 @@ export class ROS<AT, REL extends Option<RELATED> = OptionNone>
   delete(val: AT) {
     for (let i = 0; i < this.#a.length; i++)
       if ((this.#a[i] = val)) {
-        this.update_subs(Ok(this.#mr("removed", i, [val])));
+        this.update_subs(ok(this.#mr("removed", i, [val])));
         i--;
       }
   }
@@ -171,12 +171,12 @@ export class ROS<AT, REL extends Option<RELATED> = OptionNone>
   ) {
     const { index, items: its, type } = result.value;
     const items = transform(its, type);
-    if (type === "none") return this.set(Ok(items));
+    if (type === "none") return this.set(ok(items));
     else if (type === "added") this.#a.splice(index, 0, ...items);
     else if (type === "removed") this.#a.splice(index, items.length);
     else if (type === "changed")
       for (let i = 0; i < its.length; i++) this.#a[index + i] = items[i];
-    this.update_subs(Ok(this.#mr(type, index, items)));
+    this.update_subs(ok(this.#mr(type, index, items)));
   }
 }
 const ros = {
@@ -187,7 +187,7 @@ const ros = {
     init: AT[] = [],
     helper?: HELPER<SAW<AT>, REL>
   ) {
-    return new ROS<AT, REL>(Ok(init), helper) as STATE_ARRAY_ROS<AT, REL>;
+    return new ROS<AT, REL>(ok(init), helper) as STATE_ARRAY_ROS<AT, REL>;
   },
 };
 
@@ -226,7 +226,7 @@ export class ROS_WS<AT, REL extends Option<RELATED> = OptionNone>
     super();
     if (setter === true)
       this.#setter = (val) =>
-        Ok(this.apply_read(Ok(val as SAR<AT>), (v) => [...v]));
+        ok(this.apply_read(ok(val as SAR<AT>), (v) => [...v]));
     else this.#setter = setter;
     if (helper) this.#helper = helper;
     this.set(init);
@@ -264,13 +264,13 @@ export class ROS_WS<AT, REL extends Option<RELATED> = OptionNone>
     return func(this.get());
   }
   get(): ResultOk<SAR<AT>> {
-    return Ok(this.ok());
+    return ok(this.ok());
   }
   ok(): SAR<AT> {
     return this.#mr("none", 0, this.#a);
   }
   related(): REL {
-    return this.#helper?.related ? this.#helper.related() : (None() as REL);
+    return this.#helper?.related ? this.#helper.related() : (none() as REL);
   }
 
   //#Writer Context
@@ -287,16 +287,16 @@ export class ROS_WS<AT, REL extends Option<RELATED> = OptionNone>
     return this.#setter(value, this, this.get());
   }
   limit(value: SAW<AT>): Result<SAW<AT>, string> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
+    return this.#helper?.limit ? this.#helper.limit(value) : ok(value);
   }
   check(value: SAW<AT>): Result<SAW<AT>, string> {
-    return this.#helper?.check ? this.#helper.check(value) : Ok(value);
+    return this.#helper?.check ? this.#helper.check(value) : ok(value);
   }
 
   //Array/Owner Context
   set(value: ResultOk<AT[]>) {
     this.#a = value.value;
-    this.update_subs(Ok(this.#mr("none", 0, this.#a)));
+    this.update_subs(ok(this.#mr("none", 0, this.#a)));
   }
 
   get array(): readonly AT[] {
@@ -310,32 +310,32 @@ export class ROS_WS<AT, REL extends Option<RELATED> = OptionNone>
   push(...items: AT[]): number {
     const index = this.#a.length;
     const newLen = this.#a.push(...items);
-    this.update_subs(Ok(this.#mr("added", index, items)));
+    this.update_subs(ok(this.#mr("added", index, items)));
     return newLen;
   }
 
   pop(): AT | undefined {
     const p = this.#a.pop();
-    if (p) this.update_subs(Ok(this.#mr("removed", this.#a.length + 1, [p])));
+    if (p) this.update_subs(ok(this.#mr("removed", this.#a.length + 1, [p])));
     return p;
   }
 
   shift(): AT | undefined {
     const shifted = this.#a.shift();
-    if (shifted) this.update_subs(Ok(this.#mr("removed", 0, [shifted])));
+    if (shifted) this.update_subs(ok(this.#mr("removed", 0, [shifted])));
     return shifted;
   }
 
   unshift(...items: AT[]): number {
     const newLen = this.#a.unshift(...items);
-    this.update_subs(Ok(this.#mr("added", 0, items)));
+    this.update_subs(ok(this.#mr("added", 0, items)));
     return newLen;
   }
 
   splice(start: number, deleteCount?: number, ...items: AT[]): AT[] {
     const r = this.#a.splice(start, deleteCount!, ...items);
-    if (r.length > 0) this.update_subs(Ok(this.#mr("removed", start, r)));
-    if (items.length > 0) this.update_subs(Ok(this.#mr("added", start, items)));
+    if (r.length > 0) this.update_subs(ok(this.#mr("removed", start, r)));
+    if (items.length > 0) this.update_subs(ok(this.#mr("added", start, items)));
     return r;
   }
 
@@ -343,7 +343,7 @@ export class ROS_WS<AT, REL extends Option<RELATED> = OptionNone>
   delete(val: AT) {
     for (let i = 0; i < this.#a.length; i++)
       if ((this.#a[i] = val)) {
-        this.update_subs(Ok(this.#mr("removed", i, [val])));
+        this.update_subs(ok(this.#mr("removed", i, [val])));
         i--;
       }
   }
@@ -355,12 +355,12 @@ export class ROS_WS<AT, REL extends Option<RELATED> = OptionNone>
   ) {
     const { index, items: its, type } = result.value;
     const items = transform(its, type);
-    if (type === "none") return this.set(Ok(items));
+    if (type === "none") return this.set(ok(items));
     else if (type === "added") this.#a.splice(index, 0, ...items);
     else if (type === "removed") this.#a.splice(index, items.length);
     else if (type === "changed")
       for (let i = 0; i < its.length; i++) this.#a[index + i] = items[i];
-    this.update_subs(Ok(this.#mr(type, index, items)));
+    this.update_subs(ok(this.#mr(type, index, items)));
   }
 }
 
@@ -374,7 +374,7 @@ const ros_ws = {
     setter: STATE_SET_REX_WS<SAR<AT>, OWNER_WS<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>
   ) {
-    return new ROS_WS<AT, REL>(Ok(init), setter, helper) as STATE_ARRAY_ROS_WS<
+    return new ROS_WS<AT, REL>(ok(init), setter, helper) as STATE_ARRAY_ROS_WS<
       AT,
       REL
     >;

@@ -9,7 +9,7 @@ import {
   material_av_add_to_queue_rounded,
   material_av_remove_from_queue_rounded,
 } from "@libIcons";
-import { Err, Ok, type Result } from "@libResult";
+import { err, ok, type Result } from "@libResult";
 import type { STATE_SYNC_ROS_WS } from "@libState";
 import { default as st, default as state } from "@libState";
 import { ANIMATION_LEVEL, INPUT_MODE, THEME } from "@libTheme";
@@ -34,9 +34,9 @@ class Character {
   }
 
   static deserialize(data: Partial<CharacterData>): Result<Character, string> {
-    if (!data.uuid) return Err("Missing uuid");
-    if (!data.name) return Err("Missing name");
-    return Ok(new Character(data.uuid, data.name));
+    if (!data.uuid) return err("Missing uuid");
+    if (!data.name) return err("Missing name");
+    return ok(new Character(data.uuid, data.name));
   }
 
   serialize(): CharacterData {
@@ -50,8 +50,8 @@ class Character {
 console.warn(Character.deserialize({ uuid: "1234", name: "Hero" }));
 
 main_panel_container.create_panel({
-  top: 5,
-  left: 5,
+  // top: 5,
+  // left: 5,
   width: 10,
   height: 10,
 });

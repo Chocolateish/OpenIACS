@@ -1,5 +1,5 @@
 import { Base } from "@libBase";
-import { Err, Ok, type Result } from "@libResult";
+import { err, ok, type Result } from "@libResult";
 import type { STATE, STATE_SUB } from "@libState";
 import "./shared";
 
@@ -122,10 +122,10 @@ export abstract class FormValue<
   /**Returns value of the component*/
   get value(): Result<RT, string> {
     return this._state
-      ? Err("State based component")
+      ? err("State based component")
       : typeof this._buffer === "undefined"
-      ? Err("No value yet")
-      : Ok(this._buffer);
+      ? err("No value yet")
+      : ok(this._buffer);
   }
 
   set error(err: string) {
@@ -201,16 +201,16 @@ export abstract class FormValueWrite<
   protected limit_value(val: RT): Result<RT, string> {
     if (this._state) {
       if (this._state.writable) return this._state.limit(val);
-      else return Err("Not writable");
-    } else return Ok(val);
+      else return err("Not writable");
+    } else return ok(val);
   }
 
   /**Function to check value */
   protected check_value(val: RT): Result<RT, string> {
     if (this._state) {
       if (this._state.writable) return this._state.check(val);
-      else return Err("Not writable");
-    } else return Ok(val);
+      else return err("Not writable");
+    } else return ok(val);
   }
 
   /**Function to update value*/

@@ -1,4 +1,4 @@
-import { Err } from "@libResult";
+import { err } from "@libResult";
 import st from "@libState";
 import { describe, expect, it } from "vitest";
 
@@ -24,10 +24,10 @@ describe("State Number Min Max", async () => {
     const stateInst = st.s.ros_ws.ok(5, true, st.h.nums.helper(0, 10));
     expect((await stateInst).unwrap).to.equal(5);
     expect(stateInst.check(11)).toEqual(
-      Err("11 is bigger than the limit of 10")
+      err("11 is bigger than the limit of 10")
     );
     expect(stateInst.check(-11)).toEqual(
-      Err("-11 is smaller than the limit of 0")
+      err("-11 is smaller than the limit of 0")
     );
   });
   it("Checking related min max", async () => {
@@ -136,7 +136,7 @@ describe("State String Max Len", async () => {
     const stateInst = st.s.ros_ws.ok("5", true, st.h.strings.helper(10));
     expect((await stateInst).unwrap).to.equal("5");
     expect(stateInst.check("123456789012")).toEqual(
-      Err("the text is longer than the limit of 10 characters")
+      err("the text is longer than the limit of 10 characters")
     );
   });
   it("Checking related max len", async () => {
@@ -166,7 +166,7 @@ describe("State String Max Byte Len", async () => {
     );
     expect((await stateInst).unwrap).to.equal("5");
     expect(stateInst.check("1æøåæ01")).toEqual(
-      Err("the text is longer than the limit of 10 bytes")
+      err("the text is longer than the limit of 10 bytes")
     );
   });
   it("Checking related max byte len", async () => {

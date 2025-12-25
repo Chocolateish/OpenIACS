@@ -1,11 +1,11 @@
-import { Err, None, OptionNone, type Result } from "@libResult";
+import { err, none, OptionNone, type Result } from "@libResult";
 import { STATE_BASE } from "../base";
 import { type STATE, type STATE_RES } from "../types";
 import type {
-  STATE_COLLECTED_STATES,
-  STATE_COLLECTED_SUBS,
-  STATE_COLLECTED_TRANS_VAL,
-  STATE_COLLECTED_TRANS_VAL_UNK,
+  StateCollectedStates,
+  StateCollectedSubs,
+  StateCollectedTransVal,
+  StateCollectedTransValUnk,
 } from "./shared";
 
 //##################################################################################################################################################
@@ -15,35 +15,35 @@ import type {
 //     |  _  /|  __|  \___ \
 //     | | \ \| |____ ____) |
 //     |_|  \_\______|_____/
-interface OWNER<RT, IN extends STATE_RES<any>[], WT> {
+interface Owner<RT, IN extends STATE_RES<any>[], WT> {
   /**The `setStates` method is used to update the states used by the `StateDerived` class.
    * @param states - The new states. This function should accept an array of states and return the derived state.*/
-  set_states(...states: STATE_COLLECTED_STATES<IN>): void;
+  set_states(...states: StateCollectedStates<IN>): void;
   /**The `setGetter` method is used to update the getter function used by the `StateDerived` class.
    * This function is used to compute the derived state based on the current states.
    * @param getter - The new getter function. This function should accept an array of states and return the derived state.*/
   set_getter(
-    getter: (values: STATE_COLLECTED_TRANS_VAL<IN>) => Result<RT, string>
+    getter: (values: StateCollectedTransVal<IN>) => Result<RT, string>
   ): void;
   get state(): STATE<RT, WT, any>;
   get read_only(): STATE_RES<RT, any, WT>;
 }
-export type STATE_COLLECTED_RES<
+export type StateCollectedRes<
   RT,
   IN extends STATE_RES<any>[],
   WT = any
-> = STATE_RES<RT, OptionNone, WT> & OWNER<RT, IN, WT>;
+> = STATE_RES<RT, OptionNone, WT> & Owner<RT, IN, WT>;
 
-export class RES<RT, IN extends STATE_RES<any>[], WT>
+export class Res<RT, IN extends STATE_RES<any>[], WT>
   extends STATE_BASE<RT, WT, OptionNone, Result<RT, string>>
-  implements OWNER<RT, IN, WT>
+  implements Owner<RT, IN, WT>
 {
   /**Creates a state which is derived from other states. The derived state will update when any of the other states update.
    * @param transform - Function to translate value of state or states to something else, false means first states values is used.
    * @param states - The other states to be used in the derived state.*/
   constructor(
     transform:
-      | ((values: STATE_COLLECTED_TRANS_VAL<IN>) => Result<RT, string>)
+      | ((values: StateCollectedTransVal<IN>) => Result<RT, string>)
       | false,
     ...states: IN
   ) {
@@ -55,18 +55,18 @@ export class RES<RT, IN extends STATE_RES<any>[], WT>
   #buffer?: Result<RT, string>;
 
   #states: IN;
-  #stateBuffers: STATE_COLLECTED_TRANS_VAL_UNK<IN> =
-    [] as STATE_COLLECTED_TRANS_VAL_UNK<IN>;
-  #stateSubscribers: STATE_COLLECTED_SUBS<IN>[] = [];
+  #stateBuffers: StateCollectedTransValUnk<IN> =
+    [] as StateCollectedTransValUnk<IN>;
+  #stateSubscribers: StateCollectedSubs<IN>[] = [];
 
-  protected getter(values: STATE_COLLECTED_TRANS_VAL<IN>): Result<RT, string> {
+  protected getter(values: StateCollectedTransVal<IN>): Result<RT, string> {
     return values[0];
   }
 
   /**Called when subscriber is added*/
   protected on_subscribe() {
     if (!this.#states.length)
-      return (this.#buffer = Err("No states registered"));
+      return (this.#buffer = err("No states registered"));
     let calc = false;
     for (let i = 0; i < this.#states.length; i++) {
       this.#stateBuffers[i] = this.#states[i].get();
@@ -76,7 +76,7 @@ export class RES<RT, IN extends STATE_RES<any>[], WT>
           calc = true;
           Promise.resolve().then(() => {
             this.#buffer = this.getter(
-              this.#stateBuffers as STATE_COLLECTED_TRANS_VAL<IN>
+              this.#stateBuffers as StateCollectedTransVal<IN>
             );
             this.update_subs(this.#buffer);
             calc = false;
@@ -85,7 +85,7 @@ export class RES<RT, IN extends STATE_RES<any>[], WT>
       });
     }
     this.#buffer = this.getter(
-      this.#stateBuffers as STATE_COLLECTED_TRANS_VAL<IN>
+      this.#stateBuffers as StateCollectedTransVal<IN>
     );
     this.update_subs(this.#buffer);
   }
@@ -95,12 +95,12 @@ export class RES<RT, IN extends STATE_RES<any>[], WT>
     for (let i = 0; i < this.#states.length; i++)
       this.#states[i].unsub(this.#stateSubscribers[i] as any);
     this.#stateSubscribers = [];
-    this.#stateBuffers = [] as STATE_COLLECTED_TRANS_VAL<IN>;
+    this.#stateBuffers = [] as StateCollectedTransVal<IN>;
     this.#buffer = undefined;
   }
 
   //#Owner
-  set_states(...states: STATE_COLLECTED_STATES<IN>) {
+  set_states(...states: StateCollectedStates<IN>) {
     if (this.in_use()) {
       this.on_unsubscribe();
       this.#states = [...states] as unknown as IN;
@@ -108,7 +108,7 @@ export class RES<RT, IN extends STATE_RES<any>[], WT>
     } else this.#states = [...states] as unknown as IN;
   }
   set_getter(
-    getter: (values: STATE_COLLECTED_TRANS_VAL<IN>) => Result<RT, string>
+    getter: (values: StateCollectedTransVal<IN>) => Result<RT, string>
   ) {
     if (this.in_use()) {
       this.on_unsubscribe();
@@ -139,12 +139,12 @@ export class RES<RT, IN extends STATE_RES<any>[], WT>
     if (this.#buffer) return this.#buffer;
     return this.#states.length
       ? this.getter(
-          this.#states.map((s) => s.get()) as STATE_COLLECTED_TRANS_VAL<IN>
+          this.#states.map((s) => s.get()) as StateCollectedTransVal<IN>
         )
-      : Err("No states registered");
+      : err("No states registered");
   }
   related(): OptionNone {
-    return None();
+    return none();
   }
 
   //#Writer Context
@@ -163,15 +163,15 @@ export const state_collected_res = {
    * @param states - The states to collect.*/
   from<RT, IN extends STATE_RES<any>[], WT = any>(
     transform:
-      | ((values: STATE_COLLECTED_TRANS_VAL<IN>) => Result<RT, string>)
+      | ((values: StateCollectedTransVal<IN>) => Result<RT, string>)
       | false,
     ...states: IN
   ) {
-    return new RES<RT, IN, WT>(transform, ...states) as STATE_COLLECTED_RES<
+    return new Res<RT, IN, WT>(transform, ...states) as StateCollectedRes<
       RT,
       IN,
       WT
     >;
   },
-  class: RES,
+  class: Res,
 };

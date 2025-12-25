@@ -1,4 +1,4 @@
-import { Ok, ResultOk, type Result } from "@libResult";
+import { ok, ResultOk, type Result } from "@libResult";
 import st, {
   type STATE_REA,
   type STATE_RESOURCE_FUNC_REA,
@@ -9,9 +9,9 @@ import { assertType, describe, it } from "vitest";
 import {
   test_state_sub,
   test_state_then,
-  type TEST_STATE_ALL,
-  type TEST_STATE_OK,
-  type TEST_STATE_WRITE,
+  type TestStateAll,
+  type TestStateOk,
+  type TestStateWrite,
 } from "../tests_shared";
 
 describe("Resource states", function () {
@@ -32,8 +32,8 @@ describe("Resource states", function () {
       assertType<STATE_ROA<number>>(init);
       assertType<STATE_RESOURCE_FUNC_ROA<number>>(init);
     });
-    const maker: TEST_STATE_OK = () => {
-      let val: ResultOk<number> = Ok(1);
+    const maker: TestStateOk = () => {
+      let val: ResultOk<number> = ok(1);
       const state = st.r.roa.from<number>(
         async (state) => state.update_single(val),
         () => {},
@@ -69,8 +69,8 @@ describe("Resource states", function () {
       assertType<STATE_REA<number>>(init);
       assertType<STATE_RESOURCE_FUNC_REA<number>>(init);
     });
-    const maker: TEST_STATE_ALL = () => {
-      let val: Result<number, string> = Ok(1);
+    const maker: TestStateAll = () => {
+      let val: Result<number, string> = ok(1);
       const state = st.r.rea.from<number>(
         async (state) => state.update_single(val),
         () => {},
@@ -106,8 +106,8 @@ describe("Resource states", function () {
       assertType<STATE_REA<number>>(init);
       assertType<STATE_RESOURCE_FUNC_REA<number>>(init);
     });
-    const maker: TEST_STATE_WRITE = () => {
-      let val: Result<number, string> = Ok(1);
+    const maker: TestStateWrite = () => {
+      let val: Result<number, string> = ok(1);
       const state = st.r.rea_wa.from<number>(
         async (state) => state.update_single(val),
         () => {},

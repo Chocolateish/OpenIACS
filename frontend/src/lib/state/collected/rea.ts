@@ -1,11 +1,11 @@
-import { Err, None, OptionNone, type Result } from "@libResult";
+import { err, none, OptionNone, type Result } from "@libResult";
 import { STATE_BASE } from "../base";
 import { type STATE, type STATE_REA } from "../types";
 import type {
-  STATE_COLLECTED_STATES,
-  STATE_COLLECTED_SUBS,
-  STATE_COLLECTED_TRANS_VAL,
-  STATE_COLLECTED_TRANS_VAL_UNK,
+  StateCollectedStates,
+  StateCollectedSubs,
+  StateCollectedTransVal,
+  StateCollectedTransValUnk,
 } from "./shared";
 
 //##################################################################################################################################################
@@ -15,33 +15,33 @@ import type {
 //     |  _  /|  __|   / /\ \
 //     | | \ \| |____ / ____ \
 //     |_|  \_\______/_/    \_\
-interface OWNER<RT, IN extends STATE<any>[], WT> {
+interface Owner<RT, IN extends STATE<any>[], WT> {
   /**The `setStates` method is used to update the states used by the `StateDerived` class.
    * @param states - The new states. This function should accept an array of states and return the derived state.*/
-  set_states(...states: STATE_COLLECTED_STATES<IN>): void;
+  set_states(...states: StateCollectedStates<IN>): void;
   /**The `setGetter` method is used to update the getter function used by the `StateDerived` class.
    * This function is used to compute the derived state based on the current states.
    * @param getter - The new getter function. This function should accept an array of states and return the derived state.*/
   set_getter(
-    getter: (values: STATE_COLLECTED_TRANS_VAL<IN>) => Result<RT, string>
+    getter: (values: StateCollectedTransVal<IN>) => Result<RT, string>
   ): void;
   get state(): STATE<RT, WT, any>;
   get read_only(): STATE_REA<RT, any, WT>;
 }
 
-export type STATE_COLLECTED_REA<
+export type StateCollectedRea<
   RT,
   IN extends STATE<any>[],
   WT = any
-> = STATE_REA<RT, OptionNone, WT> & OWNER<RT, IN, WT>;
+> = STATE_REA<RT, OptionNone, WT> & Owner<RT, IN, WT>;
 
-export class REA<RT, IN extends STATE<any>[], WT>
+export class Rea<RT, IN extends STATE<any>[], WT>
   extends STATE_BASE<RT, WT, OptionNone, Result<RT, string>>
-  implements OWNER<RT, IN, WT>
+  implements Owner<RT, IN, WT>
 {
   constructor(
     transform:
-      | ((values: STATE_COLLECTED_TRANS_VAL<IN>) => Result<RT, string>)
+      | ((values: StateCollectedTransVal<IN>) => Result<RT, string>)
       | false,
     ...states: IN
   ) {
@@ -53,18 +53,18 @@ export class REA<RT, IN extends STATE<any>[], WT>
   #buffer?: Result<RT, string>;
 
   #states: IN;
-  #stateBuffers: STATE_COLLECTED_TRANS_VAL_UNK<IN> =
-    [] as STATE_COLLECTED_TRANS_VAL_UNK<IN>;
-  #stateSubscribers: STATE_COLLECTED_SUBS<IN>[] = [];
+  #stateBuffers: StateCollectedTransValUnk<IN> =
+    [] as StateCollectedTransValUnk<IN>;
+  #stateSubscribers: StateCollectedSubs<IN>[] = [];
 
-  protected getter(values: STATE_COLLECTED_TRANS_VAL<IN>): Result<RT, string> {
+  protected getter(values: StateCollectedTransVal<IN>): Result<RT, string> {
     return values[0];
   }
 
   /**Called when subscriber is added*/
   protected on_subscribe() {
     if (!this.#states.length)
-      return (this.#buffer = Err("No states registered"));
+      return (this.#buffer = err("No states registered"));
     this.#stateBuffers.length = this.#states.length;
     //Creates a new scope to hold count and amount variables
     {
@@ -74,7 +74,7 @@ export class REA<RT, IN extends STATE<any>[], WT>
         for (let i = 0; i < this.#stateBuffers.length; i++)
           this.#stateBuffers[i] = this.#stateBuffers[i] ?? vals[i];
         this.#buffer = this.getter(
-          this.#stateBuffers as STATE_COLLECTED_TRANS_VAL<IN>
+          this.#stateBuffers as StateCollectedTransVal<IN>
         );
         this.ful_R_prom(this.#buffer);
         count = amount;
@@ -92,7 +92,7 @@ export class REA<RT, IN extends STATE<any>[], WT>
             calc = true;
             Promise.resolve().then(() => {
               this.#buffer = this.getter(
-                this.#stateBuffers as STATE_COLLECTED_TRANS_VAL<IN>
+                this.#stateBuffers as StateCollectedTransVal<IN>
               );
               this.update_subs(this.#buffer);
               calc = false;
@@ -108,12 +108,12 @@ export class REA<RT, IN extends STATE<any>[], WT>
     for (let i = 0; i < this.#states.length; i++)
       this.#states[i].unsub(this.#stateSubscribers[i] as any);
     this.#stateSubscribers = [];
-    this.#stateBuffers = [] as STATE_COLLECTED_TRANS_VAL<IN>;
+    this.#stateBuffers = [] as StateCollectedTransVal<IN>;
     this.#buffer = undefined;
   }
 
   //#Owner Context
-  set_states(...states: STATE_COLLECTED_STATES<IN>) {
+  set_states(...states: StateCollectedStates<IN>) {
     if (this.in_use()) {
       this.on_unsubscribe();
       this.#states = [...states] as unknown as IN;
@@ -121,7 +121,7 @@ export class REA<RT, IN extends STATE<any>[], WT>
     } else this.#states = [...states] as unknown as IN;
   }
   set_getter(
-    getter: (values: STATE_COLLECTED_TRANS_VAL<IN>) => Result<RT, string>
+    getter: (values: StateCollectedTransVal<IN>) => Result<RT, string>
   ) {
     if (this.in_use()) {
       this.on_unsubscribe();
@@ -150,13 +150,13 @@ export class REA<RT, IN extends STATE<any>[], WT>
     if (!this.#stateBuffers.length)
       return func(
         this.getter(
-          (await Promise.all(this.#states)) as STATE_COLLECTED_TRANS_VAL<IN>
+          (await Promise.all(this.#states)) as StateCollectedTransVal<IN>
         )
       );
     return this.append_R_prom(func);
   }
   related(): OptionNone {
-    return None();
+    return none();
   }
 
   //#Writer Context
@@ -174,15 +174,15 @@ export const state_collected_rea = {
    * @param states - The states to collect.*/
   from<RT, IN extends STATE<any>[], WT = any>(
     transform:
-      | ((values: STATE_COLLECTED_TRANS_VAL<IN>) => Result<RT, string>)
+      | ((values: StateCollectedTransVal<IN>) => Result<RT, string>)
       | false,
     ...states: IN
   ) {
-    return new REA<RT, IN, WT>(transform, ...states) as STATE_COLLECTED_REA<
+    return new Rea<RT, IN, WT>(transform, ...states) as StateCollectedRea<
       RT,
       IN,
       WT
     >;
   },
-  class: REA,
+  class: Rea,
 };

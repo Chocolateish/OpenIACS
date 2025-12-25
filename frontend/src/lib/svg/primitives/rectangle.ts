@@ -1,21 +1,21 @@
-import { create_SVG_element } from "./shared";
+import { create_svg_element } from "./shared";
 
 /**This creates a rectangle with teh center as origin
- * @param centerX x coordinate of center
- * @param centerY y coordinate of center
+ * @param center_x x coordinate of center
+ * @param center_y y coordinate of center
  * @param width width
  * @param height height
  * @param corner_radius radius of corner*/
 export function rectangle_from_center(
-  centerX: number,
-  centerY: number,
+  center_x: number,
+  center_y: number,
   width: number,
   height: number,
   corner_radius: number
 ): SVGRectElement {
-  const circle = create_SVG_element("rect");
-  circle.setAttribute("x", String(centerX - width / 2));
-  circle.setAttribute("y", String(centerY - height / 2));
+  const circle = create_svg_element("rect");
+  circle.setAttribute("x", String(center_x - width / 2));
+  circle.setAttribute("y", String(center_y - height / 2));
   circle.setAttribute("width", String(width));
   circle.setAttribute("height", String(height));
   circle.setAttribute("rx", String(corner_radius));
@@ -23,21 +23,21 @@ export function rectangle_from_center(
 }
 
 /**This creates a rectangle with teh center as origin
- * @param startX x coordinate of center
- * @param startY y coordinate of center
+ * @param start_x x coordinate of center
+ * @param start_y y coordinate of center
  * @param width width
  * @param height height
  * @param corner_radius radius of corner*/
 export function rectangle_from_corner(
-  startX: number,
-  startY: number,
+  start_x: number,
+  start_y: number,
   width: number,
   height: number,
   corner_radius: number
 ): SVGRectElement {
-  const circle = create_SVG_element("rect");
-  circle.setAttribute("x", String(startX));
-  circle.setAttribute("y", String(startY));
+  const circle = create_svg_element("rect");
+  circle.setAttribute("x", String(start_x));
+  circle.setAttribute("y", String(start_y));
   circle.setAttribute("width", String(width));
   circle.setAttribute("height", String(height));
   circle.setAttribute("rx", String(corner_radius));

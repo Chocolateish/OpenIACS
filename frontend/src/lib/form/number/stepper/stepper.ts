@@ -5,7 +5,7 @@ import {
   material_content_remove_rounded,
 } from "@libIcons";
 import { number_step_start_decimal } from "@libMath";
-import { Err, type Result } from "@libResult";
+import { err, type Result } from "@libResult";
 import type { SVGFunc } from "@libSVG";
 import { FormNumberWrite, type FormStepperBaseOptions } from "../numberBase";
 import "./stepper.scss";
@@ -243,11 +243,11 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
 
   protected check_value(val: number): Result<number, string> {
     if (val < this.#min)
-      return Err(
+      return err(
         "Minimum value " + this.#min.toFixed(this.#decimals) + this.#unit
       );
     if (val > this.#max)
-      return Err(
+      return err(
         "Maximum value " + this.#max.toFixed(this.#decimals) + this.#unit
       );
     let lim = number_step_start_decimal(

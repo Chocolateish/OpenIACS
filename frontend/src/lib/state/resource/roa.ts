@@ -1,4 +1,4 @@
-import { None, OptionNone, ResultOk, type Option } from "@libResult";
+import { none, OptionNone, ResultOk, type Option } from "@libResult";
 import { STATE_BASE } from "../base";
 import {
   type STATE_RELATED as RELATED,
@@ -224,7 +224,7 @@ class FUNC_ROA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   protected teardown_connection(_state: OWNER<RT, WT, REL>): void {}
 
   related(): REL {
-    return this.#helper?.related ? this.#helper.related() : (None() as REL);
+    return this.#helper?.related ? this.#helper.related() : (none() as REL);
   }
 }
 

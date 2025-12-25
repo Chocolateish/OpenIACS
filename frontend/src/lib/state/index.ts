@@ -57,10 +57,10 @@ export default {
 
 export { type STATE_ARRAY_READ, type STATE_ARRAY_WRITE } from "./array/shared";
 export { STATE_BASE } from "./base";
-export { type STATE_COLLECTED_REA } from "./collected/rea";
-export { type STATE_COLLECTED_RES } from "./collected/res";
-export { type STATE_COLLECTED_ROA } from "./collected/roa";
-export { type STATE_COLLECTED_ROS } from "./collected/ros";
+export { type StateCollectedRea as STATE_COLLECTED_REA } from "./collected/rea";
+export { type StateCollectedRes as STATE_COLLECTED_RES } from "./collected/res";
+export { type StateCollectedRoa as STATE_COLLECTED_ROA } from "./collected/roa";
+export { type StateCollectedRos as STATE_COLLECTED_ROS } from "./collected/ros";
 export {
   type STATE_DELAYED_REA,
   type STATE_DELAYED_REA_WA,

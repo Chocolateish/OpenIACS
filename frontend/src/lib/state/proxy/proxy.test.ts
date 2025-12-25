@@ -6,8 +6,8 @@ import {
   test_state_get_ok,
   test_state_sub,
   test_state_then,
-  type TEST_STATE_OK_SYNC,
-  type TEST_STATE_SYNC,
+  type TestStateOkSync,
+  type TestStateSync,
 } from "../tests_shared";
 
 describe("Proxy with sync states", function () {
@@ -15,7 +15,7 @@ describe("Proxy with sync states", function () {
     it("ok", async function () {
       st.p.ros(st.s.ros.ok(1));
     });
-    const maker: TEST_STATE_OK_SYNC = () => {
+    const maker: TestStateOkSync = () => {
       const stat = st.s.ros.ok(1);
       const state = st.p.ros(stat);
       const set = (val: ResultOk<number>) => stat.set(val);
@@ -39,7 +39,7 @@ describe("Proxy with sync states", function () {
     it("ok", async function () {
       st.p.res(st.s.res.ok(1));
     });
-    const maker: TEST_STATE_SYNC = () => {
+    const maker: TestStateSync = () => {
       const stat = st.s.res.ok(1);
       const state = st.p.res(stat);
       const set = (val: Result<number, string>) => stat.set(val);

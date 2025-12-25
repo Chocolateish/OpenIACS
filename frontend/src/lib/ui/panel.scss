@@ -1,4 +1,6 @@
 ui-panel {
+  $radius: 0.4rem;
+
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -7,14 +9,14 @@ ui-panel {
   height: fit-content;
   min-width: 2rem;
   min-height: 2rem;
-  border-radius: 0.5rem;
+  border-radius: $radius;
   box-shadow: 0 0 1rem black;
 
-  & > :first-child {
+  & > div:first-child {
     pointer-events: all;
     height: 1.6rem;
     background-color: green;
-    border-radius: 0.5rem;
+    border-radius: $radius $radius 0 0;
     cursor: grab;
 
     &.moving {
@@ -22,10 +24,98 @@ ui-panel {
     }
   }
 
-  & > :last-child {
+  & > div:nth-child(2) {
+    pointer-events: all;
+    flex-grow: 1;
+    overflow: auto;
+    border-radius: 0 0 $radius $radius;
+    background-color: lightgray;
+  }
+
+  & > div:last-child {
     z-index: -1;
-    background-color: yellow;
     position: absolute;
-    inset: 0;
+    inset: -0.7rem;
+
+    > div {
+      pointer-events: all;
+      position: absolute;
+      opacity: 0;
+
+      &.n,
+      &.s {
+        left: 0;
+        right: 0;
+        height: 0.5rem;
+        cursor: ns-resize;
+      }
+
+      &.n {
+        top: 0.2rem;
+      }
+
+      &.s {
+        bottom: 0.2rem;
+      }
+
+      &.e,
+      &.w {
+        top: 0;
+        bottom: 0;
+        width: 0.5rem;
+        cursor: ew-resize;
+      }
+
+      &.e {
+        right: 0.2rem;
+      }
+      &.w {
+        left: 0.2rem;
+      }
+
+      &.ne,
+      &.nw,
+      &.se,
+      &.sw {
+        width: 1.6rem;
+        height: 1.6rem;
+      }
+
+      &.ne,
+      &.nw {
+        top: 0;
+      }
+
+      &.nw,
+      &.sw {
+        left: 0;
+      }
+
+      &.se,
+      &.ne {
+        right: 0;
+      }
+
+      &.sw,
+      &.se {
+        bottom: 0;
+      }
+
+      &.ne {
+        cursor: nesw-resize;
+      }
+
+      &.nw {
+        cursor: nwse-resize;
+      }
+
+      &.se {
+        cursor: nwse-resize;
+      }
+
+      &.sw {
+        cursor: nesw-resize;
+      }
+    }
   }
 }

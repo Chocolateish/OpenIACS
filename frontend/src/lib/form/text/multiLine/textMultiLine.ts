@@ -1,6 +1,6 @@
 import { define_element } from "@libBase";
 import { material_editor_drag_handle_rounded } from "@libIcons";
-import { Err, type Result } from "@libResult";
+import { err, type Result } from "@libResult";
 import { string_byte_length, string_byte_limit } from "@libString";
 import { set_cursor_end } from "../../../common/selection";
 import { FormValueWrite, type FormValueOptions } from "../../base";
@@ -160,9 +160,9 @@ class FormTextMultiline<ID extends string | undefined> extends FormValueWrite<
 
   protected check_value(val: string): Result<string, string> {
     if (this.#max_length && val.length > this.#max_length)
-      return Err(`A maximum of ${this.#max_length} characters is allowed`);
+      return err(`A maximum of ${this.#max_length} characters is allowed`);
     if (this.#max_bytes && string_byte_length(val) > this.#max_bytes)
-      return Err(`A maximum of ${this.#max_bytes} bytes is allowed`);
+      return err(`A maximum of ${this.#max_bytes} bytes is allowed`);
     return super.check_value(val);
   }
 }

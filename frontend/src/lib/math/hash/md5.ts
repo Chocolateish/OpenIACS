@@ -2,10 +2,10 @@ import { Hash } from "./common";
 
 //Calculates the md5 hash of the given string
 export function md5(data: string) {
-  return new Hash(Y(data));
+  return new Hash(y(data));
 }
 
-function Y(data: string) {
+function y(data: string) {
   const _ = 8 * data.length;
   const aaaa = Array<number>(data.length >> 2);
   for (let m = 0; m < aaaa.length; m++) aaaa[m] = 0;

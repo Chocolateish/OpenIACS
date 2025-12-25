@@ -1,24 +1,24 @@
-import { create_SVG_element } from "./shared";
+import { create_svg_element } from "./shared";
 
 /**This creates a path element*/
 export function path(path: string): SVGPathElement {
-  const node = create_SVG_element("path");
+  const node = create_svg_element("path");
   node.setAttribute("d", path);
   return node;
 }
 
 /**This creates a line with a path element
- * @param startX start point on x axis
- * @param startY start point on y axis
- * @param endX end point on x axis
- * @param endY end point on y axis*/
+ * @param start_x start point on x axis
+ * @param start_y start point on y axis
+ * @param end_x end point on x axis
+ * @param end_y end point on y axis*/
 export function path_line(
-  startX: number,
-  startY: number,
-  endX: number,
-  endY: number
+  start_x: number,
+  start_y: number,
+  end_x: number,
+  end_y: number
 ): SVGPathElement {
-  const line = create_SVG_element("path");
-  line.setAttribute("d", `M ${startX} ${startY} L ${endX} ${endY}`);
+  const line = create_svg_element("path");
+  line.setAttribute("d", `M ${start_x} ${start_y} L ${end_x} ${end_y}`);
   return line;
 }

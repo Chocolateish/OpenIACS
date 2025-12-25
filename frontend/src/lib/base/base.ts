@@ -1,5 +1,5 @@
 import { EventHandler } from "@libEvent";
-import { Some, type Option } from "@libResult";
+import { some, type Option } from "@libResult";
 import state, {
   type STATE,
   type STATE_INFER_SUB,
@@ -218,7 +218,7 @@ export abstract class Base extends HTMLElement {
       this.attach_STATE(
         state,
         (val) => {
-          const o = ok ? ok(val.value) : Some(val.value as this[K]);
+          const o = ok ? ok(val.value) : some(val.value as this[K]);
           if (o.some) this[prop] = o.value;
         },
         visible
@@ -261,7 +261,7 @@ export abstract class Base extends HTMLElement {
           const o = v.ok
             ? ok
               ? ok(v.value)
-              : Some(v.value as this[K])
+              : some(v.value as this[K])
             : error(v.error);
           if (o.some) this[prop] = o.value;
         },
@@ -304,7 +304,7 @@ export abstract class Base extends HTMLElement {
       this.attach_STATE(
         state,
         (val) => {
-          const o = ok ? ok(val.value) : Some(val.value as string);
+          const o = ok ? ok(val.value) : some(val.value as string);
           if (o.some) this.setAttribute(qualifiedName, o.value);
         },
         visible
@@ -342,7 +342,7 @@ export abstract class Base extends HTMLElement {
           const o = v.ok
             ? ok
               ? ok(v.value)
-              : Some(v.value as string)
+              : some(v.value as string)
             : error(v.error);
           if (o.some) this.setAttribute(qualifiedName, o.value);
         },

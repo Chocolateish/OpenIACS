@@ -3,28 +3,30 @@ import { Themes } from "./settings";
 import { BOTTOM_GROUPS } from "./shared";
 
 let name_transformer: ((name: string) => string) | undefined;
-export const theme_set_name_transform = (transform: (name: string) => string) => {
+export const theme_set_name_transform = (
+  transform: (name: string) => string
+) => {
   name_transformer = transform;
 };
 
 /**Initialises the settings for the package
- * @param packageName use import {name} from "../package.json"
+ * @param package_name use import {name} from "../package.json"
  * @param name name of group formatted for user reading
  * @param description a description of what the setting group is about*/
 export const theme_init_variable_root = (
-  packageName: string,
+  package_name: string,
   name: string,
   description: string
 ) => {
-  if (packageName.includes("-"))
-    throw new Error("Dash not permitted in package name " + packageName);
-  if (name_transformer) packageName = name_transformer(packageName);
-  BOTTOM_GROUPS[packageName] = new ThemeVariableGroup(
-    packageName,
+  if (package_name.includes("-"))
+    throw new Error("Dash not permitted in package name " + package_name);
+  if (name_transformer) package_name = name_transformer(package_name);
+  BOTTOM_GROUPS[package_name] = new ThemeVariableGroup(
+    package_name,
     name,
     description
   );
-  return BOTTOM_GROUPS[packageName];
+  return BOTTOM_GROUPS[package_name];
 };
 
 /**Group of settings should never be instantiated manually use initSettings*/

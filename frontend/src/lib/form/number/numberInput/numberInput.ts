@@ -6,7 +6,7 @@ import {
   set_selection_all,
 } from "@libCommon";
 import { number_step_start_decimal } from "@libMath";
-import { Err, type Result } from "@libResult";
+import { err, type Result } from "@libResult";
 import { FormNumberWrite, type FormNumberWriteOptions } from "../numberBase";
 import "./numberInput.scss";
 
@@ -165,11 +165,11 @@ class NumberInput<ID extends string | undefined> extends FormNumberWrite<ID> {
 
   protected check_value(val: number): Result<number, string> {
     if (val < this.#min)
-      return Err(
+      return err(
         "Minimum value " + this.#min.toFixed(this.#decimals) + this.#unit
       );
     if (val > this.#max)
-      return Err(
+      return err(
         "Maximum value " + this.#max.toFixed(this.#decimals) + this.#unit
       );
     let lim = number_step_start_decimal(

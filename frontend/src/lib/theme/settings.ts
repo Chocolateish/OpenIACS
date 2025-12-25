@@ -42,7 +42,7 @@ const THEMES = st.h.enums.list<Themes>({
 });
 
 const THEME_ID = "theme";
-const _THEME = st.s.ros_ws.ok(
+const PRIVATE_THEME = st.s.ros_ws.ok(
   SETTINGS.get(
     THEME_ID,
     window.matchMedia &&
@@ -53,15 +53,15 @@ const _THEME = st.s.ros_ws.ok(
   true,
   st.h.enums.helper(THEMES)
 );
-SETTINGS.register(THEME_ID, "Theme", "Theme to use for the UI", _THEME);
+SETTINGS.register(THEME_ID, "Theme", "Theme to use for the UI", PRIVATE_THEME);
 
-export const THEME = _THEME.read_write;
+export const THEME = PRIVATE_THEME.read_write;
 
 //Sets up automatic theme change based on operating system
 window
   .matchMedia("(prefers-color-scheme: dark)")
   .addEventListener("change", (e) => {
-    _THEME.write(e.matches ? Themes.Dark : Themes.Light);
+    PRIVATE_THEME.write(e.matches ? Themes.Dark : Themes.Light);
   });
 
 //       _____  _____          _      ______
@@ -71,13 +71,13 @@ window
 //      ____) | |____ / ____ \| |____| |____
 //     |_____/ \_____/_/    \_\______|______|
 const SCALE_ID = "scale";
-const _SCALE = st.s.ros_ws.ok(
+const PRIVATE_SCALE = st.s.ros_ws.ok(
   SETTINGS.get(SCALE_ID, 100),
   true,
   st.h.nums.helper(50, 400, "%", 0, 1)
 );
-SETTINGS.register(SCALE_ID, "Scale", "UI scale", _SCALE);
-export const SCALE = _SCALE.read_write;
+SETTINGS.register(SCALE_ID, "Scale", "UI scale", PRIVATE_SCALE);
+export const SCALE = PRIVATE_SCALE.read_write;
 
 //       _____  _____ _____   ____  _      _      ____          _____
 //      / ____|/ ____|  __ \ / __ \| |    | |    |  _ \   /\   |  __ \
@@ -106,7 +106,7 @@ const SCROLLBAR_MODES = st.h.enums.list<ScrollbarModes>({
 });
 
 const SCROLLBAR_ID = "scrollbar";
-const _SCROLLBAR_MODE = st.s.ros_ws.ok(
+const PRIVATE_SCROLLBAR_MODE = st.s.ros_ws.ok(
   SETTINGS.get(SCROLLBAR_ID, ScrollbarModes.Thin as ScrollbarModes),
   true,
   st.h.enums.helper(SCROLLBAR_MODES)
@@ -115,10 +115,10 @@ SETTINGS.register(
   "scrollbar",
   "Scrollbar Mode",
   "Size of the scrollbar to use",
-  _SCROLLBAR_MODE
+  PRIVATE_SCROLLBAR_MODE
 );
 
-export const SCROLLBAR_MODE = _SCROLLBAR_MODE.read_write;
+export const SCROLLBAR_MODE = PRIVATE_SCROLLBAR_MODE.read_write;
 
 //      _____ _   _ _____  _    _ _______   __  __  ____  _____  ______
 //     |_   _| \ | |  __ \| |  | |__   __| |  \/  |/ __ \|  __ \|  ____|
@@ -152,7 +152,7 @@ const INPUT_MODES = st.h.enums.list<InputModes>({
 });
 
 const INPUT_MODE_ID = "inputMode";
-const _INPUT_MODE = st.s.ros_ws.ok(
+const PRIVATE_INPUT_MODE = st.s.ros_ws.ok(
   SETTINGS.get(
     INPUT_MODE_ID,
     matchMedia("(pointer: coarse)").matches
@@ -166,10 +166,10 @@ SETTINGS.register(
   INPUT_MODE_ID,
   "Input Mode",
   "Setting for preffered input mode, changes UI elements to be more optimized for the selected input mode",
-  _INPUT_MODE
+  PRIVATE_INPUT_MODE
 );
 
-export const INPUT_MODE = _INPUT_MODE.read_write;
+export const INPUT_MODE = PRIVATE_INPUT_MODE.read_write;
 
 //               _   _ _____ __  __       _______ _____ ____  _   _   _      ________      ________ _
 //         /\   | \ | |_   _|  \/  |   /\|__   __|_   _/ __ \| \ | | | |    |  ____\ \    / /  ____| |
@@ -200,7 +200,7 @@ const ANIMATION_LEVELS = st.h.enums.list<AnimationLevels>({
 });
 
 const ANIMATION_LEVEL_ID = "animation";
-const _ANIMATION_LEVEL = st.s.ros_ws.ok(
+const PRIVATE_ANIMATION_LEVEL = st.s.ros_ws.ok(
   SETTINGS.get(ANIMATION_LEVEL_ID, AnimationLevels.None as AnimationLevels),
   true,
   st.h.enums.helper(ANIMATION_LEVELS)
@@ -209,7 +209,7 @@ SETTINGS.register(
   ANIMATION_LEVEL_ID,
   "Animation Level",
   "Setting for animation level, changes the amount of animations used in the UI",
-  _ANIMATION_LEVEL
+  PRIVATE_ANIMATION_LEVEL
 );
 
-export const ANIMATION_LEVEL = _ANIMATION_LEVEL.read_write;
+export const ANIMATION_LEVEL = PRIVATE_ANIMATION_LEVEL.read_write;

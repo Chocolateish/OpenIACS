@@ -1,5 +1,5 @@
 import { number_step_start_decimal } from "@libMath";
-import { Err, Ok, OptionSome, Some, type Result } from "@libResult";
+import { err, ok, OptionSome, some, type Result } from "@libResult";
 import type { SVGFunc } from "@libSVG";
 import { STATE_BASE } from "./base";
 import {
@@ -90,7 +90,7 @@ export class STATE_NUMBER_HELPER
   }
 
   limit(value: number): Result<number, string> {
-    return Ok(
+    return ok(
       Math.min(
         this.max ?? Infinity,
         Math.max(
@@ -103,14 +103,14 @@ export class STATE_NUMBER_HELPER
 
   check(value: number): Result<number, string> {
     if (this.max !== undefined && value > this.max)
-      return Err(value + " is bigger than the limit of " + this.max);
+      return err(value + " is bigger than the limit of " + this.max);
     if (this.min !== undefined && value < this.min)
-      return Err(value + " is smaller than the limit of " + this.min);
-    return Ok(value);
+      return err(value + " is smaller than the limit of " + this.min);
+    return ok(value);
   }
 
   related(): OptionSome<STATE_NUMBER_RELATED> {
-    return Some(this);
+    return some(this);
   }
 }
 
@@ -167,11 +167,11 @@ export class STATE_STRING_HELPER
       );
       if (value.at(-1)?.charCodeAt(0) === 65533) value = value.slice(0, -1);
     }
-    return Ok(value);
+    return ok(value);
   }
   check(value: string): Result<string, string> {
     if (this.max_length !== undefined && value.length > this.max_length)
-      return Err(
+      return err(
         "the text is longer than the limit of " +
           this.max_length +
           " characters"
@@ -180,15 +180,15 @@ export class STATE_STRING_HELPER
       this.max_length_bytes !== undefined &&
       new TextEncoder().encode(value).length > this.max_length_bytes
     )
-      return Err(
+      return err(
         "the text is longer than the limit of " +
           this.max_length_bytes +
           " bytes"
       );
-    return Ok(value);
+    return ok(value);
   }
   related(): OptionSome<STATE_STRING_RELATED> {
-    return Some(this);
+    return some(this);
   }
 }
 
@@ -241,14 +241,14 @@ export class STATE_ENUM_HELPER<
     );
   }
   limit(value: K): Result<K, string> {
-    return Ok(value);
+    return ok(value);
   }
   check(value: K): Result<K, string> {
-    if (value in this.list) return Ok(value);
-    return Err(String(value) + " is not in list");
+    if (value in this.list) return ok(value);
+    return err(String(value) + " is not in list");
   }
   related(): OptionSome<R> {
-    return Some(this as unknown as R);
+    return some(this as unknown as R);
   }
 }
 

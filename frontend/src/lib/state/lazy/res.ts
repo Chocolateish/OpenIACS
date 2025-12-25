@@ -1,7 +1,7 @@
 import {
-  Err,
-  None,
-  Ok,
+  err,
+  none,
+  ok,
   OptionNone,
   type Option,
   type Result,
@@ -64,10 +64,10 @@ class RES<RT, REL extends Option<RELATED> = OptionNone, WT = any>
     this.update_subs((this.#value = value));
   }
   set_ok(value: RT): void {
-    this.set(Ok(value));
+    this.set(ok(value));
   }
-  set_err(err: string): void {
-    this.set(Err(err));
+  set_err(error: string): void {
+    this.set(err(error));
   }
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
@@ -92,7 +92,7 @@ class RES<RT, REL extends Option<RELATED> = OptionNone, WT = any>
     return this.#value!;
   }
   related(): REL {
-    return this.#helper?.related ? this.#helper.related() : (None() as REL);
+    return this.#helper?.related ? this.#helper.related() : (none() as REL);
   }
 
   //#Writer Context
@@ -107,13 +107,13 @@ class RES<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
   write_sync(value: WT): Result<void, string> {
     if (this.setter) return this.setter(value, this, this.#value);
-    return Err("State not writable");
+    return err("State not writable");
   }
   limit(value: WT): Result<WT, string> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
+    return this.#helper?.limit ? this.#helper.limit(value) : ok(value);
   }
   check(value: WT): Result<WT, string> {
-    return this.#helper?.check ? this.#helper.check(value) : Ok(value);
+    return this.#helper?.check ? this.#helper.check(value) : ok(value);
   }
 }
 const res = {
@@ -124,7 +124,7 @@ const res = {
     init: () => RT,
     helper?: Helper<WT, REL>
   ) {
-    return new RES<RT, REL, WT>(() => Ok(init()), helper) as STATE_LAZY_RES<
+    return new RES<RT, REL, WT>(() => ok(init()), helper) as STATE_LAZY_RES<
       RT,
       REL,
       WT
@@ -137,7 +137,7 @@ const res = {
     init: () => string,
     helper?: Helper<WT, REL>
   ) {
-    return new RES<RT, REL, WT>(() => Err(init()), helper) as STATE_LAZY_RES<
+    return new RES<RT, REL, WT>(() => err(init()), helper) as STATE_LAZY_RES<
       RT,
       REL,
       WT
@@ -190,12 +190,12 @@ class RES_WS<RT, WT, REL extends Option<RELATED>>
     if (setter === true)
       this.#setter = (value, state, old) => {
         if (old && !old.err && (value as unknown as RT) === old.value)
-          return Ok(undefined);
+          return ok(undefined);
         return this.#helper?.limit
           ? this.#helper
               ?.limit(value)
               .map((e) => state.set_ok(e as unknown as RT))
-          : Ok(state.set_ok(value as unknown as RT));
+          : ok(state.set_ok(value as unknown as RT));
       };
     else this.#setter = setter;
     if (helper) this.#helper = helper;
@@ -219,10 +219,10 @@ class RES_WS<RT, WT, REL extends Option<RELATED>>
     this.update_subs((this.#value = value));
   }
   set_ok(value: RT): void {
-    this.set(Ok(value));
+    this.set(ok(value));
   }
-  set_err(err: string): void {
-    this.set(Err(err));
+  set_err(error: string): void {
+    this.set(err(error));
   }
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
@@ -250,7 +250,7 @@ class RES_WS<RT, WT, REL extends Option<RELATED>>
     return this.#value!;
   }
   related(): REL {
-    return this.#helper?.related ? this.#helper.related() : (None() as REL);
+    return this.#helper?.related ? this.#helper.related() : (none() as REL);
   }
 
   //#Writer Context
@@ -267,10 +267,10 @@ class RES_WS<RT, WT, REL extends Option<RELATED>>
     return this.#setter(value, this, this.#value);
   }
   limit(value: WT): Result<WT, string> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
+    return this.#helper?.limit ? this.#helper.limit(value) : ok(value);
   }
   check(value: WT): Result<WT, string> {
-    return this.#helper?.check ? this.#helper.check(value) : Ok(value);
+    return this.#helper?.check ? this.#helper.check(value) : ok(value);
   }
 }
 const res_ws = {
@@ -283,7 +283,7 @@ const res_ws = {
     helper?: Helper<WT, REL>
   ) {
     return new RES_WS<RT, WT, REL>(
-      () => Ok(init()),
+      () => ok(init()),
       setter,
       helper
     ) as STATE_LAZY_RES_WS<RT, WT, REL>;
@@ -297,7 +297,7 @@ const res_ws = {
     helper?: Helper<WT, REL>
   ) {
     return new RES_WS<RT, WT, REL>(
-      () => Err(init()),
+      () => err(init()),
       setter,
       helper
     ) as STATE_LAZY_RES_WS<RT, WT, REL>;

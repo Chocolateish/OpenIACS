@@ -1,7 +1,7 @@
 import {
-  Err,
-  None,
-  Ok,
+  err,
+  none,
+  ok,
   OptionNone,
   type Option,
   type Result,
@@ -234,7 +234,7 @@ export class FUNC_REA<
   protected teardown_connection(_state: OWNER<RT, WT, REL>): void {}
 
   related(): REL {
-    return this.#helper?.related ? this.#helper.related() : (None() as REL);
+    return this.#helper?.related ? this.#helper.related() : (none() as REL);
   }
 }
 
@@ -548,19 +548,19 @@ class FUNC_REA_WA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
     _value: WT,
     _state: OWNER_WA<RT, WT, REL>
   ): Promise<Result<void, string>> {
-    return Err("State not writable");
+    return err("State not writable");
   }
 
   limit(value: WT): Result<WT, string> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
+    return this.#helper?.limit ? this.#helper.limit(value) : ok(value);
   }
 
   check(value: WT): Result<WT, string> {
-    return this.#helper?.check ? this.#helper.check(value) : Ok(value);
+    return this.#helper?.check ? this.#helper.check(value) : ok(value);
   }
 
   related(): REL {
-    return this.#helper?.related ? this.#helper.related() : (None() as REL);
+    return this.#helper?.related ? this.#helper.related() : (none() as REL);
   }
 }
 

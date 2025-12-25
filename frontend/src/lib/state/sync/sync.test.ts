@@ -1,4 +1,4 @@
-import { Ok, ResultOk, type Result } from "@libResult";
+import { ok, ResultOk, type Result } from "@libResult";
 import st, { type STATE_ROS } from "@libState";
 import { assertType, describe, it } from "vitest";
 import {
@@ -7,10 +7,10 @@ import {
   test_state_sub,
   test_state_then,
   test_state_write,
-  test_state_writeSync,
-  type TEST_STATE_OK_SYNC,
-  type TEST_STATE_SYNC,
-  type TEST_STATE_WRITESYNC,
+  test_state_write_sync,
+  type TestStateOkSync,
+  type TestStateSync,
+  type TestStateWriteSync,
 } from "../tests_shared";
 
 describe("Sync states", function () {
@@ -20,9 +20,9 @@ describe("Sync states", function () {
       assertType<STATE_ROS<number>>(init);
     });
     it("result ok", async function () {
-      st.s.ros.result(Ok(1));
+      st.s.ros.result(ok(1));
     });
-    const maker: TEST_STATE_OK_SYNC = () => {
+    const maker: TestStateOkSync = () => {
       const state = st.s.ros.ok(1);
       const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: true, w: false, ws: false, state, set };
@@ -49,9 +49,9 @@ describe("Sync states", function () {
       st.s.res.err("1");
     });
     it("result ok", async function () {
-      st.s.res.result(Ok(1));
+      st.s.res.result(ok(1));
     });
-    const maker: TEST_STATE_SYNC = () => {
+    const maker: TestStateSync = () => {
       const state = st.s.res.ok(1);
       const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: true, w: false, ws: false, state, set };
@@ -72,9 +72,9 @@ describe("Sync states", function () {
       st.s.ros_ws.ok(1, true);
     });
     it("result ok", async function () {
-      st.s.ros_ws.result(Ok(1), true);
+      st.s.ros_ws.result(ok(1), true);
     });
-    const maker: TEST_STATE_OK_SYNC = () => {
+    const maker: TestStateOkSync = () => {
       const state = st.s.ros_ws.ok(1, true);
       const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: true, w: true, ws: true, state, set };
@@ -91,7 +91,7 @@ describe("Sync states", function () {
     it("GetOk", async function () {
       await test_state_get_ok(maker);
     });
-    const makerWrite: TEST_STATE_WRITESYNC = () => {
+    const makerWrite: TestStateWriteSync = () => {
       const state = st.s.ros_ws.ok(1, true);
       const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: true, w: true, ws: true, state, set };
@@ -100,7 +100,7 @@ describe("Sync states", function () {
       await test_state_write(makerWrite);
     });
     it("WriteSync", async function () {
-      await test_state_writeSync(makerWrite);
+      await test_state_write_sync(makerWrite);
     });
   });
   //##################################################################################################################################################
@@ -112,9 +112,9 @@ describe("Sync states", function () {
       st.s.res_ws.err("1", true);
     });
     it("result ok", async function () {
-      st.s.res_ws.result(Ok(1), true);
+      st.s.res_ws.result(ok(1), true);
     });
-    const maker: TEST_STATE_SYNC = () => {
+    const maker: TestStateSync = () => {
       const state = st.s.res_ws.ok(1, true);
       const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: true, w: true, ws: true, state, set };
@@ -128,7 +128,7 @@ describe("Sync states", function () {
     it("Get", async function () {
       await test_state_get(maker);
     });
-    const makerWrite: TEST_STATE_WRITESYNC = () => {
+    const makerWrite: TestStateWriteSync = () => {
       const state = st.s.res_ws.ok(1, true);
       const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: true, w: true, ws: true, state, set };
@@ -137,7 +137,7 @@ describe("Sync states", function () {
       await test_state_write(makerWrite);
     });
     it("WriteSync", async function () {
-      await test_state_writeSync(makerWrite);
+      await test_state_write_sync(makerWrite);
     });
   });
 });

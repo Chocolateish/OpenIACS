@@ -1,7 +1,7 @@
 import {
-  Err,
-  None,
-  Ok,
+  err,
+  none,
+  ok,
   OptionNone,
   ResultOk,
   type Option,
@@ -63,7 +63,7 @@ class REA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
             try {
               this.#value = await init();
             } catch (e) {
-              this.#value = Err(String(e));
+              this.#value = err(String(e));
             }
             this.ful_R_prom(this.#value);
             this.#clean();
@@ -100,10 +100,10 @@ class REA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
     this.update_subs((this.#value = value));
   }
   set_ok(value: RT): void {
-    this.set(Ok(value));
+    this.set(ok(value));
   }
-  set_err(err: string): void {
-    this.set(Err(err));
+  set_err(error: string): void {
+    this.set(err(error));
   }
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
@@ -129,7 +129,7 @@ class REA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
     return func(this.#value!);
   }
   related(): REL {
-    return this.#helper?.related ? this.#helper.related() : (None() as REL);
+    return this.#helper?.related ? this.#helper.related() : (none() as REL);
   }
 
   //#Writer Context
@@ -141,17 +141,17 @@ class REA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
   async write(value: WT): Promise<Result<void, string>> {
     if (this.setterAsync) return this.setterAsync(value, this, this.#value);
-    return Err("State not writable");
+    return err("State not writable");
   }
   write_sync(value: WT): Result<void, string> {
     if (this.setterSync) return this.setterSync(value, this, this.#value);
-    return Err("State not writable");
+    return err("State not writable");
   }
   limit(value: WT): Result<WT, string> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
+    return this.#helper?.limit ? this.#helper.limit(value) : ok(value);
   }
   check(value: WT): Result<WT, string> {
-    return this.#helper?.check ? this.#helper.check(value) : Ok(value);
+    return this.#helper?.check ? this.#helper.check(value) : ok(value);
   }
 }
 
@@ -164,7 +164,7 @@ const rea = {
     helper?: Helper<WT, REL>
   ) {
     return new REA<RT, REL, WT>(
-      init ? async () => Ok(await init()) : undefined,
+      init ? async () => ok(await init()) : undefined,
       helper
     ) as STATE_DELAYED_REA<RT, REL, WT>;
   },
@@ -176,7 +176,7 @@ const rea = {
     helper?: Helper<WT, REL>
   ) {
     return new REA<RT, REL, WT>(
-      init ? async () => Err(await init()) : undefined,
+      init ? async () => err(await init()) : undefined,
       helper
     ) as STATE_DELAYED_REA<RT, REL, WT>;
   },
@@ -226,12 +226,12 @@ class REA_WS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
     if (setter === true)
       this.#setter = (value, state, old) => {
         if (old && !old.err && (value as unknown as RT) === old.value)
-          return Ok(undefined);
+          return ok(undefined);
         return this.#helper?.limit
           ? this.#helper
               ?.limit(value)
               .map((e) => state.set_ok(e as unknown as RT))
-          : Ok(state.set_ok(value as unknown as RT));
+          : ok(state.set_ok(value as unknown as RT));
       };
     else this.#setter = setter;
     if (helper) this.#helper = helper;
@@ -248,7 +248,7 @@ class REA_WS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
             try {
               this.#value = await init();
             } catch (e) {
-              this.#value = Err(String(e));
+              this.#value = err(String(e));
             }
             this.ful_R_prom(this.#value);
             this.#clean();
@@ -279,10 +279,10 @@ class REA_WS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
     this.update_subs((this.#value = value));
   }
   set_ok(value: RT): void {
-    this.set(Ok(value));
+    this.set(ok(value));
   }
-  set_err(err: string): void {
-    this.set(Err(err));
+  set_err(error: string): void {
+    this.set(err(error));
   }
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
@@ -311,7 +311,7 @@ class REA_WS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
     return func(this.#value!);
   }
   related(): REL {
-    return this.#helper?.related ? this.#helper.related() : (None() as REL);
+    return this.#helper?.related ? this.#helper.related() : (none() as REL);
   }
 
   //#Writer Context
@@ -328,10 +328,10 @@ class REA_WS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
     return this.#setter(value, this, this.#value);
   }
   limit(value: WT): Result<WT, string> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
+    return this.#helper?.limit ? this.#helper.limit(value) : ok(value);
   }
   check(value: WT): Result<WT, string> {
-    return this.#helper?.check ? this.#helper.check(value) : Ok(value);
+    return this.#helper?.check ? this.#helper.check(value) : ok(value);
   }
 }
 
@@ -345,7 +345,7 @@ const rea_ws = {
     helper?: Helper<WT, REL>
   ) {
     return new REA_WS<RT, WT, REL>(
-      init ? async () => Ok(await init()) : undefined,
+      init ? async () => ok(await init()) : undefined,
       setter,
       helper
     ) as STATE_DELAYED_REA_WS<RT, WT, REL>;
@@ -359,7 +359,7 @@ const rea_ws = {
     helper?: Helper<WT, REL>
   ) {
     return new REA_WS<RT, WT, REL>(
-      init ? async () => Err(await init()) : undefined,
+      init ? async () => err(await init()) : undefined,
       setter,
       helper
     ) as STATE_DELAYED_REA_WS<RT, WT, REL>;
@@ -415,12 +415,12 @@ export class REA_WA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
     if (setter === true)
       this.#setter = async (value, state, old) => {
         if (old && !old.err && (value as unknown as RT) === old.value)
-          return Ok(undefined);
+          return ok(undefined);
         return this.#helper?.limit
           ? this.#helper
               ?.limit(value)
               .map((e) => state.set_ok(e as unknown as RT))
-          : Ok(state.set_ok(value as unknown as RT));
+          : ok(state.set_ok(value as unknown as RT));
       };
     else this.#setter = setter;
     if (helper) this.#helper = helper;
@@ -437,7 +437,7 @@ export class REA_WA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
             try {
               this.#value = await init();
             } catch (e) {
-              this.#value = Err(String(e));
+              this.#value = err(String(e));
             }
             this.ful_R_prom(this.#value);
             this.#clean();
@@ -468,10 +468,10 @@ export class REA_WA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
     this.update_subs((this.#value = value));
   }
   set_ok(value: RT): void {
-    this.set(Ok(value));
+    this.set(ok(value));
   }
-  set_err(err: string): void {
-    this.set(Err(err));
+  set_err(error: string): void {
+    this.set(err(error));
   }
   get state(): STATE<RT, WT, REL> {
     return this as STATE<RT, WT, REL>;
@@ -500,7 +500,7 @@ export class REA_WA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
     return func(this.#value!);
   }
   related(): REL {
-    return this.#helper?.related ? this.#helper.related() : (None() as REL);
+    return this.#helper?.related ? this.#helper.related() : (none() as REL);
   }
 
   //#Writer Context
@@ -514,10 +514,10 @@ export class REA_WA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
     return this.#setter(value, this, this.#value);
   }
   limit(value: WT): Result<WT, string> {
-    return this.#helper?.limit ? this.#helper.limit(value) : Ok(value);
+    return this.#helper?.limit ? this.#helper.limit(value) : ok(value);
   }
   check(value: WT): Result<WT, string> {
-    return this.#helper?.check ? this.#helper.check(value) : Ok(value);
+    return this.#helper?.check ? this.#helper.check(value) : ok(value);
   }
 }
 
@@ -531,7 +531,7 @@ const rea_wa = {
     helper?: Helper<WT, REL>
   ) {
     return new REA_WA<RT, WT, REL>(
-      init ? async () => Ok(await init()) : undefined,
+      init ? async () => ok(await init()) : undefined,
       setter,
       helper
     ) as STATE_DELAYED_REA_WA<RT, WT, REL>;
@@ -545,7 +545,7 @@ const rea_wa = {
     helper?: Helper<WT, REL>
   ) {
     return new REA_WA<RT, WT, REL>(
-      init ? async () => Err(await init()) : undefined,
+      init ? async () => err(await init()) : undefined,
       setter,
       helper
     ) as STATE_DELAYED_REA_WA<RT, WT, REL>;

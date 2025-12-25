@@ -4,7 +4,7 @@ import tseslint from "typescript-eslint";
 export default defineConfig(
   tseslint.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
-  globalIgnores(["dist/*", "src/pages*", "eslint.config.js"]),
+  globalIgnores(["dist/*", "src/pages*", "eslint.config.js", "vite.config.ts"]),
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
@@ -13,6 +13,31 @@ export default defineConfig(
       "@typescript-eslint/require-await": "off",
       "@typescript-eslint/no-floating-promises": "off",
       "@typescript-eslint/no-misused-promises": "off",
+      "@typescript-eslint/naming-convention": [
+        "error",
+        {
+          selector: "function",
+          format: ["snake_case"],
+        },
+        {
+          selector: "parameter",
+          format: ["snake_case"],
+          leadingUnderscore: "allow",
+        },
+        {
+          selector: "variable",
+          modifiers: ["const", "global"],
+          format: ["UPPER_CASE", "snake_case", "PascalCase"],
+        },
+        {
+          selector: "variable",
+          format: ["snake_case"],
+        },
+        {
+          selector: "typeLike",
+          format: ["PascalCase"],
+        },
+      ],
     },
   },
   {

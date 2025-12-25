@@ -1,7 +1,7 @@
 import { blue, green, grey, orange, red, yellow } from "@libColors";
 import { theme_init_variable_root } from "@libTheme";
 
-const themeRoot = theme_init_variable_root(
+const theme_root = theme_init_variable_root(
   "form",
   "UI Form Elements",
   "Theme variables for UI form Elements"
@@ -13,12 +13,12 @@ const themeRoot = theme_init_variable_root(
 //     |  _  /|  __|   / /\ \ | |  | | | |  | | . ` | |   \   /
 //     | | \ \| |____ / ____ \| |__| | | |__| | |\  | |____| |
 //     |_|  \_\______/_/    \_\_____/   \____/|_| \_|______|_|
-const readOnly = themeRoot.make_sub_group(
+const read_only = theme_root.make_sub_group(
   "read",
   "Read Only",
   "Settings for form elements in read only mode"
 );
-readOnly.make_variable(
+read_only.make_variable(
   "filter",
   "Read Only Filter",
   "Filter applied to form elements in read only mode",
@@ -36,7 +36,7 @@ readOnly.make_variable(
 //     | |   | |  | | |   | |  | |  _  / \___ \
 //     | |___| |__| | |___| |__| | | \ \ ____) |
 //      \_____\____/|______\____/|_|  \_\_____/
-const colors = themeRoot.make_sub_group(
+const colors = theme_root.make_sub_group(
   "colors",
   "Colors",
   "Colors used in all form elements"
@@ -48,12 +48,12 @@ const colors = themeRoot.make_sub_group(
 //        | |  |  __|   > <    | |    | |   | |  | | |   | |  | |  _  / \___ \
 //        | |  | |____ / . \   | |    | |___| |__| | |___| |__| | | \ \ ____) |
 //        |_|  |______/_/ \_\  |_|     \_____\____/|______\____/|_|  \_\_____/
-const colorsText = colors.make_sub_group(
+const colors_text = colors.make_sub_group(
   "text",
   "Text Colors",
   "Text colors used in all form elements"
 );
-colorsText.make_variable(
+colors_text.make_variable(
   "label",
   "Label Color",
   "Color of form elements labels",
@@ -62,7 +62,7 @@ colorsText.make_variable(
   "Color",
   undefined
 );
-colorsText.make_variable(
+colors_text.make_variable(
   "normal",
   "Normal Text Color",
   "Normal text color in form elements",
@@ -71,7 +71,7 @@ colorsText.make_variable(
   "Color",
   undefined
 );
-colorsText.make_variable(
+colors_text.make_variable(
   "selected",
   "Selected Text Color",
   "Selected text color in form elements",
@@ -80,7 +80,7 @@ colorsText.make_variable(
   "Color",
   undefined
 );
-colorsText.make_variable(
+colors_text.make_variable(
   "unselected",
   "Unselected Text Color",
   "Unselected text color in form elements",
@@ -98,12 +98,12 @@ colorsText.make_variable(
 //        |_|  |______/_/ \_\  |_|    |____/|______/_/    \_\_____|_|\_\
 //
 //
-const colorsTextBlack = colors.make_sub_group(
+const colors_text_black = colors.make_sub_group(
   "textBlack",
   "Text Colors Black Background",
   "Text colors used for black background in all form elements"
 );
-colorsTextBlack.make_variable(
+colors_text_black.make_variable(
   "normal",
   "Normal Text Color",
   "Normal text color in form elements",
@@ -112,7 +112,7 @@ colorsTextBlack.make_variable(
   "Color",
   undefined
 );
-colorsTextBlack.make_variable(
+colors_text_black.make_variable(
   "selected",
   "Selected Text Color",
   "Selected text color in form elements",
@@ -121,7 +121,7 @@ colorsTextBlack.make_variable(
   "Color",
   undefined
 );
-colorsTextBlack.make_variable(
+colors_text_black.make_variable(
   "unselected",
   "Unselected Text Color",
   "Unselected text color in form elements",
@@ -137,12 +137,12 @@ colorsTextBlack.make_variable(
 //       | || |   | |  | | . ` | | |   | |  | | |   | |  | |  _  / \___ \
 //      _| || |___| |__| | |\  | | |___| |__| | |___| |__| | | \ \ ____) |
 //     |_____\_____\____/|_| \_|  \_____\____/|______\____/|_|  \_\_____/
-const colorsIcon = colors.make_sub_group(
+const colors_icon = colors.make_sub_group(
   "icon",
   "Icon Colors",
   "Icon colors used in all form elements"
 );
-colorsIcon.make_variable(
+colors_icon.make_variable(
   "normal",
   "Normal Icon Color",
   "Color of icons in form elements",
@@ -151,7 +151,7 @@ colorsIcon.make_variable(
   "Color",
   undefined
 );
-colorsIcon.make_variable(
+colors_icon.make_variable(
   "selected",
   "Selected Icon Color",
   "Color of selected icons in form elements",
@@ -160,7 +160,7 @@ colorsIcon.make_variable(
   "Color",
   undefined
 );
-colorsIcon.make_variable(
+colors_icon.make_variable(
   "unselected",
   "Unselected Icon Color",
   "Color of unselected icons in form elements",
@@ -176,12 +176,12 @@ colorsIcon.make_variable(
 //     |  _ < / /\ \| |    |  <| | |_ |  _  /| |  | | |  | | . ` | |  | | | |   | |  | | |   | |  | |  _  / \___ \
 //     | |_) / ____ \ |____| . \ |__| | | \ \| |__| | |__| | |\  | |__| | | |___| |__| | |___| |__| | | \ \ ____) |
 //     |____/_/    \_\_____|_|\_\_____|_|  \_\\____/ \____/|_| \_|_____/   \_____\____/|______\____/|_|  \_\_____/
-const colorsBackground = colors.make_sub_group(
+const colors_background = colors.make_sub_group(
   "background",
   "Background Colors",
   "Background colors used in all form elements"
 );
-colorsBackground.make_variable(
+colors_background.make_variable(
   "normal",
   "Normal Background Color",
   "Color of normal form element backgrounds",
@@ -190,7 +190,7 @@ colorsBackground.make_variable(
   "Color",
   undefined
 );
-colorsBackground.make_variable(
+colors_background.make_variable(
   "hover",
   "Hover Background Color",
   "Color of form element backgrounds when hovering",
@@ -199,7 +199,7 @@ colorsBackground.make_variable(
   "Color",
   undefined
 );
-colorsBackground.make_variable(
+colors_background.make_variable(
   "unselected",
   "Unselected Background Color",
   "Color of unselected form element backgrounds",
@@ -215,12 +215,12 @@ colorsBackground.make_variable(
 //     |  _ <| |  | |  _  /| |  | |  __| |  _  /  | |   | |  | | |   | |  | |  _  / \___ \
 //     | |_) | |__| | | \ \| |__| | |____| | \ \  | |___| |__| | |___| |__| | | \ \ ____) |
 //     |____/ \____/|_|  \_\_____/|______|_|  \_\  \_____\____/|______\____/|_|  \_\_____/
-const colorsBorder = colors.make_sub_group(
+const colors_border = colors.make_sub_group(
   "border",
   "Border Colors",
   "Border colors used in all form elements"
 );
-colorsBorder.make_variable(
+colors_border.make_variable(
   "normal",
   "Normal Border Color",
   "Color of normal form element borders",
@@ -229,7 +229,7 @@ colorsBorder.make_variable(
   "Color",
   undefined
 );
-colorsBorder.make_variable(
+colors_border.make_variable(
   "unselected",
   "Unselected Border Color",
   "Color of unselected form element borders",
@@ -245,12 +245,12 @@ colorsBorder.make_variable(
 //     |  __|| |  | | |    | |  | |\___ \
 //     | |   | |__| | |____| |__| |____) |
 //     |_|    \____/ \_____|\____/|_____/
-const colorsFocus = colors.make_sub_group(
+const colors_focus = colors.make_sub_group(
   "focus",
   "Focus Colors",
   "Focus colors used in all form elements"
 );
-colorsFocus.make_variable(
+colors_focus.make_variable(
   "normal",
   "Focus Color",
   "Color of focussed form element",
@@ -266,12 +266,12 @@ colorsFocus.make_variable(
 //     |  _ < / /\ \  \___ \  | || |      | |   | |  | | |   | |  | |  _  / \___ \
 //     | |_) / ____ \ ____) |_| || |____  | |___| |__| | |___| |__| | | \ \ ____) |
 //     |____/_/    \_\_____/|_____\_____|  \_____\____/|______\____/|_|  \_\_____/
-const colorsBasic = colors.make_sub_group(
+const colors_basic = colors.make_sub_group(
   "basic",
   "Basic Colors",
   "Basic colors used in all form elements"
 );
-colorsBasic.make_variable(
+colors_basic.make_variable(
   "green",
   "Basic Green Color",
   "Commonly used green color in form elements",
@@ -280,7 +280,7 @@ colorsBasic.make_variable(
   "Color",
   undefined
 );
-colorsBasic.make_variable(
+colors_basic.make_variable(
   "red",
   "Basic Red Color",
   "Commonly used red color in form elements",
@@ -289,7 +289,7 @@ colorsBasic.make_variable(
   "Color",
   undefined
 );
-colorsBasic.make_variable(
+colors_basic.make_variable(
   "blue",
   "Basic Blue Color",
   "Commonly used blue color in form elements",
@@ -298,7 +298,7 @@ colorsBasic.make_variable(
   "Color",
   undefined
 );
-colorsBasic.make_variable(
+colors_basic.make_variable(
   "yellow",
   "Basic Yellow Color",
   "Commonly used yellow color in form elements",
@@ -316,7 +316,7 @@ colorsBasic.make_variable(
 //      \___ \  | |   / / |  __|  \___ \
 //      ____) |_| |_ / /__| |____ ____) |
 //     |_____/|_____/_____|______|_____/
-const sizes = themeRoot.make_sub_group(
+const sizes = theme_root.make_sub_group(
   "size",
   "Size",
   "Sizes used in all form elements"
@@ -360,7 +360,7 @@ sizes.make_variable(
 //       / /\ \ | . ` | | | | |\/| | / /\ \ | |    | || |  | | . ` |
 //      / ____ \| |\  |_| |_| |  | |/ ____ \| |   _| || |__| | |\  |
 //     /_/    \_\_| \_|_____|_|  |_/_/    \_\_|  |_____\____/|_| \_|
-const animation = themeRoot.make_sub_group(
+const animation = theme_root.make_sub_group(
   "animation",
   "Animation",
   "Animation settings used in all form elements"
@@ -394,7 +394,7 @@ animation.make_variable(
 //     |  __|| |  | | . ` |  | |
 //     | |   | |__| | |\  |  | |
 //     |_|    \____/|_| \_|  |_|
-const font = themeRoot.make_sub_group(
+const font = theme_root.make_sub_group(
   "font",
   "Font",
   "Font settings used in all form elements"

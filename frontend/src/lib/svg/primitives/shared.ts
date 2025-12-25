@@ -1,4 +1,4 @@
-import { nameSpace } from "../shared";
+import { NAME_SPACE } from "../shared";
 
 type SVGElements = {
   ellipse: SVGEllipseElement;
@@ -12,8 +12,8 @@ type SVGElements = {
   foreignObject: SVGForeignObjectElement;
 };
 
-export function create_SVG_element<K extends keyof SVGElements>(
+export function create_svg_element<K extends keyof SVGElements>(
   name: K
 ): SVGElements[K] {
-  return document.createElementNS(nameSpace, name) as SVGElements[K];
+  return document.createElementNS(NAME_SPACE, name) as SVGElements[K];
 }

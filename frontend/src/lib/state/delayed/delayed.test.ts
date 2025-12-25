@@ -1,5 +1,5 @@
 import { sleep } from "@libCommon";
-import { Ok, ResultOk, type Result } from "@libResult";
+import { ok, ResultOk, type Result } from "@libResult";
 import st, {
   type STATE_DELAYED_REA,
   type STATE_DELAYED_REA_WS,
@@ -15,9 +15,9 @@ import {
   test_state_sub,
   test_state_then,
   test_state_write,
-  test_state_writeSync,
-  type TEST_STATE_ALL,
-  type TEST_STATE_WRITESYNC,
+  test_state_write_sync,
+  type TestStateAll,
+  type TestStateWriteSync,
 } from "../tests_shared";
 
 describe("Initialize delayed states", function () {
@@ -35,12 +35,12 @@ describe("Initialize delayed states", function () {
       assertType<STATE_DELAYED_ROA<number>>(init);
     });
     it("result ok", async function () {
-      const init = st.d.roa.result(() => sleep(1, Ok(1)));
+      const init = st.d.roa.result(() => sleep(1, ok(1)));
       assertType<STATE_ROA<number>>(init);
       assertType<STATE_DELAYED_ROA<number>>(init);
     });
     it("cleanup successfull", async function () {
-      const init = st.d.roa.result(() => sleep(1, Ok(1)));
+      const init = st.d.roa.result(() => sleep(1, ok(1)));
       // eslint-disable-next-line @typescript-eslint/unbound-method
       const then = init.then;
       // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -52,7 +52,7 @@ describe("Initialize delayed states", function () {
       expect(init.set).not.eq(set, "set");
     });
     //# Standard Tests
-    const maker: TEST_STATE_ALL = () => {
+    const maker: TestStateAll = () => {
       const state = st.d.roa.ok(() => sleep(1, 1));
       const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: false, w: false, ws: false, state, set };
@@ -63,7 +63,7 @@ describe("Initialize delayed states", function () {
     describe("Then", async function () {
       await test_state_then(maker, 5);
     });
-    const makerDelay: TEST_STATE_ALL = () => {
+    const makerDelay: TestStateAll = () => {
       const state = st.d.roa.ok(() => sleep(10, 1));
       const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: false, w: false, ws: false, state, set };
@@ -94,7 +94,7 @@ describe("Initialize delayed states", function () {
       assertType<STATE_DELAYED_REA<number>>(init);
     });
     it("result ok", async function () {
-      const init = st.d.rea.result(() => sleep(1, Ok(1)));
+      const init = st.d.rea.result(() => sleep(1, ok(1)));
       assertType<STATE_REA<number>>(init);
       assertType<STATE_DELAYED_REA<number>>(init);
     });
@@ -111,7 +111,7 @@ describe("Initialize delayed states", function () {
       expect(init.set).not.eq(set, "set");
     });
     //# Standard Tests
-    const maker: TEST_STATE_ALL = () => {
+    const maker: TestStateAll = () => {
       const state = st.d.rea.ok(() => sleep(1, 1));
       const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: false, w: false, ws: false, state, set };
@@ -122,7 +122,7 @@ describe("Initialize delayed states", function () {
     describe("Then", async function () {
       await test_state_then(maker, 5);
     });
-    const makerDelay: TEST_STATE_ALL = () => {
+    const makerDelay: TestStateAll = () => {
       const state = st.d.rea.ok(() => sleep(10, 1));
       const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: false, w: false, ws: false, state, set };
@@ -148,7 +148,7 @@ describe("Initialize delayed states", function () {
       assertType<STATE_DELAYED_ROA_WS<number>>(init);
     });
     it("result ok", async function () {
-      const init = st.d.roa_ws.result(() => sleep(1, Ok(1)));
+      const init = st.d.roa_ws.result(() => sleep(1, ok(1)));
       assertType<STATE_ROA_WS<number>>(init);
       assertType<STATE_DELAYED_ROA_WS<number>>(init);
     });
@@ -167,7 +167,7 @@ describe("Initialize delayed states", function () {
       expect(init.write_sync).not.eq(writeSync, "writeSync");
     });
     //# Standard Tests
-    const maker: TEST_STATE_ALL = () => {
+    const maker: TestStateAll = () => {
       const state = st.d.roa_ws.ok(() => sleep(1, 1));
       const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: false, w: true, ws: true, state, set };
@@ -178,7 +178,7 @@ describe("Initialize delayed states", function () {
     describe("Then", async function () {
       await test_state_then(maker, 5);
     });
-    const makerDelay: TEST_STATE_ALL = () => {
+    const makerDelay: TestStateAll = () => {
       const state = st.d.roa_ws.ok(() => sleep(10, 1));
       const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: false, w: true, ws: true, state, set };
@@ -189,7 +189,7 @@ describe("Initialize delayed states", function () {
     describe("Then With Actual Delay", async function () {
       await test_state_then(makerDelay, 20);
     });
-    const makerWrite: TEST_STATE_WRITESYNC = () => {
+    const makerWrite: TestStateWriteSync = () => {
       const state = st.d.roa_ws.ok(() => sleep(10, 1), true);
       const set = (val: ResultOk<number>) => state.set(val);
       return { o: true, s: false, w: true, ws: true, state, set };
@@ -198,7 +198,7 @@ describe("Initialize delayed states", function () {
       await test_state_write(makerWrite);
     });
     it("WriteSync", async function () {
-      await test_state_writeSync(makerWrite);
+      await test_state_write_sync(makerWrite);
     });
   });
   //##################################################################################################################################################
@@ -220,7 +220,7 @@ describe("Initialize delayed states", function () {
       assertType<STATE_DELAYED_REA_WS<number>>(init);
     });
     it("result ok", async function () {
-      const init = st.d.rea_ws.result(() => sleep(1, Ok(1)));
+      const init = st.d.rea_ws.result(() => sleep(1, ok(1)));
       assertType<STATE_REA_WS<number>>(init);
       assertType<STATE_DELAYED_REA_WS<number>>(init);
     });
@@ -239,7 +239,7 @@ describe("Initialize delayed states", function () {
       expect(init.write_sync).not.eq(writeSync, "writeSync");
     });
     //# Standard Tests
-    const maker: TEST_STATE_ALL = () => {
+    const maker: TestStateAll = () => {
       const state = st.d.rea_ws.ok(() => sleep(1, 1));
       const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: false, w: true, ws: true, state, set };
@@ -250,7 +250,7 @@ describe("Initialize delayed states", function () {
     describe("Then", async function () {
       await test_state_then(maker, 5);
     });
-    const makerDelay: TEST_STATE_ALL = () => {
+    const makerDelay: TestStateAll = () => {
       const state = st.d.rea_ws.ok(() => sleep(10, 1));
       const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: false, w: true, ws: true, state, set };
@@ -261,7 +261,7 @@ describe("Initialize delayed states", function () {
     describe("Then With Actual Delay", async function () {
       await test_state_then(makerDelay, 20);
     });
-    const makerWrite: TEST_STATE_WRITESYNC = () => {
+    const makerWrite: TestStateWriteSync = () => {
       const state = st.d.rea_ws.ok(() => sleep(10, 1), true);
       const set = (val: Result<number, string>) => state.set(val);
       return { o: false, s: false, w: true, ws: true, state, set };
@@ -270,7 +270,7 @@ describe("Initialize delayed states", function () {
       await test_state_write(makerWrite);
     });
     it("WriteSync", async function () {
-      await test_state_writeSync(makerWrite);
+      await test_state_write_sync(makerWrite);
     });
   });
 });

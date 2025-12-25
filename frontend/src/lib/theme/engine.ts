@@ -122,9 +122,9 @@ export const theme_engine = new (class ThemeEngine {
   }
 
   apply_single_property(key: string, variable: { [s: string]: string }) {
-    const themeBuff = THEME.ok();
+    const theme_buff = THEME.ok();
     DOCUMENT_HANDLER.for_documents((doc) => {
-      doc.documentElement.style.setProperty(key, variable[themeBuff]);
+      doc.documentElement.style.setProperty(key, variable[theme_buff]);
     });
   }
 })();

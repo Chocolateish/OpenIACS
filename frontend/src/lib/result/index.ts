@@ -336,15 +336,15 @@ export class ResultErr<E> implements ResultBase<never, E> {
 export type Result<T, E> = ResultOk<T> | ResultErr<E>;
 export type Option<T> = OptionSome<T> | OptionNone;
 
-export function Ok<T>(value: T) {
+export function ok<T>(value: T) {
   return new ResultOk<T>(value);
 }
-export function Err<E>(error: E) {
+export function err<E>(error: E) {
   return new ResultErr<E>(error);
 }
-export function Some<T>(value: T) {
+export function some<T>(value: T) {
   return new OptionSome<T>(value);
 }
-export function None() {
+export function none() {
   return new OptionNone();
 }

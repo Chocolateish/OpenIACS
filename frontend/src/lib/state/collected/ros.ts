@@ -1,11 +1,11 @@
-import { None, OptionNone, type ResultOk } from "@libResult";
+import { none, OptionNone, type ResultOk } from "@libResult";
 import { STATE_BASE } from "../base";
 import { type STATE, type STATE_RES, type STATE_ROS } from "../types";
 import type {
-  STATE_COLLECTED_STATES,
-  STATE_COLLECTED_SUBS,
-  STATE_COLLECTED_TRANS_VAL,
-  STATE_COLLECTED_TRANS_VAL_UNK,
+  StateCollectedStates,
+  StateCollectedSubs,
+  StateCollectedTransVal,
+  StateCollectedTransValUnk,
 } from "./shared";
 
 //##################################################################################################################################################
@@ -15,33 +15,31 @@ import type {
 //     |  _  /| |  | |\___ \
 //     | | \ \| |__| |____) |
 //     |_|  \_\\____/|_____/
-interface OWNER<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT> {
+interface Owner<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT> {
   /**The `setStates` method is used to update the states used by the `StateDerived` class.
    * @param states - The new states. This function should accept an array of states and return the derived state.*/
-  set_states(...states: STATE_COLLECTED_STATES<IN>): void;
+  set_states(...states: StateCollectedStates<IN>): void;
   /**The `setGetter` method is used to update the getter function used by the `StateDerived` class.
    * This function is used to compute the derived state based on the current states.
    * @param getter - The new getter function. This function should accept an array of states and return the derived state.*/
   set_getter(
-    getter: (values: STATE_COLLECTED_TRANS_VAL<IN>) => ResultOk<RT>
+    getter: (values: StateCollectedTransVal<IN>) => ResultOk<RT>
   ): void;
   get state(): STATE<RT, WT, any>;
   get read_only(): STATE_ROS<RT, any, WT>;
 }
-export type STATE_COLLECTED_ROS<
+export type StateCollectedRos<
   RT,
   IN extends [STATE_RES<any>, ...STATE_RES<any>[]],
   WT = any
-> = STATE_ROS<RT, OptionNone, WT> & OWNER<RT, IN, WT>;
+> = STATE_ROS<RT, OptionNone, WT> & Owner<RT, IN, WT>;
 
-export class ROS<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
+export class Ros<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
   extends STATE_BASE<RT, WT, OptionNone, ResultOk<RT>>
-  implements OWNER<RT, IN, WT>
+  implements Owner<RT, IN, WT>
 {
   constructor(
-    transform:
-      | ((values: STATE_COLLECTED_TRANS_VAL<IN>) => ResultOk<RT>)
-      | false,
+    transform: ((values: StateCollectedTransVal<IN>) => ResultOk<RT>) | false,
     ...states: IN
   ) {
     super();
@@ -52,11 +50,11 @@ export class ROS<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
   #buffer?: ResultOk<RT>;
 
   #states: IN;
-  #stateBuffers: STATE_COLLECTED_TRANS_VAL_UNK<IN> =
-    [] as STATE_COLLECTED_TRANS_VAL_UNK<IN>;
-  #stateSubscribers: STATE_COLLECTED_SUBS<IN>[] = [];
+  #stateBuffers: StateCollectedTransValUnk<IN> =
+    [] as StateCollectedTransValUnk<IN>;
+  #stateSubscribers: StateCollectedSubs<IN>[] = [];
 
-  protected getter(values: STATE_COLLECTED_TRANS_VAL<IN>): ResultOk<RT> {
+  protected getter(values: StateCollectedTransVal<IN>): ResultOk<RT> {
     return values[0] as ResultOk<RT>;
   }
 
@@ -71,7 +69,7 @@ export class ROS<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
           calc = true;
           Promise.resolve().then(() => {
             this.#buffer = this.getter(
-              this.#stateBuffers as STATE_COLLECTED_TRANS_VAL<IN>
+              this.#stateBuffers as StateCollectedTransVal<IN>
             );
             this.update_subs(this.#buffer);
             calc = false;
@@ -80,7 +78,7 @@ export class ROS<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
       });
     }
     this.#buffer = this.getter(
-      this.#stateBuffers as STATE_COLLECTED_TRANS_VAL<IN>
+      this.#stateBuffers as StateCollectedTransVal<IN>
     );
     this.update_subs(this.#buffer);
   }
@@ -90,19 +88,19 @@ export class ROS<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
     for (let i = 0; i < this.#states.length; i++)
       this.#states[i].unsub(this.#stateSubscribers[i] as any);
     this.#stateSubscribers = [];
-    this.#stateBuffers = [] as STATE_COLLECTED_TRANS_VAL<IN>;
+    this.#stateBuffers = [] as StateCollectedTransVal<IN>;
     this.#buffer = undefined;
   }
 
   //#Owner
-  set_states(...states: STATE_COLLECTED_STATES<IN>) {
+  set_states(...states: StateCollectedStates<IN>) {
     if (this.in_use()) {
       this.on_unsubscribe();
       this.#states = [...states] as unknown as IN;
       this.on_subscribe();
     } else this.#states = [...states] as unknown as IN;
   }
-  set_getter(getter: (values: STATE_COLLECTED_TRANS_VAL<IN>) => ResultOk<RT>) {
+  set_getter(getter: (values: StateCollectedTransVal<IN>) => ResultOk<RT>) {
     if (this.in_use()) {
       this.on_unsubscribe();
       this.getter = getter;
@@ -131,14 +129,14 @@ export class ROS<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
   get(): ResultOk<RT> {
     if (this.#buffer) return this.#buffer;
     return this.getter(
-      this.#states.map((s) => s.get()) as STATE_COLLECTED_TRANS_VAL<IN>
+      this.#states.map((s) => s.get()) as StateCollectedTransVal<IN>
     );
   }
   ok(): RT {
     return this.get().value;
   }
   related(): OptionNone {
-    return None();
+    return none();
   }
 
   //#Writer Context
@@ -155,16 +153,14 @@ export const state_collected_ros = {
    * @param transform - Function to translate value of collected states, false means first states values is used.
    * @param states - The states to collect.*/
   from<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT = any>(
-    transform:
-      | ((values: STATE_COLLECTED_TRANS_VAL<IN>) => ResultOk<RT>)
-      | false,
+    transform: ((values: StateCollectedTransVal<IN>) => ResultOk<RT>) | false,
     ...states: IN
   ) {
-    return new ROS<RT, IN, WT>(transform, ...states) as STATE_COLLECTED_ROS<
+    return new Ros<RT, IN, WT>(transform, ...states) as StateCollectedRos<
       RT,
       IN,
       WT
     >;
   },
-  class: ROS,
+  class: Ros,
 };

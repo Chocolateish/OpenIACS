@@ -4,7 +4,7 @@ import {
   material_navigation_unfold_less_rounded,
   material_navigation_unfold_more_rounded,
 } from "@libIcons";
-import { Err, Ok, type Result } from "@libResult";
+import { err, ok, type Result } from "@libResult";
 import { FormElement, FormValue, type FormValueOptions } from "../base";
 import "./group.scss";
 
@@ -170,14 +170,14 @@ export class FormGroup<
 
   /**Returns value of the component*/
   get value(): Result<RT, string> {
-    if (this._state) return Err("State based component");
+    if (this._state) return err("State based component");
     const result: RT = {} as RT;
     for (const [key, comp] of this.#value_components) {
       const val = comp.value;
-      if (val.err) return Err("Component with id " + key + " has no value");
+      if (val.err) return err("Component with id " + key + " has no value");
       result[key as keyof RT] = val.value as RT[keyof RT];
     }
-    return Ok(result);
+    return ok(result);
   }
 
   protected new_value(val: RT): void {
