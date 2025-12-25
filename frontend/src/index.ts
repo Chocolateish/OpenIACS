@@ -13,11 +13,12 @@ import { Err, Ok, type Result } from "@libResult";
 import type { STATE_SYNC_ROS_WS } from "@libState";
 import { default as st, default as state } from "@libState";
 import { ANIMATION_LEVEL, INPUT_MODE, THEME } from "@libTheme";
+import "@libUI";
+import { main_panel_container } from "@libUI";
 import "./index.scss";
 import { form } from "./lib/form";
 import { FormColors } from "./lib/form/base";
 import { FormDateTimeType } from "./lib/form/special/dateTime/dateTimeInput";
-import "./lib/state/resource/examples";
 
 interface CharacterData {
   uuid: string;
@@ -47,6 +48,13 @@ class Character {
 }
 
 console.warn(Character.deserialize({ uuid: "1234", name: "Hero" }));
+
+main_panel_container.create_panel({
+  top: 5,
+  left: 5,
+  width: 10,
+  height: 10,
+});
 
 const formCont = document.body.appendChild(document.createElement("div"));
 formCont.style.flexGrow = "1";

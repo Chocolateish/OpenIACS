@@ -42,6 +42,7 @@ export default defineConfig({
       "@libSVG": path.resolve(__dirname, "./src/lib/svg/index"),
       "@libTheme": path.resolve(__dirname, "./src/lib/theme/index"),
       "@libThemeCommon": path.resolve(__dirname, "./src/lib/theme/builtIn"),
+      "@libUI": path.resolve(__dirname, "./src/lib/ui/index"),
     },
   },
 });

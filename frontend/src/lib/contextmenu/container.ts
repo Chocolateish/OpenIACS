@@ -2,8 +2,6 @@ import { Base, define_element } from "../base";
 import "./container.scss";
 import { ContextMenu } from "./menu";
 
-const CONTAINER_Z_INDEX = "99999999";
-
 export class Container extends Base {
   #activeElementBuffer: HTMLOrSVGElement | null | undefined;
 
@@ -33,7 +31,6 @@ export class Container extends Base {
     this.onpointerout = preventer;
     this.onpointerout = preventer;
     this.onclick = preventer;
-    this.style.zIndex = CONTAINER_Z_INDEX;
   }
 
   /**Attaches a menu to the container */
