@@ -1,4 +1,4 @@
-import { grey } from "@libColors";
+import { GREY } from "@libColors";
 import "./theme.scss";
 import { theme_init_variable_root } from "./variables";
 
@@ -24,8 +24,8 @@ scroll_bar_thumb.make_variable(
   "color",
   "Thumb Color",
   "Color of the scrollbar thumb in normal state",
-  grey["400"],
-  grey["800"],
+  GREY["400"],
+  GREY["800"],
   "Font",
   undefined
 );
@@ -33,8 +33,8 @@ scroll_bar_thumb.make_variable(
   "hoverColor",
   "Thumb Hover Color",
   "Color of the scrollbar thumb when hovered",
-  grey["600"],
-  grey["600"],
+  GREY["600"],
+  GREY["600"],
   "Font",
   undefined
 );
@@ -42,8 +42,8 @@ scroll_bar_thumb.make_variable(
   "activeColor",
   "Thumb Color",
   "Color of the scrollbar thumb in normal state",
-  grey["500"],
-  grey["700"],
+  GREY["500"],
+  GREY["700"],
   "Font",
   undefined
 );

@@ -35,10 +35,10 @@ describe("IPAddress Class", () => {
     });
 
     it("should initialize from a bigint", () => {
-      const bigVal = BigInt("42540766411282592856903984951653826560");
-      const ip = new IPAddress(bigVal);
+      const big_val = BigInt("42540766411282592856903984951653826560");
+      const ip = new IPAddress(big_val);
       expect(ip.is_v6).toBe(true);
-      expect(ip.as_big_int).toBe(bigVal);
+      expect(ip.as_big_int).toBe(big_val);
     });
 
     it("should initialize from an 8-element number array", () => {

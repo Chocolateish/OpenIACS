@@ -1,7 +1,7 @@
 import { type ColorStruct } from "./shared";
 
 //List of material teal colors
-export const teal: ColorStruct = {
+export const TEAL: ColorStruct = {
   "50": "#E0F2F1",
   "100": "#B2DFDB",
   "200": "#80CBC4",

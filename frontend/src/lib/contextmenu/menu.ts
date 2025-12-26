@@ -175,27 +175,27 @@ export class ContextMenu extends Base {
     this.#y = y;
     this.#element = element;
     const box = this.getBoundingClientRect();
-    const boxArea = box.width * box.height;
+    const box_area = box.width * box.height;
     const window = this.ownerDocument.defaultView!;
-    const htmlArea = window.innerWidth * window.innerHeight;
-    this.closer = boxArea > htmlArea * 0.5;
+    const html_area = window.innerWidth * window.innerHeight;
+    this.closer = box_area > html_area * 0.5;
     let top = NaN;
     let bottom = NaN;
     let left = NaN;
     let right = NaN;
     if (element) {
-      const subBox = element.getBoundingClientRect();
+      const sub_box = element.getBoundingClientRect();
 
-      if (subBox.x + subBox.width + box.width > window.innerWidth) {
-        x = subBox.x;
+      if (sub_box.x + sub_box.width + box.width > window.innerWidth) {
+        x = sub_box.x;
         if (box.width < x) right = window.innerWidth - x;
-        else right = window.innerWidth - (subBox.x + subBox.width);
-      } else x = subBox.x + subBox.width;
+        else right = window.innerWidth - (sub_box.x + sub_box.width);
+      } else x = sub_box.x + sub_box.width;
 
-      y = subBox.y + subBox.height;
+      y = sub_box.y + sub_box.height;
 
       if (y + box.height >= window.innerHeight) {
-        if (y >= box.height) bottom = window.innerHeight - subBox.y;
+        if (y >= box.height) bottom = window.innerHeight - sub_box.y;
         else top = window.innerHeight - box.height;
       } else top = y;
     } else {

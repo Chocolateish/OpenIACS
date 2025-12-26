@@ -48,8 +48,8 @@ export class IPAddress {
 
   private from_array(arr: number[]): bigint {
     return arr.reduce((acc, val) => {
-      const bitShift = this.version === 4 ? 8n : 16n;
-      return (acc << bitShift) + BigInt(val);
+      const bit_shift = this.version === 4 ? 8n : 16n;
+      return (acc << bit_shift) + BigInt(val);
     }, 0n);
   }
 

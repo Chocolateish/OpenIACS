@@ -10,10 +10,10 @@ export function get_cursor_position(element: HTMLElement): number {
   ) {
     const range = selection.getRangeAt(0);
     if (range.collapsed) return selection.anchorOffset;
-    const preCaretRange = range.cloneRange();
-    preCaretRange.selectNodeContents(element);
-    preCaretRange.setEnd(range.startContainer, range.startOffset);
-    return preCaretRange.toString().length;
+    const pre_caret_range = range.cloneRange();
+    pre_caret_range.selectNodeContents(element);
+    pre_caret_range.setEnd(range.startContainer, range.startOffset);
+    return pre_caret_range.toString().length;
   }
   return -1;
 }
@@ -27,27 +27,27 @@ export function set_cursor_position(
 ): void {
   const selection = window.getSelection();
   let chars = 0;
-  const setCaret = (node: Node): boolean => {
+  const set_caret = (node: Node): boolean => {
     if (node.nodeType === Node.TEXT_NODE) {
-      const nodeLength = node.textContent?.length ?? 0;
-      if (chars + nodeLength >= offset) {
-        const localOffset = offset - chars;
+      const node_length = node.textContent?.length ?? 0;
+      if (chars + node_length >= offset) {
+        const local_offset = offset - chars;
         const range = document.createRange();
-        range.setStart(node, localOffset);
+        range.setStart(node, local_offset);
         range.collapse(true);
         selection?.removeAllRanges();
         selection?.addRange(range);
         element.focus();
         return true;
       }
-      chars += nodeLength;
+      chars += node_length;
     } else {
       for (let i = 0; i < node.childNodes.length; i++)
-        if (setCaret(node.childNodes[i])) return true;
+        if (set_caret(node.childNodes[i])) return true;
     }
     return false;
   };
-  setCaret(element);
+  set_caret(element);
 }
 
 /**Sets the cursor (caret) position at the very end of the contenteditable element.
@@ -57,11 +57,11 @@ export function set_cursor_end(element: HTMLElement): void {
   const selection = window.getSelection();
   if (selection) {
     const range = document.createRange();
-    const lastNode = element.lastChild;
-    if (lastNode) {
-      if (lastNode.nodeType === Node.TEXT_NODE) {
-        range.setStart(lastNode, (lastNode as Text).length);
-        range.setEnd(lastNode, (lastNode as Text).length);
+    const last_node = element.lastChild;
+    if (last_node) {
+      if (last_node.nodeType === Node.TEXT_NODE) {
+        range.setStart(last_node, (last_node as Text).length);
+        range.setEnd(last_node, (last_node as Text).length);
       } else {
         range.selectNodeContents(element);
         range.collapse(false);

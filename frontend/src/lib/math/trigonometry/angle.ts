@@ -1,12 +1,12 @@
-const degConst = 180 / Math.PI;
-const radConst = Math.PI / 180;
+const DEG_CONST = 180 / Math.PI;
+const RAD_CONST = Math.PI / 180;
 
 /** Converts radians todegrees*/
 export const radians_to_degrees = (radians: number) => {
-  return radians * degConst;
+  return radians * DEG_CONST;
 };
 
 /** Converts degrees to radians*/
 export const degrees_to_radians = (degrees: number) => {
-  return degrees * radConst;
+  return degrees * RAD_CONST;
 };

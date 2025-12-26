@@ -1,7 +1,7 @@
 import type { ColorStruct } from "./shared";
 
 //List of material amber colors
-export const amber: ColorStruct = {
+export const AMBER: ColorStruct = {
   "50": "#FFF8E1",
   "100": "#FFECB3",
   "200": "#FFE082",

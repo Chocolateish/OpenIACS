@@ -1,4 +1,4 @@
-import { blue, green, grey, orange, red, yellow } from "@libColors";
+import { BLUE, GREEN, GREY, ORANGE, RED, YELLOW } from "@libColors";
 import { theme_init_variable_root } from "@libTheme";
 
 const theme_root = theme_init_variable_root(
@@ -57,8 +57,8 @@ colors_text.make_variable(
   "label",
   "Label Color",
   "Color of form elements labels",
-  grey["700"],
-  grey["300"],
+  GREY["700"],
+  GREY["300"],
   "Color",
   undefined
 );
@@ -66,8 +66,8 @@ colors_text.make_variable(
   "normal",
   "Normal Text Color",
   "Normal text color in form elements",
-  grey["800"],
-  grey["200"],
+  GREY["800"],
+  GREY["200"],
   "Color",
   undefined
 );
@@ -75,8 +75,8 @@ colors_text.make_variable(
   "selected",
   "Selected Text Color",
   "Selected text color in form elements",
-  grey["900"],
-  grey["50"],
+  GREY["900"],
+  GREY["50"],
   "Color",
   undefined
 );
@@ -84,8 +84,8 @@ colors_text.make_variable(
   "unselected",
   "Unselected Text Color",
   "Unselected text color in form elements",
-  grey["600"],
-  grey["400"],
+  GREY["600"],
+  GREY["400"],
   "Color",
   undefined
 );
@@ -107,8 +107,8 @@ colors_text_black.make_variable(
   "normal",
   "Normal Text Color",
   "Normal text color in form elements",
-  grey["200"],
-  grey["200"],
+  GREY["200"],
+  GREY["200"],
   "Color",
   undefined
 );
@@ -116,8 +116,8 @@ colors_text_black.make_variable(
   "selected",
   "Selected Text Color",
   "Selected text color in form elements",
-  grey["50"],
-  grey["50"],
+  GREY["50"],
+  GREY["50"],
   "Color",
   undefined
 );
@@ -125,8 +125,8 @@ colors_text_black.make_variable(
   "unselected",
   "Unselected Text Color",
   "Unselected text color in form elements",
-  grey["600"],
-  grey["400"],
+  GREY["600"],
+  GREY["400"],
   "Color",
   undefined
 );
@@ -146,8 +146,8 @@ colors_icon.make_variable(
   "normal",
   "Normal Icon Color",
   "Color of icons in form elements",
-  grey["800"],
-  grey["200"],
+  GREY["800"],
+  GREY["200"],
   "Color",
   undefined
 );
@@ -155,8 +155,8 @@ colors_icon.make_variable(
   "selected",
   "Selected Icon Color",
   "Color of selected icons in form elements",
-  grey["900"],
-  grey["50"],
+  GREY["900"],
+  GREY["50"],
   "Color",
   undefined
 );
@@ -164,8 +164,8 @@ colors_icon.make_variable(
   "unselected",
   "Unselected Icon Color",
   "Color of unselected icons in form elements",
-  grey["600"],
-  grey["400"],
+  GREY["600"],
+  GREY["400"],
   "Color",
   undefined
 );
@@ -185,8 +185,8 @@ colors_background.make_variable(
   "normal",
   "Normal Background Color",
   "Color of normal form element backgrounds",
-  grey["50"],
-  grey["900"],
+  GREY["50"],
+  GREY["900"],
   "Color",
   undefined
 );
@@ -194,8 +194,8 @@ colors_background.make_variable(
   "hover",
   "Hover Background Color",
   "Color of form element backgrounds when hovering",
-  grey["400"],
-  grey["700"],
+  GREY["400"],
+  GREY["700"],
   "Color",
   undefined
 );
@@ -203,8 +203,8 @@ colors_background.make_variable(
   "unselected",
   "Unselected Background Color",
   "Color of unselected form element backgrounds",
-  grey["300"],
-  grey["800"],
+  GREY["300"],
+  GREY["800"],
   "Color",
   undefined
 );
@@ -224,8 +224,8 @@ colors_border.make_variable(
   "normal",
   "Normal Border Color",
   "Color of normal form element borders",
-  grey["700"],
-  grey["300"],
+  GREY["700"],
+  GREY["300"],
   "Color",
   undefined
 );
@@ -233,8 +233,8 @@ colors_border.make_variable(
   "unselected",
   "Unselected Border Color",
   "Color of unselected form element borders",
-  grey["700"],
-  grey["300"],
+  GREY["700"],
+  GREY["300"],
   "Color",
   undefined
 );
@@ -254,8 +254,8 @@ colors_focus.make_variable(
   "normal",
   "Focus Color",
   "Color of focussed form element",
-  orange["600"],
-  orange["300"],
+  ORANGE["600"],
+  ORANGE["300"],
   "Color",
   undefined
 );
@@ -275,8 +275,8 @@ colors_basic.make_variable(
   "green",
   "Basic Green Color",
   "Commonly used green color in form elements",
-  green["300"],
-  green["900"],
+  GREEN["300"],
+  GREEN["900"],
   "Color",
   undefined
 );
@@ -284,8 +284,8 @@ colors_basic.make_variable(
   "red",
   "Basic Red Color",
   "Commonly used red color in form elements",
-  red["300"],
-  red["900"],
+  RED["300"],
+  RED["900"],
   "Color",
   undefined
 );
@@ -293,8 +293,8 @@ colors_basic.make_variable(
   "blue",
   "Basic Blue Color",
   "Commonly used blue color in form elements",
-  blue["300"],
-  blue["900"],
+  BLUE["300"],
+  BLUE["900"],
   "Color",
   undefined
 );
@@ -302,8 +302,8 @@ colors_basic.make_variable(
   "yellow",
   "Basic Yellow Color",
   "Commonly used yellow color in form elements",
-  yellow["300"],
-  orange["900"],
+  YELLOW["300"],
+  ORANGE["900"],
   "Color",
   undefined
 );

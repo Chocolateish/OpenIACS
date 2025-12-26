@@ -1,4 +1,4 @@
-import { blue, grey } from "@libColors";
+import { BLUE, GREY } from "@libColors";
 import { theme_init_variable_root } from "@libTheme";
 
 const variables = theme_init_variable_root(
@@ -10,8 +10,8 @@ variables.make_variable(
   "background",
   "Background Color",
   "Color of background",
-  grey["50"],
-  grey["900"],
+  GREY["50"],
+  GREY["900"],
   "Color",
   undefined
 );
@@ -19,8 +19,8 @@ variables.make_variable(
   "text",
   "Text Color",
   "Color of text",
-  grey["600"],
-  grey["400"],
+  GREY["600"],
+  GREY["400"],
   "Color",
   undefined
 );
@@ -28,8 +28,8 @@ variables.make_variable(
   "hover",
   "Hover Color",
   "Background color of line when hovering over it",
-  blue["200"],
-  blue["900"],
+  BLUE["200"],
+  BLUE["900"],
   "Color",
   undefined
 );
@@ -37,8 +37,8 @@ variables.make_variable(
   "hoverText",
   "Text Color",
   "Standard text color",
-  grey["900"],
-  grey["50"],
+  GREY["900"],
+  GREY["50"],
   "Color",
   undefined
 );
@@ -46,8 +46,8 @@ variables.make_variable(
   "border",
   "Border Color",
   "Color of border and deviders",
-  grey["300"],
-  grey["800"],
+  GREY["300"],
+  GREY["800"],
   "Color",
   undefined
 );

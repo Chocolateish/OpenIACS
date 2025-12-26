@@ -1,4 +1,4 @@
-import { STATE_ENUM_HELPER, type State } from "@libState";
+import { StateEnumHelper, type State } from "@libState";
 import type { SVGFunc } from "@libSVG";
 import { FormValueWrite, type FormValueOptions } from "../base";
 
@@ -35,7 +35,7 @@ export abstract class FormSelectorBase<
 
   set value_by_state(st: State<RT> | undefined) {
     st?.related().map((val) => {
-      if (val instanceof STATE_ENUM_HELPER) {
+      if (val instanceof StateEnumHelper) {
         this.selections = val.map((key, val) => {
           return {
             text: val.name,

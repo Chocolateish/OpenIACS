@@ -55,79 +55,64 @@ export default {
   from_ws: STATE_SYNC_RES.res_ws.ok,
 };
 
+export { type StateArrayRead, type StateArrayWrite } from "./array/shared";
+export { StateBase } from "./base";
+export { type StateCollectedREA } from "./collected/rea";
+export { type StateCollectedRES } from "./collected/res";
+export { type StateCollectedROA } from "./collected/roa";
+export { type StateCollectedROS } from "./collected/ros";
 export {
-  type StateArrayRead as STATE_ARRAY_READ,
-  type StateArrayWrite as STATE_ARRAY_WRITE,
-} from "./array/shared";
-export { StateBase as STATE_BASE } from "./base";
-export { type StateCollectedREA as STATE_COLLECTED_REA } from "./collected/rea";
-export { type StateCollectedRES as STATE_COLLECTED_RES } from "./collected/res";
-export { type StateCollectedROA as STATE_COLLECTED_ROA } from "./collected/roa";
-export { type StateCollectedROS as STATE_COLLECTED_ROS } from "./collected/ros";
-export {
-  type StateDelayedREA as STATE_DELAYED_REA,
-  type StateDelayedREAWA as STATE_DELAYED_REA_WA,
-  type StateDelayedREAWS as STATE_DELAYED_REA_WS,
+  type StateDelayedREA,
+  type StateDelayedREAWA,
+  type StateDelayedREAWS,
 } from "./delayed/rea";
 export {
-  type StateDelayedROA as STATE_DELAYED_ROA,
-  type StateDelayedROAWA as STATE_DELAYED_ROA_WA,
-  type StateDelayedROAWS as STATE_DELAYED_ROA_WS,
+  type StateDelayedROA,
+  type StateDelayedROAWA,
+  type StateDelayedROAWS,
 } from "./delayed/roa";
 export {
-  StateEnumHelper as STATE_ENUM_HELPER,
-  StateNumberHelper as STATE_NUMBER_HELPER,
-  StateStringHelper as STATE_STRING_HELPER,
-  type StateEnumRelated as STATE_ENUM_RELATED,
-  type StateNumberRelated as STATE_NUMBER_RELATED,
-  type StateStringRelated as STATE_STRING_RELATED,
+  StateEnumHelper,
+  StateNumberHelper,
+  StateStringHelper,
+  type StateEnumRelated,
+  type StateNumberRelated,
+  type StateStringRelated,
 } from "./helpers";
+export { type StateLazyRES, type StateLazyRESWS } from "./lazy/res";
+export { type StateLazyROS, type StateLazyROSWS } from "./lazy/ros";
 export {
-  type StateLazyRES as STATE_LAZY_RES,
-  type StateLazyRESWS as STATE_LAZY_RES_WS,
-} from "./lazy/res";
-export {
-  type StateLazyROS as STATE_LAZY_ROS,
-  type StateLazyROSWS as STATE_LAZY_ROS_WS,
-} from "./lazy/ros";
-export {
-  type StateProxyREA as STATE_PROXY_REA,
-  type StateProxyREAWA as STATE_PROXY_REA_WA,
-  type StateProxyREAWS as STATE_PROXY_REA_WS,
+  type StateProxyREA,
+  type StateProxyREAWA,
+  type StateProxyREAWS,
 } from "./proxy/rea";
 export {
-  type StateProxyRES as STATE_PROXY_RES,
-  type StateProxyRESWA as STATE_PROXY_RES_WA,
-  type StateProxyRESWS as STATE_PROXY_RES_WS,
+  type StateProxyRES,
+  type StateProxyRESWA,
+  type StateProxyRESWS,
 } from "./proxy/res";
 export {
-  type StateProxyROA as STATE_PROXY_ROA,
-  type StateProxyROAWA as STATE_PROXY_ROA_WA,
-  type StateProxyROAWS as STATE_PROXY_ROA_WS,
+  type StateProxyROA,
+  type StateProxyROAWA,
+  type StateProxyROAWS,
 } from "./proxy/roa";
 export {
-  type StateProxyROS as STATE_PROXY_ROS,
-  type StateProxyROSWA as STATE_PROXY_ROS_WA,
-  type StateProxyROSWS as STATE_PROXY_ROS_WS,
+  type StateProxyROS,
+  type StateProxyROSWA,
+  type StateProxyROSWS,
 } from "./proxy/ros";
 export {
-  type StateResourceFuncREA as STATE_RESOURCE_FUNC_REA,
-  type StateResourceFuncREAWA as STATE_RESOURCE_FUNC_REA_WA,
-  type StateResourceREA as STATE_RESOURCE_REA,
-  type StateResourceREAWA as STATE_RESOURCE_REA_WA,
+  type StateResourceFuncREA,
+  type StateResourceFuncREAWA,
+  type StateResourceREA,
+  type StateResourceREAWA,
 } from "./resource/rea";
 export {
-  type StateResourceFuncROA as STATE_RESOURCE_FUNC_ROA,
-  type StateResourceROA as STATE_RESOURCE_ROA,
+  type StateResourceFuncROA,
+  type StateResourceROA,
 } from "./resource/roa";
-export {
-  type StateSyncRES as STATE_SYNC_RES,
-  type StateSyncRESWS as STATE_SYNC_RES_WS,
-} from "./sync/res";
-export {
-  type StateSyncROS as STATE_SYNC_ROS,
-  type StateSyncROSWS as STATE_SYNC_ROS_WS,
-} from "./sync/ros";
+export { type StateSyncRES, type StateSyncRESWS } from "./sync/res";
+export { type StateSyncROS, type StateSyncROSWS } from "./sync/ros";
 
 //       _____ _______    _______ ______   _________     _______  ______  _____
 //      / ____|__   __|/\|__   __|  ____| |__   __\ \   / /  __ \|  ____|/ ____|

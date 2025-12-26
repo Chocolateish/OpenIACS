@@ -21,24 +21,18 @@ export class ContextMenuOption extends ContextMenuLine {
     super();
     this.func = func;
     this.tabIndex = 0;
-    const iconBox = this.appendChild(document.createElement("div"));
-    iconBox.className = "icon";
-    if (icon) {
-      iconBox.appendChild(icon);
-    }
-    const textBox = this.appendChild(document.createElement("div"));
-    textBox.innerHTML = text;
-    textBox.className = "text";
-    const shortcutBox = this.appendChild(document.createElement("div"));
-    if (shortcut) {
-      shortcutBox.innerHTML = shortcut;
-    }
-    shortcutBox.className = "shortcut";
-    const checkMarkBox = this.appendChild(document.createElement("div"));
-    if (checkmark) {
-      checkMarkBox.innerHTML = "✓";
-    }
-    checkMarkBox.className = "checkmark";
+    const icon_box = this.appendChild(document.createElement("div"));
+    icon_box.className = "icon";
+    if (icon) icon_box.appendChild(icon);
+    const text_box = this.appendChild(document.createElement("div"));
+    text_box.innerHTML = text;
+    text_box.className = "text";
+    const shortcut_box = this.appendChild(document.createElement("div"));
+    if (shortcut) shortcut_box.innerHTML = shortcut;
+    shortcut_box.className = "shortcut";
+    const check_mark_box = this.appendChild(document.createElement("div"));
+    if (checkmark) check_mark_box.innerHTML = "✓";
+    check_mark_box.className = "checkmark";
 
     this.onclick = (e) => {
       e.stopPropagation();

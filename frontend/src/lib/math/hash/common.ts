@@ -1,4 +1,4 @@
-const hexChars = "0123456789ABCDEF";
+const HEX_CHARS = "0123456789ABCDEF";
 
 /**
  * Storage class for MD5 result */
@@ -37,8 +37,8 @@ export class Hash {
     this.hexbuffer = "";
     for (let i = 0; i < this.result.length; i++) {
       this.hexbuffer +=
-        hexChars.charAt((this.result[i] >>> 4) & 15) +
-        hexChars.charAt(15 & this.result[i]);
+        HEX_CHARS.charAt((this.result[i] >>> 4) & 15) +
+        HEX_CHARS.charAt(15 & this.result[i]);
     }
   }
 }

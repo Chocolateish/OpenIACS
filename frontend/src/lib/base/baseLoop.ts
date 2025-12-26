@@ -1,5 +1,5 @@
 import type { Result } from "@libResult";
-import { default as st, type STATE_ARRAY_READ, type StateSub } from "@libState";
+import { default as st, type StateArrayRead, type StateSub } from "@libState";
 import type { StateArrayRES } from "../state/array/res";
 import { Base } from "./base";
 
@@ -26,8 +26,8 @@ export class Loop<T, E extends Node> extends Base {
   #generator: (val: T) => E;
   //#error: (err: string) => Node = () => document.createTextNode("");
   #destructor?: (val: T, element: E) => void;
-  #stateArray?: StateArrayRES<T>;
-  #subSubscriber?: StateSub<Result<STATE_ARRAY_READ<T>, string>>;
+  #state_array?: StateArrayRES<T>;
+  #sub_subscriber?: StateSub<Result<StateArrayRead<T>, string>>;
   #values: T[] = [];
   #children: E[] = [];
 
@@ -39,15 +39,15 @@ export class Loop<T, E extends Node> extends Base {
   }
 
   set array(array: T[]) {
-    if (this.#subSubscriber) this.#stateArray?.unsub(this.#subSubscriber);
+    if (this.#sub_subscriber) this.#state_array?.unsub(this.#sub_subscriber);
     this.replaceChildren(...array.map(this.#generator));
   }
 
   set state(state: StateArrayRES<T>) {
-    if (state === this.#stateArray) return;
-    if (this.#subSubscriber) this.#stateArray?.unsub(this.#subSubscriber);
-    this.#stateArray = state;
-    this.#subSubscriber = this.#stateArray.sub((val) => {
+    if (state === this.#state_array) return;
+    if (this.#sub_subscriber) this.#state_array?.unsub(this.#sub_subscriber);
+    this.#state_array = state;
+    this.#sub_subscriber = this.#state_array.sub((val) => {
       if (val.ok) {
         const value = val.value;
         this.#values = st.a.apply_read(this.#values, value);
@@ -60,8 +60,8 @@ export class Loop<T, E extends Node> extends Base {
           case "none":
             return this.replaceChildren(...this.#children);
           case "added":
-            const childNodes = this.childNodes;
-            if (value.index === childNodes.length) {
+            const child_nodes = this.childNodes;
+            if (value.index === child_nodes.length) {
               this.append(...this.#children);
             } else {
               for (let i = value.items.length; i > 0; i--) {

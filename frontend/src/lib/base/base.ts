@@ -282,30 +282,30 @@ export abstract class Base extends HTMLElement {
   }
 
   attach_STATE_ROA_to_attribute(
-    qualifiedName: string,
+    qualified_name: string,
     state: StateROA<string>,
     ok?: (val: string) => Option<string>,
     visible?: boolean
   ): this;
   attach_STATE_ROA_to_attribute<U>(
-    qualifiedName: string,
+    qualified_name: string,
     state: StateROA<U>,
     ok: (val: U) => Option<string>,
     visible?: boolean
   ): this;
   attach_STATE_ROA_to_attribute<U>(
-    qualifiedName: string,
+    qualified_name: string,
     state: StateROA<U>,
     ok?: (val: U) => Option<string>,
     visible?: boolean
   ): this {
-    this.dettach_STATE_from_attribute(qualifiedName).#attr.set(
-      qualifiedName,
+    this.dettach_STATE_from_attribute(qualified_name).#attr.set(
+      qualified_name,
       this.attach_STATE(
         state,
         (val) => {
           const o = ok ? ok(val.value) : some(val.value as string);
-          if (o.some) this.setAttribute(qualifiedName, o.value);
+          if (o.some) this.setAttribute(qualified_name, o.value);
         },
         visible
       )
@@ -314,28 +314,28 @@ export abstract class Base extends HTMLElement {
   }
 
   attach_STATE_to_attribute(
-    qualifiedName: string,
+    qualified_name: string,
     state: StateREA<string>,
     error: (error: string) => Option<string>,
     ok?: (val: string) => Option<string>,
     visible?: boolean
   ): this;
   attach_STATE_to_attribute<U>(
-    qualifiedName: string,
+    qualified_name: string,
     state: StateREA<U>,
     error: (error: string) => Option<string>,
     ok: (val: U) => Option<string>,
     visible?: boolean
   ): this;
   attach_STATE_to_attribute<U>(
-    qualifiedName: string,
+    qualified_name: string,
     state: StateREA<U>,
     error: (error: string) => Option<string>,
     ok?: (val: U) => Option<string>,
     visible?: boolean
   ): this {
-    this.dettach_STATE_from_attribute(qualifiedName).#attr.set(
-      qualifiedName,
+    this.dettach_STATE_from_attribute(qualified_name).#attr.set(
+      qualified_name,
       this.attach_STATE(
         state,
         (v) => {
@@ -344,7 +344,7 @@ export abstract class Base extends HTMLElement {
               ? ok(v.value)
               : some(v.value as string)
             : error(v.error);
-          if (o.some) this.setAttribute(qualifiedName, o.value);
+          if (o.some) this.setAttribute(qualified_name, o.value);
         },
         visible
       )
@@ -353,8 +353,8 @@ export abstract class Base extends HTMLElement {
   }
 
   /**Dettaches the state from the property */
-  dettach_STATE_from_attribute(qualifiedName: string): this {
-    const pro = this.#attr.get(qualifiedName);
+  dettach_STATE_from_attribute(qualified_name: string): this {
+    const pro = this.#attr.get(qualified_name);
     if (pro) this.dettach_STATE(pro);
     return this;
   }

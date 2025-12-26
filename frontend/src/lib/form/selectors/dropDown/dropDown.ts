@@ -165,6 +165,10 @@ export class FormDropdown<
     else this.#set_icon = undefined;
   }
 
+  protected clear_value(): void {
+    this.#clear();
+  }
+
   protected new_error(_val: string): void {}
 
   warn(message: string): void {
@@ -179,7 +183,7 @@ export class FormDropdown<
 }
 define_element(FormDropdown);
 
-export const form_dropDown = {
+export const FORM_DROPDOWN = {
   /**Creates a dropdown form element */
   from<RT, ID extends string | undefined>(
     options?: FormDropDownOptions<RT, ID>
@@ -330,10 +334,10 @@ class DropDownBox extends Base {
 
     //Show closer or not
     const box = this.#scroll.getBoundingClientRect();
-    const boxArea = box.width * box.height;
+    const box_area = box.width * box.height;
     const html = this.ownerDocument.documentElement;
-    const htmlArea = html.clientWidth * html.clientHeight;
-    if (boxArea > htmlArea * 0.5) {
+    const html_area = html.clientWidth * html.clientHeight;
+    if (box_area > html_area * 0.5) {
       this.#table.prepend(this.#closer);
     }
 

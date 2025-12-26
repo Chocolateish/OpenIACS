@@ -17,9 +17,9 @@ export const DOCUMENT_HANDLER = new (class DocumentHandler {
   /**Manager events */
   readonly events = this.#events.consumer;
 
-  constructor(mainDocument: Document) {
-    this.main = mainDocument;
-    this.#documents.add(mainDocument);
+  constructor(main_document: Document) {
+    this.main = main_document;
+    this.#documents.add(main_document);
   }
 
   /**Itterates a function over all existing documents */
@@ -41,13 +41,13 @@ export const DOCUMENT_HANDLER = new (class DocumentHandler {
       return console.error("Document already registered");
     this.#documents.add(document);
     if (styles) {
-      const headElements = this.main.head.children;
-      for (let i = 0; i < headElements.length; i++) {
-        switch (headElements[i].nodeName) {
+      const head_elements = this.main.head.children;
+      for (let i = 0; i < head_elements.length; i++) {
+        switch (head_elements[i].nodeName) {
           case "LINK":
             break;
           case "STYLE":
-            document.head.appendChild(headElements[i].cloneNode(true));
+            document.head.appendChild(head_elements[i].cloneNode(true));
             break;
         }
       }

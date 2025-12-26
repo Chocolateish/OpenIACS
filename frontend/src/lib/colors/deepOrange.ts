@@ -1,7 +1,7 @@
 import { type ColorStruct } from "./shared";
 
 //List of material deep orange colors
-export const deepOrange: ColorStruct = {
+export const DEEP_ORANGE: ColorStruct = {
   "50": "#FBE9E7",
   "100": "#FFCCBC",
   "200": "#FFAB91",

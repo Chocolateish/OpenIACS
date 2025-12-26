@@ -34,6 +34,14 @@ export default defineConfig(
           format: ["snake_case"],
         },
         {
+          selector: "classMethod",
+          format: ["snake_case"],
+        },
+        {
+          selector: "classProperty",
+          format: ["snake_case"],
+        },
+        {
           selector: "typeLike",
           format: ["PascalCase"],
         },

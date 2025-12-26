@@ -189,10 +189,10 @@ describe("Proxy Event Handler", { timeout: 50 }, function () {
   it("Attaching Proxy Event Handler Then emitting event", async function () {
     const target = {};
     const handler = new EventHandler<{ test: number }, object>(target);
-    const proxyHandler = new EventHandler<{ test: number }, object>(target);
-    const proxFunc = handler.proxy_on(proxyHandler.proxy_func());
+    const proxy_handler = new EventHandler<{ test: number }, object>(target);
+    const prox_func = handler.proxy_on(proxy_handler.proxy_func());
     const e = await new Promise<E<"test", object, number>>((done) => {
-      proxyHandler.on("test", (e) => {
+      proxy_handler.on("test", (e) => {
         done(e);
       });
       handler.emit("test", 10);
@@ -200,10 +200,10 @@ describe("Proxy Event Handler", { timeout: 50 }, function () {
     expect(e.type).equal("test");
     expect(e.target).equal(target);
     expect(e.data).equal(10);
-    handler.proxy_off(proxFunc);
+    handler.proxy_off(prox_func);
     const f = await Promise.race([
       new Promise<E<"test", object, number>>((done) => {
-        proxyHandler.on("test", (e) => {
+        proxy_handler.on("test", (e) => {
           done(e);
         });
         handler.emit("test", 10);

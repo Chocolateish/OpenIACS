@@ -69,13 +69,13 @@ export function context_menu_dettach(element: Element) {
  * @param element the element the context menu is referenced to, if undefined the context menu will appear in the main document
  * @param x x position for context menu, if undefined, will use element middle, if element undefined, will put context menu in the top left corner of the screen
  * @param y y position for context menu, if undefined, will use element middle, if element undefined, will put context menu in the top left corner of the screen
- * @param dontCover when set true */
+ * @param dont_cover when set true */
 export function context_menu_summon(
   menu: ContextMenu,
   element?: Element,
   x?: number,
   y?: number,
-  dontCover?: boolean
+  dont_cover?: boolean
 ) {
   const container = element
     ? element.ownerDocument["@contextmenu"]
@@ -93,7 +93,7 @@ export function context_menu_summon(
     }
     container
       .attach_menu(menu)
-      .set_position(x, y, dontCover ? element : undefined);
+      .set_position(x, y, dont_cover ? element : undefined);
   } else console.error("No context menu container available");
 }
 

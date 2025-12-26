@@ -26,7 +26,7 @@ describe("Collected states", function () {
       const init = st.c.ros.from((val) => val[0], st.s.ros.ok(1));
       expect(init).instanceOf(st.c.ros.class);
     });
-    const makerSingle: TestStateOkSync = () => {
+    const maker_single: TestStateOkSync = () => {
       const stat1 = st.s.ros.ok(1);
       const state = st.c.ros.from((val) => val[0], stat1);
       const set = (val: ResultOk<number>) => {
@@ -35,18 +35,18 @@ describe("Collected states", function () {
       return { o: true, s: true, w: false, ws: false, state, set };
     };
     it("Single Subscribing And Unsubscribing", async function () {
-      await test_state_sub(makerSingle, 0);
+      await test_state_sub(maker_single, 0);
     });
     describe("Single Then", async function () {
-      await test_state_then(makerSingle, 0);
+      await test_state_then(maker_single, 0);
     });
     it("Single Get", async function () {
-      await test_state_get(makerSingle);
+      await test_state_get(maker_single);
     });
     it("Single GetOk", async function () {
-      await test_state_get_ok(makerSingle);
+      await test_state_get_ok(maker_single);
     });
-    const makerMultiple: TestStateOkSync = () => {
+    const maker_multiple: TestStateOkSync = () => {
       const stat1 = st.s.ros.ok(0.25);
       const stat2 = st.s.ros.ok(0.25);
       const stat3 = st.s.ros.ok(0.25);
@@ -67,16 +67,16 @@ describe("Collected states", function () {
       return { o: true, s: true, w: false, ws: false, state, set };
     };
     it("Multiple Subscribing And Unsubscribing", async function () {
-      await test_state_sub(makerMultiple, 0);
+      await test_state_sub(maker_multiple, 0);
     });
     describe("Multiple Then", async function () {
-      await test_state_then(makerMultiple, 0);
+      await test_state_then(maker_multiple, 0);
     });
     it("Multiple Get", async function () {
-      await test_state_get(makerMultiple);
+      await test_state_get(maker_multiple);
     });
     it("Multiple GetOk", async function () {
-      await test_state_get_ok(makerMultiple);
+      await test_state_get_ok(maker_multiple);
     });
   });
   //##################################################################################################################################################
@@ -91,7 +91,7 @@ describe("Collected states", function () {
       const init = st.c.res.from((val) => val[0], st.s.res.ok(1));
       expect(init).instanceOf(st.c.res.class);
     });
-    const makerSingle: TestStateSync = () => {
+    const maker_single: TestStateSync = () => {
       const stat1 = st.s.res.ok(1);
       const state = st.c.res.from((val) => val[0], stat1);
       const set = (val: Result<number, string>) => {
@@ -100,15 +100,15 @@ describe("Collected states", function () {
       return { o: false, s: true, w: false, ws: false, state, set };
     };
     it("Single Subscribing And Unsubscribing", async function () {
-      await test_state_sub(makerSingle, 0);
+      await test_state_sub(maker_single, 0);
     });
     describe("Single Then", async function () {
-      await test_state_then(makerSingle, 0);
+      await test_state_then(maker_single, 0);
     });
     it("Single Get", async function () {
-      await test_state_get(makerSingle);
+      await test_state_get(maker_single);
     });
-    const makerMultiple: TestStateSync = () => {
+    const maker_multiple: TestStateSync = () => {
       const stat1 = st.s.res.ok(0.25);
       const stat2 = st.s.res.ok(0.25);
       const stat3 = st.s.res.ok(0.25);
@@ -136,13 +136,13 @@ describe("Collected states", function () {
       return { o: false, s: true, w: false, ws: false, state, set };
     };
     it("Multiple Subscribing And Unsubscribing", async function () {
-      await test_state_sub(makerMultiple, 0);
+      await test_state_sub(maker_multiple, 0);
     });
     describe("Multiple Then", async function () {
-      await test_state_then(makerMultiple, 0);
+      await test_state_then(maker_multiple, 0);
     });
     it("Multiple Get", async function () {
-      await test_state_get(makerMultiple);
+      await test_state_get(maker_multiple);
     });
   });
   //##################################################################################################################################################
@@ -160,7 +160,7 @@ describe("Collected states", function () {
       );
       expect(init).instanceOf(st.c.roa.class);
     });
-    const makerSingle: TestStateOk = () => {
+    const maker_single: TestStateOk = () => {
       const stat1 = st.d.roa.ok(() => sleep(1, 1));
       const state = st.c.roa.from((val) => val[0], stat1);
       const set = (val: ResultOk<number>) => {
@@ -169,12 +169,12 @@ describe("Collected states", function () {
       return { o: true, s: false, w: false, ws: false, state, set };
     };
     it("Single Subscribing And Unsubscribing", async function () {
-      await test_state_sub(makerSingle, 50);
+      await test_state_sub(maker_single, 50);
     });
     describe("Single Then", async function () {
-      await test_state_then(makerSingle, 50);
+      await test_state_then(maker_single, 50);
     });
-    const makerMultiple: TestStateOk = () => {
+    const maker_multiple: TestStateOk = () => {
       const stat1 = st.d.roa.ok(() => sleep(1, 0.25));
       const stat2 = st.d.roa.ok(() => sleep(1, 0.25));
       const stat3 = st.d.roa.ok(() => sleep(1, 0.25));
@@ -195,10 +195,10 @@ describe("Collected states", function () {
       return { o: true, s: false, w: false, ws: false, state, set };
     };
     it("Multiple Subscribing And Unsubscribing", async function () {
-      await test_state_sub(makerMultiple, 50);
+      await test_state_sub(maker_multiple, 50);
     });
     describe("Multiple Then", async function () {
-      await test_state_then(makerMultiple, 50);
+      await test_state_then(maker_multiple, 50);
     });
   });
   //##################################################################################################################################################
@@ -216,7 +216,7 @@ describe("Collected states", function () {
       );
       expect(init).instanceOf(st.c.rea.class);
     });
-    const makerSingle: TestStateAll = () => {
+    const maker_single: TestStateAll = () => {
       const stat1 = st.d.rea.ok(() => sleep(1, 1));
       const state = st.c.rea.from((values) => values[0], stat1);
       const set = (val: Result<number, string>) => {
@@ -225,12 +225,12 @@ describe("Collected states", function () {
       return { o: false, s: false, w: false, ws: false, state, set };
     };
     it("Single Subscribing And Unsubscribing", async function () {
-      await test_state_sub(makerSingle, 50);
+      await test_state_sub(maker_single, 50);
     });
     describe("Single Then", async function () {
-      await test_state_then(makerSingle, 50);
+      await test_state_then(maker_single, 50);
     });
-    const makerMultiple: TestStateAll = () => {
+    const maker_multiple: TestStateAll = () => {
       const stat1 = st.d.rea.ok(() => sleep(1, 0.25));
       const stat2 = st.d.rea.ok(() => sleep(1, 0.25));
       const stat3 = st.d.rea.ok(() => sleep(1, 0.25));
@@ -258,10 +258,10 @@ describe("Collected states", function () {
       return { o: false, s: false, w: false, ws: false, state, set };
     };
     it("Multiple Subscribing And Unsubscribing", async function () {
-      await test_state_sub(makerMultiple, 50);
+      await test_state_sub(maker_multiple, 50);
     });
     describe("Multiple Then", async function () {
-      await test_state_then(makerMultiple, 50);
+      await test_state_then(maker_multiple, 50);
     });
   });
 });

@@ -297,11 +297,11 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
       if (e.button === 0) {
         e.stopPropagation();
         let interval = 0;
-        let scalerInterval = 0;
+        let scaler_interval = 0;
         let scaler = 250;
         const release = () => {
           clearInterval(interval);
-          clearInterval(scalerInterval);
+          clearInterval(scaler_interval);
           clearTimeout(timeout);
           icon.onpointerup = null;
           icon.releasePointerCapture(e.pointerId);
@@ -312,7 +312,7 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
         const timeout = setTimeout(() => {
           this.#step_value(dir);
           interval = setInterval(() => this.#step_value(dir), scaler);
-          scalerInterval = setInterval(() => {
+          scaler_interval = setInterval(() => {
             if (scaler > 20) scaler /= 1.1;
             clearInterval(interval);
             interval = setInterval(() => this.#step_value(dir), scaler);

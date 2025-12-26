@@ -6,13 +6,13 @@ export function md5(data: string) {
 }
 
 function y(data: string) {
-  const _ = 8 * data.length;
+  const length = 8 * data.length;
   const aaaa = Array<number>(data.length >> 2);
   for (let m = 0; m < aaaa.length; m++) aaaa[m] = 0;
   for (let m = 0; m < 8 * data.length; m += 8)
     aaaa[m >> 5] |= (255 & data.charCodeAt(m / 8)) << m % 32;
-  aaaa[_ >> 5] |= 128 << _ % 32;
-  aaaa[14 + (((_ + 64) >>> 9) << 4)] = _;
+  aaaa[length >> 5] |= 128 << length % 32;
+  aaaa[14 + (((length + 64) >>> 9) << 4)] = length;
   let m = 1732584193;
   let f = -271733879;
   let r = -1732584194;

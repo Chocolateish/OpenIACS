@@ -1,7 +1,7 @@
 import { type ColorStruct } from "./shared";
 
 //List of material brown colors
-export const brown: ColorStruct = {
+export const BROWN: ColorStruct = {
   "50": "#EFEBE9",
   "100": "#D7CCC8",
   "200": "#BCAAA4",

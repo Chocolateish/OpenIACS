@@ -1,7 +1,7 @@
 import { type ColorStruct } from "./shared";
 
 //List of material lime colors
-export const lime: ColorStruct = {
+export const LIME: ColorStruct = {
   "50": "#F9FBE7",
   "100": "#F0F4C3",
   "200": "#E6EE9C",

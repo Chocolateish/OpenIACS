@@ -9,40 +9,41 @@ export const settings_set_name_transform = (
 };
 
 const packages = localStorage["settings/packageVersions"] as string | undefined;
-let packageVersions: { [key: string]: string } = {};
+let package_versions: { [key: string]: string } = {};
 try {
-  packageVersions = packages
+  package_versions = packages
     ? (JSON.parse(packages) as { [key: string]: string })
     : {};
 } catch (_e) {}
-let storePackageVersionsTimeout: number | undefined;
-const bottomGroups: { [key: string]: SettingsGroup } = {};
+let store_package_versions_timeout: number | undefined;
+const BOTTOM_GROUPS: { [key: string]: SettingsGroup } = {};
 
 /**Initialises the settings for the package
- * @param packageName use import {name} from ("../package.json")
- * @param packageVersion use import {version} from ("../package.json")
+ * @param package_name use import {name} from ("../package.json")
+ * @param package_version use import {version} from ("../package.json")
  * @param versionChanged function to call when the version of the package changed
  * @param name name of group formatted for user reading
  * @param description a description of what the setting group is about*/
 export const settings_init = (
-  packageName: string,
-  packageVersion: string,
+  package_name: string,
+  package_version: string,
   name: string,
   description: string
 ) => {
-  if (name_transformer) packageName = name_transformer(packageName);
+  if (name_transformer) package_name = name_transformer(package_name);
   let changed: string | undefined;
-  if (packageVersions[packageName] !== packageVersion) {
-    changed = packageVersions[packageName];
-    packageVersions[packageName] = packageVersion;
-    if (storePackageVersionsTimeout) clearTimeout(storePackageVersionsTimeout);
-    storePackageVersionsTimeout = window.setTimeout(() => {
+  if (package_versions[package_name] !== package_version) {
+    changed = package_versions[package_name];
+    package_versions[package_name] = package_version;
+    if (store_package_versions_timeout)
+      clearTimeout(store_package_versions_timeout);
+    store_package_versions_timeout = window.setTimeout(() => {
       localStorage["settings/packageVersions"] =
-        JSON.stringify(packageVersions);
+        JSON.stringify(package_versions);
     }, 1000);
   }
-  return (bottomGroups[packageName] = new SettingsGroup(
-    packageName,
+  return (BOTTOM_GROUPS[package_name] = new SettingsGroup(
+    package_name,
     name,
     description,
     changed ? changed : undefined
@@ -73,9 +74,9 @@ export class SettingsGroup {
     path: string,
     name: string,
     description: string,
-    versionChanged?: string
+    version_changed?: string
   ) {
-    this.versionChanged = versionChanged;
+    this.versionChanged = version_changed;
     this.pathID = path;
     this.name = name;
     this.description = description;
@@ -99,24 +100,24 @@ export class SettingsGroup {
   /**Gets value of setting or fallbacks to default
    * @param id unique identifier for this setting in the parent group
    * @param fallback value to use if no setting is stored
-   * @param versionChanged function called when the version of the package changed to migrate old value to new formats
+   * @param version_changed function called when the version of the package changed to migrate old value to new formats
    */
   get<TYPE>(
     id: string,
     fallback: TYPE,
     check?: (parsed: unknown) => Option<TYPE>,
-    versionChanged?: (existing: string, oldVersion: string) => TYPE
+    version_changed?: (existing: string, oldVersion: string) => TYPE
   ): TYPE {
     const saved = localStorage.getItem(this.pathID + "/" + id);
     if (saved === null) return fallback;
     try {
-      if (this.versionChanged && versionChanged) {
-        const changedValue = versionChanged(saved, this.versionChanged);
+      if (this.versionChanged && version_changed) {
+        const changed_value = version_changed(saved, this.versionChanged);
         localStorage.setItem(
           this.pathID + "/" + id,
-          JSON.stringify(changedValue)
+          JSON.stringify(changed_value)
         );
-        return changedValue;
+        return changed_value;
       }
       if (check) return check(JSON.parse(saved)).unwrap_or(fallback);
       return JSON.parse(saved) as TYPE;

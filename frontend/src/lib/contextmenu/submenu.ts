@@ -22,19 +22,17 @@ export class ContextMenuSub extends ContextMenuLine {
     super();
     this.#menu = menu;
     this.tabIndex = 0;
-    const iconBox = this.appendChild(document.createElement("div"));
-    iconBox.className = "icon";
-    if (icon) {
-      iconBox.appendChild(icon);
-    }
-    const textBox = this.appendChild(document.createElement("div"));
-    textBox.innerHTML = text;
-    textBox.className = "text";
-    const shortcutBox = this.appendChild(document.createElement("div"));
-    shortcutBox.className = "shortcut";
-    const chevronBox = this.appendChild(document.createElement("div"));
-    chevronBox.appendChild(material_navigation_chevron_right_rounded());
-    chevronBox.className = "chevron";
+    const icon_box = this.appendChild(document.createElement("div"));
+    icon_box.className = "icon";
+    if (icon) icon_box.appendChild(icon);
+    const text_box = this.appendChild(document.createElement("div"));
+    text_box.innerHTML = text;
+    text_box.className = "text";
+    const shortcut_box = this.appendChild(document.createElement("div"));
+    shortcut_box.className = "shortcut";
+    const chevron_box = this.appendChild(document.createElement("div"));
+    chevron_box.appendChild(material_navigation_chevron_right_rounded());
+    chevron_box.className = "chevron";
 
     this.onclick = (e) => {
       e.stopPropagation();

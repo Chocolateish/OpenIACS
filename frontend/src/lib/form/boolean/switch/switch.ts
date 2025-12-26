@@ -63,13 +63,13 @@ export class FormSwitch<ID extends string | undefined> extends FormValueWrite<
         e.stopPropagation();
         this.#switch.classList.add("active");
         this.#switch.setPointerCapture(e.pointerId);
-        let hasMoved = false;
+        let has_moved = false;
         this.#switch.onpointermove = (ev) => {
           ev.stopPropagation();
-          if (hasMoved) {
+          if (has_moved) {
             const box = this.#switch.getBoundingClientRect();
-            const midCord = box.x + box.width / 2;
-            if (ev.clientX > midCord) {
+            const mid_cord = box.x + box.width / 2;
+            if (ev.clientX > mid_cord) {
               if (!this.buffer) this.set_value_check(true);
             } else {
               if (this.buffer) this.set_value_check(false);
@@ -78,13 +78,13 @@ export class FormSwitch<ID extends string | undefined> extends FormValueWrite<
             Math.abs(e.clientX - ev.clientX) > 10 ||
             Math.abs(e.clientY - ev.clientY) > 10
           ) {
-            hasMoved = true;
+            has_moved = true;
           }
         };
         this.#switch.onpointerup = (ev) => {
           ev.stopPropagation();
           this.#switch.classList.remove("active");
-          if (!hasMoved) this.set_value_check(!this.buffer);
+          if (!has_moved) this.set_value_check(!this.buffer);
           this.#switch.releasePointerCapture(e.pointerId);
           this.#switch.onpointerup = null;
           this.#switch.onpointermove = null;

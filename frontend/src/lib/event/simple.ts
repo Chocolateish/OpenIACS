@@ -79,23 +79,23 @@ export class EventHandler<Events extends { [key: string]: any }, Target>
 
   //# Consumer
   on<K extends keyof Events>(
-    eventName: K,
+    event_name: K,
     subscriber: ESubscriber<K, Target, Events[K]>
   ): typeof subscriber {
-    const typeListeners = this.#subscribers[eventName];
-    if (typeListeners) {
-      if (typeListeners.has(subscriber))
+    const type_listeners = this.#subscribers[event_name];
+    if (type_listeners) {
+      if (type_listeners.has(subscriber))
         console.error("Subscriber already in handler");
-      else typeListeners.add(subscriber);
-    } else this.#subscribers[eventName] = new Set([subscriber]);
+      else type_listeners.add(subscriber);
+    } else this.#subscribers[event_name] = new Set([subscriber]);
     return subscriber;
   }
 
   off<K extends keyof Events>(
-    eventName: K,
+    event_name: K,
     subscriber: ESubscriber<K, Target, Events[K]>
   ) {
-    if (this.#subscribers[eventName]?.delete(subscriber) === false)
+    if (this.#subscribers[event_name]?.delete(subscriber) === false)
       console.error("Subscriber not in handler");
     return subscriber;
   }
@@ -122,12 +122,12 @@ export class EventHandler<Events extends { [key: string]: any }, Target>
     return this;
   }
 
-  emit<K extends keyof Events>(eventName: K, data: Events[K]) {
-    const funcs = this.#subscribers[eventName];
+  emit<K extends keyof Events>(event_name: K, data: Events[K]) {
+    const funcs = this.#subscribers[event_name];
     if (funcs?.size || this.#proxies?.size)
       this.#emitE(
         Object.freeze(
-          new E<K, Target, Events[K]>(eventName, this.target, data)
+          new E<K, Target, Events[K]>(event_name, this.target, data)
         ),
         funcs as Set<ESubscriber<keyof Events, Target, Events[keyof Events]>>
       );
@@ -149,23 +149,23 @@ export class EventHandler<Events extends { [key: string]: any }, Target>
     });
   }
 
-  clear<K extends keyof Events>(eventName: K): void {
-    this.#subscribers[eventName]?.clear();
+  clear<K extends keyof Events>(event_name: K): void {
+    this.#subscribers[event_name]?.clear();
   }
 
-  in_use<K extends keyof Events>(eventName: K): boolean {
-    return Boolean(this.#subscribers[eventName]?.size);
+  in_use<K extends keyof Events>(event_name: K): boolean {
+    return Boolean(this.#subscribers[event_name]?.size);
   }
 
   has<K extends keyof Events>(
-    eventName: K,
+    event_name: K,
     subscriber: ESubscriber<K, Target, Events[K]>
   ): boolean {
-    return this.#subscribers[eventName]?.has(subscriber) || false;
+    return this.#subscribers[event_name]?.has(subscriber) || false;
   }
 
-  amount<K extends keyof Events>(eventName: K): number {
-    return this.#subscribers[eventName]?.size || 0;
+  amount<K extends keyof Events>(event_name: K): number {
+    return this.#subscribers[event_name]?.size || 0;
   }
 
   proxy_func(): ESubscriber<keyof Events, Target, Events[keyof Events]> {

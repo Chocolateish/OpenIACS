@@ -56,7 +56,7 @@ export const base_element_name = (element: ElementConstructor): string => {
   return namespace + define_name;
 };
 
-export const elementList: Set<string> = new Set();
+export const ELEMENT_LIST: Set<string> = new Set();
 
 /**Defines elements inheriting from the base*/
 export const define_element = (element: ElementConstructor) => {
@@ -87,7 +87,7 @@ export const define_element = (element: ElementConstructor) => {
   try {
     // @ts-expect-error Dynamic custom element definition
     customElements.define(define_name, element);
-    elementList.add(define_name);
+    ELEMENT_LIST.add(define_name);
   } catch (e) {
     if (
       e instanceof Error &&

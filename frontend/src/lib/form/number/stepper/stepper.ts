@@ -51,12 +51,12 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
 
     this.#value_box.setAttribute("tabindex", "-1");
     this.#value_box.contentEditable = "true";
-    let dragBlocker = false;
+    let drag_blocker = false;
     this.#value_box.onfocus = async () => {
-      dragBlocker = true;
+      drag_blocker = true;
     };
     this.#value_box.onblur = async () => {
-      dragBlocker = false;
+      drag_blocker = false;
       await sleep(0);
       this.set_value_check(
         parseFloat(this.#value_box.textContent?.replace(",", ".") || "") || 0
@@ -64,15 +64,15 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
     };
     let reset = () => {};
     this.#text.onpointerdown = (e) => {
-      if (e.button === 0 && (e.target !== this.#value_box || !dragBlocker)) {
+      if (e.button === 0 && (e.target !== this.#value_box || !drag_blocker)) {
         e.stopPropagation();
-        const initialVal = this.buffer || 0;
+        const initial_val = this.buffer || 0;
         let moving = false;
         this.#text.setPointerCapture(e.pointerId);
         this.#text.onpointermove = (ev) => {
           ev.stopPropagation();
           if (moving) {
-            this.#move_diff(initialVal + (ev.clientX - e.clientX) / 5);
+            this.#move_diff(initial_val + (ev.clientX - e.clientX) / 5);
           } else {
             if (Math.abs(e.clientX - ev.clientX) > 50) {
               this.#value_box.contentEditable = "false";
@@ -99,7 +99,7 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
               selection.addRange(range);
             }
           } else if (moving) {
-            this.#move_diff(initialVal + (ev.clientX - e.clientX) / 5, true);
+            this.#move_diff(initial_val + (ev.clientX - e.clientX) / 5, true);
             moving = false;
           }
         };
@@ -284,11 +284,11 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
       if (e.button === 0) {
         e.stopPropagation();
         let interval = 0;
-        let scalerInterval = 0;
+        let scaler_interval = 0;
         let scaler = 250;
         const release = () => {
           clearInterval(interval);
-          clearInterval(scalerInterval);
+          clearInterval(scaler_interval);
           clearTimeout(timeout);
           icon.onpointerup = null;
           icon.releasePointerCapture(e.pointerId);
@@ -299,7 +299,7 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
         const timeout = setTimeout(() => {
           this.#step_value(dir);
           interval = setInterval(() => this.#step_value(dir), scaler);
-          scalerInterval = setInterval(() => {
+          scaler_interval = setInterval(() => {
             if (scaler > 20) scaler /= 1.1;
             clearInterval(interval);
             interval = setInterval(() => this.#step_value(dir), scaler);

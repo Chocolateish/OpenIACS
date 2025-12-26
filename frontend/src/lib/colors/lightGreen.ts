@@ -1,7 +1,7 @@
 import { type ColorStruct } from "./shared";
 
 //List of material light green colors
-export const lightGreen: ColorStruct = {
+export const LIGHT_GREEN: ColorStruct = {
   "50": "#F1F8E9",
   "100": "#DCEDC8",
   "200": "#C5E1A5",

@@ -9,30 +9,30 @@ describe("Document", async () => {
   });
   it("Attach event listener then register document", async () => {
     await new Promise<void>((a) => {
-      const newDoc: Document =
+      const new_doc: Document =
         document.implementation.createHTMLDocument("test");
       docs.events.on("added", (doc) => {
-        expect(doc.data).toEqual(newDoc);
+        expect(doc.data).toEqual(new_doc);
         a();
       });
-      docs.register_document(newDoc);
+      docs.register_document(new_doc);
     });
   });
   it("Attach event listener then deregister document", async () => {
     await new Promise<void>((a) => {
-      const newDoc = document.implementation.createHTMLDocument("test");
+      const new_doc = document.implementation.createHTMLDocument("test");
       docs.events.on("removed", (doc) => {
-        expect(doc.data === newDoc).to.equal(true);
+        expect(doc.data === new_doc).to.equal(true);
         a();
       });
-      docs.register_document(newDoc);
-      docs.deregister_document(newDoc);
+      docs.register_document(new_doc);
+      docs.deregister_document(new_doc);
     });
   });
   it("Itterate all existing documents", async () => {
     await new Promise<void>((a) => {
-      const newDoc = document.implementation.createHTMLDocument("test");
-      docs.register_document(newDoc);
+      const new_doc = document.implementation.createHTMLDocument("test");
+      docs.register_document(new_doc);
       let prog = 0;
       docs.for_documents(() => {
         prog++;

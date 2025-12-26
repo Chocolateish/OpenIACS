@@ -3,17 +3,17 @@ import { Hash } from "./common";
 /** Calculates SHA-1 hash of string and returns hex
  * @param msg */
 export function sha1(msg: string) {
-  const W = new Array<number>(80);
-  let H0 = 0x67452301;
-  let H1 = 0xefcdab89;
-  let H2 = 0x98badcfe;
-  let H3 = 0x10325476;
-  let H4 = 0xc3d2e1f0;
-  let A: number;
-  let B: number;
-  let C: number;
-  let D: number;
-  let E: number;
+  const w = new Array<number>(80);
+  let h0 = 0x67452301;
+  let h1 = 0xefcdab89;
+  let h2 = 0x98badcfe;
+  let h3 = 0x10325476;
+  let h4 = 0xc3d2e1f0;
+  let a: number;
+  let b: number;
+  let c: number;
+  let d: number;
+  let e: number;
   msg = utf8_encode(msg);
   const msg_len = msg.length;
   const word_array = [];
@@ -55,71 +55,71 @@ export function sha1(msg: string) {
   word_array.push((msg_len << 3) & 0x0ffffffff);
   for (let blockstart = 0; blockstart < word_array.length; blockstart += 16) {
     for (let i = 0; i < 16; i++) {
-      W[i] = word_array[blockstart + i];
+      w[i] = word_array[blockstart + i];
     }
     for (let i = 16; i <= 79; i++) {
-      W[i] = rotate_left(W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16], 1);
+      w[i] = rotate_left(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1);
     }
-    A = H0;
-    B = H1;
-    C = H2;
-    D = H3;
-    E = H4;
+    a = h0;
+    b = h1;
+    c = h2;
+    d = h3;
+    e = h4;
     for (let i = 0; i <= 19; i++) {
       const temp =
-        (rotate_left(A, 5) + ((B & C) | (~B & D)) + E + W[i] + 0x5a827999) &
+        (rotate_left(a, 5) + ((b & c) | (~b & d)) + e + w[i] + 0x5a827999) &
         0x0ffffffff;
-      E = D;
-      D = C;
-      C = rotate_left(B, 30);
-      B = A;
-      A = temp;
+      e = d;
+      d = c;
+      c = rotate_left(b, 30);
+      b = a;
+      a = temp;
     }
     for (let i = 20; i <= 39; i++) {
       const temp =
-        (rotate_left(A, 5) + (B ^ C ^ D) + E + W[i] + 0x6ed9eba1) & 0x0ffffffff;
-      E = D;
-      D = C;
-      C = rotate_left(B, 30);
-      B = A;
-      A = temp;
+        (rotate_left(a, 5) + (b ^ c ^ d) + e + w[i] + 0x6ed9eba1) & 0x0ffffffff;
+      e = d;
+      d = c;
+      c = rotate_left(b, 30);
+      b = a;
+      a = temp;
     }
     for (let i = 40; i <= 59; i++) {
       const temp =
-        (rotate_left(A, 5) +
-          ((B & C) | (B & D) | (C & D)) +
-          E +
-          W[i] +
+        (rotate_left(a, 5) +
+          ((b & c) | (b & d) | (c & d)) +
+          e +
+          w[i] +
           0x8f1bbcdc) &
         0x0ffffffff;
-      E = D;
-      D = C;
-      C = rotate_left(B, 30);
-      B = A;
-      A = temp;
+      e = d;
+      d = c;
+      c = rotate_left(b, 30);
+      b = a;
+      a = temp;
     }
     for (let i = 60; i <= 79; i++) {
       const temp =
-        (rotate_left(A, 5) + (B ^ C ^ D) + E + W[i] + 0xca62c1d6) & 0x0ffffffff;
-      E = D;
-      D = C;
-      C = rotate_left(B, 30);
-      B = A;
-      A = temp;
+        (rotate_left(a, 5) + (b ^ c ^ d) + e + w[i] + 0xca62c1d6) & 0x0ffffffff;
+      e = d;
+      d = c;
+      c = rotate_left(b, 30);
+      b = a;
+      a = temp;
     }
-    H0 = (H0 + A) & 0x0ffffffff;
-    H1 = (H1 + B) & 0x0ffffffff;
-    H2 = (H2 + C) & 0x0ffffffff;
-    H3 = (H3 + D) & 0x0ffffffff;
-    H4 = (H4 + E) & 0x0ffffffff;
+    h0 = (h0 + a) & 0x0ffffffff;
+    h1 = (h1 + b) & 0x0ffffffff;
+    h2 = (h2 + c) & 0x0ffffffff;
+    h3 = (h3 + d) & 0x0ffffffff;
+    h4 = (h4 + e) & 0x0ffffffff;
   }
-  const d = [H0, H1, H2, H3, H4];
+  const hashes = [h0, h1, h2, h3, h4];
   const numbers = new Uint8Array(20);
-  for (let i = 0; i < d.length; i++) {
-    numbers[i * 4] = (d[i] >>> 24) & 255;
-    numbers[i * 4 + 1] = (d[i] >>> 16) & 255;
-    numbers[i * 4 + 2] = (d[i] >>> 8) & 255;
-    numbers[i * 4 + 3] = (d[i] >>> 0) & 255;
+  for (let i = 0; i < hashes.length; i++) {
+    numbers[i * 4] = (hashes[i] >>> 24) & 255;
+    numbers[i * 4 + 1] = (hashes[i] >>> 16) & 255;
+    numbers[i * 4 + 2] = (hashes[i] >>> 8) & 255;
+    numbers[i * 4 + 3] = (hashes[i] >>> 0) & 255;
   }
   return new Hash(numbers);
 }
