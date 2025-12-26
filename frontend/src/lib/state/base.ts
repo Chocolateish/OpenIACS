@@ -1,14 +1,14 @@
 import { type Option, type Result } from "@libResult";
-import type { STATE_BASE as BASE, STATE_RELATED, STATE_SUB } from "./types";
+import type { StateBase as Base, StateRelated, StateSub } from "./types";
 
-export abstract class STATE_BASE<
+export abstract class StateBase<
   RT,
   WT,
-  REL extends Option<STATE_RELATED>,
+  REL extends Option<StateRelated>,
   RRT extends Result<RT, string>
-> implements BASE<RT, WT, REL, RRT>
+> implements Base<RT, WT, REL, RRT>
 {
-  #subscribers: Set<STATE_SUB<RRT>> = new Set();
+  #subscribers: Set<StateSub<RRT>> = new Set();
   #read_promises?: ((val: RRT) => void)[];
 
   //#Reader Context
@@ -26,7 +26,7 @@ export abstract class STATE_BASE<
   ok?(): RT;
   /**This adds a function as a subscriber to changes to the state
    * @param update set true to update subscriber immediatly*/
-  sub<T = STATE_SUB<RRT>>(func: STATE_SUB<RRT>, update?: boolean): T {
+  sub<T = StateSub<RRT>>(func: StateSub<RRT>, update?: boolean): T {
     if (this.#subscribers.has(func)) {
       console.error("Function already registered as subscriber", this, func);
       return func as T;
@@ -37,8 +37,8 @@ export abstract class STATE_BASE<
     return func as T;
   }
   /**This removes a function as a subscriber to the state*/
-  unsub<T = STATE_SUB<RRT>>(func: T): T {
-    if (this.#subscribers.delete(func as STATE_SUB<RRT>)) {
+  unsub<T = StateSub<RRT>>(func: T): T {
+    if (this.#subscribers.delete(func as StateSub<RRT>)) {
       if (this.#subscribers.size == 0) this.on_unsubscribe();
     } else console.error("Subscriber not found with state", this, func);
     return func;
@@ -51,7 +51,7 @@ export abstract class STATE_BASE<
     return this.#subscribers.size > 0 ? this : undefined;
   }
   /**Returns if the state has a subscriber */
-  has(subscriber: STATE_SUB<RRT>): this | undefined {
+  has(subscriber: StateSub<RRT>): this | undefined {
     return this.#subscribers.has(subscriber) ? this : undefined;
   }
   /**Returns if the state has a subscriber */

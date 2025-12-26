@@ -1,32 +1,32 @@
 import type { Result, ResultOk } from "@libResult";
 import type {
-  STATE,
-  STATE_INFER_RESULT,
-  STATE_REA,
-  STATE_ROA,
-  STATE_SUB,
+  State,
+  StateInferResult,
+  StateREA,
+  StateROA,
+  StateSub,
 } from "../types";
 
-export type StateCollectedTransVal<IN extends STATE<any>[]> = {
-  [I in keyof IN]: STATE_INFER_RESULT<IN[I]>;
+export type StateCollectedTransVal<IN extends State<any>[]> = {
+  [I in keyof IN]: StateInferResult<IN[I]>;
 };
 
-export type StateCollectedTransValUnk<IN extends STATE<any>[]> = {
-  [I in keyof IN]: IN[I] extends STATE_ROA<infer RT>
+export type StateCollectedTransValUnk<IN extends State<any>[]> = {
+  [I in keyof IN]: IN[I] extends StateROA<infer RT>
     ? ResultOk<RT>
-    : IN[I] extends STATE_REA<infer RT>
+    : IN[I] extends StateREA<infer RT>
     ? Result<RT, string>
     : unknown;
 };
 
-export type StateCollectedSubs<IN extends STATE<any>[]> = {
-  [I in keyof IN]: STATE_SUB<STATE_INFER_RESULT<IN[I]>>;
+export type StateCollectedSubs<IN extends State<any>[]> = {
+  [I in keyof IN]: StateSub<StateInferResult<IN[I]>>;
 };
 
-export type StateCollectedStates<IN extends STATE<any>[]> = {
-  [I in keyof IN]: IN[I] extends STATE_ROA<infer RT>
-    ? STATE_ROA<RT>
-    : IN[I] extends STATE_REA<infer RT>
-    ? STATE_REA<RT>
+export type StateCollectedStates<IN extends State<any>[]> = {
+  [I in keyof IN]: IN[I] extends StateROA<infer RT>
+    ? StateROA<RT>
+    : IN[I] extends StateREA<infer RT>
+    ? StateREA<RT>
     : never;
 };

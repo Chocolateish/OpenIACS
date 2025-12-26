@@ -1,6 +1,6 @@
 import { Base } from "@libBase";
 import { err, ok, type Result } from "@libResult";
-import type { STATE, STATE_SUB } from "@libState";
+import type { State, StateSub } from "@libState";
 import "./shared";
 
 /**Colors for form elements that have selectable colors*/
@@ -37,7 +37,7 @@ export interface FormValueOptions<RT, ID extends string | undefined> {
   id?: ID;
   /**Value for form element */
   value?: RT;
-  value_by_state?: STATE<RT>;
+  value_by_state?: State<RT>;
   /**Text for label above form element */
   label?: string;
   /**Longer description what form element does */
@@ -63,9 +63,9 @@ export abstract class FormValue<
   protected _body: HTMLDivElement = this.appendChild(
     document.createElement("div")
   );
-  protected _state?: STATE<RT>;
+  protected _state?: State<RT>;
   protected _buffer?: RT;
-  #func?: STATE_SUB<Result<RT, string>>;
+  #func?: StateSub<Result<RT, string>>;
 
   static apply_options<RT, ID extends string | undefined>(
     element: FormValue<RT, ID>,
@@ -103,7 +103,7 @@ export abstract class FormValue<
   }
 
   /**This sets the value of the component*/
-  set value_by_state(state: STATE<RT> | undefined) {
+  set value_by_state(state: State<RT> | undefined) {
     if (this.#func) this.dettach_STATE(this.#func);
     if (state)
       this.attach_STATE(state, (val) => {

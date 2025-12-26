@@ -6,14 +6,14 @@ import {
   type Option,
   type Result,
 } from "@libResult";
-import { STATE_BASE } from "../base";
+import { StateBase } from "../base";
 import {
-  type STATE_HELPER as Helper,
-  type STATE_RELATED as RELATED,
-  type STATE,
-  type STATE_RES,
-  type STATE_RES_WS,
-  type STATE_SET_REX_WS,
+  type StateHelper as Helper,
+  type StateRelated as RELATED,
+  type State,
+  type StateRES,
+  type StateRESWS,
+  type StateSetREXWS,
 } from "../types";
 
 //##################################################################################################################################################
@@ -27,17 +27,17 @@ interface Owner<RT, WT, REL extends Option<RELATED>> {
   set(value: Result<RT, string>): void;
   set_ok(value: RT): void;
   set_err(err: string): void;
-  get state(): STATE<RT, WT, REL>;
-  get read_only(): STATE_RES<RT, REL, WT>;
+  get state(): State<RT, WT, REL>;
+  get read_only(): StateRES<RT, REL, WT>;
 }
-export type STATE_SYNC_RES<
+export type StateSyncRES<
   RT,
   REL extends Option<RELATED> = OptionNone,
   WT = any
-> = STATE_RES<RT, REL, WT> & Owner<RT, WT, REL>;
+> = StateRES<RT, REL, WT> & Owner<RT, WT, REL>;
 
-class Res<RT, REL extends Option<RELATED>, WT>
-  extends STATE_BASE<RT, WT, REL, Result<RT, string>>
+class RES<RT, REL extends Option<RELATED>, WT>
+  extends StateBase<RT, WT, REL, Result<RT, string>>
   implements Owner<RT, WT, REL>
 {
   constructor(init: Result<RT, string>, helper?: Helper<WT, REL>) {
@@ -47,7 +47,7 @@ class Res<RT, REL extends Option<RELATED>, WT>
   }
 
   #value: Result<RT, string>;
-  setter?: STATE_SET_REX_WS<RT, Owner<RT, WT, REL>, WT>;
+  setter?: StateSetREXWS<RT, Owner<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -60,11 +60,11 @@ class Res<RT, REL extends Option<RELATED>, WT>
   set_err(error: string): void {
     this.set(err(error));
   }
-  get state(): STATE<RT, WT, REL> {
-    return this as STATE<RT, WT, REL>;
+  get state(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get read_only(): STATE_RES<RT, REL, WT> {
-    return this as STATE_RES<RT, REL, WT>;
+  get read_only(): StateRES<RT, REL, WT> {
+    return this as StateRES<RT, REL, WT>;
   }
 
   //#Reader Context
@@ -116,11 +116,7 @@ const res = {
     init: RT,
     helper?: Helper<WT, REL>
   ) {
-    return new Res<RT, REL, WT>(ok(init), helper) as STATE_SYNC_RES<
-      RT,
-      REL,
-      WT
-    >;
+    return new RES<RT, REL, WT>(ok(init), helper) as StateSyncRES<RT, REL, WT>;
   },
   /**Creates a sync state from an initial error.
    * @param init initial error for state.
@@ -130,11 +126,7 @@ const res = {
     init: string,
     helper?: Helper<WT, REL>
   ) {
-    return new Res<RT, REL, WT>(err(init), helper) as STATE_SYNC_RES<
-      RT,
-      REL,
-      WT
-    >;
+    return new RES<RT, REL, WT>(err(init), helper) as StateSyncRES<RT, REL, WT>;
   },
   /**Creates a sync state from an initial result.
    * @param init initial result for state.
@@ -143,7 +135,7 @@ const res = {
     init: Result<RT, string>,
     helper?: Helper<WT, REL>
   ) {
-    return new Res<RT, REL, WT>(init, helper) as STATE_SYNC_RES<RT, REL, WT>;
+    return new RES<RT, REL, WT>(init, helper) as StateSyncRES<RT, REL, WT>;
   },
 };
 
@@ -155,28 +147,28 @@ const res = {
 //     | | \ \| |____ ____) |    \  /\  /  ____) |
 //     |_|  \_\______|_____/      \/  \/  |_____/
 
-interface OwnerWs<RT, WT, REL extends Option<RELATED>> {
+interface OwnerWS<RT, WT, REL extends Option<RELATED>> {
   set(value: Result<RT, string>): void;
   set_ok(value: RT): void;
   set_err(err: string): void;
-  get state(): STATE<RT, WT, REL>;
-  get read_only(): STATE_RES<RT, REL, WT>;
-  get read_write(): STATE_RES_WS<RT, WT, REL>;
+  get state(): State<RT, WT, REL>;
+  get read_only(): StateRES<RT, REL, WT>;
+  get read_write(): StateRESWS<RT, WT, REL>;
 }
 
-export type STATE_SYNC_RES_WS<
+export type StateSyncRESWS<
   RT,
   WT = RT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_RES_WS<RT, WT, REL> & OwnerWs<RT, WT, REL>;
+> = StateRESWS<RT, WT, REL> & OwnerWS<RT, WT, REL>;
 
-class ResWs<RT, WT, REL extends Option<RELATED>>
-  extends STATE_BASE<RT, WT, REL, Result<RT, string>>
-  implements OwnerWs<RT, WT, REL>
+class RESWS<RT, WT, REL extends Option<RELATED>>
+  extends StateBase<RT, WT, REL, Result<RT, string>>
+  implements OwnerWS<RT, WT, REL>
 {
   constructor(
     init: Result<RT, string>,
-    setter: STATE_SET_REX_WS<RT, OwnerWs<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -196,7 +188,7 @@ class ResWs<RT, WT, REL extends Option<RELATED>>
   }
 
   #value: Result<RT, string>;
-  #setter: STATE_SET_REX_WS<RT, OwnerWs<RT, WT, REL>, WT>;
+  #setter: StateSetREXWS<RT, OwnerWS<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -209,14 +201,14 @@ class ResWs<RT, WT, REL extends Option<RELATED>>
   set_err(error: string): void {
     this.set(err(error));
   }
-  get state(): STATE<RT, WT, REL> {
-    return this as STATE<RT, WT, REL>;
+  get state(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get read_only(): STATE_RES<RT, REL, WT> {
-    return this as STATE_RES<RT, REL, WT>;
+  get read_only(): StateRES<RT, REL, WT> {
+    return this as StateRES<RT, REL, WT>;
   }
-  get read_write(): STATE_RES_WS<RT, WT, REL> {
-    return this as STATE_RES_WS<RT, WT, REL>;
+  get read_write(): StateRESWS<RT, WT, REL> {
+    return this as StateRESWS<RT, WT, REL>;
   }
 
   //#Reader Context
@@ -265,14 +257,14 @@ const res_ws = {
   ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     this: void,
     init: RT,
-    setter: STATE_SET_REX_WS<RT, OwnerWs<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
-    return new ResWs<RT, WT, REL>(
-      ok(init),
-      setter,
-      helper
-    ) as STATE_SYNC_RES_WS<RT, WT, REL>;
+    return new RESWS<RT, WT, REL>(ok(init), setter, helper) as StateSyncRESWS<
+      RT,
+      WT,
+      REL
+    >;
   },
   /**Creates a writable sync state from an initial error.
    * @param init initial error for state.
@@ -280,24 +272,24 @@ const res_ws = {
   err<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     this: void,
     init: string,
-    setter: STATE_SET_REX_WS<RT, OwnerWs<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
-    return new ResWs<RT, WT, REL>(
-      err(init),
-      setter,
-      helper
-    ) as STATE_SYNC_RES_WS<RT, WT, REL>;
+    return new RESWS<RT, WT, REL>(err(init), setter, helper) as StateSyncRESWS<
+      RT,
+      WT,
+      REL
+    >;
   },
   /**Creates a writable sync state from an initial result.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: Result<RT, string>,
-    setter: STATE_SET_REX_WS<RT, OwnerWs<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
-    return new ResWs<RT, WT, REL>(init, setter, helper) as STATE_SYNC_RES_WS<
+    return new RESWS<RT, WT, REL>(init, setter, helper) as StateSyncRESWS<
       RT,
       WT,
       REL
@@ -313,7 +305,7 @@ const res_ws = {
 //     | |____ / . \| |    | |__| | | \ \  | |  ____) |
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 /**Sync valueholding states */
-export const state_sync_res = {
+export const STATE_SYNC_RES = {
   /**Sync read only states with error */
   res,
   /**Sync read and sync write with error */

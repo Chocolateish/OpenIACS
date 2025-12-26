@@ -1,9 +1,5 @@
 import type { Result } from "@libResult";
-import {
-  default as st,
-  type STATE_ARRAY_READ,
-  type STATE_SUB,
-} from "@libState";
+import { default as st, type STATE_ARRAY_READ, type StateSub } from "@libState";
 import type { StateArrayRES } from "../state/array/res";
 import { Base } from "./base";
 
@@ -31,7 +27,7 @@ export class Loop<T, E extends Node> extends Base {
   //#error: (err: string) => Node = () => document.createTextNode("");
   #destructor?: (val: T, element: E) => void;
   #stateArray?: StateArrayRES<T>;
-  #subSubscriber?: STATE_SUB<Result<STATE_ARRAY_READ<T>, string>>;
+  #subSubscriber?: StateSub<Result<STATE_ARRAY_READ<T>, string>>;
   #values: T[] = [];
   #children: E[] = [];
 

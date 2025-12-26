@@ -1,13 +1,13 @@
 import { err, none, OptionNone, ResultOk, type Result } from "@libResult";
-import { STATE_BASE } from "../base";
+import { StateBase } from "../base";
 import {
-  type STATE,
-  type STATE_RES,
-  type STATE_RES_WA,
-  type STATE_RES_WS,
-  type STATE_ROS,
-  type STATE_ROS_WA,
-  type STATE_ROS_WS,
+  type State,
+  type StateRES,
+  type StateRESWA,
+  type StateRESWS,
+  type StateROS,
+  type StateROSWA,
+  type StateROSWS,
 } from "../types";
 
 //##################################################################################################################################################
@@ -17,42 +17,42 @@ import {
 //     |  _  /| |  | |\___ \
 //     | | \ \| |__| |____) |
 //     |_|  \_\\____/|_____/
-interface OWNER<S extends STATE<any, any>, RIN, ROUT, WIN, WOUT> {
+interface Owner<S extends State<any, any>, RIN, ROUT, WIN, WOUT> {
   /**Sets the state that is being proxied, and updates subscribers with new value*/
   set_state(state: S): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
-  set_transform_read(transform: ROS_TRANSFORM<S, RIN, ROUT>): void;
+  set_transform_read(transform: ROSTransform<S, RIN, ROUT>): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
-  get state(): STATE<ROUT, WOUT, OptionNone>;
-  get read_only(): STATE_ROS<ROUT, OptionNone, WOUT>;
+  get state(): State<ROUT, WOUT, OptionNone>;
+  get read_only(): StateROS<ROUT, OptionNone, WOUT>;
 }
 
-type ROS_TRANSFORM<S extends STATE<any, any>, RIN, ROUT> = (
-  value: S extends STATE_ROS<any>
+type ROSTransform<S extends State<any, any>, RIN, ROUT> = (
+  value: S extends StateROS<any>
     ? ResultOk<RIN>
-    : RIN extends STATE_RES<any>
+    : RIN extends StateRES<any>
     ? Result<RIN, string>
     : never
 ) => ResultOk<ROUT>;
 
-export type STATE_PROXY_ROS<
-  S extends STATE_RES<RIN, any, WIN>,
-  RIN = S extends STATE<infer RT> ? RT : never,
+export type StateProxyROS<
+  S extends StateRES<RIN, any, WIN>,
+  RIN = S extends State<infer RT> ? RT : never,
   ROUT = RIN,
-  WIN = S extends STATE<any, infer WT> ? WT : any,
+  WIN = S extends State<any, infer WT> ? WT : any,
   WOUT = WIN
-> = STATE_ROS<ROUT, OptionNone, WOUT> & OWNER<S, RIN, ROUT, WIN, WOUT>;
+> = StateROS<ROUT, OptionNone, WOUT> & Owner<S, RIN, ROUT, WIN, WOUT>;
 
-export class ROS<
-    S extends STATE_RES<RIN, any, WIN>,
-    RIN = S extends STATE<infer RT> ? RT : never,
+class ROS<
+    S extends StateRES<RIN, any, WIN>,
+    RIN = S extends State<infer RT> ? RT : never,
     ROUT = RIN,
-    WIN = S extends STATE<any, infer WT> ? WT : never,
+    WIN = S extends State<any, infer WT> ? WT : never,
     WOUT = WIN
   >
-  extends STATE_BASE<ROUT, WOUT, OptionNone, ResultOk<ROUT>>
-  implements OWNER<S, RIN, ROUT, WIN, WOUT>
+  extends StateBase<ROUT, WOUT, OptionNone, ResultOk<ROUT>>
+  implements Owner<S, RIN, ROUT, WIN, WOUT>
 {
   constructor(
     state: S,
@@ -90,7 +90,7 @@ export class ROS<
       this.on_subscribe(true);
     } else this.#state = state;
   }
-  set_transform_read(transform: ROS_TRANSFORM<S, RIN, ROUT>) {
+  set_transform_read(transform: ROSTransform<S, RIN, ROUT>) {
     if (this.in_use()) {
       this.on_unsubscribe();
       this.transform_read = transform;
@@ -100,11 +100,11 @@ export class ROS<
   set_transform_write(transform: (val: WOUT) => WIN) {
     this.transformWrite = transform;
   }
-  get state(): STATE<ROUT, WOUT, OptionNone> {
-    return this as STATE<ROUT, WOUT, OptionNone>;
+  get state(): State<ROUT, WOUT, OptionNone> {
+    return this as State<ROUT, WOUT, OptionNone>;
   }
-  get read_only(): STATE_ROS<ROUT, OptionNone, WOUT> {
-    return this as STATE_ROS<ROUT, OptionNone, WOUT>;
+  get read_only(): StateROS<ROUT, OptionNone, WOUT> {
+    return this as StateROS<ROUT, OptionNone, WOUT>;
   }
 
   //#Reader Context
@@ -159,38 +159,38 @@ export class ROS<
  * @param state - state to proxy.
  * @param transform - Function to transform value of proxy*/
 function ros_from<
-  S extends STATE_ROS<RIN, any, WIN>,
-  RIN = S extends STATE<infer RT> ? RT : never,
+  S extends StateROS<RIN, any, WIN>,
+  RIN = S extends State<infer RT> ? RT : never,
   ROUT = RIN,
-  WIN = S extends STATE<any, infer RT> ? RT : any,
+  WIN = S extends State<any, infer RT> ? RT : any,
   WOUT = WIN
 >(
-  state: STATE_ROS<RIN, any, WIN>,
+  state: StateROS<RIN, any, WIN>,
   transform?: (value: ResultOk<RIN>) => ResultOk<ROUT>
-): STATE_PROXY_ROS<S, RIN, ROUT, WIN, WOUT>;
+): StateProxyROS<S, RIN, ROUT, WIN, WOUT>;
 function ros_from<
-  S extends STATE_RES<RIN, any, WIN>,
-  RIN = S extends STATE<infer RT> ? RT : never,
+  S extends StateRES<RIN, any, WIN>,
+  RIN = S extends State<infer RT> ? RT : never,
   ROUT = RIN,
-  WIN = S extends STATE<any, infer RT> ? RT : any,
+  WIN = S extends State<any, infer RT> ? RT : any,
   WOUT = WIN
 >(
-  state: STATE_RES<RIN, any, WIN>,
+  state: StateRES<RIN, any, WIN>,
   transform: (value: Result<RIN, string>) => ResultOk<ROUT>
-): STATE_PROXY_ROS<S, RIN, ROUT, WIN, WOUT>;
+): StateProxyROS<S, RIN, ROUT, WIN, WOUT>;
 function ros_from<
-  S extends STATE_RES<RIN, any, WIN>,
-  RIN = S extends STATE<infer RT> ? RT : never,
+  S extends StateRES<RIN, any, WIN>,
+  RIN = S extends State<infer RT> ? RT : never,
   ROUT = RIN,
-  WIN = S extends STATE<any, infer RT> ? RT : any,
+  WIN = S extends State<any, infer RT> ? RT : any,
   WOUT = WIN
 >(
   state: S,
   transform?:
     | ((value: ResultOk<RIN>) => ResultOk<ROUT>)
     | ((value: Result<RIN, string>) => ResultOk<ROUT>)
-): STATE_PROXY_ROS<S, RIN, ROUT, WIN, WOUT> {
-  return new ROS<S, RIN, ROUT, WIN, WOUT>(state, transform) as STATE_PROXY_ROS<
+): StateProxyROS<S, RIN, ROUT, WIN, WOUT> {
+  return new ROS<S, RIN, ROUT, WIN, WOUT>(state, transform) as StateProxyROS<
     S,
     RIN,
     ROUT,
@@ -206,10 +206,10 @@ function ros_from<
 //     |  _  /| |  | |\___ \    \ \/  \/ / \___ \
 //     | | \ \| |__| |____) |    \  /\  /  ____) |
 //     |_|  \_\\____/|_____/      \/  \/  |_____/
-interface OWNER_WS<
+interface OwnerWS<
   S,
-  RIN = S extends STATE<infer RT> ? RT : never,
-  WIN = S extends STATE<any, infer WT> ? WT : never,
+  RIN = S extends State<infer RT> ? RT : never,
+  WIN = S extends State<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
 > {
@@ -221,28 +221,28 @@ interface OWNER_WS<
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
-  get state(): STATE<ROUT, WOUT, OptionNone>;
-  get read_only(): STATE_ROS<ROUT, OptionNone, WOUT>;
-  get read_write(): STATE_ROS_WS<ROUT, WOUT, OptionNone>;
+  get state(): State<ROUT, WOUT, OptionNone>;
+  get read_only(): StateROS<ROUT, OptionNone, WOUT>;
+  get read_write(): StateROSWS<ROUT, WOUT, OptionNone>;
 }
 
-export type STATE_PROXY_ROS_WS<
-  S extends STATE_RES_WS<RIN, WIN>,
-  RIN = S extends STATE<infer RT> ? RT : never,
-  WIN = S extends STATE<any, infer WT> ? WT : never,
+export type StateProxyROSWS<
+  S extends StateRESWS<RIN, WIN>,
+  RIN = S extends State<infer RT> ? RT : never,
+  WIN = S extends State<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_ROS_WS<ROUT, WOUT, OptionNone> & OWNER_WS<S, RIN, WIN, ROUT, WOUT>;
+> = StateROSWS<ROUT, WOUT, OptionNone> & OwnerWS<S, RIN, WIN, ROUT, WOUT>;
 
-export class ROS_WS<
-    S extends STATE_RES_WS<RIN, WIN>,
-    RIN = S extends STATE<infer RT> ? RT : never,
-    WIN = S extends STATE<any, infer WT> ? WT : never,
+class ROSWS<
+    S extends StateRESWS<RIN, WIN>,
+    RIN = S extends State<infer RT> ? RT : never,
+    WIN = S extends State<any, infer WT> ? WT : never,
     ROUT = RIN,
     WOUT = WIN
   >
-  extends STATE_BASE<ROUT, WOUT, OptionNone, ResultOk<ROUT>>
-  implements OWNER_WS<S, RIN, WIN, ROUT, WOUT>
+  extends StateBase<ROUT, WOUT, OptionNone, ResultOk<ROUT>>
+  implements OwnerWS<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
     state: S,
@@ -294,14 +294,14 @@ export class ROS_WS<
   set_transform_write(transform: (val: WOUT) => WIN) {
     this.transform_write = transform;
   }
-  get state(): STATE<ROUT, WOUT, OptionNone> {
-    return this as STATE<ROUT, WOUT, OptionNone>;
+  get state(): State<ROUT, WOUT, OptionNone> {
+    return this as State<ROUT, WOUT, OptionNone>;
   }
-  get read_only(): STATE_ROS<ROUT, OptionNone, WOUT> {
-    return this as STATE_ROS<ROUT, OptionNone, WOUT>;
+  get read_only(): StateROS<ROUT, OptionNone, WOUT> {
+    return this as StateROS<ROUT, OptionNone, WOUT>;
   }
-  get read_write(): STATE_ROS_WS<ROUT, WOUT, OptionNone> {
-    return this as STATE_ROS_WS<ROUT, WOUT, OptionNone>;
+  get read_write(): StateROSWS<ROUT, WOUT, OptionNone> {
+    return this as StateROSWS<ROUT, WOUT, OptionNone>;
   }
 
   //#Reader Context
@@ -353,29 +353,29 @@ export class ROS_WS<
  * @param state - state to proxy.
  * @param transform_read - Function to transform value of proxy*/
 function ros_ws_from<
-  S extends STATE_ROS_WS<RIN, WIN>,
+  S extends StateROSWS<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
   WOUT = WIN
 >(
-  state: STATE_ROS_WS<RIN, WIN>,
+  state: StateROSWS<RIN, WIN>,
   transform_read?: (value: ResultOk<RIN>) => ResultOk<ROUT>,
   transform_write?: (value: WOUT) => WIN
-): STATE_PROXY_ROS_WS<S, RIN, WIN, ROUT, WOUT>;
+): StateProxyROSWS<S, RIN, WIN, ROUT, WOUT>;
 function ros_ws_from<
-  S extends STATE_RES_WS<RIN, WIN>,
+  S extends StateRESWS<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
   WOUT = WIN
 >(
-  state: STATE_RES_WS<RIN, WIN>,
+  state: StateRESWS<RIN, WIN>,
   transform_read?: (value: Result<RIN, string>) => ResultOk<ROUT>,
   transform_write?: (value: WOUT) => WIN
-): STATE_PROXY_ROS_WS<S, RIN, WIN, ROUT, WOUT>;
+): StateProxyROSWS<S, RIN, WIN, ROUT, WOUT>;
 function ros_ws_from<
-  S extends STATE_RES_WS<RIN, WIN>,
+  S extends StateRESWS<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
@@ -386,12 +386,12 @@ function ros_ws_from<
     | ((value: ResultOk<RIN>) => ResultOk<ROUT>)
     | ((value: Result<RIN, string>) => ResultOk<ROUT>),
   transform_write?: (value: WOUT) => WIN
-): STATE_PROXY_ROS_WS<S, RIN, WIN, ROUT, WOUT> {
-  return new ROS_WS<S, RIN, WIN, ROUT, WOUT>(
+): StateProxyROSWS<S, RIN, WIN, ROUT, WOUT> {
+  return new ROSWS<S, RIN, WIN, ROUT, WOUT>(
     state,
     transform_read,
     transform_write
-  ) as STATE_PROXY_ROS_WS<S, RIN, WIN, ROUT, WOUT>;
+  ) as StateProxyROSWS<S, RIN, WIN, ROUT, WOUT>;
 }
 
 //##################################################################################################################################################
@@ -401,10 +401,10 @@ function ros_ws_from<
 //     |  _  /| |  | |\___ \    \ \/  \/ / /\ \
 //     | | \ \| |__| |____) |    \  /\  / ____ \
 //     |_|  \_\\____/|_____/      \/  \/_/    \_\
-interface OWNER_WA<
+interface OwnerWA<
   S,
-  RIN = S extends STATE<infer RT> ? RT : never,
-  WIN = S extends STATE<any, infer WT> ? WT : never,
+  RIN = S extends State<infer RT> ? RT : never,
+  WIN = S extends State<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
 > {
@@ -416,27 +416,27 @@ interface OWNER_WA<
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
-  get state(): STATE<ROUT, WOUT, OptionNone>;
-  get read_only(): STATE_ROS<ROUT, OptionNone, WOUT>;
-  get read_write(): STATE_ROS_WA<ROUT, WOUT, OptionNone>;
+  get state(): State<ROUT, WOUT, OptionNone>;
+  get read_only(): StateROS<ROUT, OptionNone, WOUT>;
+  get read_write(): StateROSWA<ROUT, WOUT, OptionNone>;
 }
-export type STATE_PROXY_ROS_WA<
-  S extends STATE_RES_WA<RIN, WIN>,
-  RIN = S extends STATE<infer RT> ? RT : never,
-  WIN = S extends STATE<any, infer WT> ? WT : never,
+export type StateProxyROSWA<
+  S extends StateRESWA<RIN, WIN>,
+  RIN = S extends State<infer RT> ? RT : never,
+  WIN = S extends State<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_ROS_WA<ROUT, WOUT, OptionNone> & OWNER_WA<S, RIN, WIN, ROUT, WOUT>;
+> = StateROSWA<ROUT, WOUT, OptionNone> & OwnerWA<S, RIN, WIN, ROUT, WOUT>;
 
-export class ROS_WA<
-    S extends STATE_RES_WA<RIN, WIN>,
-    RIN = S extends STATE<infer RT> ? RT : never,
-    WIN = S extends STATE<any, infer WT> ? WT : never,
+class ROSWA<
+    S extends StateRESWA<RIN, WIN>,
+    RIN = S extends State<infer RT> ? RT : never,
+    WIN = S extends State<any, infer WT> ? WT : never,
     ROUT = RIN,
     WOUT = WIN
   >
-  extends STATE_BASE<ROUT, WOUT, OptionNone, ResultOk<ROUT>>
-  implements OWNER_WA<S, RIN, WIN, ROUT, WOUT>
+  extends StateBase<ROUT, WOUT, OptionNone, ResultOk<ROUT>>
+  implements OwnerWA<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
     state: S,
@@ -488,14 +488,14 @@ export class ROS_WA<
   set_transform_write(transform: (val: WOUT) => WIN) {
     this.transform_write = transform;
   }
-  get state(): STATE<ROUT, WOUT, OptionNone> {
-    return this as STATE<ROUT, WOUT, OptionNone>;
+  get state(): State<ROUT, WOUT, OptionNone> {
+    return this as State<ROUT, WOUT, OptionNone>;
   }
-  get read_only(): STATE_ROS<ROUT, OptionNone, WOUT> {
-    return this as STATE_ROS<ROUT, OptionNone, WOUT>;
+  get read_only(): StateROS<ROUT, OptionNone, WOUT> {
+    return this as StateROS<ROUT, OptionNone, WOUT>;
   }
-  get read_write(): STATE_ROS_WA<ROUT, WOUT, OptionNone> {
-    return this as STATE_ROS_WA<ROUT, WOUT, OptionNone>;
+  get read_write(): StateROSWA<ROUT, WOUT, OptionNone> {
+    return this as StateROSWA<ROUT, WOUT, OptionNone>;
   }
 
   //#Reader Context
@@ -544,29 +544,29 @@ export class ROS_WA<
  * @param state - state to proxy.
  * @param transform_read - Function to transform value of proxy*/
 function ros_wa_from<
-  S extends STATE_ROS_WA<RIN, WIN>,
+  S extends StateROSWA<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
   WOUT = WIN
 >(
-  state: STATE_ROS_WA<RIN, WIN>,
+  state: StateROSWA<RIN, WIN>,
   transform_read?: (value: ResultOk<RIN>) => ResultOk<ROUT>,
   transform_write?: (value: WOUT) => WIN
-): STATE_PROXY_ROS_WA<S, RIN, WIN, ROUT, WOUT>;
+): StateProxyROSWA<S, RIN, WIN, ROUT, WOUT>;
 function ros_wa_from<
-  S extends STATE_RES_WA<RIN, WIN>,
+  S extends StateRESWA<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
   WOUT = WIN
 >(
-  state: STATE_RES_WA<RIN, WIN>,
+  state: StateRESWA<RIN, WIN>,
   transform_read?: (value: Result<RIN, string>) => ResultOk<ROUT>,
   transform_write?: (value: WOUT) => WIN
-): STATE_PROXY_ROS_WA<S, RIN, WIN, ROUT, WOUT>;
+): StateProxyROSWA<S, RIN, WIN, ROUT, WOUT>;
 function ros_wa_from<
-  S extends STATE_RES_WA<RIN, WIN>,
+  S extends StateRESWA<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
@@ -577,12 +577,12 @@ function ros_wa_from<
     | ((value: ResultOk<RIN>) => ResultOk<ROUT>)
     | ((value: Result<RIN, string>) => ResultOk<ROUT>),
   transform_write?: (value: WOUT) => WIN
-): STATE_PROXY_ROS_WA<S, RIN, WIN, ROUT, WOUT> {
-  return new ROS_WA<S, RIN, WIN, ROUT, WOUT>(
+): StateProxyROSWA<S, RIN, WIN, ROUT, WOUT> {
+  return new ROSWA<S, RIN, WIN, ROUT, WOUT>(
     state,
     transform_read,
     transform_write
-  ) as STATE_PROXY_ROS_WA<S, RIN, WIN, ROUT, WOUT>;
+  ) as StateProxyROSWA<S, RIN, WIN, ROUT, WOUT>;
 }
 
 //##################################################################################################################################################
@@ -594,7 +594,7 @@ function ros_wa_from<
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 
 /**Proxy state redirecting another state */
-export const state_proxy_ros = {
+export const STATE_PROXY_ROS = {
   ros: ros_from,
   ros_ws: ros_ws_from,
   ros_wa: ros_wa_from,

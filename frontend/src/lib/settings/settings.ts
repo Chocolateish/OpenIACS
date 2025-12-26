@@ -1,5 +1,5 @@
 import type { Option, ResultOk } from "@libResult";
-import type { STATE_ROA_WA } from "@libState";
+import type { StateROAWA } from "@libState";
 
 let name_transformer: ((name: string) => string) | undefined;
 export const settings_set_name_transform = (
@@ -50,10 +50,10 @@ export const settings_init = (
 };
 
 class Setting {
-  readonly state: STATE_ROA_WA<any>;
+  readonly state: StateROAWA<any>;
   readonly name: string;
   readonly description: string;
-  constructor(state: STATE_ROA_WA<any>, name: string, description: string) {
+  constructor(state: StateROAWA<any>, name: string, description: string) {
     this.state = state;
     this.name = name;
     this.description = description;
@@ -144,7 +144,7 @@ export class SettingsGroup {
     id: string,
     name: string,
     description: string,
-    state: STATE_ROA_WA<READ>
+    state: StateROAWA<READ>
   ) {
     if (id in this.settings)
       throw new Error("Settings already registered " + this.pathID + "/" + id);
@@ -164,7 +164,7 @@ export class SettingsGroup {
     id: string,
     name: string,
     description: string,
-    state: STATE_ROA_WA<READ>,
+    state: StateROAWA<READ>,
     transform: (state: ResultOk<READ>) => TYPE
   ) {
     if (id in this.settings)

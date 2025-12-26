@@ -1,11 +1,11 @@
 import { EventHandler } from "@libEvent";
 import { some, type Option } from "@libResult";
 import state, {
-  type STATE,
-  type STATE_INFER_SUB,
-  type STATE_REA,
-  type STATE_ROA,
-  type STATE_SUB,
+  type State,
+  type StateInferSub,
+  type StateREA,
+  type StateROA,
+  type StateSub,
 } from "@libState";
 import { AccessTypes } from "./access";
 import "./base.scss";
@@ -35,7 +35,7 @@ type DataProps<T> = {
   [K in keyof T as T[K] extends Function ? never : K]: T[K];
 };
 type WithStateROA<T> = {
-  [K in keyof T]?: T[K] | STATE_ROA<T[K]>;
+  [K in keyof T]?: T[K] | StateROA<T[K]>;
 };
 
 /**Shared class for elements to extend
@@ -68,7 +68,7 @@ export abstract class Base extends HTMLElement {
   /**Events for element*/
   readonly baseEvents = this.#base_events.consumer;
 
-  #states: Map<STATE_SUB<any>, [STATE<any>, boolean]> = new Map();
+  #states: Map<StateSub<any>, [State<any>, boolean]> = new Map();
 
   #is_connected: boolean = false;
 
@@ -81,8 +81,8 @@ export abstract class Base extends HTMLElement {
 
   #access?: AccessTypes;
 
-  #props: Map<any, STATE_SUB<any>> = new Map();
-  #attr: Map<string, STATE_SUB<any>> = new Map();
+  #props: Map<any, StateSub<any>> = new Map();
+  #attr: Map<string, StateSub<any>> = new Map();
 
   /**Runs when element is attached to document*/
   protected connectedCallback() {
@@ -129,7 +129,7 @@ export abstract class Base extends HTMLElement {
   /**Sets any attribute on the base element, to either a fixed value or a state value */
   opts(opts: WithStateROA<DataProps<this>>): this {
     for (const key in opts) {
-      const opt = opts[key] as this[typeof key] | STATE_ROA<this[typeof key]>;
+      const opt = opts[key] as this[typeof key] | StateROA<this[typeof key]>;
       if (state.h.is.roa(opt)) this.attach_STATE_ROA_to_prop(key, opt);
       else this[key] = opt;
     }
@@ -165,9 +165,9 @@ export abstract class Base extends HTMLElement {
 
   /**Attaches a state to a function, so that the function is subscribed to the state when the component is connected
    * @param visible when set true the function is only subscribed when the element is visible, this requires an observer to be attached to the element*/
-  attach_STATE<S extends STATE<any>>(
+  attach_STATE<S extends State<any>>(
     state: S,
-    func: STATE_INFER_SUB<S>,
+    func: StateInferSub<S>,
     visible?: boolean
   ): typeof func {
     if (this.#states.has(func))
@@ -175,13 +175,13 @@ export abstract class Base extends HTMLElement {
     else {
       this.#states.set(func, [state, Boolean(visible)]);
       if (visible ? this.isVisible : this.#is_connected)
-        state.sub(func as STATE_SUB<any>, true);
+        state.sub(func as StateSub<any>, true);
     }
     return func;
   }
 
   /**Dettaches the function from the state/component */
-  dettach_STATE(func: STATE_SUB<any>): typeof func {
+  dettach_STATE(func: StateSub<any>): typeof func {
     const state = this.#states.get(func);
     if (state) {
       if (state[1] ? this.isVisible : this.#is_connected) state[0].unsub(func);
@@ -197,19 +197,19 @@ export abstract class Base extends HTMLElement {
    * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
   attach_STATE_ROA_to_prop<K extends keyof this>(
     prop: K,
-    state: STATE_ROA<this[K]>,
+    state: StateROA<this[K]>,
     ok?: (val: this[K]) => Option<this[K]>,
     visible?: boolean
   ): this;
   attach_STATE_ROA_to_prop<K extends keyof this, T = this[K]>(
     prop: K,
-    state: STATE_ROA<T>,
+    state: StateROA<T>,
     ok: (val: T) => Option<this[K]>,
     visible?: boolean
   ): this;
   attach_STATE_ROA_to_prop<K extends keyof this, T = this[K]>(
     prop: K,
-    state: STATE_ROA<T>,
+    state: StateROA<T>,
     ok?: (val: T) => Option<this[K]>,
     visible?: boolean
   ): this {
@@ -234,21 +234,21 @@ export abstract class Base extends HTMLElement {
    * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element*/
   attach_STATE_to_prop<K extends keyof this>(
     prop: K,
-    state: STATE_REA<this[K]>,
+    state: StateREA<this[K]>,
     error: (error: string) => Option<this[K]>,
     ok?: (val: this[K]) => Option<this[K]>,
     visible?: boolean
   ): this;
   attach_STATE_to_prop<K extends keyof this, T = this[K]>(
     prop: K,
-    state: STATE_REA<T>,
+    state: StateREA<T>,
     error: (error: string) => Option<this[K]>,
     ok: (val: T) => Option<this[K]>,
     visible?: boolean
   ): this;
   attach_STATE_to_prop<K extends keyof this, T = this[K]>(
     prop: K,
-    state: STATE_REA<T>,
+    state: StateREA<T>,
     error: (error: string) => Option<this[K]>,
     ok?: (val: T) => Option<this[K]>,
     visible?: boolean
@@ -283,19 +283,19 @@ export abstract class Base extends HTMLElement {
 
   attach_STATE_ROA_to_attribute(
     qualifiedName: string,
-    state: STATE_ROA<string>,
+    state: StateROA<string>,
     ok?: (val: string) => Option<string>,
     visible?: boolean
   ): this;
   attach_STATE_ROA_to_attribute<U>(
     qualifiedName: string,
-    state: STATE_ROA<U>,
+    state: StateROA<U>,
     ok: (val: U) => Option<string>,
     visible?: boolean
   ): this;
   attach_STATE_ROA_to_attribute<U>(
     qualifiedName: string,
-    state: STATE_ROA<U>,
+    state: StateROA<U>,
     ok?: (val: U) => Option<string>,
     visible?: boolean
   ): this {
@@ -315,21 +315,21 @@ export abstract class Base extends HTMLElement {
 
   attach_STATE_to_attribute(
     qualifiedName: string,
-    state: STATE_REA<string>,
+    state: StateREA<string>,
     error: (error: string) => Option<string>,
     ok?: (val: string) => Option<string>,
     visible?: boolean
   ): this;
   attach_STATE_to_attribute<U>(
     qualifiedName: string,
-    state: STATE_REA<U>,
+    state: StateREA<U>,
     error: (error: string) => Option<string>,
     ok: (val: U) => Option<string>,
     visible?: boolean
   ): this;
   attach_STATE_to_attribute<U>(
     qualifiedName: string,
-    state: STATE_REA<U>,
+    state: StateREA<U>,
     error: (error: string) => Option<string>,
     ok?: (val: U) => Option<string>,
     visible?: boolean

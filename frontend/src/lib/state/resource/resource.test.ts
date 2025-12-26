@@ -1,9 +1,9 @@
 import { ok, ResultOk, type Result } from "@libResult";
 import st, {
-  type STATE_REA,
   type STATE_RESOURCE_FUNC_REA,
   type STATE_RESOURCE_FUNC_ROA,
-  type STATE_ROA,
+  type StateREA,
+  type StateROA,
 } from "@libState";
 import { assertType, describe, it } from "vitest";
 import {
@@ -29,7 +29,7 @@ describe("Resource states", function () {
         () => {},
         () => {}
       );
-      assertType<STATE_ROA<number>>(init);
+      assertType<StateROA<number>>(init);
       assertType<STATE_RESOURCE_FUNC_ROA<number>>(init);
     });
     const maker: TestStateOk = () => {
@@ -66,7 +66,7 @@ describe("Resource states", function () {
         () => {},
         () => {}
       );
-      assertType<STATE_REA<number>>(init);
+      assertType<StateREA<number>>(init);
       assertType<STATE_RESOURCE_FUNC_REA<number>>(init);
     });
     const maker: TestStateAll = () => {
@@ -103,7 +103,7 @@ describe("Resource states", function () {
         () => {},
         () => {}
       );
-      assertType<STATE_REA<number>>(init);
+      assertType<StateREA<number>>(init);
       assertType<STATE_RESOURCE_FUNC_REA<number>>(init);
     });
     const maker: TestStateWrite = () => {

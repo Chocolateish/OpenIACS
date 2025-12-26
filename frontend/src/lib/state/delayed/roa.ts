@@ -7,16 +7,16 @@ import {
   type Option,
   type Result,
 } from "@libResult";
-import { STATE_BASE } from "../base";
+import { StateBase } from "../base";
 import {
-  type STATE_HELPER as Helper,
-  type STATE_RELATED as RELATED,
-  type STATE,
-  type STATE_ROA,
-  type STATE_ROA_WA,
-  type STATE_ROA_WS,
-  type STATE_SET_ROX_WA,
-  type STATE_SET_ROX_WS,
+  type StateHelper as Helper,
+  type StateRelated as RELATED,
+  type State,
+  type StateROA,
+  type StateROAWA,
+  type StateROAWS,
+  type StateSetROXWA,
+  type StateSetROXWS,
 } from "../types";
 
 //##################################################################################################################################################
@@ -29,18 +29,18 @@ import {
 interface Owner<RT, WT, REL extends Option<RELATED>> {
   set(value: ResultOk<RT>): void;
   set_ok(value: RT): void;
-  get state(): STATE<RT, WT, REL>;
-  get read_only(): STATE_ROA<RT, REL, WT>;
+  get state(): State<RT, WT, REL>;
+  get read_only(): StateROA<RT, REL, WT>;
 }
 
 export type StateDelayedROA<
   RT,
   REL extends Option<RELATED> = OptionNone,
   WT = any
-> = STATE_ROA<RT, REL, WT> & Owner<RT, WT, REL>;
+> = StateROA<RT, REL, WT> & Owner<RT, WT, REL>;
 
 class ROA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
-  extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
+  extends StateBase<RT, WT, REL, ResultOk<RT>>
   implements Owner<RT, WT, REL>
 {
   constructor(
@@ -90,8 +90,8 @@ class ROA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
 
   #value?: ResultOk<RT>;
-  setterAsync?: STATE_SET_ROX_WA<RT, Owner<RT, WT, REL>, WT>;
-  setterSync?: STATE_SET_ROX_WS<RT, Owner<RT, WT, REL>, WT>;
+  setterAsync?: StateSetROXWA<RT, Owner<RT, WT, REL>, WT>;
+  setterSync?: StateSetROXWS<RT, Owner<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -101,11 +101,11 @@ class ROA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   set_ok(value: RT): void {
     this.set(ok(value));
   }
-  get state(): STATE<RT, WT, REL> {
-    return this as STATE<RT, WT, REL>;
+  get state(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get read_only(): STATE_ROA<RT, REL, WT> {
-    return this as STATE_ROA<RT, REL, WT>;
+  get read_only(): StateROA<RT, REL, WT> {
+    return this as StateROA<RT, REL, WT>;
   }
 
   //#Reader Context
@@ -188,24 +188,24 @@ const roa = {
 interface OwnerWS<RT, WT, REL extends Option<RELATED>> {
   set(value: ResultOk<RT>): void;
   set_ok(value: RT): void;
-  get state(): STATE<RT, WT, REL>;
-  get read_only(): STATE_ROA<RT, REL, WT>;
-  get read_write(): STATE_ROA_WS<RT, WT, REL>;
+  get state(): State<RT, WT, REL>;
+  get read_only(): StateROA<RT, REL, WT>;
+  get read_write(): StateROAWS<RT, WT, REL>;
 }
 
 export type StateDelayedROAWS<
   RT,
   WT = RT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_ROA_WS<RT, WT, REL> & OwnerWS<RT, WT, REL>;
+> = StateROAWS<RT, WT, REL> & OwnerWS<RT, WT, REL>;
 
 class ROAWS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
-  extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
+  extends StateBase<RT, WT, REL, ResultOk<RT>>
   implements OwnerWS<RT, WT, REL>
 {
   constructor(
     init?: () => PromiseLike<ResultOk<RT>>,
-    setter: STATE_SET_ROX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetROXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -256,7 +256,7 @@ class ROAWS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   }
 
   #value?: ResultOk<RT>;
-  #setter: STATE_SET_ROX_WS<RT, OwnerWS<RT, WT, REL>, WT>;
+  #setter: StateSetROXWS<RT, OwnerWS<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -266,14 +266,14 @@ class ROAWS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   set_ok(value: RT): void {
     this.set(ok(value));
   }
-  get state(): STATE<RT, WT, REL> {
-    return this as STATE<RT, WT, REL>;
+  get state(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get read_only(): STATE_ROA<RT, REL, WT> {
-    return this as STATE_ROA<RT, REL, WT>;
+  get read_only(): StateROA<RT, REL, WT> {
+    return this as StateROA<RT, REL, WT>;
   }
-  get read_write(): STATE_ROA_WS<RT, WT, REL> {
-    return this as STATE_ROA_WS<RT, WT, REL>;
+  get read_write(): StateROAWS<RT, WT, REL> {
+    return this as StateROAWS<RT, WT, REL>;
   }
 
   //#Reader Context
@@ -326,7 +326,7 @@ const roa_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<RT>,
-    setter: STATE_SET_ROX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetROXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new ROAWS<RT, WT, REL>(
@@ -340,7 +340,7 @@ const roa_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<ResultOk<RT>>,
-    setter: STATE_SET_ROX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetROXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new ROAWS<RT, WT, REL>(init, setter, helper) as StateDelayedROAWS<
@@ -361,24 +361,24 @@ const roa_ws = {
 interface OwnerWA<RT, WT, REL extends Option<RELATED>> {
   set(value: ResultOk<RT>): void;
   set_ok(value: RT): void;
-  get state(): STATE<RT, WT, REL>;
-  get read_only(): STATE_ROA<RT, REL, WT>;
-  get read_write(): STATE_ROA_WA<RT, WT, REL>;
+  get state(): State<RT, WT, REL>;
+  get read_only(): StateROA<RT, REL, WT>;
+  get read_write(): StateROAWA<RT, WT, REL>;
 }
 
 export type StateDelayedROAWA<
   RT,
   WT = RT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_ROA_WA<RT, WT, REL> & OwnerWA<RT, WT, REL>;
+> = StateROAWA<RT, WT, REL> & OwnerWA<RT, WT, REL>;
 
 class ROAWA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
-  extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
+  extends StateBase<RT, WT, REL, ResultOk<RT>>
   implements OwnerWA<RT, WT, REL>
 {
   constructor(
     init?: () => PromiseLike<ResultOk<RT>>,
-    setter: STATE_SET_ROX_WA<RT, OwnerWA<RT, WT, REL>, WT> | true = true,
+    setter: StateSetROXWA<RT, OwnerWA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -429,7 +429,7 @@ class ROAWA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   }
 
   #value?: ResultOk<RT>;
-  #setter: STATE_SET_ROX_WA<RT, OwnerWA<RT, WT, REL>, WT>;
+  #setter: StateSetROXWA<RT, OwnerWA<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -439,14 +439,14 @@ class ROAWA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   set_ok(value: RT): void {
     this.set(ok(value));
   }
-  get state(): STATE<RT, WT, REL> {
-    return this as STATE<RT, WT, REL>;
+  get state(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get read_only(): STATE_ROA<RT, REL, WT> {
-    return this as STATE_ROA<RT, REL, WT>;
+  get read_only(): StateROA<RT, REL, WT> {
+    return this as StateROA<RT, REL, WT>;
   }
-  get read_write(): STATE_ROA_WA<RT, WT, REL> {
-    return this as STATE_ROA_WA<RT, WT, REL>;
+  get read_write(): StateROAWA<RT, WT, REL> {
+    return this as StateROAWA<RT, WT, REL>;
   }
 
   //#Reader Context
@@ -496,7 +496,7 @@ const roa_wa = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<RT>,
-    setter: STATE_SET_ROX_WA<RT, OwnerWA<RT, WT, REL>, WT> | true = true,
+    setter: StateSetROXWA<RT, OwnerWA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new ROAWA<RT, WT, REL>(
@@ -510,7 +510,7 @@ const roa_wa = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<ResultOk<RT>>,
-    setter: STATE_SET_ROX_WA<RT, OwnerWA<RT, WT, REL>, WT> | true = true,
+    setter: StateSetROXWA<RT, OwnerWA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new ROAWA<RT, WT, REL>(init, setter, helper) as StateDelayedROAWA<

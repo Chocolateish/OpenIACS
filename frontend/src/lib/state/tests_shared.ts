@@ -2,19 +2,19 @@ import { sleep } from "@libCommon";
 import { err, ok, ResultOk, type Result } from "@libResult";
 import { expect, it } from "vitest";
 import type {
-  STATE_REA,
-  STATE_REA_WA,
-  STATE_REA_WS,
-  STATE_RES,
-  STATE_RES_WA,
-  STATE_RES_WS,
-  STATE_ROA,
-  STATE_ROA_WA,
-  STATE_ROA_WS,
-  STATE_ROS,
-  STATE_ROS_WA,
-  STATE_ROS_WS,
-  STATE_SUB,
+  StateREA,
+  StateREAWA,
+  StateREAWS,
+  StateRES,
+  StateRESWA,
+  StateRESWS,
+  StateROA,
+  StateROAWA,
+  StateROAWS,
+  StateROS,
+  StateROSWA,
+  StateROSWS,
+  StateSub,
 } from "./types";
 
 function err_gen() {
@@ -35,55 +35,55 @@ type ROK = ResultOk<number>;
 export type TestStateAll = (
   setter?: (w: number) => void
 ) =>
-  | StateType<true, true, false, false, STATE_ROS<number>, ROK>
-  | StateType<true, true, true, true, STATE_ROS_WS<number>, ROK>
-  | StateType<true, true, true, false, STATE_ROS_WA<number>, ROK>
-  | StateType<true, false, false, false, STATE_ROA<number>, ROK>
-  | StateType<true, false, true, true, STATE_ROA_WS<number>, ROK>
-  | StateType<true, false, true, false, STATE_ROA_WA<number>, ROK>
-  | StateType<false, true, false, false, STATE_RES<number>, RERR>
-  | StateType<false, true, true, true, STATE_RES_WS<number>, RERR>
-  | StateType<false, true, true, false, STATE_RES_WA<number>, RERR>
-  | StateType<false, false, false, false, STATE_REA<number>, RERR>
-  | StateType<false, false, true, true, STATE_REA_WS<number>, RERR>
-  | StateType<false, false, true, false, STATE_REA_WA<number>, RERR>;
+  | StateType<true, true, false, false, StateROS<number>, ROK>
+  | StateType<true, true, true, true, StateROSWS<number>, ROK>
+  | StateType<true, true, true, false, StateROSWA<number>, ROK>
+  | StateType<true, false, false, false, StateROA<number>, ROK>
+  | StateType<true, false, true, true, StateROAWS<number>, ROK>
+  | StateType<true, false, true, false, StateROAWA<number>, ROK>
+  | StateType<false, true, false, false, StateRES<number>, RERR>
+  | StateType<false, true, true, true, StateRESWS<number>, RERR>
+  | StateType<false, true, true, false, StateRESWA<number>, RERR>
+  | StateType<false, false, false, false, StateREA<number>, RERR>
+  | StateType<false, false, true, true, StateREAWS<number>, RERR>
+  | StateType<false, false, true, false, StateREAWA<number>, RERR>;
 
 export type TestStateOk = () =>
-  | StateType<true, true, false, false, STATE_ROS<number>, ROK>
-  | StateType<true, true, true, true, STATE_ROS_WS<number>, ROK>
-  | StateType<true, true, true, false, STATE_ROS_WA<number>, ROK>
-  | StateType<true, false, false, false, STATE_ROA<number>, ROK>
-  | StateType<true, false, true, true, STATE_ROA_WS<number>, ROK>
-  | StateType<true, false, true, false, STATE_ROA_WA<number>, ROK>;
+  | StateType<true, true, false, false, StateROS<number>, ROK>
+  | StateType<true, true, true, true, StateROSWS<number>, ROK>
+  | StateType<true, true, true, false, StateROSWA<number>, ROK>
+  | StateType<true, false, false, false, StateROA<number>, ROK>
+  | StateType<true, false, true, true, StateROAWS<number>, ROK>
+  | StateType<true, false, true, false, StateROAWA<number>, ROK>;
 
 export type TestStateSync = () =>
-  | StateType<true, true, false, false, STATE_ROS<number>, ROK>
-  | StateType<true, true, true, true, STATE_ROS_WS<number>, ROK>
-  | StateType<true, true, true, false, STATE_ROS_WA<number>, ROK>
-  | StateType<false, true, false, false, STATE_RES<number>, RERR>
-  | StateType<false, true, true, true, STATE_RES_WS<number>, RERR>
-  | StateType<false, true, true, false, STATE_RES_WA<number>, RERR>;
+  | StateType<true, true, false, false, StateROS<number>, ROK>
+  | StateType<true, true, true, true, StateROSWS<number>, ROK>
+  | StateType<true, true, true, false, StateROSWA<number>, ROK>
+  | StateType<false, true, false, false, StateRES<number>, RERR>
+  | StateType<false, true, true, true, StateRESWS<number>, RERR>
+  | StateType<false, true, true, false, StateRESWA<number>, RERR>;
 
 export type TestStateOkSync = () =>
-  | StateType<true, true, false, false, STATE_ROS<number>, ROK>
-  | StateType<true, true, true, true, STATE_ROS_WS<number>, ROK>
-  | StateType<true, true, true, false, STATE_ROS_WA<number>, ROK>;
+  | StateType<true, true, false, false, StateROS<number>, ROK>
+  | StateType<true, true, true, true, StateROSWS<number>, ROK>
+  | StateType<true, true, true, false, StateROSWA<number>, ROK>;
 
 export type TestStateWrite = () =>
-  | StateType<true, true, true, true, STATE_ROS_WS<number>, ROK>
-  | StateType<true, true, true, false, STATE_ROS_WA<number>, ROK>
-  | StateType<true, false, true, true, STATE_ROA_WS<number>, ROK>
-  | StateType<true, false, true, false, STATE_ROA_WA<number>, ROK>
-  | StateType<false, true, true, true, STATE_RES_WS<number>, RERR>
-  | StateType<false, true, true, false, STATE_RES_WA<number>, RERR>
-  | StateType<false, false, true, true, STATE_REA_WS<number>, RERR>
-  | StateType<false, false, true, false, STATE_REA_WA<number>, RERR>;
+  | StateType<true, true, true, true, StateROSWS<number>, ROK>
+  | StateType<true, true, true, false, StateROSWA<number>, ROK>
+  | StateType<true, false, true, true, StateROAWS<number>, ROK>
+  | StateType<true, false, true, false, StateROAWA<number>, ROK>
+  | StateType<false, true, true, true, StateRESWS<number>, RERR>
+  | StateType<false, true, true, false, StateRESWA<number>, RERR>
+  | StateType<false, false, true, true, StateREAWS<number>, RERR>
+  | StateType<false, false, true, false, StateREAWA<number>, RERR>;
 
 export type TestStateWriteSync = () =>
-  | StateType<true, true, true, true, STATE_ROS_WS<number>, ROK>
-  | StateType<true, false, true, true, STATE_ROA_WS<number>, ROK>
-  | StateType<false, true, true, true, STATE_RES_WS<number>, RERR>
-  | StateType<false, false, true, true, STATE_REA_WS<number>, RERR>;
+  | StateType<true, true, true, true, StateROSWS<number>, ROK>
+  | StateType<true, false, true, true, StateROAWS<number>, ROK>
+  | StateType<false, true, true, true, StateRESWS<number>, RERR>
+  | StateType<false, false, true, true, StateREAWS<number>, RERR>;
 
 //       _____ _    _ ____   _____  _____ _____  _____ ____  ______
 //      / ____| |  | |  _ \ / ____|/ ____|  __ \|_   _|  _ \|  ____|
@@ -109,7 +109,7 @@ export async function test_state_sub(
     count++;
   }, true);
   expect(state.in_use()).equal(state);
-  expect(state.has(sub1 as STATE_SUB<Result<number, string>>)).equal(state);
+  expect(state.has(sub1 as StateSub<Result<number, string>>)).equal(state);
   expect(state.amount()).equal(1);
   await sleep(wait ?? 1);
   expect(count).equal(1);
@@ -117,7 +117,7 @@ export async function test_state_sub(
     count += 10;
   });
   expect(state.in_use()).equal(state);
-  expect(state.has(sub2 as STATE_SUB<Result<number, string>>)).equal(state);
+  expect(state.has(sub2 as StateSub<Result<number, string>>)).equal(state);
   expect(state.amount()).equal(2);
   expect(count).equal(1);
   set(ok(8));
@@ -128,7 +128,7 @@ export async function test_state_sub(
     throw new Error("Gaurded against crash");
   });
   expect(state.in_use()).equal(state);
-  expect(state.has(sub3 as STATE_SUB<Result<number, string>>)).equal(state);
+  expect(state.has(sub3 as StateSub<Result<number, string>>)).equal(state);
   expect(state.amount()).equal(3);
   set(ok(12));
   await sleep(1);
@@ -136,7 +136,7 @@ export async function test_state_sub(
   state.unsub(sub1);
   state.unsub(sub2);
   expect(state.in_use()).equal(state);
-  expect(state.has(sub3 as STATE_SUB<Result<number, string>>)).equal(state);
+  expect(state.has(sub3 as StateSub<Result<number, string>>)).equal(state);
   expect(state.amount()).equal(1);
   set(ok(13));
   await sleep(1);
@@ -145,7 +145,7 @@ export async function test_state_sub(
   expect(state.in_use()).equal(undefined);
   expect(state.amount()).equal(0);
   const [sub4, val] = await new Promise<
-    [STATE_SUB<any>, Result<number, string>]
+    [StateSub<any>, Result<number, string>]
   >((a) => {
     const sub4 = state.sub((val) => {
       count += 1000;
@@ -159,7 +159,7 @@ export async function test_state_sub(
   state.unsub(sub4);
   if (!made.o) {
     const [sub5, val2] = await new Promise<
-      [STATE_SUB<any>, Result<number, string>]
+      [StateSub<any>, Result<number, string>]
     >((a) => {
       const sub5 = state.sub((val) => {
         count += 10000;

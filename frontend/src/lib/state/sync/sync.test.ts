@@ -1,5 +1,5 @@
 import { ok, ResultOk, type Result } from "@libResult";
-import st, { type STATE_ROS } from "@libState";
+import st, { type StateROS } from "@libState";
 import { assertType, describe, it } from "vitest";
 import {
   test_state_get,
@@ -17,7 +17,7 @@ describe("Sync states", function () {
   describe("ROS", { timeout: 100 }, function () {
     it("ok", async function () {
       const init = st.s.ros.ok(1);
-      assertType<STATE_ROS<number>>(init);
+      assertType<StateROS<number>>(init);
     });
     it("result ok", async function () {
       st.s.ros.result(ok(1));

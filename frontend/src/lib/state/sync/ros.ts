@@ -7,15 +7,15 @@ import {
   type Option,
   type Result,
 } from "@libResult";
-import { STATE_BASE } from "../base";
+import { StateBase } from "../base";
 import {
-  type STATE_HELPER as Helper,
-  type STATE_RELATED as RELATED,
-  type STATE,
-  type STATE_ROS,
-  type STATE_ROS_WS,
-  type STATE_SET_REX_WS,
-  type STATE_SET_ROX_WS,
+  type StateHelper as Helper,
+  type StateRelated as RELATED,
+  type State,
+  type StateROS,
+  type StateROSWS,
+  type StateSetREXWS,
+  type StateSetROXWS,
 } from "../types";
 
 //##################################################################################################################################################
@@ -25,22 +25,22 @@ import {
 //     |  _  /| |  | |\___ \
 //     | | \ \| |__| |____) |
 //     |_|  \_\\____/|_____/
-interface OWNER<RT, WT, REL extends Option<RELATED>> {
+interface Owner<RT, WT, REL extends Option<RELATED>> {
   set(value: ResultOk<RT>): void;
   set_ok(value: RT): void;
-  get state(): STATE<RT, WT, REL>;
-  get read_only(): STATE_ROS<RT, REL, WT>;
+  get state(): State<RT, WT, REL>;
+  get read_only(): StateROS<RT, REL, WT>;
 }
 
-export type STATE_SYNC_ROS<
+export type StateSyncROS<
   RT,
   REL extends Option<RELATED> = OptionNone,
   WT = any
-> = STATE_ROS<RT, REL, WT> & OWNER<RT, WT, REL>;
+> = StateROS<RT, REL, WT> & Owner<RT, WT, REL>;
 
 class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
-  extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
-  implements OWNER<RT, WT, REL>
+  extends StateBase<RT, WT, REL, ResultOk<RT>>
+  implements Owner<RT, WT, REL>
 {
   constructor(init: ResultOk<RT>, helper?: Helper<WT, REL>) {
     super();
@@ -49,7 +49,7 @@ class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
 
   #value: ResultOk<RT>;
-  setter?: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT>;
+  setter?: StateSetREXWS<RT, Owner<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -59,11 +59,11 @@ class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   set_ok(value: RT): void {
     this.set(ok(value));
   }
-  get state(): STATE<RT, WT, REL> {
-    return this as STATE<RT, WT, REL>;
+  get state(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get read_only(): STATE_ROS<RT, REL, WT> {
-    return this as STATE_ROS<RT, REL, WT>;
+  get read_only(): StateROS<RT, REL, WT> {
+    return this as StateROS<RT, REL, WT>;
   }
 
   //#Reader Context
@@ -118,11 +118,7 @@ const ros = {
     init: RT,
     helper?: Helper<WT, REL>
   ) {
-    return new ROS<RT, REL, WT>(ok(init), helper) as STATE_SYNC_ROS<
-      RT,
-      REL,
-      WT
-    >;
+    return new ROS<RT, REL, WT>(ok(init), helper) as StateSyncROS<RT, REL, WT>;
   },
   /**Creates a sync ok state from an initial result.
    * @param init initial result for state.
@@ -131,7 +127,7 @@ const ros = {
     init: ResultOk<RT>,
     helper?: Helper<WT, REL>
   ) {
-    return new ROS<RT, REL, WT>(init, helper) as STATE_SYNC_ROS<RT, REL, WT>;
+    return new ROS<RT, REL, WT>(init, helper) as StateSyncROS<RT, REL, WT>;
   },
 };
 
@@ -143,27 +139,27 @@ const ros = {
 //     | | \ \| |__| |____) |    \  /\  /  ____) |
 //     |_|  \_\\____/|_____/      \/  \/  |_____/
 
-interface OWNER_WS<RT, WT, REL extends Option<RELATED>> {
+interface OwnerWS<RT, WT, REL extends Option<RELATED>> {
   set(value: ResultOk<RT>): void;
   set_ok(value: RT): void;
-  get state(): STATE<RT, WT, REL>;
-  get read_only(): STATE_ROS<RT, REL, WT>;
-  get read_write(): STATE_ROS_WS<RT, WT, REL>;
+  get state(): State<RT, WT, REL>;
+  get read_only(): StateROS<RT, REL, WT>;
+  get read_write(): StateROSWS<RT, WT, REL>;
 }
 
-export type STATE_SYNC_ROS_WS<
+export type StateSyncROSWS<
   RT,
   WT = RT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_ROS_WS<RT, WT, REL> & OWNER_WS<RT, WT, REL>;
+> = StateROSWS<RT, WT, REL> & OwnerWS<RT, WT, REL>;
 
-class ROS_WS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
-  extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
-  implements OWNER_WS<RT, WT, REL>
+class ROSWS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
+  extends StateBase<RT, WT, REL, ResultOk<RT>>
+  implements OwnerWS<RT, WT, REL>
 {
   constructor(
     init: ResultOk<RT>,
-    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetROXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -183,7 +179,7 @@ class ROS_WS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   }
 
   #value: ResultOk<RT>;
-  #setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT>;
+  #setter: StateSetROXWS<RT, OwnerWS<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -193,14 +189,14 @@ class ROS_WS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   set_ok(value: RT): void {
     this.set(ok(value));
   }
-  get state(): STATE<RT, WT, REL> {
-    return this as STATE<RT, WT, REL>;
+  get state(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get read_only(): STATE_ROS<RT, REL, WT> {
-    return this as STATE_ROS<RT, REL, WT>;
+  get read_only(): StateROS<RT, REL, WT> {
+    return this as StateROS<RT, REL, WT>;
   }
-  get read_write(): STATE_ROS_WS<RT, WT, REL> {
-    return this as STATE_ROS_WS<RT, WT, REL>;
+  get read_write(): StateROSWS<RT, WT, REL> {
+    return this as StateROSWS<RT, WT, REL>;
   }
 
   //#Reader Context
@@ -252,24 +248,24 @@ const ros_ws = {
   ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     this: void,
     init: RT,
-    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetROXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
-    return new ROS_WS<RT, WT, REL>(
-      ok(init),
-      setter,
-      helper
-    ) as STATE_SYNC_ROS_WS<RT, WT, REL>;
+    return new ROSWS<RT, WT, REL>(ok(init), setter, helper) as StateSyncROSWS<
+      RT,
+      WT,
+      REL
+    >;
   },
   /**Creates a sync ok state from an initial result.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: ResultOk<RT>,
-    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetROXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
-    return new ROS_WS<RT, WT, REL>(init, setter, helper) as STATE_SYNC_ROS_WS<
+    return new ROSWS<RT, WT, REL>(init, setter, helper) as StateSyncROSWS<
       RT,
       WT,
       REL
@@ -285,7 +281,7 @@ const ros_ws = {
 //     | |____ / . \| |    | |__| | | \ \  | |  ____) |
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 /**Sync valueholding states */
-export const state_sync_ros = {
+export const STATE_SYNC_ROS = {
   /**Sync read only states with guarenteed ok*/
   ros,
   /**Sync read and sync write with guarenteed ok*/

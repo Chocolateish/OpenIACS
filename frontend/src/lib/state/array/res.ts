@@ -6,14 +6,14 @@ import {
   type Option,
   type Result,
 } from "@libResult";
-import { STATE_BASE } from "../base";
+import { StateBase } from "../base";
 import {
-  type STATE_HELPER as HELPER,
-  type STATE_RELATED as RELATED,
-  type STATE,
-  type STATE_RES,
-  type STATE_RES_WS,
-  type STATE_SET_REX_WS,
+  type StateHelper as HELPER,
+  type StateRelated as RELATED,
+  type State,
+  type StateRES,
+  type StateRESWS,
+  type StateSetREXWS,
 } from "../types";
 import type {
   StateArrayReadType as READ_TYPE,
@@ -32,16 +32,16 @@ import type {
 
 interface Owner<AT, REL extends Option<RELATED>> extends StateArray<AT> {
   set(value: Result<AT[], string>): void;
-  get state(): STATE<SAR<AT>, SAW<AT>, REL>;
-  get read_only(): STATE_RES<SAR<AT>, REL, SAW<AT>>;
+  get state(): State<SAR<AT>, SAW<AT>, REL>;
+  get read_only(): StateRES<SAR<AT>, REL, SAW<AT>>;
 }
 export type StateArrayRES<
   AT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_RES<SAR<AT>, REL, SAW<AT>> & Owner<AT, REL>;
+> = StateRES<SAR<AT>, REL, SAW<AT>> & Owner<AT, REL>;
 
 class RES<AT, REL extends Option<RELATED>>
-  extends STATE_BASE<SAR<AT>, SAW<AT>, REL, Result<SAR<AT>, string>>
+  extends StateBase<SAR<AT>, SAW<AT>, REL, Result<SAR<AT>, string>>
   implements Owner<AT, REL>
 {
   constructor(init: Result<AT[], string>, helper?: HELPER<SAW<AT>, REL>) {
@@ -54,17 +54,17 @@ class RES<AT, REL extends Option<RELATED>>
   #e?: string;
   #a: AT[] = [];
   #helper?: HELPER<SAW<AT>, REL>;
-  setter?: STATE_SET_REX_WS<SAR<AT>, Owner<AT, REL>, SAW<AT>>;
+  setter?: StateSetREXWS<SAR<AT>, Owner<AT, REL>, SAW<AT>>;
 
   #mr(type: READ_TYPE, index: number, items: AT[]): SAR<AT> {
     return { array: this.#a, type, index, items };
   }
 
-  get state(): STATE<SAR<AT>, SAW<AT>, REL> {
-    return this as STATE<SAR<AT>, SAW<AT>, REL>;
+  get state(): State<SAR<AT>, SAW<AT>, REL> {
+    return this as State<SAR<AT>, SAW<AT>, REL>;
   }
-  get read_only(): STATE_RES<SAR<AT>, REL, SAW<AT>> {
-    return this as STATE_RES<SAR<AT>, REL, SAW<AT>>;
+  get read_only(): StateRES<SAR<AT>, REL, SAW<AT>> {
+    return this as StateRES<SAR<AT>, REL, SAW<AT>>;
   }
 
   //#Reader Context
@@ -211,17 +211,17 @@ const res = {
 //     |_|  \_\______|_____/      \/  \/  |_____/
 interface OwnerWS<AT, REL extends Option<RELATED>> extends StateArray<AT> {
   set(value: Result<AT[], string>): void;
-  get state(): STATE<SAR<AT>, SAW<AT>, REL>;
-  get read_only(): STATE_RES<SAR<AT>, REL, SAW<AT>>;
-  get read_write(): STATE_RES_WS<SAR<AT>, SAW<AT>, REL>;
+  get state(): State<SAR<AT>, SAW<AT>, REL>;
+  get read_only(): StateRES<SAR<AT>, REL, SAW<AT>>;
+  get read_write(): StateRESWS<SAR<AT>, SAW<AT>, REL>;
 }
 export type StateArrayRESWS<
   AT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_RES_WS<SAR<AT>, SAW<AT>, REL> & OwnerWS<AT, REL>;
+> = StateRESWS<SAR<AT>, SAW<AT>, REL> & OwnerWS<AT, REL>;
 
 class RESWS<AT, REL extends Option<RELATED>>
-  extends STATE_BASE<SAR<AT>, SAW<AT>, REL, Result<SAR<AT>, string>>
+  extends StateBase<SAR<AT>, SAW<AT>, REL, Result<SAR<AT>, string>>
   implements OwnerWS<AT, REL>
 {
   /**Creates a state which holds a value
@@ -230,7 +230,7 @@ class RESWS<AT, REL extends Option<RELATED>>
    * @param helper functions to check and limit*/
   constructor(
     init: Result<AT[], string>,
-    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>> | true,
+    setter: StateSetREXWS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>
   ) {
     super();
@@ -246,19 +246,19 @@ class RESWS<AT, REL extends Option<RELATED>>
   #e?: string;
   #a: AT[] = [];
   #h?: HELPER<SAW<AT>, REL>;
-  #setter: STATE_SET_REX_WS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>>;
+  #setter: StateSetREXWS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>>;
 
   #mr(type: READ_TYPE, index: number, items: AT[]): SAR<AT> {
     return { array: this.#a, type, index, items };
   }
 
-  get state(): STATE<SAR<AT>, SAW<AT>, REL> {
+  get state(): State<SAR<AT>, SAW<AT>, REL> {
     return this;
   }
-  get read_only(): STATE_RES<SAR<AT>, REL, SAW<AT>> {
+  get read_only(): StateRES<SAR<AT>, REL, SAW<AT>> {
     return this;
   }
-  get read_write(): STATE_RES_WS<SAR<AT>, SAW<AT>, REL> {
+  get read_write(): StateRESWS<SAR<AT>, SAW<AT>, REL> {
     return this;
   }
 
@@ -382,7 +382,7 @@ const RES_WS = {
    * @param helper functions to check and limit*/
   ok<AT, REL extends Option<RELATED> = OptionNone>(
     init: AT[] = [],
-    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>> | true,
+    setter: StateSetREXWS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>
   ) {
     return new RESWS<AT, REL>(ok(init), setter, helper) as StateArrayRESWS<
@@ -396,7 +396,7 @@ const RES_WS = {
    * @param helper functions to check and limit*/
   err<AT, REL extends Option<RELATED> = OptionNone>(
     error: string,
-    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>> | true,
+    setter: StateSetREXWS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>
   ) {
     return new RESWS<AT, REL>(err(error), setter, helper) as StateArrayRESWS<

@@ -1,6 +1,6 @@
 import { none, OptionNone, type ResultOk } from "@libResult";
-import { STATE_BASE } from "../base";
-import { type STATE, type STATE_RES, type STATE_ROS } from "../types";
+import { StateBase } from "../base";
+import { type State, type StateRES, type StateROS } from "../types";
 import type {
   StateCollectedStates,
   StateCollectedSubs,
@@ -15,7 +15,7 @@ import type {
 //     |  _  /| |  | |\___ \
 //     | | \ \| |__| |____) |
 //     |_|  \_\\____/|_____/
-interface Owner<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT> {
+interface Owner<RT, IN extends [StateRES<any>, ...StateRES<any>[]], WT> {
   /**The `setStates` method is used to update the states used by the `StateDerived` class.
    * @param states - The new states. This function should accept an array of states and return the derived state.*/
   set_states(...states: StateCollectedStates<IN>): void;
@@ -25,17 +25,17 @@ interface Owner<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT> {
   set_getter(
     getter: (values: StateCollectedTransVal<IN>) => ResultOk<RT>
   ): void;
-  get state(): STATE<RT, WT, any>;
-  get read_only(): STATE_ROS<RT, any, WT>;
+  get state(): State<RT, WT, any>;
+  get read_only(): StateROS<RT, any, WT>;
 }
 export type StateCollectedROS<
   RT,
-  IN extends [STATE_RES<any>, ...STATE_RES<any>[]],
+  IN extends [StateRES<any>, ...StateRES<any>[]],
   WT = any
-> = STATE_ROS<RT, OptionNone, WT> & Owner<RT, IN, WT>;
+> = StateROS<RT, OptionNone, WT> & Owner<RT, IN, WT>;
 
-export class ROS<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
-  extends STATE_BASE<RT, WT, OptionNone, ResultOk<RT>>
+export class ROS<RT, IN extends [StateRES<any>, ...StateRES<any>[]], WT>
+  extends StateBase<RT, WT, OptionNone, ResultOk<RT>>
   implements Owner<RT, IN, WT>
 {
   constructor(
@@ -107,11 +107,11 @@ export class ROS<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
       this.on_subscribe();
     } else this.getter = getter;
   }
-  get state(): STATE<RT, WT, any> {
-    return this as STATE<RT, WT, any>;
+  get state(): State<RT, WT, any> {
+    return this as State<RT, WT, any>;
   }
-  get read_only(): STATE_ROS<RT, any, WT> {
-    return this as STATE_ROS<RT, any, WT>;
+  get read_only(): StateROS<RT, any, WT> {
+    return this as StateROS<RT, any, WT>;
   }
 
   //#Reader Context
@@ -152,7 +152,7 @@ export const STATE_COLLECTED_ROS = {
   /**Creates a guarenteed ok state that collects multiple states values and reduces it to one.
    * @param transform - Function to translate value of collected states, false means first states values is used.
    * @param states - The states to collect.*/
-  from<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT = any>(
+  from<RT, IN extends [StateRES<any>, ...StateRES<any>[]], WT = any>(
     transform: ((values: StateCollectedTransVal<IN>) => ResultOk<RT>) | false,
     ...states: IN
   ) {

@@ -1,10 +1,10 @@
 import { none, OptionNone, ResultOk, type Option } from "@libResult";
-import { STATE_BASE } from "../base";
+import { StateBase } from "../base";
 import {
-  type STATE_RELATED as RELATED,
-  type STATE,
-  type STATE_HELPER,
-  type STATE_ROA,
+  type StateRelated as RELATED,
+  type State,
+  type StateHelper,
+  type StateROA,
 } from "../types";
 
 //##################################################################################################################################################
@@ -29,21 +29,21 @@ import {
  * this can prevent unneeded calls if the user is switching around quickly between things referencing states
  * @template RT - The type of the state’s value when read.
  * @template REL - The type of related states, defaults to an empty object.*/
-export interface STATE_RESOURCE_ROA_OWNER<RT, WT, REL extends Option<RELATED>> {
+export interface StateResourceOwnerROA<RT, WT, REL extends Option<RELATED>> {
   update_single(value: ResultOk<RT>): void;
   update_resource(value: ResultOk<RT>): void;
   get buffer(): ResultOk<RT> | undefined;
-  get state(): STATE<RT, WT, REL>;
-  get read_only(): STATE_ROA<RT, REL, WT>;
+  get state(): State<RT, WT, REL>;
+  get read_only(): StateROA<RT, REL, WT>;
 }
 
-export abstract class STATE_RESOURCE_ROA<
+export abstract class StateResourceROA<
     RT,
     REL extends Option<RELATED> = OptionNone,
     WT = any
   >
-  extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
-  implements STATE_RESOURCE_ROA_OWNER<RT, WT, REL>
+  extends StateBase<RT, WT, REL, ResultOk<RT>>
+  implements StateResourceOwnerROA<RT, WT, REL>
 {
   #valid: number | true = 0;
   #fetching: boolean = false;
@@ -97,17 +97,17 @@ export abstract class STATE_RESOURCE_ROA<
 
   /**Called if the state is awaited, returns the value once*/
   protected abstract single_get(
-    state: STATE_RESOURCE_ROA_OWNER<RT, WT, REL>
+    state: StateResourceOwnerROA<RT, WT, REL>
   ): void;
 
   /**Called when state is subscribed to to setup connection to remote resource*/
   protected abstract setup_connection(
-    state: STATE_RESOURCE_ROA_OWNER<RT, WT, REL>
+    state: StateResourceOwnerROA<RT, WT, REL>
   ): void;
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
   protected abstract teardown_connection(
-    state: STATE_RESOURCE_ROA_OWNER<RT, WT, REL>
+    state: StateResourceOwnerROA<RT, WT, REL>
   ): void;
 
   update_single(value: ResultOk<RT>) {
@@ -126,11 +126,11 @@ export abstract class STATE_RESOURCE_ROA<
   get buffer(): ResultOk<RT> | undefined {
     return this.#buffer;
   }
-  get state(): STATE<RT, WT, REL> {
-    return this as STATE<RT, WT, REL>;
+  get state(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get read_only(): STATE_ROA<RT, REL, WT> {
-    return this as STATE_ROA<RT, REL, WT>;
+  get read_only(): StateROA<RT, REL, WT> {
+    return this as StateROA<RT, REL, WT>;
   }
 
   //#Reader Context
@@ -171,31 +171,31 @@ export abstract class STATE_RESOURCE_ROA<
 }
 
 //##################################################################################################################################################
-interface OWNER<RT, WT, REL extends Option<RELATED>>
-  extends STATE_RESOURCE_ROA_OWNER<RT, WT, REL> {}
-export type STATE_RESOURCE_FUNC_ROA<
+interface Owner<RT, WT, REL extends Option<RELATED>>
+  extends StateResourceOwnerROA<RT, WT, REL> {}
+export type StateResourceFuncROA<
   RT,
   REL extends Option<RELATED> = OptionNone,
   WT = any
-> = STATE_ROA<RT, REL, WT> & OWNER<RT, WT, REL>;
+> = StateROA<RT, REL, WT> & Owner<RT, WT, REL>;
 
 /**Alternative state resource which can be initialized with functions
  * @template RT - The type of the state’s value when read.
  * @template WT - The type which can be written to the state.
  * @template REL - The type of related states, defaults to an empty object.*/
-class FUNC_ROA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
-  extends STATE_RESOURCE_ROA<RT, REL, WT>
-  implements OWNER<RT, WT, REL>
+class FuncROA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
+  extends StateResourceROA<RT, REL, WT>
+  implements Owner<RT, WT, REL>
 {
   constructor(
-    once: (state: OWNER<RT, WT, REL>) => void,
-    setup: (state: OWNER<RT, WT, REL>) => void,
-    teardown: (state: OWNER<RT, WT, REL>) => void,
+    once: (state: Owner<RT, WT, REL>) => void,
+    setup: (state: Owner<RT, WT, REL>) => void,
+    teardown: (state: Owner<RT, WT, REL>) => void,
     timeout: number,
     debounce: number,
     validity: number | true,
     retention: number,
-    helper?: STATE_HELPER<WT, REL>
+    helper?: StateHelper<WT, REL>
   ) {
     super();
     this.single_get = once;
@@ -212,16 +212,16 @@ class FUNC_ROA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   readonly debounce: number;
   readonly validity: number | true;
   readonly retention: number;
-  #helper?: STATE_HELPER<WT, REL>;
+  #helper?: StateHelper<WT, REL>;
 
   /**Called if the state is awaited, returns the value once*/
-  protected single_get(_state: OWNER<RT, WT, REL>): void {}
+  protected single_get(_state: Owner<RT, WT, REL>): void {}
 
   /**Called when state is subscribed to to setup connection to remote resource*/
-  protected setup_connection(_state: OWNER<RT, WT, REL>): void {}
+  protected setup_connection(_state: Owner<RT, WT, REL>): void {}
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
-  protected teardown_connection(_state: OWNER<RT, WT, REL>): void {}
+  protected teardown_connection(_state: Owner<RT, WT, REL>): void {}
 
   related(): REL {
     return this.#helper?.related ? this.#helper.related() : (none() as REL);
@@ -240,18 +240,18 @@ const roa = {
    * @param retention delay after last subscriber unsubscribes before teardown is called, to allow quick resubscribe without teardown
    * */
   from<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
-    once: (state: OWNER<RT, WT, REL>) => void,
-    setup: (state: OWNER<RT, WT, REL>) => void,
-    teardown: (state: OWNER<RT, WT, REL>) => void,
+    once: (state: Owner<RT, WT, REL>) => void,
+    setup: (state: Owner<RT, WT, REL>) => void,
+    teardown: (state: Owner<RT, WT, REL>) => void,
     times?: {
       timeout?: number;
       debounce?: number;
       validity?: number | true;
       retention?: number;
     },
-    helper?: STATE_HELPER<WT, REL>
+    helper?: StateHelper<WT, REL>
   ) {
-    return new FUNC_ROA<RT, REL, WT>(
+    return new FuncROA<RT, REL, WT>(
       once,
       setup,
       teardown,
@@ -260,9 +260,9 @@ const roa = {
       times?.validity ?? 0,
       times?.retention ?? 0,
       helper
-    ) as STATE_RESOURCE_FUNC_ROA<RT, REL, WT>;
+    ) as StateResourceFuncROA<RT, REL, WT>;
   },
-  class: STATE_RESOURCE_ROA,
+  class: StateResourceROA,
 };
 
 //##################################################################################################################################################
@@ -274,7 +274,7 @@ const roa = {
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 
 /**State that represent a remote resource*/
-export const state_resource_roa = {
+export const STATE_RESOURCE_ROA = {
   /**Remote resource with guaranteed ok value */
   roa,
 };

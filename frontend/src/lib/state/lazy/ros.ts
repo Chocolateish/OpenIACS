@@ -7,15 +7,15 @@ import {
   type Option,
   type Result,
 } from "@libResult";
-import { STATE_BASE } from "../base";
+import { StateBase } from "../base";
 import {
-  type STATE_HELPER as Helper,
-  type STATE_RELATED as RELATED,
-  type STATE,
-  type STATE_ROS,
-  type STATE_ROS_WS,
-  type STATE_SET_REX_WS,
-  type STATE_SET_ROX_WS,
+  type StateHelper as Helper,
+  type StateRelated as RELATED,
+  type State,
+  type StateROS,
+  type StateROSWS,
+  type StateSetREXWS,
+  type StateSetROXWS,
 } from "../types";
 
 //##################################################################################################################################################
@@ -28,18 +28,18 @@ import {
 interface Owner<RT, WT, REL extends Option<RELATED>> {
   set(value: ResultOk<RT>): void;
   set_ok(value: RT): void;
-  get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_ROS<RT, REL, WT>;
+  get state(): State<RT, WT, REL>;
+  get readOnly(): StateROS<RT, REL, WT>;
 }
 
 export type StateLazyROS<
   RT,
   REL extends Option<RELATED> = OptionNone,
   WT = any
-> = STATE_ROS<RT, REL, WT> & Owner<RT, WT, REL>;
+> = StateROS<RT, REL, WT> & Owner<RT, WT, REL>;
 
 class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
-  extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
+  extends StateBase<RT, WT, REL, ResultOk<RT>>
   implements Owner<RT, WT, REL>
 {
   constructor(init: () => ResultOk<RT>, helper?: Helper<WT, REL>) {
@@ -57,7 +57,7 @@ class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
 
   #value?: ResultOk<RT>;
-  setter?: STATE_SET_REX_WS<RT, Owner<RT, WT, REL>, WT>;
+  setter?: StateSetREXWS<RT, Owner<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -67,11 +67,11 @@ class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   set_ok(value: RT): void {
     this.set(ok(value));
   }
-  get state(): STATE<RT, WT, REL> {
-    return this as STATE<RT, WT, REL>;
+  get state(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get readOnly(): STATE_ROS<RT, REL, WT> {
-    return this as STATE_ROS<RT, REL, WT>;
+  get readOnly(): StateROS<RT, REL, WT> {
+    return this as StateROS<RT, REL, WT>;
   }
 
   //#Reader Context
@@ -152,24 +152,24 @@ const ros = {
 interface OwnerWS<RT, WT, REL extends Option<RELATED>> {
   set(value: ResultOk<RT>): void;
   set_ok(value: RT): void;
-  get state(): STATE<RT, WT, REL>;
-  get readOnly(): STATE_ROS<RT, REL, WT>;
-  get readWrite(): STATE_ROS_WS<RT, WT, REL>;
+  get state(): State<RT, WT, REL>;
+  get readOnly(): StateROS<RT, REL, WT>;
+  get readWrite(): StateROSWS<RT, WT, REL>;
 }
 
 export type StateLazyROSWS<
   RT,
   WT = RT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_ROS_WS<RT, WT, REL> & OwnerWS<RT, WT, REL>;
+> = StateROSWS<RT, WT, REL> & OwnerWS<RT, WT, REL>;
 
 class ROSWS<RT, WT, REL extends Option<RELATED>>
-  extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
+  extends StateBase<RT, WT, REL, ResultOk<RT>>
   implements OwnerWS<RT, WT, REL>
 {
   constructor(
     init: () => ResultOk<RT>,
-    setter: STATE_SET_ROX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetROXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -197,7 +197,7 @@ class ROSWS<RT, WT, REL extends Option<RELATED>>
   }
 
   #value?: ResultOk<RT>;
-  #setter: STATE_SET_ROX_WS<RT, OwnerWS<RT, WT, REL>, WT>;
+  #setter: StateSetROXWS<RT, OwnerWS<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -207,14 +207,14 @@ class ROSWS<RT, WT, REL extends Option<RELATED>>
   set_ok(value: RT): void {
     this.set(ok(value));
   }
-  get state(): STATE<RT, WT, REL> {
-    return this as STATE<RT, WT, REL>;
+  get state(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get readOnly(): STATE_ROS<RT, REL, WT> {
-    return this as STATE_ROS<RT, REL, WT>;
+  get readOnly(): StateROS<RT, REL, WT> {
+    return this as StateROS<RT, REL, WT>;
   }
-  get readWrite(): STATE_ROS_WS<RT, WT, REL> {
-    return this as STATE_ROS_WS<RT, WT, REL>;
+  get readWrite(): StateROSWS<RT, WT, REL> {
+    return this as StateROSWS<RT, WT, REL>;
   }
 
   //#Reader Context
@@ -265,7 +265,7 @@ const ros_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: () => RT,
-    setter: STATE_SET_ROX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetROXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new ROSWS<RT, WT, REL>(
@@ -279,7 +279,7 @@ const ros_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: () => ResultOk<RT>,
-    setter: STATE_SET_ROX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetROXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new ROSWS<RT, WT, REL>(init, setter, helper) as StateLazyROSWS<
@@ -298,7 +298,7 @@ const ros_ws = {
 //     | |____ / . \| |    | |__| | | \ \  | |  ____) |
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 /**Lazy valueholding states, lazy means the given function is evaluated on first access */
-export const state_lazy_ros = {
+export const STATE_LAZY_ROS = {
   /**Sync Read lazy states with guarenteed ok, lazy meaning the value is only evaluated on first access. */
   ros,
   /**Sync Read And Sync Write lazy states with guarenteed ok, lazy meaning the value is only evaluated on first access. */

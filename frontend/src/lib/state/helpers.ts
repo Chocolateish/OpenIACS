@@ -1,24 +1,24 @@
 import { number_step_start_decimal } from "@libMath";
 import { err, ok, OptionSome, some, type Result } from "@libResult";
 import type { SVGFunc } from "@libSVG";
-import { STATE_BASE } from "./base";
+import { StateBase } from "./base";
 import {
-  type STATE,
-  type STATE_HELPER,
-  type STATE_REA,
-  type STATE_REA_WA,
-  type STATE_REA_WS,
-  type STATE_RELATED,
-  type STATE_RES,
-  type STATE_RES_WA,
-  type STATE_RES_WS,
-  type STATE_ROA,
-  type STATE_ROA_WA,
-  type STATE_ROA_WS,
-  type STATE_ROS,
-  type STATE_ROS_WA,
-  type STATE_ROS_WS,
-  type STATE_SUB,
+  type State,
+  type StateHelper,
+  type StateREA,
+  type StateREAWA,
+  type StateREAWS,
+  type StateRelated,
+  type StateRES,
+  type StateRESWA,
+  type StateRESWS,
+  type StateROA,
+  type StateROAWA,
+  type StateROAWS,
+  type StateROS,
+  type StateROSWA,
+  type StateROSWS,
+  type StateSub,
 } from "./types";
 
 //##################################################################################################################################################
@@ -28,17 +28,17 @@ import {
 //     | . ` | |  | | |\/| |  _ <|  __| |  _  /
 //     | |\  | |__| | |  | | |_) | |____| | \ \
 //     |_| \_|\____/|_|  |_|____/|______|_|  \_\
-export interface STATE_NUMBER_RELATED extends STATE_RELATED {
+export interface StateNumberRelated extends StateRelated {
   min?: number;
   max?: number;
   unit?: string;
   decimals?: number;
 }
 
-export class STATE_NUMBER_HELPER
+export class StateNumberHelper
   implements
-    STATE_NUMBER_RELATED,
-    STATE_HELPER<number, OptionSome<STATE_NUMBER_RELATED>>
+    StateNumberRelated,
+    StateHelper<number, OptionSome<StateNumberRelated>>
 {
   min: number | undefined;
   max: number | undefined;
@@ -109,7 +109,7 @@ export class STATE_NUMBER_HELPER
     return ok(value);
   }
 
-  related(): OptionSome<STATE_NUMBER_RELATED> {
+  related(): OptionSome<StateNumberRelated> {
     return some(this);
   }
 }
@@ -130,7 +130,7 @@ const nums = {
     step?: number,
     start?: number
   ) {
-    return new STATE_NUMBER_HELPER(min, max, unit, decimals, step, start);
+    return new StateNumberHelper(min, max, unit, decimals, step, start);
   },
 };
 
@@ -141,15 +141,15 @@ const nums = {
 //      \___ \   | |  |  _  /  | | | . ` | | |_ |
 //      ____) |  | |  | | \ \ _| |_| |\  | |__| |
 //     |_____/   |_|  |_|  \_\_____|_| \_|\_____|
-export interface STATE_STRING_RELATED extends STATE_RELATED {
+export interface StateStringRelated extends StateRelated {
   max_length?: number;
   max_length_bytes?: number;
 }
 
-export class STATE_STRING_HELPER
+export class StateStringHelper
   implements
-    STATE_STRING_RELATED,
-    STATE_HELPER<string, OptionSome<STATE_STRING_RELATED>>
+    StateStringRelated,
+    StateHelper<string, OptionSome<StateStringRelated>>
 {
   max_length: number | undefined;
   max_length_bytes: number | undefined;
@@ -187,7 +187,7 @@ export class STATE_STRING_HELPER
       );
     return ok(value);
   }
-  related(): OptionSome<STATE_STRING_RELATED> {
+  related(): OptionSome<StateStringRelated> {
     return some(this);
   }
 }
@@ -197,7 +197,7 @@ const strings = {
    * @param max_length max length for string
    * @param max_length_bytes max byte length for string*/
   helper(max_length?: number, max_length_bytes?: number) {
-    return new STATE_STRING_HELPER(max_length, max_length_bytes);
+    return new StateStringHelper(max_length, max_length_bytes);
   },
 };
 
@@ -208,26 +208,26 @@ const strings = {
 //     |  __| | . ` | |  | | |\/| |
 //     | |____| |\  | |__| | |  | |
 //     |______|_| \_|\____/|_|  |_|
-type ENUM_HELPER_ENTRY = {
+type EnumHelperEntry = {
   name: string;
   description?: string;
   icon?: SVGFunc;
 };
 
-type STATE_ENUM_HELPER_LIST<K extends PropertyKey> = {
-  [P in K]: ENUM_HELPER_ENTRY;
+type StateEnumHelperList<K extends PropertyKey> = {
+  [P in K]: EnumHelperEntry;
 };
 
-export interface STATE_ENUM_RELATED<T extends STATE_ENUM_HELPER_LIST<any>>
-  extends STATE_RELATED {
+export interface StateEnumRelated<T extends StateEnumHelperList<any>>
+  extends StateRelated {
   list: T;
 }
 
-export class STATE_ENUM_HELPER<
-  L extends STATE_ENUM_HELPER_LIST<any>,
+export class StateEnumHelper<
+  L extends StateEnumHelperList<any>,
   K extends PropertyKey = keyof L,
-  R extends STATE_RELATED = STATE_ENUM_RELATED<L>
-> implements STATE_HELPER<K, OptionSome<R>>, STATE_ENUM_RELATED<L>
+  R extends StateRelated = StateEnumRelated<L>
+> implements StateHelper<K, OptionSome<R>>, StateEnumRelated<L>
 {
   list: L;
 
@@ -235,7 +235,7 @@ export class STATE_ENUM_HELPER<
     this.list = list;
   }
 
-  map<T>(func: (key: K, val: ENUM_HELPER_ENTRY) => T): T[] {
+  map<T>(func: (key: K, val: EnumHelperEntry) => T): T[] {
     return Object.keys(this.list).map((key) =>
       func(key as K, this.list[key as K])
     );
@@ -255,14 +255,14 @@ export class STATE_ENUM_HELPER<
 const enums = {
   /**Creates an enum helper struct, use list method to make a list with correct typing*/
   helper<
-    L extends STATE_ENUM_HELPER_LIST<any>,
+    L extends StateEnumHelperList<any>,
     K extends PropertyKey = keyof L,
-    R extends STATE_RELATED = STATE_ENUM_RELATED<L>
+    R extends StateRelated = StateEnumRelated<L>
   >(list: L) {
-    return new STATE_ENUM_HELPER<L, K, R>(list);
+    return new StateEnumHelper<L, K, R>(list);
   },
   /**Creates an enum description list, passing the enum as a generic type to this function makes things look a bit nicer */
-  list<K extends PropertyKey>(list: STATE_ENUM_HELPER_LIST<K>): typeof list {
+  list<K extends PropertyKey>(list: StateEnumHelperList<K>): typeof list {
     return list;
   },
 };
@@ -276,10 +276,10 @@ const enums = {
  * @returns true if value was reached before timeout, false if timeout was reached*/
 async function await_value<T>(
   value: T,
-  state: STATE<T>,
+  state: State<T>,
   timeout: number = 500
 ): Promise<boolean> {
-  let func: STATE_SUB<Result<T, string>> = () => {};
+  let func: StateSub<Result<T, string>> = () => {};
   const res = await Promise.race([
     new Promise<false>((a) => setTimeout(a, timeout, false)),
     new Promise<true>((a) => {
@@ -299,8 +299,8 @@ async function await_value<T>(
  * @param state2 second state
  * @returns true if states are equal*/
 async function compare(
-  state1: STATE<any>,
-  state2: STATE<any>
+  state1: State<any>,
+  state2: State<any>
 ): Promise<boolean> {
   const res1 = await state1;
   const res2 = await state2;
@@ -314,7 +314,7 @@ async function compare(
  * @param state1 first state
  * @param state2 second state
  * @returns true if states are equal*/
-function compare_sync(state1: STATE_RES<any>, state2: STATE_RES<any>): boolean {
+function compare_sync(state1: StateRES<any>, state2: StateRES<any>): boolean {
   const res1 = state1.get();
   const res2 = state2.get();
   if (res1.err || res2.err) return true;
@@ -324,41 +324,41 @@ function compare_sync(state1: STATE_RES<any>, state2: STATE_RES<any>): boolean {
 //##################################################################################################################################################
 //##################################################################################################################################################
 const is = {
-  rea(s: any): s is STATE_REA<any> {
-    return s instanceof STATE_BASE;
+  rea(s: any): s is StateREA<any> {
+    return s instanceof StateBase;
   },
-  roa(s: any): s is STATE_ROA<any> {
-    return s instanceof STATE_BASE && s.rok;
+  roa(s: any): s is StateROA<any> {
+    return s instanceof StateBase && s.rok;
   },
-  res(s: any): s is STATE_RES<any> {
-    return s instanceof STATE_BASE && s.rsync;
+  res(s: any): s is StateRES<any> {
+    return s instanceof StateBase && s.rsync;
   },
-  ros(s: any): s is STATE_ROS<any> {
-    return s instanceof STATE_BASE && s.rsync && s.rok;
+  ros(s: any): s is StateROS<any> {
+    return s instanceof StateBase && s.rsync && s.rok;
   },
-  rea_wa(s: any): s is STATE_REA_WA<any> {
-    return s instanceof STATE_BASE && s.writable;
+  rea_wa(s: any): s is StateREAWA<any> {
+    return s instanceof StateBase && s.writable;
   },
-  rea_ws(s: any): s is STATE_REA_WS<any> {
-    return s instanceof STATE_BASE && s.writable && s.wsync;
+  rea_ws(s: any): s is StateREAWS<any> {
+    return s instanceof StateBase && s.writable && s.wsync;
   },
-  roa_wa(s: any): s is STATE_ROA_WA<any> {
-    return s instanceof STATE_BASE && s.writable && s.rok;
+  roa_wa(s: any): s is StateROAWA<any> {
+    return s instanceof StateBase && s.writable && s.rok;
   },
-  roa_ws(s: any): s is STATE_ROA_WS<any> {
-    return s instanceof STATE_BASE && s.writable && s.wsync && s.rok;
+  roa_ws(s: any): s is StateROAWS<any> {
+    return s instanceof StateBase && s.writable && s.wsync && s.rok;
   },
-  res_wa(s: any): s is STATE_RES_WA<any> {
-    return s instanceof STATE_BASE && s.writable && s.rsync;
+  res_wa(s: any): s is StateRESWA<any> {
+    return s instanceof StateBase && s.writable && s.rsync;
   },
-  res_ws(s: any): s is STATE_RES_WS<any> {
-    return s instanceof STATE_BASE && s.writable && s.wsync && s.rsync;
+  res_ws(s: any): s is StateRESWS<any> {
+    return s instanceof StateBase && s.writable && s.wsync && s.rsync;
   },
-  ros_wa(s: any): s is STATE_ROS_WA<any> {
-    return s instanceof STATE_BASE && s.writable && s.rsync && s.rok;
+  ros_wa(s: any): s is StateROSWA<any> {
+    return s instanceof StateBase && s.writable && s.rsync && s.rok;
   },
-  ros_ws(s: any): s is STATE_ROS_WS<any> {
-    return s instanceof STATE_BASE && s.writable && s.wsync && s.rsync && s.rok;
+  ros_ws(s: any): s is StateROSWS<any> {
+    return s instanceof StateBase && s.writable && s.wsync && s.rsync && s.rok;
   },
 };
 
@@ -371,7 +371,7 @@ const is = {
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 
 /**Helper function and types for states */
-export const state_helpers = {
+export const STATE_HELPERS = {
   is,
   nums,
   strings,

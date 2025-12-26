@@ -7,14 +7,14 @@ import {
   type Option,
   type Result,
 } from "@libResult";
-import { STATE_BASE } from "../base";
+import { StateBase } from "../base";
 import {
-  type STATE_HELPER as HELPER,
-  type STATE_RELATED as RELATED,
-  type STATE,
-  type STATE_ROS,
-  type STATE_ROS_WS,
-  type STATE_SET_REX_WS,
+  type StateHelper as HELPER,
+  type StateRelated as RELATED,
+  type State,
+  type StateROS,
+  type StateROSWS,
+  type StateSetREXWS,
 } from "../types";
 import type {
   StateArrayReadType as READ_TYPE,
@@ -33,16 +33,16 @@ import type {
 
 interface Owner<AT, REL extends Option<RELATED>> extends StateArray<AT> {
   set(value: ResultOk<AT[]>): void;
-  get state(): STATE<SAR<AT>, SAW<AT>, REL>;
-  get read_only(): STATE_ROS<SAR<AT>, REL, SAW<AT>>;
+  get state(): State<SAR<AT>, SAW<AT>, REL>;
+  get read_only(): StateROS<SAR<AT>, REL, SAW<AT>>;
 }
 export type StateArrayROS<
   AT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_ROS<SAR<AT>, REL, SAW<AT>> & Owner<AT, REL>;
+> = StateROS<SAR<AT>, REL, SAW<AT>> & Owner<AT, REL>;
 
 class ROS<AT, REL extends Option<RELATED> = OptionNone>
-  extends STATE_BASE<SAR<AT>, SAW<AT>, REL, ResultOk<SAR<AT>>>
+  extends StateBase<SAR<AT>, SAW<AT>, REL, ResultOk<SAR<AT>>>
   implements Owner<AT, REL>
 {
   constructor(init: ResultOk<AT[]>, helper?: HELPER<SAW<AT>, REL>) {
@@ -53,17 +53,17 @@ class ROS<AT, REL extends Option<RELATED> = OptionNone>
 
   #a: AT[] = [];
   #helper?: HELPER<SAW<AT>, REL>;
-  setter?: STATE_SET_REX_WS<SAR<AT>, Owner<AT, REL>, SAW<AT>>;
+  setter?: StateSetREXWS<SAR<AT>, Owner<AT, REL>, SAW<AT>>;
 
   #mr(type: READ_TYPE, index: number, items: AT[]): SAR<AT> {
     return { array: this.#a, type, index, items };
   }
 
-  get state(): STATE<SAR<AT>, SAW<AT>, REL> {
-    return this as STATE<SAR<AT>, SAW<AT>, REL>;
+  get state(): State<SAR<AT>, SAW<AT>, REL> {
+    return this as State<SAR<AT>, SAW<AT>, REL>;
   }
-  get read_only(): STATE_ROS<SAR<AT>, REL, SAW<AT>> {
-    return this as STATE_ROS<SAR<AT>, REL, SAW<AT>>;
+  get read_only(): StateROS<SAR<AT>, REL, SAW<AT>> {
+    return this as StateROS<SAR<AT>, REL, SAW<AT>>;
   }
 
   //#Reader Context
@@ -201,17 +201,17 @@ const ros = {
 
 interface OwnerWS<AT, REL extends Option<RELATED>> extends StateArray<AT> {
   set(value: ResultOk<AT[]>): void;
-  get state(): STATE<SAR<AT>, SAW<AT>, REL>;
-  get read_only(): STATE_ROS<SAR<AT>, REL, SAW<AT>>;
-  get read_write(): STATE_ROS_WS<SAR<AT>, SAW<AT>, REL>;
+  get state(): State<SAR<AT>, SAW<AT>, REL>;
+  get read_only(): StateROS<SAR<AT>, REL, SAW<AT>>;
+  get read_write(): StateROSWS<SAR<AT>, SAW<AT>, REL>;
 }
 export type StateArrayROSWS<
   AT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_ROS_WS<SAR<AT>, SAW<AT>, REL> & OwnerWS<AT, REL>;
+> = StateROSWS<SAR<AT>, SAW<AT>, REL> & OwnerWS<AT, REL>;
 
 class ROSWS<AT, REL extends Option<RELATED> = OptionNone>
-  extends STATE_BASE<SAR<AT>, SAW<AT>, REL, ResultOk<SAR<AT>>>
+  extends StateBase<SAR<AT>, SAW<AT>, REL, ResultOk<SAR<AT>>>
   implements OwnerWS<AT, REL>
 {
   /**Creates a state which holds a value
@@ -220,7 +220,7 @@ class ROSWS<AT, REL extends Option<RELATED> = OptionNone>
    * @param helper functions to check and limit*/
   constructor(
     init: ResultOk<AT[]>,
-    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>> | true,
+    setter: StateSetREXWS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>
   ) {
     super();
@@ -235,20 +235,20 @@ class ROSWS<AT, REL extends Option<RELATED> = OptionNone>
   //Internal Context
   #a: AT[] = [];
   #helper?: HELPER<SAW<AT>, REL>;
-  #setter: STATE_SET_REX_WS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>>;
+  #setter: StateSetREXWS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>>;
 
   #mr(type: READ_TYPE, index: number, items: AT[]): SAR<AT> {
     return { array: this.#a, type, index, items };
   }
 
-  get state(): STATE<SAR<AT>, SAW<AT>, REL> {
-    return this as STATE<SAR<AT>, SAW<AT>, REL>;
+  get state(): State<SAR<AT>, SAW<AT>, REL> {
+    return this as State<SAR<AT>, SAW<AT>, REL>;
   }
-  get read_only(): STATE_ROS<SAR<AT>, REL, SAW<AT>> {
-    return this as STATE_ROS<SAR<AT>, REL, SAW<AT>>;
+  get read_only(): StateROS<SAR<AT>, REL, SAW<AT>> {
+    return this as StateROS<SAR<AT>, REL, SAW<AT>>;
   }
-  get read_write(): STATE_ROS_WS<SAR<AT>, SAW<AT>, REL> {
-    return this as STATE_ROS_WS<SAR<AT>, SAW<AT>, REL>;
+  get read_write(): StateROSWS<SAR<AT>, SAW<AT>, REL> {
+    return this as StateROSWS<SAR<AT>, SAW<AT>, REL>;
   }
 
   //#Reader Context
@@ -371,7 +371,7 @@ const ros_ws = {
    * @param helper functions to check and limit*/
   ok<AT, REL extends Option<RELATED> = OptionNone>(
     init: AT[] = [],
-    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>> | true,
+    setter: StateSetREXWS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>
   ) {
     return new ROSWS<AT, REL>(ok(init), setter, helper) as StateArrayROSWS<

@@ -7,16 +7,16 @@ import {
   type Option,
   type Result,
 } from "@libResult";
-import { STATE_BASE } from "../base";
+import { StateBase } from "../base";
 import {
-  type STATE_HELPER as Helper,
-  type STATE_RELATED as RELATED,
-  type STATE,
-  type STATE_REA,
-  type STATE_REA_WA,
-  type STATE_REA_WS,
-  type STATE_SET_REX_WA,
-  type STATE_SET_REX_WS,
+  type StateHelper as Helper,
+  type StateRelated as RELATED,
+  type State,
+  type StateREA,
+  type StateREAWA,
+  type StateREAWS,
+  type StateSetREXWA,
+  type StateSetREXWS,
 } from "../types";
 
 //##################################################################################################################################################
@@ -30,18 +30,18 @@ interface Owner<RT, WT, REL extends Option<RELATED>> {
   set(value: Result<RT, string>): void;
   set_ok(value: RT): void;
   set_err(err: string): void;
-  get state(): STATE<RT, WT, REL>;
-  get read_only(): STATE_REA<RT, REL, WT>;
+  get state(): State<RT, WT, REL>;
+  get read_only(): StateREA<RT, REL, WT>;
 }
 
 export type StateDelayedREA<
   RT,
   REL extends Option<RELATED> = OptionNone,
   WT = any
-> = STATE_REA<RT, REL, WT> & Owner<RT, WT, REL>;
+> = StateREA<RT, REL, WT> & Owner<RT, WT, REL>;
 
 class REA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
-  extends STATE_BASE<RT, WT, REL, Result<RT, string>>
+  extends StateBase<RT, WT, REL, Result<RT, string>>
   implements Owner<RT, WT, REL>
 {
   constructor(
@@ -91,8 +91,8 @@ class REA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
 
   #value?: Result<RT, string>;
-  setterAsync?: STATE_SET_REX_WA<RT, Owner<RT, WT, REL>, WT>;
-  setterSync?: STATE_SET_REX_WS<RT, Owner<RT, WT, REL>, WT>;
+  setterAsync?: StateSetREXWA<RT, Owner<RT, WT, REL>, WT>;
+  setterSync?: StateSetREXWS<RT, Owner<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -105,11 +105,11 @@ class REA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   set_err(error: string): void {
     this.set(err(error));
   }
-  get state(): STATE<RT, WT, REL> {
-    return this as STATE<RT, WT, REL>;
+  get state(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get read_only(): STATE_REA<RT, REL, WT> {
-    return this as STATE_REA<RT, REL, WT>;
+  get read_only(): StateREA<RT, REL, WT> {
+    return this as StateREA<RT, REL, WT>;
   }
 
   //#Reader Context
@@ -202,24 +202,24 @@ interface OwnerWS<RT, WT, REL extends Option<RELATED>> {
   set(value: Result<RT, string>): void;
   set_ok(value: RT): void;
   set_err(err: string): void;
-  get state(): STATE<RT, WT, REL>;
-  get read_only(): STATE_REA<RT, REL, WT>;
-  get read_write(): STATE_REA_WS<RT, WT, REL>;
+  get state(): State<RT, WT, REL>;
+  get read_only(): StateREA<RT, REL, WT>;
+  get read_write(): StateREAWS<RT, WT, REL>;
 }
 
 export type StateDelayedREAWS<
   RT,
   WT = RT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_REA_WS<RT, WT, REL> & OwnerWS<RT, WT, REL>;
+> = StateREAWS<RT, WT, REL> & OwnerWS<RT, WT, REL>;
 
 class REAWS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
-  extends STATE_BASE<RT, WT, REL, Result<RT, string>>
+  extends StateBase<RT, WT, REL, Result<RT, string>>
   implements OwnerWS<RT, WT, REL>
 {
   constructor(
     init?: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -271,7 +271,7 @@ class REAWS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   }
 
   #value?: Result<RT, string>;
-  #setter: STATE_SET_REX_WS<RT, OwnerWS<RT, WT, REL>, WT>;
+  #setter: StateSetREXWS<RT, OwnerWS<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -284,14 +284,14 @@ class REAWS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   set_err(error: string): void {
     this.set(err(error));
   }
-  get state(): STATE<RT, WT, REL> {
-    return this as STATE<RT, WT, REL>;
+  get state(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get read_only(): STATE_REA<RT, REL, WT> {
-    return this as STATE_REA<RT, REL, WT>;
+  get read_only(): StateREA<RT, REL, WT> {
+    return this as StateREA<RT, REL, WT>;
   }
-  get read_write(): STATE_REA_WS<RT, WT, REL> {
-    return this as STATE_REA_WS<RT, WT, REL>;
+  get read_write(): StateREAWS<RT, WT, REL> {
+    return this as StateREAWS<RT, WT, REL>;
   }
 
   //#Reader Context
@@ -341,7 +341,7 @@ const rea_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<RT>,
-    setter: STATE_SET_REX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new REAWS<RT, WT, REL>(
@@ -355,7 +355,7 @@ const rea_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<string>,
-    setter: STATE_SET_REX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new REAWS<RT, WT, REL>(
@@ -369,7 +369,7 @@ const rea_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new REAWS<RT, WT, REL>(init, setter, helper) as StateDelayedREAWS<
@@ -391,24 +391,24 @@ interface OwnerWA<RT, WT, REL extends Option<RELATED>> {
   set(value: Result<RT, string>): void;
   set_ok(value: RT): void;
   set_err(err: string): void;
-  get state(): STATE<RT, WT, REL>;
-  get read_only(): STATE_REA<RT, REL, WT>;
-  get read_write(): STATE_REA_WA<RT, WT, REL>;
+  get state(): State<RT, WT, REL>;
+  get read_only(): StateREA<RT, REL, WT>;
+  get read_write(): StateREAWA<RT, WT, REL>;
 }
 
 export type StateDelayedREAWA<
   RT,
   WT = RT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_REA_WA<RT, WT, REL> & OwnerWA<RT, WT, REL>;
+> = StateREAWA<RT, WT, REL> & OwnerWA<RT, WT, REL>;
 
 class REAWA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
-  extends STATE_BASE<RT, WT, REL, Result<RT, string>>
+  extends StateBase<RT, WT, REL, Result<RT, string>>
   implements OwnerWA<RT, WT, REL>
 {
   constructor(
     init?: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WA<RT, OwnerWA<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWA<RT, OwnerWA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -460,7 +460,7 @@ class REAWA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   }
 
   #value?: Result<RT, string>;
-  #setter: STATE_SET_REX_WA<RT, OwnerWA<RT, WT, REL>, WT>;
+  #setter: StateSetREXWA<RT, OwnerWA<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -473,14 +473,14 @@ class REAWA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   set_err(error: string): void {
     this.set(err(error));
   }
-  get state(): STATE<RT, WT, REL> {
-    return this as STATE<RT, WT, REL>;
+  get state(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get read_only(): STATE_REA<RT, REL, WT> {
-    return this as STATE_REA<RT, REL, WT>;
+  get read_only(): StateREA<RT, REL, WT> {
+    return this as StateREA<RT, REL, WT>;
   }
-  get read_write(): STATE_REA_WA<RT, WT, REL> {
-    return this as STATE_REA_WA<RT, WT, REL>;
+  get read_write(): StateREAWA<RT, WT, REL> {
+    return this as StateREAWA<RT, WT, REL>;
   }
 
   //#Reader Context
@@ -527,7 +527,7 @@ const rea_wa = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<RT>,
-    setter: STATE_SET_REX_WA<RT, OwnerWA<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWA<RT, OwnerWA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new REAWA<RT, WT, REL>(
@@ -541,7 +541,7 @@ const rea_wa = {
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<string>,
-    setter: STATE_SET_REX_WA<RT, OwnerWA<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWA<RT, OwnerWA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new REAWA<RT, WT, REL>(
@@ -555,7 +555,7 @@ const rea_wa = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init?: () => PromiseLike<Result<RT, string>>,
-    setter: STATE_SET_REX_WA<RT, OwnerWA<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWA<RT, OwnerWA<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new REAWA<RT, WT, REL>(init, setter, helper) as StateDelayedREAWA<

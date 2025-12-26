@@ -5,10 +5,10 @@ import st, {
   type STATE_DELAYED_REA_WS,
   type STATE_DELAYED_ROA,
   type STATE_DELAYED_ROA_WS,
-  type STATE_REA,
-  type STATE_REA_WS,
-  type STATE_ROA,
-  type STATE_ROA_WS,
+  type StateREA,
+  type StateREAWS,
+  type StateROA,
+  type StateROAWS,
 } from "@libState";
 import { assertType, describe, expect, it } from "vitest";
 import {
@@ -31,12 +31,12 @@ describe("Initialize delayed states", function () {
   describe("ROA", { timeout: 100 }, function () {
     it("ok", async function () {
       const init = st.d.roa.ok(() => sleep(1, 1));
-      assertType<STATE_ROA<number>>(init);
+      assertType<StateROA<number>>(init);
       assertType<STATE_DELAYED_ROA<number>>(init);
     });
     it("result ok", async function () {
       const init = st.d.roa.result(() => sleep(1, ok(1)));
-      assertType<STATE_ROA<number>>(init);
+      assertType<StateROA<number>>(init);
       assertType<STATE_DELAYED_ROA<number>>(init);
     });
     it("cleanup successfull", async function () {
@@ -85,17 +85,17 @@ describe("Initialize delayed states", function () {
   describe("REA", { timeout: 100 }, function () {
     it("ok", async function () {
       const init = st.d.rea.ok(() => sleep(1, 1));
-      assertType<STATE_REA<number>>(init);
+      assertType<StateREA<number>>(init);
       assertType<STATE_DELAYED_REA<number>>(init);
     });
     it("err", async function () {
       const init = st.d.rea.err<number>(() => sleep(1, "1"));
-      assertType<STATE_REA<number>>(init);
+      assertType<StateREA<number>>(init);
       assertType<STATE_DELAYED_REA<number>>(init);
     });
     it("result ok", async function () {
       const init = st.d.rea.result(() => sleep(1, ok(1)));
-      assertType<STATE_REA<number>>(init);
+      assertType<StateREA<number>>(init);
       assertType<STATE_DELAYED_REA<number>>(init);
     });
     it("cleanup successfull", async function () {
@@ -144,12 +144,12 @@ describe("Initialize delayed states", function () {
   describe("ROA_WS", { timeout: 100 }, function () {
     it("ok", async function () {
       const init = st.d.roa_ws.ok(() => sleep(1, 1));
-      assertType<STATE_ROA_WS<number>>(init);
+      assertType<StateROAWS<number>>(init);
       assertType<STATE_DELAYED_ROA_WS<number>>(init);
     });
     it("result ok", async function () {
       const init = st.d.roa_ws.result(() => sleep(1, ok(1)));
-      assertType<STATE_ROA_WS<number>>(init);
+      assertType<StateROAWS<number>>(init);
       assertType<STATE_DELAYED_ROA_WS<number>>(init);
     });
     it("cleanup successfull", async function () {
@@ -211,17 +211,17 @@ describe("Initialize delayed states", function () {
   describe("REA_WS", { timeout: 100 }, function () {
     it("ok", async function () {
       const init = st.d.rea_ws.ok(() => sleep(1, 1));
-      assertType<STATE_REA_WS<number>>(init);
+      assertType<StateREAWS<number>>(init);
       assertType<STATE_DELAYED_REA_WS<number>>(init);
     });
     it("err", async function () {
       const init = st.d.rea_ws.err<number>(() => sleep(1, "1"));
-      assertType<STATE_REA_WS<number>>(init);
+      assertType<StateREAWS<number>>(init);
       assertType<STATE_DELAYED_REA_WS<number>>(init);
     });
     it("result ok", async function () {
       const init = st.d.rea_ws.result(() => sleep(1, ok(1)));
-      assertType<STATE_REA_WS<number>>(init);
+      assertType<StateREAWS<number>>(init);
       assertType<STATE_DELAYED_REA_WS<number>>(init);
     });
     it("cleanup successfull", async function () {

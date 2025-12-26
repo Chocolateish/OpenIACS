@@ -6,14 +6,14 @@ import {
   type Option,
   type Result,
 } from "@libResult";
-import { STATE_BASE } from "../base";
+import { StateBase } from "../base";
 import {
-  type STATE_HELPER as Helper,
-  type STATE_RELATED as RELATED,
-  type STATE,
-  type STATE_RES,
-  type STATE_RES_WS,
-  type STATE_SET_REX_WS,
+  type StateHelper as Helper,
+  type StateRelated as RELATED,
+  type State,
+  type StateRES,
+  type StateRESWS,
+  type StateSetREXWS,
 } from "../types";
 
 //##################################################################################################################################################
@@ -27,18 +27,18 @@ interface Owner<RT, WT, REL extends Option<RELATED>> {
   set(value: Result<RT, string>): void;
   set_ok(value: RT): void;
   set_err(err: string): void;
-  get state(): STATE<RT, WT, REL>;
-  get read_only(): STATE_RES<RT, REL, WT>;
+  get state(): State<RT, WT, REL>;
+  get read_only(): StateRES<RT, REL, WT>;
 }
 
 export type StateLazyRES<
   RT,
   REL extends Option<RELATED> = OptionNone,
   WT = any
-> = STATE_RES<RT, REL, WT> & Owner<RT, WT, REL>;
+> = StateRES<RT, REL, WT> & Owner<RT, WT, REL>;
 
 class RES<RT, REL extends Option<RELATED> = OptionNone, WT = any>
-  extends STATE_BASE<RT, WT, REL, Result<RT, string>>
+  extends StateBase<RT, WT, REL, Result<RT, string>>
   implements Owner<RT, WT, REL>
 {
   constructor(init: () => Result<RT, string>, helper?: Helper<WT, REL>) {
@@ -56,7 +56,7 @@ class RES<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
 
   #value?: Result<RT, string>;
-  setter?: STATE_SET_REX_WS<RT, Owner<RT, WT, REL>, WT>;
+  setter?: StateSetREXWS<RT, Owner<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -69,11 +69,11 @@ class RES<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   set_err(error: string): void {
     this.set(err(error));
   }
-  get state(): STATE<RT, WT, REL> {
-    return this as STATE<RT, WT, REL>;
+  get state(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get read_only(): STATE_RES<RT, REL, WT> {
-    return this as STATE_RES<RT, REL, WT>;
+  get read_only(): StateRES<RT, REL, WT> {
+    return this as StateRES<RT, REL, WT>;
   }
 
   //#Reader Context
@@ -166,24 +166,24 @@ interface OwnerWS<RT, WT, REL extends Option<RELATED>> {
   set(value: Result<RT, string>): void;
   set_ok(value: RT): void;
   set_err(err: string): void;
-  get state(): STATE<RT, WT, REL>;
-  get read_only(): STATE_RES<RT, REL, WT>;
-  get read_write(): STATE_RES_WS<RT, WT, REL>;
+  get state(): State<RT, WT, REL>;
+  get read_only(): StateRES<RT, REL, WT>;
+  get read_write(): StateRESWS<RT, WT, REL>;
 }
 
 export type StateLazyRESWS<
   RT,
   WT = RT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_RES_WS<RT, WT, REL> & OwnerWS<RT, WT, REL>;
+> = StateRESWS<RT, WT, REL> & OwnerWS<RT, WT, REL>;
 
 class RESWS<RT, WT, REL extends Option<RELATED>>
-  extends STATE_BASE<RT, WT, REL, Result<RT, string>>
+  extends StateBase<RT, WT, REL, Result<RT, string>>
   implements OwnerWS<RT, WT, REL>
 {
   constructor(
     init: () => Result<RT, string>,
-    setter: STATE_SET_REX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -211,7 +211,7 @@ class RESWS<RT, WT, REL extends Option<RELATED>>
   }
 
   #value?: Result<RT, string>;
-  #setter: STATE_SET_REX_WS<RT, OwnerWS<RT, WT, REL>, WT>;
+  #setter: StateSetREXWS<RT, OwnerWS<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -224,14 +224,14 @@ class RESWS<RT, WT, REL extends Option<RELATED>>
   set_err(error: string): void {
     this.set(err(error));
   }
-  get state(): STATE<RT, WT, REL> {
-    return this as STATE<RT, WT, REL>;
+  get state(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get read_only(): STATE_RES<RT, REL, WT> {
-    return this as STATE_RES<RT, REL, WT>;
+  get read_only(): StateRES<RT, REL, WT> {
+    return this as StateRES<RT, REL, WT>;
   }
-  get read_write(): STATE_RES_WS<RT, WT, REL> {
-    return this as STATE_RES_WS<RT, WT, REL>;
+  get read_write(): StateRESWS<RT, WT, REL> {
+    return this as StateRESWS<RT, WT, REL>;
   }
 
   //#Reader Context
@@ -279,7 +279,7 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: () => RT,
-    setter: STATE_SET_REX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new RESWS<RT, WT, REL>(
@@ -293,7 +293,7 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: () => string,
-    setter: STATE_SET_REX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new RESWS<RT, WT, REL>(
@@ -307,7 +307,7 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: () => Result<RT, string>,
-    setter: STATE_SET_REX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
+    setter: StateSetREXWS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     return new RESWS<RT, WT, REL>(init, setter, helper) as StateLazyRESWS<
