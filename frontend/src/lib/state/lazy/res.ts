@@ -23,7 +23,7 @@ import {
 //     |  _  /|  __|  \___ \
 //     | | \ \| |____ ____) |
 //     |_|  \_\______|_____/
-interface OWNER<RT, WT, REL extends Option<RELATED>> {
+interface Owner<RT, WT, REL extends Option<RELATED>> {
   set(value: Result<RT, string>): void;
   set_ok(value: RT): void;
   set_err(err: string): void;
@@ -31,24 +31,24 @@ interface OWNER<RT, WT, REL extends Option<RELATED>> {
   get read_only(): STATE_RES<RT, REL, WT>;
 }
 
-export type STATE_LAZY_RES<
+export type StateLazyRES<
   RT,
   REL extends Option<RELATED> = OptionNone,
   WT = any
-> = STATE_RES<RT, REL, WT> & OWNER<RT, WT, REL>;
+> = STATE_RES<RT, REL, WT> & Owner<RT, WT, REL>;
 
 class RES<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
-  implements OWNER<RT, WT, REL>
+  implements Owner<RT, WT, REL>
 {
   constructor(init: () => Result<RT, string>, helper?: Helper<WT, REL>) {
     super();
     if (helper) this.#helper = helper;
     this.get = () => this.#clean() ?? (this.#value = init());
     this.set = (value) => this.set(this.#clean() ?? value);
-    const writeSync = this.write_sync.bind(this);
+    const write_sync = this.write_sync.bind(this);
     this.write_sync = (value) =>
-      writeSync(value).map((val) => this.#clean() ?? val);
+      write_sync(value).map((val) => this.#clean() ?? val);
   }
 
   #clean(): void {
@@ -56,7 +56,7 @@ class RES<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
 
   #value?: Result<RT, string>;
-  setter?: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT>;
+  setter?: STATE_SET_REX_WS<RT, Owner<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -124,7 +124,7 @@ const res = {
     init: () => RT,
     helper?: Helper<WT, REL>
   ) {
-    return new RES<RT, REL, WT>(() => ok(init()), helper) as STATE_LAZY_RES<
+    return new RES<RT, REL, WT>(() => ok(init()), helper) as StateLazyRES<
       RT,
       REL,
       WT
@@ -137,7 +137,7 @@ const res = {
     init: () => string,
     helper?: Helper<WT, REL>
   ) {
-    return new RES<RT, REL, WT>(() => err(init()), helper) as STATE_LAZY_RES<
+    return new RES<RT, REL, WT>(() => err(init()), helper) as StateLazyRES<
       RT,
       REL,
       WT
@@ -150,7 +150,7 @@ const res = {
     init: () => Result<RT, string>,
     helper?: Helper<WT, REL>
   ) {
-    return new RES<RT, REL, WT>(init, helper) as STATE_LAZY_RES<RT, REL, WT>;
+    return new RES<RT, REL, WT>(init, helper) as StateLazyRES<RT, REL, WT>;
   },
 };
 
@@ -162,7 +162,7 @@ const res = {
 //     | | \ \| |____ ____) |    \  /\  /  ____) |
 //     |_|  \_\______|_____/      \/  \/  |_____/
 
-interface OWNER_WS<RT, WT, REL extends Option<RELATED>> {
+interface OwnerWS<RT, WT, REL extends Option<RELATED>> {
   set(value: Result<RT, string>): void;
   set_ok(value: RT): void;
   set_err(err: string): void;
@@ -171,19 +171,19 @@ interface OWNER_WS<RT, WT, REL extends Option<RELATED>> {
   get read_write(): STATE_RES_WS<RT, WT, REL>;
 }
 
-export type STATE_LAZY_RES_WS<
+export type StateLazyRESWS<
   RT,
   WT = RT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_RES_WS<RT, WT, REL> & OWNER_WS<RT, WT, REL>;
+> = STATE_RES_WS<RT, WT, REL> & OwnerWS<RT, WT, REL>;
 
-class RES_WS<RT, WT, REL extends Option<RELATED>>
+class RESWS<RT, WT, REL extends Option<RELATED>>
   extends STATE_BASE<RT, WT, REL, Result<RT, string>>
-  implements OWNER_WS<RT, WT, REL>
+  implements OwnerWS<RT, WT, REL>
 {
   constructor(
     init: () => Result<RT, string>,
-    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
+    setter: STATE_SET_REX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -201,9 +201,9 @@ class RES_WS<RT, WT, REL extends Option<RELATED>>
     if (helper) this.#helper = helper;
     this.get = () => this.#clean() ?? (this.#value = init());
     this.set = (value) => this.set(this.#clean() ?? value);
-    const writeSync = this.write_sync.bind(this);
+    const write_sync = this.write_sync.bind(this);
     this.write_sync = (value) =>
-      writeSync(value).map((val) => this.#clean() ?? val);
+      write_sync(value).map((val) => this.#clean() ?? val);
   }
 
   #clean(): void {
@@ -211,7 +211,7 @@ class RES_WS<RT, WT, REL extends Option<RELATED>>
   }
 
   #value?: Result<RT, string>;
-  #setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT>;
+  #setter: STATE_SET_REX_WS<RT, OwnerWS<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -279,38 +279,38 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: () => RT,
-    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
+    setter: STATE_SET_REX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
-    return new RES_WS<RT, WT, REL>(
+    return new RESWS<RT, WT, REL>(
       () => ok(init()),
       setter,
       helper
-    ) as STATE_LAZY_RES_WS<RT, WT, REL>;
+    ) as StateLazyRESWS<RT, WT, REL>;
   },
   /**Creates a writable lazy state from an initial error, lazy meaning the value is only evaluated on first access.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: () => string,
-    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
+    setter: STATE_SET_REX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
-    return new RES_WS<RT, WT, REL>(
+    return new RESWS<RT, WT, REL>(
       () => err(init()),
       setter,
       helper
-    ) as STATE_LAZY_RES_WS<RT, WT, REL>;
+    ) as StateLazyRESWS<RT, WT, REL>;
   },
   /**Creates a writable lazy state from an initial result, lazy meaning the value is only evaluated on first access.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: () => Result<RT, string>,
-    setter: STATE_SET_REX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
+    setter: STATE_SET_REX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
-    return new RES_WS<RT, WT, REL>(init, setter, helper) as STATE_LAZY_RES_WS<
+    return new RESWS<RT, WT, REL>(init, setter, helper) as StateLazyRESWS<
       RT,
       WT,
       REL
@@ -326,7 +326,7 @@ const res_ws = {
 //     | |____ / . \| |    | |__| | | \ \  | |  ____) |
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 /**Lazy valueholding states, lazy means the given function is evaluated on first access */
-export const state_lazy_res = {
+export const STATE_LAZY_RES = {
   /**Sync Read lazy states with error, lazy meaning the value is only evaluated on first access. */
   res,
   /**Sync Read And Sync Write lazy states with error, lazy meaning the value is only evaluated on first access. */

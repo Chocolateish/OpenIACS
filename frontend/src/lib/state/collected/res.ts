@@ -28,13 +28,13 @@ interface Owner<RT, IN extends STATE_RES<any>[], WT> {
   get state(): STATE<RT, WT, any>;
   get read_only(): STATE_RES<RT, any, WT>;
 }
-export type StateCollectedRes<
+export type StateCollectedRES<
   RT,
   IN extends STATE_RES<any>[],
   WT = any
 > = STATE_RES<RT, OptionNone, WT> & Owner<RT, IN, WT>;
 
-export class Res<RT, IN extends STATE_RES<any>[], WT>
+export class RES<RT, IN extends STATE_RES<any>[], WT>
   extends STATE_BASE<RT, WT, OptionNone, Result<RT, string>>
   implements Owner<RT, IN, WT>
 {
@@ -157,7 +157,7 @@ export class Res<RT, IN extends STATE_RES<any>[], WT>
 }
 
 /**Collected states, collects values from multiple states and reduces it to one */
-export const state_collected_res = {
+export const STATE_COLLECTED_RES = {
   /**Creates a state that collects multiple states values and reduces it to one.
    * @param transform - Function to translate value of collected states, false means first states values is used.
    * @param states - The states to collect.*/
@@ -167,11 +167,11 @@ export const state_collected_res = {
       | false,
     ...states: IN
   ) {
-    return new Res<RT, IN, WT>(transform, ...states) as StateCollectedRes<
+    return new RES<RT, IN, WT>(transform, ...states) as StateCollectedRES<
       RT,
       IN,
       WT
     >;
   },
-  class: Res,
+  class: RES,
 };

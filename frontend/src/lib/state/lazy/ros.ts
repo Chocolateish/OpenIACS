@@ -25,31 +25,31 @@ import {
 //     |  _  /| |  | |\___ \
 //     | | \ \| |__| |____) |
 //     |_|  \_\\____/|_____/
-interface OWNER<RT, WT, REL extends Option<RELATED>> {
+interface Owner<RT, WT, REL extends Option<RELATED>> {
   set(value: ResultOk<RT>): void;
   set_ok(value: RT): void;
   get state(): STATE<RT, WT, REL>;
   get readOnly(): STATE_ROS<RT, REL, WT>;
 }
 
-export type STATE_LAZY_ROS<
+export type StateLazyROS<
   RT,
   REL extends Option<RELATED> = OptionNone,
   WT = any
-> = STATE_ROS<RT, REL, WT> & OWNER<RT, WT, REL>;
+> = STATE_ROS<RT, REL, WT> & Owner<RT, WT, REL>;
 
 class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
-  implements OWNER<RT, WT, REL>
+  implements Owner<RT, WT, REL>
 {
   constructor(init: () => ResultOk<RT>, helper?: Helper<WT, REL>) {
     super();
     if (helper) this.#helper = helper;
     this.get = () => this.#clean() ?? (this.#value = init());
     this.set = (value) => this.set(this.#clean() ?? value);
-    const writeSync = this.write_sync.bind(this);
+    const write_sync = this.write_sync.bind(this);
     this.write_sync = (value) =>
-      writeSync(value).map((val) => this.#clean() ?? val);
+      write_sync(value).map((val) => this.#clean() ?? val);
   }
 
   #clean(): void {
@@ -57,7 +57,7 @@ class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
 
   #value?: ResultOk<RT>;
-  setter?: STATE_SET_REX_WS<RT, OWNER<RT, WT, REL>, WT>;
+  setter?: STATE_SET_REX_WS<RT, Owner<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -125,7 +125,7 @@ const ros = {
     init: () => RT,
     helper?: Helper<WT, REL>
   ) {
-    return new ROS<RT, REL, WT>(() => ok(init()), helper) as STATE_LAZY_ROS<
+    return new ROS<RT, REL, WT>(() => ok(init()), helper) as StateLazyROS<
       RT,
       REL,
       WT
@@ -138,7 +138,7 @@ const ros = {
     init: () => ResultOk<RT>,
     helper?: Helper<WT, REL>
   ) {
-    return new ROS<RT, REL, WT>(init, helper) as STATE_LAZY_ROS<RT, REL, WT>;
+    return new ROS<RT, REL, WT>(init, helper) as StateLazyROS<RT, REL, WT>;
   },
 };
 
@@ -149,7 +149,7 @@ const ros = {
 //     |  _  /| |  | |\___ \    \ \/  \/ / \___ \
 //     | | \ \| |__| |____) |    \  /\  /  ____) |
 //     |_|  \_\\____/|_____/      \/  \/  |_____/
-interface OWNER_WS<RT, WT, REL extends Option<RELATED>> {
+interface OwnerWS<RT, WT, REL extends Option<RELATED>> {
   set(value: ResultOk<RT>): void;
   set_ok(value: RT): void;
   get state(): STATE<RT, WT, REL>;
@@ -157,19 +157,19 @@ interface OWNER_WS<RT, WT, REL extends Option<RELATED>> {
   get readWrite(): STATE_ROS_WS<RT, WT, REL>;
 }
 
-export type STATE_LAZY_ROS_WS<
+export type StateLazyROSWS<
   RT,
   WT = RT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_ROS_WS<RT, WT, REL> & OWNER_WS<RT, WT, REL>;
+> = STATE_ROS_WS<RT, WT, REL> & OwnerWS<RT, WT, REL>;
 
-class ROS_WS<RT, WT, REL extends Option<RELATED>>
+class ROSWS<RT, WT, REL extends Option<RELATED>>
   extends STATE_BASE<RT, WT, REL, ResultOk<RT>>
-  implements OWNER_WS<RT, WT, REL>
+  implements OwnerWS<RT, WT, REL>
 {
   constructor(
     init: () => ResultOk<RT>,
-    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
+    setter: STATE_SET_ROX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
     super();
@@ -187,9 +187,9 @@ class ROS_WS<RT, WT, REL extends Option<RELATED>>
     if (helper) this.#helper = helper;
     this.get = () => this.#clean() ?? (this.#value = init());
     this.set = (value) => this.set(this.#clean() ?? value);
-    const writeSync = this.write_sync.bind(this);
+    const write_sync = this.write_sync.bind(this);
     this.write_sync = (value) =>
-      writeSync(value).map((val) => this.#clean() ?? val);
+      write_sync(value).map((val) => this.#clean() ?? val);
   }
 
   #clean(): void {
@@ -197,7 +197,7 @@ class ROS_WS<RT, WT, REL extends Option<RELATED>>
   }
 
   #value?: ResultOk<RT>;
-  #setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT>;
+  #setter: STATE_SET_ROX_WS<RT, OwnerWS<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -265,24 +265,24 @@ const ros_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: () => RT,
-    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
+    setter: STATE_SET_ROX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
-    return new ROS_WS<RT, WT, REL>(
+    return new ROSWS<RT, WT, REL>(
       () => ok(init()),
       setter,
       helper
-    ) as STATE_LAZY_ROS_WS<RT, WT, REL>;
+    ) as StateLazyROSWS<RT, WT, REL>;
   },
   /**Creates a lazy ok state from an initial result, lazy meaning the value is only evaluated on first access.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: () => ResultOk<RT>,
-    setter: STATE_SET_ROX_WS<RT, OWNER_WS<RT, WT, REL>, WT> | true = true,
+    setter: STATE_SET_ROX_WS<RT, OwnerWS<RT, WT, REL>, WT> | true = true,
     helper?: Helper<WT, REL>
   ) {
-    return new ROS_WS<RT, WT, REL>(init, setter, helper) as STATE_LAZY_ROS_WS<
+    return new ROSWS<RT, WT, REL>(init, setter, helper) as StateLazyROSWS<
       RT,
       WT,
       REL

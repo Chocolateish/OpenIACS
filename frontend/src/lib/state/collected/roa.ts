@@ -28,13 +28,13 @@ interface Owner<RT, IN extends [STATE<any>, ...STATE<any>[]], WT> {
   get state(): STATE<RT, WT, any>;
   get read_only(): STATE_ROA<RT, any, WT>;
 }
-export type StateCollectedRoa<
+export type StateCollectedROA<
   RT,
   IN extends [STATE<any>, ...STATE<any>[]],
   WT = any
 > = STATE_ROA<RT, OptionNone, WT> & Owner<RT, IN, WT>;
 
-export class Roa<RT, IN extends [STATE<any>, ...STATE<any>[]], WT>
+export class ROA<RT, IN extends [STATE<any>, ...STATE<any>[]], WT>
   extends STATE_BASE<RT, WT, OptionNone, ResultOk<RT>>
   implements Owner<RT, IN, WT>
 {
@@ -164,7 +164,7 @@ export class Roa<RT, IN extends [STATE<any>, ...STATE<any>[]], WT>
   }
 }
 
-export const state_collected_roa = {
+export const STATE_COLLECTED_ROA = {
   /**Creates a guarenteed ok state that collects multiple states values and reduces it to one.
    * @param transform - Function to translate value of collected states, false means first states values is used.
    * @param states - The states to collect.*/
@@ -172,11 +172,11 @@ export const state_collected_roa = {
     transform: ((values: StateCollectedTransVal<IN>) => ResultOk<RT>) | false,
     ...states: IN
   ) {
-    return new Roa<RT, IN, WT>(transform, ...states) as StateCollectedRoa<
+    return new ROA<RT, IN, WT>(transform, ...states) as StateCollectedROA<
       RT,
       IN,
       WT
     >;
   },
-  class: Roa,
+  class: ROA,
 };

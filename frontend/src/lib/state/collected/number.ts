@@ -1,11 +1,11 @@
 import { ok, ResultOk, type Result } from "@libResult";
 import type { STATE, STATE_RES, STATE_ROA, STATE_ROS } from "../types";
-import { state_collected_rea, type StateCollectedRea } from "./rea";
-import { state_collected_res, type StateCollectedRes } from "./res";
-import { state_collected_roa, type StateCollectedRoa } from "./roa";
-import { state_collected_ros, type StateCollectedRos } from "./ros";
+import { STATE_COLLECTED_REA, type StateCollectedREA } from "./rea";
+import { STATE_COLLECTED_RES, type StateCollectedRES } from "./res";
+import { STATE_COLLECTED_ROA, type StateCollectedROA } from "./roa";
+import { STATE_COLLECTED_ROS, type StateCollectedROS } from "./ros";
 
-class NumberSumRea<S extends STATE<number>[]> extends state_collected_rea.class<
+class NumberSumREA<S extends STATE<number>[]> extends STATE_COLLECTED_REA.class<
   number,
   S,
   number
@@ -24,9 +24,9 @@ class NumberSumRea<S extends STATE<number>[]> extends state_collected_rea.class<
 }
 
 //##################################################################################################################################################
-class NumberSumRoa<
+class NumberSumROA<
   S extends [STATE_ROA<number>, ...STATE_ROA<number>[]]
-> extends state_collected_roa.class<number, S, number> {
+> extends STATE_COLLECTED_ROA.class<number, S, number> {
   constructor(...states: S) {
     super(false, ...states);
   }
@@ -36,9 +36,9 @@ class NumberSumRoa<
 }
 
 //##################################################################################################################################################
-class NumberSumRes<
+class NumberSumRES<
   S extends STATE_RES<number>[]
-> extends state_collected_res.class<number, S, number> {
+> extends STATE_COLLECTED_RES.class<number, S, number> {
   constructor(...states: S) {
     super(false, ...states);
   }
@@ -53,9 +53,9 @@ class NumberSumRes<
 }
 
 //##################################################################################################################################################
-class NumberSumRos<
+class NumberSumROS<
   S extends [STATE_ROS<number>, ...STATE_ROS<number>[]]
-> extends state_collected_ros.class<number, S, number> {
+> extends STATE_COLLECTED_ROS.class<number, S, number> {
   constructor(...states: S) {
     super(false, ...states);
   }
@@ -64,19 +64,19 @@ class NumberSumRos<
   }
 }
 
-export const state_collects_number = {
+export const STATE_COLLECTS_NUMBER = {
   sum: {
     rea<S extends STATE<number>[]>(...states: S) {
-      return new NumberSumRea(...states) as StateCollectedRea<number, S>;
+      return new NumberSumREA(...states) as StateCollectedREA<number, S>;
     },
     roa<S extends [STATE_ROA<number>, ...STATE_ROA<number>[]]>(...states: S) {
-      return new NumberSumRoa(...states) as StateCollectedRoa<number, S>;
+      return new NumberSumROA(...states) as StateCollectedROA<number, S>;
     },
     res<S extends STATE_RES<number>[]>(...states: S) {
-      return new NumberSumRes(...states) as StateCollectedRes<number, S>;
+      return new NumberSumRES(...states) as StateCollectedRES<number, S>;
     },
     ros<S extends [STATE_ROS<number>, ...STATE_ROS<number>[]]>(...states: S) {
-      return new NumberSumRos(...states) as StateCollectedRos<number, S>;
+      return new NumberSumROS(...states) as StateCollectedROS<number, S>;
     },
   },
 };

@@ -16,10 +16,10 @@ import {
   type STATE_SET_REX_WS,
 } from "../types";
 import type {
-  STATE_ARRAY_READ_TYPE as READ_TYPE,
-  STATE_ARRAY_READ as SAR,
-  STATE_ARRAY_WRITE as SAW,
-  STATE_ARRAY,
+  StateArrayReadType as READ_TYPE,
+  StateArrayRead as SAR,
+  StateArrayWrite as SAW,
+  StateArray,
 } from "./shared";
 
 //##################################################################################################################################################
@@ -30,17 +30,17 @@ import type {
 //     | | \ \| |____ ____) |
 //     |_|  \_\______|_____/
 
-interface Owner<AT, REL extends Option<RELATED>> extends STATE_ARRAY<AT> {
+interface Owner<AT, REL extends Option<RELATED>> extends StateArray<AT> {
   set(value: Result<AT[], string>): void;
   get state(): STATE<SAR<AT>, SAW<AT>, REL>;
   get read_only(): STATE_RES<SAR<AT>, REL, SAW<AT>>;
 }
-export type STATE_ARRAY_RES<
+export type StateArrayRES<
   AT,
   REL extends Option<RELATED> = OptionNone
 > = STATE_RES<SAR<AT>, REL, SAW<AT>> & Owner<AT, REL>;
 
-export class Res<AT, REL extends Option<RELATED>>
+class RES<AT, REL extends Option<RELATED>>
   extends STATE_BASE<SAR<AT>, SAW<AT>, REL, Result<SAR<AT>, string>>
   implements Owner<AT, REL>
 {
@@ -189,7 +189,7 @@ const res = {
     init: AT[] = [],
     helper?: HELPER<SAW<AT>, REL>
   ) {
-    return new Res<AT, REL>(ok(init), helper) as STATE_ARRAY_RES<AT, REL>;
+    return new RES<AT, REL>(ok(init), helper) as StateArrayRES<AT, REL>;
   },
   /**Creates a state representing an array
    * @param init initial error
@@ -198,7 +198,7 @@ const res = {
     error: string,
     helper?: HELPER<SAW<AT>, REL>
   ) {
-    return new Res<AT, REL>(err(error), helper) as STATE_ARRAY_RES<AT, REL>;
+    return new RES<AT, REL>(err(error), helper) as StateArrayRES<AT, REL>;
   },
 };
 
@@ -209,20 +209,20 @@ const res = {
 //     |  _  /|  __|  \___ \    \ \/  \/ / \___ \
 //     | | \ \| |____ ____) |    \  /\  /  ____) |
 //     |_|  \_\______|_____/      \/  \/  |_____/
-interface OwnerWs<AT, REL extends Option<RELATED>> extends STATE_ARRAY<AT> {
+interface OwnerWS<AT, REL extends Option<RELATED>> extends StateArray<AT> {
   set(value: Result<AT[], string>): void;
   get state(): STATE<SAR<AT>, SAW<AT>, REL>;
   get read_only(): STATE_RES<SAR<AT>, REL, SAW<AT>>;
   get read_write(): STATE_RES_WS<SAR<AT>, SAW<AT>, REL>;
 }
-export type STATE_ARRAY_RES_WS<
+export type StateArrayRESWS<
   AT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_RES_WS<SAR<AT>, SAW<AT>, REL> & OwnerWs<AT, REL>;
+> = STATE_RES_WS<SAR<AT>, SAW<AT>, REL> & OwnerWS<AT, REL>;
 
-export class ResWs<AT, REL extends Option<RELATED>>
+class RESWS<AT, REL extends Option<RELATED>>
   extends STATE_BASE<SAR<AT>, SAW<AT>, REL, Result<SAR<AT>, string>>
-  implements OwnerWs<AT, REL>
+  implements OwnerWS<AT, REL>
 {
   /**Creates a state which holds a value
    * @param init initial value for state, use a promise for an eager async value, use a function returning a promise for a lazy async value
@@ -230,7 +230,7 @@ export class ResWs<AT, REL extends Option<RELATED>>
    * @param helper functions to check and limit*/
   constructor(
     init: Result<AT[], string>,
-    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWs<AT, REL>, SAW<AT>> | true,
+    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>
   ) {
     super();
@@ -246,7 +246,7 @@ export class ResWs<AT, REL extends Option<RELATED>>
   #e?: string;
   #a: AT[] = [];
   #h?: HELPER<SAW<AT>, REL>;
-  #setter: STATE_SET_REX_WS<SAR<AT>, OwnerWs<AT, REL>, SAW<AT>>;
+  #setter: STATE_SET_REX_WS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>>;
 
   #mr(type: READ_TYPE, index: number, items: AT[]): SAR<AT> {
     return { array: this.#a, type, index, items };
@@ -375,17 +375,17 @@ export class ResWs<AT, REL extends Option<RELATED>>
   }
 }
 
-const res_ws = {
+const RES_WS = {
   /**Creates a state representing an array
    * @param init initial array, leave empty for empty array
    * @param setter function called when state value is set via setter, set true let write set it's value
    * @param helper functions to check and limit*/
   ok<AT, REL extends Option<RELATED> = OptionNone>(
     init: AT[] = [],
-    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWs<AT, REL>, SAW<AT>> | true,
+    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>
   ) {
-    return new ResWs<AT, REL>(ok(init), setter, helper) as STATE_ARRAY_RES_WS<
+    return new RESWS<AT, REL>(ok(init), setter, helper) as StateArrayRESWS<
       AT,
       REL
     >;
@@ -396,10 +396,10 @@ const res_ws = {
    * @param helper functions to check and limit*/
   err<AT, REL extends Option<RELATED> = OptionNone>(
     error: string,
-    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWs<AT, REL>, SAW<AT>> | true,
+    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>
   ) {
-    return new ResWs<AT, REL>(err(error), setter, helper) as STATE_ARRAY_RES_WS<
+    return new RESWS<AT, REL>(err(error), setter, helper) as StateArrayRESWS<
       AT,
       REL
     >;
@@ -414,7 +414,7 @@ const res_ws = {
 //     | |____ / . \| |    | |__| | | \ \  | |  ____) |
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 /**States representing arrays */
-export const state_array_res = {
-  res_ws,
+export const STATE_ARRAY_RES = {
+  res_ws: RES_WS,
   res,
 };

@@ -28,13 +28,13 @@ interface Owner<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT> {
   get state(): STATE<RT, WT, any>;
   get read_only(): STATE_ROS<RT, any, WT>;
 }
-export type StateCollectedRos<
+export type StateCollectedROS<
   RT,
   IN extends [STATE_RES<any>, ...STATE_RES<any>[]],
   WT = any
 > = STATE_ROS<RT, OptionNone, WT> & Owner<RT, IN, WT>;
 
-export class Ros<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
+export class ROS<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
   extends STATE_BASE<RT, WT, OptionNone, ResultOk<RT>>
   implements Owner<RT, IN, WT>
 {
@@ -148,7 +148,7 @@ export class Ros<RT, IN extends [STATE_RES<any>, ...STATE_RES<any>[]], WT>
   }
 }
 
-export const state_collected_ros = {
+export const STATE_COLLECTED_ROS = {
   /**Creates a guarenteed ok state that collects multiple states values and reduces it to one.
    * @param transform - Function to translate value of collected states, false means first states values is used.
    * @param states - The states to collect.*/
@@ -156,11 +156,11 @@ export const state_collected_ros = {
     transform: ((values: StateCollectedTransVal<IN>) => ResultOk<RT>) | false,
     ...states: IN
   ) {
-    return new Ros<RT, IN, WT>(transform, ...states) as StateCollectedRos<
+    return new ROS<RT, IN, WT>(transform, ...states) as StateCollectedROS<
       RT,
       IN,
       WT
     >;
   },
-  class: Ros,
+  class: ROS,
 };

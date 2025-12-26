@@ -1,27 +1,27 @@
-export const STATE_ARRAY_WRITE_TYPE = {
+export const StateArrayWriteType = {
   added: "added",
   removed: "removed",
   changed: "changed",
 } as const;
-export type STATE_ARRAY_WRITE_TYPE =
-  (typeof STATE_ARRAY_WRITE_TYPE)[keyof typeof STATE_ARRAY_WRITE_TYPE];
+export type StateArrayWriteType =
+  (typeof StateArrayWriteType)[keyof typeof StateArrayWriteType];
 
-export type STATE_ARRAY_READ_TYPE = STATE_ARRAY_WRITE_TYPE | "none";
+export type StateArrayReadType = StateArrayWriteType | "none";
 
-export interface STATE_ARRAY_WRITE<TYPE> {
-  type: STATE_ARRAY_WRITE_TYPE;
+export interface StateArrayWrite<TYPE> {
+  type: StateArrayWriteType;
   index: number;
   items: readonly TYPE[];
 }
 
-export interface STATE_ARRAY_READ<TYPE> {
+export interface StateArrayRead<TYPE> {
   array: readonly TYPE[];
-  type: STATE_ARRAY_READ_TYPE;
+  type: StateArrayReadType;
   index: number;
   items: readonly TYPE[];
 }
 
-export interface STATE_ARRAY<AT> {
+export interface StateArray<AT> {
   push(...items: AT[]): number;
   pop(): AT | undefined;
   shift(): AT | undefined;
@@ -37,15 +37,15 @@ export interface STATE_ARRAY<AT> {
  * @param array Array to modify in place
  * @param read Read struct from state array
  * @param transform optional tranform function for when state array is not same type of array*/
-export function apply_read<AT>(array: AT[], read: STATE_ARRAY_READ<AT>): AT[];
+export function apply_read<AT>(array: AT[], read: StateArrayRead<AT>): AT[];
 export function apply_read<AT, TAT = AT>(
   array: AT[],
-  read: STATE_ARRAY_READ<TAT>,
+  read: StateArrayRead<TAT>,
   transform: (value: TAT, index: number, array: readonly TAT[]) => AT
 ): AT[];
 export function apply_read<AT, TAT = AT>(
   array: AT[],
-  read: STATE_ARRAY_READ<TAT & AT>,
+  read: StateArrayRead<TAT & AT>,
   transform?: (value: TAT, index: number, array: readonly TAT[]) => AT
 ): AT[] {
   const a = array;
@@ -60,6 +60,6 @@ export function apply_read<AT, TAT = AT>(
 }
 
 /**States representing arrays */
-export const state_array_shared = {
+export const STATE_ARRAY_SHARED = {
   apply_read,
 };

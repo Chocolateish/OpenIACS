@@ -4,7 +4,7 @@ import {
   type STATE_ARRAY_READ,
   type STATE_SUB,
 } from "@libState";
-import type { STATE_ARRAY_RES } from "../state/array/res";
+import type { StateArrayRES } from "../state/array/res";
 import { Base } from "./base";
 
 interface A<T, E extends Node> {
@@ -12,7 +12,7 @@ interface A<T, E extends Node> {
   error: (err: string) => Node;
   destructor?: (val: T, element: E) => void;
   array?: T[];
-  state?: STATE_ARRAY_RES<T>;
+  state?: StateArrayRES<T>;
 }
 
 interface B<T, E extends Node> extends A<T, E> {
@@ -22,7 +22,7 @@ interface B<T, E extends Node> extends A<T, E> {
 
 interface C<T, E extends Node> extends A<T, E> {
   array?: undefined;
-  state: STATE_ARRAY_RES<T>;
+  state: StateArrayRES<T>;
 }
 export type LoopOptions<T, E extends Node> = B<T, E> | C<T, E>;
 
@@ -30,7 +30,7 @@ export class Loop<T, E extends Node> extends Base {
   #generator: (val: T) => E;
   //#error: (err: string) => Node = () => document.createTextNode("");
   #destructor?: (val: T, element: E) => void;
-  #stateArray?: STATE_ARRAY_RES<T>;
+  #stateArray?: StateArrayRES<T>;
   #subSubscriber?: STATE_SUB<Result<STATE_ARRAY_READ<T>, string>>;
   #values: T[] = [];
   #children: E[] = [];
@@ -47,7 +47,7 @@ export class Loop<T, E extends Node> extends Base {
     this.replaceChildren(...array.map(this.#generator));
   }
 
-  set state(state: STATE_ARRAY_RES<T>) {
+  set state(state: StateArrayRES<T>) {
     if (state === this.#stateArray) return;
     if (this.#subSubscriber) this.#stateArray?.unsub(this.#subSubscriber);
     this.#stateArray = state;

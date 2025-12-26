@@ -17,10 +17,10 @@ import {
   type STATE_SET_REX_WS,
 } from "../types";
 import type {
-  STATE_ARRAY_READ_TYPE as READ_TYPE,
-  STATE_ARRAY_READ as SAR,
-  STATE_ARRAY_WRITE as SAW,
-  STATE_ARRAY,
+  StateArrayReadType as READ_TYPE,
+  StateArrayRead as SAR,
+  StateArrayWrite as SAW,
+  StateArray,
 } from "./shared";
 
 //##################################################################################################################################################
@@ -31,19 +31,19 @@ import type {
 //     | | \ \| |__| |____) |
 //     |_|  \_\\____/|_____/
 
-interface OWNER<AT, REL extends Option<RELATED>> extends STATE_ARRAY<AT> {
+interface Owner<AT, REL extends Option<RELATED>> extends StateArray<AT> {
   set(value: ResultOk<AT[]>): void;
   get state(): STATE<SAR<AT>, SAW<AT>, REL>;
   get read_only(): STATE_ROS<SAR<AT>, REL, SAW<AT>>;
 }
-export type STATE_ARRAY_ROS<
+export type StateArrayROS<
   AT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_ROS<SAR<AT>, REL, SAW<AT>> & OWNER<AT, REL>;
+> = STATE_ROS<SAR<AT>, REL, SAW<AT>> & Owner<AT, REL>;
 
-export class ROS<AT, REL extends Option<RELATED> = OptionNone>
+class ROS<AT, REL extends Option<RELATED> = OptionNone>
   extends STATE_BASE<SAR<AT>, SAW<AT>, REL, ResultOk<SAR<AT>>>
-  implements OWNER<AT, REL>
+  implements Owner<AT, REL>
 {
   constructor(init: ResultOk<AT[]>, helper?: HELPER<SAW<AT>, REL>) {
     super();
@@ -53,7 +53,7 @@ export class ROS<AT, REL extends Option<RELATED> = OptionNone>
 
   #a: AT[] = [];
   #helper?: HELPER<SAW<AT>, REL>;
-  setter?: STATE_SET_REX_WS<SAR<AT>, OWNER<AT, REL>, SAW<AT>>;
+  setter?: STATE_SET_REX_WS<SAR<AT>, Owner<AT, REL>, SAW<AT>>;
 
   #mr(type: READ_TYPE, index: number, items: AT[]): SAR<AT> {
     return { array: this.#a, type, index, items };
@@ -125,9 +125,9 @@ export class ROS<AT, REL extends Option<RELATED> = OptionNone>
 
   push(...items: AT[]): number {
     const index = this.#a.length;
-    const newLen = this.#a.push(...items);
+    const new_len = this.#a.push(...items);
     this.update_subs(ok(this.#mr("added", index, items)));
-    return newLen;
+    return new_len;
   }
 
   pop(): AT | undefined {
@@ -143,13 +143,13 @@ export class ROS<AT, REL extends Option<RELATED> = OptionNone>
   }
 
   unshift(...items: AT[]): number {
-    const newLen = this.#a.unshift(...items);
+    const new_len = this.#a.unshift(...items);
     this.update_subs(ok(this.#mr("added", 0, items)));
-    return newLen;
+    return new_len;
   }
 
-  splice(start: number, deleteCount?: number, ...items: AT[]): AT[] {
-    const r = this.#a.splice(start, deleteCount!, ...items);
+  splice(start: number, delete_count?: number, ...items: AT[]): AT[] {
+    const r = this.#a.splice(start, delete_count!, ...items);
     if (r.length > 0) this.update_subs(ok(this.#mr("removed", start, r)));
     if (items.length > 0) this.update_subs(ok(this.#mr("added", start, items)));
     return r;
@@ -187,7 +187,7 @@ const ros = {
     init: AT[] = [],
     helper?: HELPER<SAW<AT>, REL>
   ) {
-    return new ROS<AT, REL>(ok(init), helper) as STATE_ARRAY_ROS<AT, REL>;
+    return new ROS<AT, REL>(ok(init), helper) as StateArrayROS<AT, REL>;
   },
 };
 
@@ -199,20 +199,20 @@ const ros = {
 //     | | \ \| |__| |____) |    \  /\  /  ____) |
 //     |_|  \_\\____/|_____/      \/  \/  |_____/
 
-interface OWNER_WS<AT, REL extends Option<RELATED>> extends STATE_ARRAY<AT> {
+interface OwnerWS<AT, REL extends Option<RELATED>> extends StateArray<AT> {
   set(value: ResultOk<AT[]>): void;
   get state(): STATE<SAR<AT>, SAW<AT>, REL>;
   get read_only(): STATE_ROS<SAR<AT>, REL, SAW<AT>>;
   get read_write(): STATE_ROS_WS<SAR<AT>, SAW<AT>, REL>;
 }
-export type STATE_ARRAY_ROS_WS<
+export type StateArrayROSWS<
   AT,
   REL extends Option<RELATED> = OptionNone
-> = STATE_ROS_WS<SAR<AT>, SAW<AT>, REL> & OWNER_WS<AT, REL>;
+> = STATE_ROS_WS<SAR<AT>, SAW<AT>, REL> & OwnerWS<AT, REL>;
 
-export class ROS_WS<AT, REL extends Option<RELATED> = OptionNone>
+class ROSWS<AT, REL extends Option<RELATED> = OptionNone>
   extends STATE_BASE<SAR<AT>, SAW<AT>, REL, ResultOk<SAR<AT>>>
-  implements OWNER_WS<AT, REL>
+  implements OwnerWS<AT, REL>
 {
   /**Creates a state which holds a value
    * @param init initial value for state, use a promise for an eager async value, use a function returning a promise for a lazy async value
@@ -220,7 +220,7 @@ export class ROS_WS<AT, REL extends Option<RELATED> = OptionNone>
    * @param helper functions to check and limit*/
   constructor(
     init: ResultOk<AT[]>,
-    setter: STATE_SET_REX_WS<SAR<AT>, OWNER_WS<AT, REL>, SAW<AT>> | true,
+    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>
   ) {
     super();
@@ -235,7 +235,7 @@ export class ROS_WS<AT, REL extends Option<RELATED> = OptionNone>
   //Internal Context
   #a: AT[] = [];
   #helper?: HELPER<SAW<AT>, REL>;
-  #setter: STATE_SET_REX_WS<SAR<AT>, OWNER_WS<AT, REL>, SAW<AT>>;
+  #setter: STATE_SET_REX_WS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>>;
 
   #mr(type: READ_TYPE, index: number, items: AT[]): SAR<AT> {
     return { array: this.#a, type, index, items };
@@ -309,9 +309,9 @@ export class ROS_WS<AT, REL extends Option<RELATED> = OptionNone>
 
   push(...items: AT[]): number {
     const index = this.#a.length;
-    const newLen = this.#a.push(...items);
+    const new_len = this.#a.push(...items);
     this.update_subs(ok(this.#mr("added", index, items)));
-    return newLen;
+    return new_len;
   }
 
   pop(): AT | undefined {
@@ -327,13 +327,13 @@ export class ROS_WS<AT, REL extends Option<RELATED> = OptionNone>
   }
 
   unshift(...items: AT[]): number {
-    const newLen = this.#a.unshift(...items);
+    const new_len = this.#a.unshift(...items);
     this.update_subs(ok(this.#mr("added", 0, items)));
-    return newLen;
+    return new_len;
   }
 
-  splice(start: number, deleteCount?: number, ...items: AT[]): AT[] {
-    const r = this.#a.splice(start, deleteCount!, ...items);
+  splice(start: number, delete_count?: number, ...items: AT[]): AT[] {
+    const r = this.#a.splice(start, delete_count!, ...items);
     if (r.length > 0) this.update_subs(ok(this.#mr("removed", start, r)));
     if (items.length > 0) this.update_subs(ok(this.#mr("added", start, items)));
     return r;
@@ -371,10 +371,10 @@ const ros_ws = {
    * @param helper functions to check and limit*/
   ok<AT, REL extends Option<RELATED> = OptionNone>(
     init: AT[] = [],
-    setter: STATE_SET_REX_WS<SAR<AT>, OWNER_WS<AT, REL>, SAW<AT>> | true,
+    setter: STATE_SET_REX_WS<SAR<AT>, OwnerWS<AT, REL>, SAW<AT>> | true,
     helper?: HELPER<SAW<AT>, REL>
   ) {
-    return new ROS_WS<AT, REL>(ok(init), setter, helper) as STATE_ARRAY_ROS_WS<
+    return new ROSWS<AT, REL>(ok(init), setter, helper) as StateArrayROSWS<
       AT,
       REL
     >;

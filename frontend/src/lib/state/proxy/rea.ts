@@ -17,7 +17,7 @@ import {
 //     |  _  /|  __|   / /\ \
 //     | | \ \| |____ / ____ \
 //     |_|  \_\______/_/    \_\
-interface OWNER<S, RIN, ROUT, WIN, WOUT> {
+interface Owner<S, RIN, ROUT, WIN, WOUT> {
   /**Sets the state that is being proxied, and updates subscribers with new value*/
   set_state(state: S): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
@@ -30,15 +30,15 @@ interface OWNER<S, RIN, ROUT, WIN, WOUT> {
   get read_only(): STATE_REA<ROUT, OptionNone, WOUT>;
 }
 
-export type STATE_PROXY_REA<
+export type StateProxyREA<
   S extends STATE<RIN, WIN>,
   RIN = S extends STATE<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends STATE<any, infer WT> ? WT : any,
   WOUT = WIN
-> = STATE_REA<ROUT, OptionNone, WOUT> & OWNER<S, RIN, ROUT, WIN, WOUT>;
+> = STATE_REA<ROUT, OptionNone, WOUT> & Owner<S, RIN, ROUT, WIN, WOUT>;
 
-export class REA<
+class REA<
     S extends STATE<RIN, WIN>,
     RIN = S extends STATE<infer RT> ? RT : never,
     ROUT = RIN,
@@ -46,7 +46,7 @@ export class REA<
     WOUT = WIN
   >
   extends STATE_BASE<ROUT, WOUT, OptionNone, Result<ROUT, string>>
-  implements OWNER<S, RIN, ROUT, WIN, WOUT>
+  implements Owner<S, RIN, ROUT, WIN, WOUT>
 {
   constructor(
     state: S,
@@ -157,7 +157,7 @@ function rea_from<
 >(
   state: STATE_ROA<RIN, any, WIN>,
   transform?: (value: ResultOk<RIN>) => Result<ROUT, string>
-): STATE_PROXY_REA<S, RIN, ROUT, WIN, WOUT>;
+): StateProxyREA<S, RIN, ROUT, WIN, WOUT>;
 function rea_from<
   S extends STATE_REA<RIN, any, WIN>,
   RIN = S extends STATE<infer RT> ? RT : never,
@@ -167,7 +167,7 @@ function rea_from<
 >(
   state: STATE_REA<RIN, any, WIN>,
   transform?: (value: Result<RIN, string>) => Result<ROUT, string>
-): STATE_PROXY_REA<S, RIN, ROUT, WIN, WOUT>;
+): StateProxyREA<S, RIN, ROUT, WIN, WOUT>;
 function rea_from<
   S extends STATE_REA<RIN, any, WIN>,
   RIN = S extends STATE<infer RT> ? RT : never,
@@ -179,8 +179,8 @@ function rea_from<
   transform?:
     | ((value: ResultOk<RIN>) => Result<ROUT, string>)
     | ((value: Result<RIN, string>) => Result<ROUT, string>)
-): STATE_PROXY_REA<S, RIN, ROUT, WIN, WOUT> {
-  return new REA<S, RIN, ROUT, WIN, WOUT>(state, transform) as STATE_PROXY_REA<
+): StateProxyREA<S, RIN, ROUT, WIN, WOUT> {
+  return new REA<S, RIN, ROUT, WIN, WOUT>(state, transform) as StateProxyREA<
     S,
     RIN,
     ROUT,
@@ -196,7 +196,7 @@ function rea_from<
 //     |  _  /|  __|   / /\ \     \ \/  \/ / \___ \
 //     | | \ \| |____ / ____ \     \  /\  /  ____) |
 //     |_|  \_\______/_/    \_\     \/  \/  |_____/
-interface OWNER_WS<
+interface OwnerWS<
   S,
   RIN = S extends STATE<infer RT> ? RT : never,
   WIN = S extends STATE<any, infer WT> ? WT : never,
@@ -216,15 +216,15 @@ interface OWNER_WS<
   get read_write(): STATE_REA_WS<ROUT, WOUT, OptionNone>;
 }
 
-export type STATE_PROXY_REA_WS<
+export type StateProxyREAWS<
   S extends STATE_REA_WS<RIN, WIN>,
   RIN = S extends STATE<infer RT> ? RT : never,
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_REA_WS<ROUT, WOUT, OptionNone> & OWNER_WS<S, RIN, WIN, ROUT, WOUT>;
+> = STATE_REA_WS<ROUT, WOUT, OptionNone> & OwnerWS<S, RIN, WIN, ROUT, WOUT>;
 
-export class REA_WS<
+export class ReaWS<
     S extends STATE_REA_WS<RIN, WIN>,
     RIN = S extends STATE<infer RT> ? RT : never,
     WIN = S extends STATE<any, infer WT> ? WT : never,
@@ -232,7 +232,7 @@ export class REA_WS<
     WOUT = WIN
   >
   extends STATE_BASE<ROUT, WOUT, OptionNone, Result<ROUT, string>>
-  implements OWNER_WS<S, RIN, WIN, ROUT, WOUT>
+  implements OwnerWS<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
     state: S,
@@ -347,7 +347,7 @@ function rea_ws_from<
   state: STATE_ROA_WS<RIN, WIN>,
   transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>,
   transform_write?: (value: WOUT) => WIN
-): STATE_PROXY_REA_WS<S, RIN, WIN, ROUT, WOUT>;
+): StateProxyREAWS<S, RIN, WIN, ROUT, WOUT>;
 function rea_ws_from<
   S extends STATE_REA_WS<RIN, WIN>,
   RIN,
@@ -358,7 +358,7 @@ function rea_ws_from<
   state: STATE_REA_WS<RIN, WIN>,
   transform_read?: (value: Result<RIN, string>) => Result<ROUT, string>,
   transform_write?: (value: WOUT) => WIN
-): STATE_PROXY_REA_WS<S, RIN, WIN, ROUT, WOUT>;
+): StateProxyREAWS<S, RIN, WIN, ROUT, WOUT>;
 function rea_ws_from<
   S extends STATE_REA_WS<RIN, WIN>,
   RIN,
@@ -371,12 +371,12 @@ function rea_ws_from<
     | ((value: ResultOk<RIN>) => Result<ROUT, string>)
     | ((value: Result<RIN, string>) => Result<ROUT, string>),
   transform_write?: (value: WOUT) => WIN
-): STATE_PROXY_REA_WS<S, RIN, WIN, ROUT, WOUT> {
-  return new REA_WS<S, RIN, WIN, ROUT, WOUT>(
+): StateProxyREAWS<S, RIN, WIN, ROUT, WOUT> {
+  return new ReaWS<S, RIN, WIN, ROUT, WOUT>(
     state,
     transform_read,
     transform_write
-  ) as STATE_PROXY_REA_WS<S, RIN, WIN, ROUT, WOUT>;
+  ) as StateProxyREAWS<S, RIN, WIN, ROUT, WOUT>;
 }
 
 //##################################################################################################################################################
@@ -386,7 +386,7 @@ function rea_ws_from<
 //     |  _  /|  __|   / /\ \     \ \/  \/ / /\ \
 //     | | \ \| |____ / ____ \     \  /\  / ____ \
 //     |_|  \_\______/_/    \_\     \/  \/_/    \_\
-interface OWNER_WA<
+interface OwnerWA<
   S,
   RIN = S extends STATE<infer RT> ? RT : never,
   WIN = S extends STATE<any, infer WT> ? WT : never,
@@ -406,15 +406,15 @@ interface OWNER_WA<
   get read_write(): STATE_REA_WA<ROUT, WOUT, OptionNone>;
 }
 
-export type STATE_PROXY_REA_WA<
+export type StateProxyREAWA<
   S extends STATE_REA_WA<RIN, WIN>,
   RIN = S extends STATE<infer RT> ? RT : never,
   WIN = S extends STATE<any, infer WT> ? WT : never,
   ROUT = RIN,
   WOUT = WIN
-> = STATE_REA_WA<ROUT, WOUT, OptionNone> & OWNER_WA<S, RIN, WIN, ROUT, WOUT>;
+> = STATE_REA_WA<ROUT, WOUT, OptionNone> & OwnerWA<S, RIN, WIN, ROUT, WOUT>;
 
-export class REA_WA<
+export class REAWA<
     S extends STATE_REA_WA<RIN, WIN>,
     RIN = S extends STATE<infer RT> ? RT : never,
     WIN = S extends STATE<any, infer WT> ? WT : never,
@@ -422,7 +422,7 @@ export class REA_WA<
     WOUT = WIN
   >
   extends STATE_BASE<ROUT, WOUT, OptionNone, Result<ROUT, string>>
-  implements OWNER_WA<S, RIN, WIN, ROUT, WOUT>
+  implements OwnerWA<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
     state: S,
@@ -525,7 +525,7 @@ export class REA_WA<
 
 /**Creates a proxy state which mirrors another state, with an optional transform function.
  * @param state - state to proxy.
- * @param transformRead - Function to transform value of proxy*/
+ * @param transform_read - Function to transform value of proxy*/
 function rea_wa_from<
   S extends STATE_ROA_WA<RIN, WIN>,
   RIN,
@@ -534,9 +534,9 @@ function rea_wa_from<
   WOUT = WIN
 >(
   state: STATE_ROA_WA<RIN, WIN>,
-  transformRead?: (value: ResultOk<RIN>) => Result<ROUT, string>,
-  transformWrite?: (value: WOUT) => WIN
-): STATE_PROXY_REA_WA<S, RIN, WIN, ROUT, WOUT>;
+  transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>,
+  transform_write?: (value: WOUT) => WIN
+): StateProxyREAWA<S, RIN, WIN, ROUT, WOUT>;
 function rea_wa_from<
   S extends STATE_REA_WA<RIN, WIN>,
   RIN,
@@ -545,9 +545,9 @@ function rea_wa_from<
   WOUT = WIN
 >(
   state: STATE_REA_WA<RIN, WIN>,
-  transformRead?: (value: Result<RIN, string>) => Result<ROUT, string>,
-  transformWrite?: (value: WOUT) => WIN
-): STATE_PROXY_REA_WA<S, RIN, WIN, ROUT, WOUT>;
+  transform_read?: (value: Result<RIN, string>) => Result<ROUT, string>,
+  transform_write?: (value: WOUT) => WIN
+): StateProxyREAWA<S, RIN, WIN, ROUT, WOUT>;
 function rea_wa_from<
   S extends STATE_REA_WA<RIN, WIN>,
   RIN,
@@ -556,16 +556,16 @@ function rea_wa_from<
   WOUT = WIN
 >(
   state: S,
-  transformRead?:
+  transform_read?:
     | ((value: ResultOk<RIN>) => Result<ROUT, string>)
     | ((value: Result<RIN, string>) => Result<ROUT, string>),
-  transformWrite?: (value: WOUT) => WIN
-): STATE_PROXY_REA_WA<S, RIN, WIN, ROUT, WOUT> {
-  return new REA_WA<S, RIN, WIN, ROUT, WOUT>(
+  transform_write?: (value: WOUT) => WIN
+): StateProxyREAWA<S, RIN, WIN, ROUT, WOUT> {
+  return new REAWA<S, RIN, WIN, ROUT, WOUT>(
     state,
-    transformRead,
-    transformWrite
-  ) as STATE_PROXY_REA_WA<S, RIN, WIN, ROUT, WOUT>;
+    transform_read,
+    transform_write
+  ) as StateProxyREAWA<S, RIN, WIN, ROUT, WOUT>;
 }
 
 //##################################################################################################################################################
@@ -577,7 +577,7 @@ function rea_wa_from<
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 
 /**Proxy state redirecting another state */
-export const state_proxy_rea = {
+export const STATE_PROXY_REA = {
   rea: rea_from,
   rea_ws: rea_ws_from,
   rea_wa: rea_wa_from,
