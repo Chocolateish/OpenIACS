@@ -125,7 +125,7 @@ export class EventHandler<Events extends { [key: string]: any }, Target>
   emit<K extends keyof Events>(event_name: K, data: Events[K]) {
     const funcs = this.#subscribers[event_name];
     if (funcs?.size || this.#proxies?.size)
-      this.#emitE(
+      this.#emit_e(
         Object.freeze(
           new E<K, Target, Events[K]>(event_name, this.target, data)
         ),
@@ -133,7 +133,7 @@ export class EventHandler<Events extends { [key: string]: any }, Target>
       );
   }
 
-  #emitE(
+  #emit_e(
     e: E<keyof Events, Target, Events[keyof Events]>,
     funcs?: Set<ESubscriber<keyof Events, Target, Events[keyof Events]>>
   ) {
@@ -171,7 +171,7 @@ export class EventHandler<Events extends { [key: string]: any }, Target>
   proxy_func(): ESubscriber<keyof Events, Target, Events[keyof Events]> {
     return (e: E<keyof Events, Target, Events[keyof Events]>) => {
       const subs = this.#subscribers[e.type];
-      if (subs) this.#emitE(e, subs);
+      if (subs) this.#emit_e(e, subs);
     };
   }
 

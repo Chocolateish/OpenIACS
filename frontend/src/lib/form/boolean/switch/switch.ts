@@ -28,7 +28,7 @@ export class FormSwitch<ID extends string | undefined> extends FormValueWrite<
     document.createElement("div")
   );
   #icon: SVGSVGElement | undefined;
-  #preventClick: boolean = false;
+  #prevent_click: boolean = false;
 
   constructor(id?: ID) {
     super(id);
@@ -96,7 +96,7 @@ export class FormSwitch<ID extends string | undefined> extends FormValueWrite<
 
     this._body.onclick = (e) => {
       e.stopPropagation();
-      if (this.#preventClick) return (this.#preventClick = false);
+      if (this.#prevent_click) return (this.#prevent_click = false);
       this.set_value_check(!this.buffer);
     };
   }

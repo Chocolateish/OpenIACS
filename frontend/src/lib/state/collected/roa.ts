@@ -53,9 +53,9 @@ export class ROA<RT, IN extends [State<any>, ...State<any>[]], WT>
   #buffer?: ResultOk<RT>;
 
   #states: IN;
-  #stateBuffers: StateCollectedTransValUnk<IN> =
+  #state_buffers: StateCollectedTransValUnk<IN> =
     [] as StateCollectedTransValUnk<IN>;
-  #stateSubscribers: StateCollectedSubs<IN>[] = [];
+  #state_subscribers: StateCollectedSubs<IN>[] = [];
 
   protected getter(values: StateCollectedTransVal<IN>): ResultOk<RT> {
     return values[0] as ResultOk<RT>;
@@ -63,34 +63,34 @@ export class ROA<RT, IN extends [State<any>, ...State<any>[]], WT>
 
   /**Called when subscriber is added*/
   protected on_subscribe() {
-    this.#stateBuffers.length = this.#states.length;
+    this.#state_buffers.length = this.#states.length;
     //Creates a new scope to hold count and amount variables
     {
       let count = 0;
       const amount = this.#states.length - 1;
       Promise.all(this.#states).then((vals) => {
-        for (let i = 0; i < this.#stateBuffers.length; i++)
-          this.#stateBuffers[i] = this.#stateBuffers[i] ?? vals[i];
+        for (let i = 0; i < this.#state_buffers.length; i++)
+          this.#state_buffers[i] = this.#state_buffers[i] ?? vals[i];
         this.#buffer = this.getter(
-          this.#stateBuffers as StateCollectedTransVal<IN>
+          this.#state_buffers as StateCollectedTransVal<IN>
         );
-        this.ful_R_prom(this.#buffer);
+        this.ful_r_prom(this.#buffer);
         count = amount;
       });
       let calc = false;
       for (let i = 0; i < this.#states.length; i++) {
-        this.#stateSubscribers[i] = this.#states[i].sub((value) => {
+        this.#state_subscribers[i] = this.#states[i].sub((value) => {
           if (count < amount) {
-            if (!this.#stateBuffers[i]) count++;
-            this.#stateBuffers[i] = value;
+            if (!this.#state_buffers[i]) count++;
+            this.#state_buffers[i] = value;
             return;
           }
-          this.#stateBuffers[i] = value;
+          this.#state_buffers[i] = value;
           if (!calc) {
             calc = true;
             Promise.resolve().then(() => {
               this.#buffer = this.getter(
-                this.#stateBuffers as StateCollectedTransVal<IN>
+                this.#state_buffers as StateCollectedTransVal<IN>
               );
               this.update_subs(this.#buffer);
               calc = false;
@@ -104,9 +104,9 @@ export class ROA<RT, IN extends [State<any>, ...State<any>[]], WT>
   /**Called when subscriber is removed*/
   protected on_unsubscribe() {
     for (let i = 0; i < this.#states.length; i++)
-      this.#states[i].unsub(this.#stateSubscribers[i] as any);
-    this.#stateSubscribers = [];
-    this.#stateBuffers = [] as StateCollectedTransVal<IN>;
+      this.#states[i].unsub(this.#state_subscribers[i] as any);
+    this.#state_subscribers = [];
+    this.#state_buffers = [] as StateCollectedTransVal<IN>;
     this.#buffer = undefined;
   }
 
@@ -143,13 +143,13 @@ export class ROA<RT, IN extends [State<any>, ...State<any>[]], WT>
     func: (value: ResultOk<RT>) => T | PromiseLike<T>
   ): Promise<T> {
     if (this.#buffer) return func(this.#buffer);
-    if (!this.#stateBuffers.length)
+    if (!this.#state_buffers.length)
       return func(
         this.getter(
           (await Promise.all(this.#states)) as StateCollectedTransVal<IN>
         )
       );
-    return this.append_R_prom(func);
+    return this.append_r_prom(func);
   }
   related(): OptionNone {
     return none();

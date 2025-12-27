@@ -13,3 +13,4 @@ export const LIGHT_BLUE: ColorStruct = {
   "800": "#0277BD",
   "900": "#01579B",
 };
+Object.freeze(LIGHT_BLUE);

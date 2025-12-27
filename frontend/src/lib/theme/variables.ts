@@ -31,7 +31,7 @@ export const theme_init_variable_root = (
 
 /**Group of settings should never be instantiated manually use initSettings*/
 export class ThemeVariableGroup {
-  private path_ID: string;
+  private path_id: string;
   private variables: {
     [key: string]: {
       name: string;
@@ -47,7 +47,7 @@ export class ThemeVariableGroup {
   readonly description: string;
 
   constructor(path: string, name: string, description: string) {
-    this.path_ID = path;
+    this.path_id = path;
     this.name = name;
     this.description = description;
   }
@@ -62,7 +62,7 @@ export class ThemeVariableGroup {
     if (id in this.sub_groups)
       throw new Error("Sub group already registered " + id);
     return (this.sub_groups[id] = new ThemeVariableGroup(
-      this.path_ID + "-" + id,
+      this.path_id + "-" + id,
       name,
       description
     ));
@@ -88,7 +88,7 @@ export class ThemeVariableGroup {
   ): string {
     if (id.includes("-"))
       throw new Error("Dash not permitted in variable id " + id);
-    const key = "--" + this.path_ID + "-" + id;
+    const key = "--" + this.path_id + "-" + id;
     if (key in this.variables)
       throw new Error("Settings already registered " + id);
     const variable = (this.variables[key] = {

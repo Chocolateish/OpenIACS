@@ -13,3 +13,5 @@ export const CYAN: ColorStruct = {
   "800": "#00838F",
   "900": "#006064",
 };
+
+Object.freeze(CYAN);

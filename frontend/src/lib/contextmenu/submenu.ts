@@ -9,9 +9,9 @@ type Mutable<T> = {
 };
 export class ContextMenuSub extends ContextMenuLine {
   #menu: ContextMenu;
-  #isOpen?: boolean;
-  #hoverTime?: number;
-  #blockTime?: number;
+  #is_open?: boolean;
+  #hover_time?: number;
+  #block_time?: number;
 
   /**Returns the name used to define the element */
   static element_name() {
@@ -36,9 +36,9 @@ export class ContextMenuSub extends ContextMenuLine {
 
     this.onclick = (e) => {
       e.stopPropagation();
-      if (!this.#blockTime) {
+      if (!this.#block_time) {
         navigator?.vibrate(25);
-        if (this.#isOpen) {
+        if (this.#is_open) {
           this.close_down();
         } else {
           this.open();
@@ -47,17 +47,17 @@ export class ContextMenuSub extends ContextMenuLine {
     };
 
     this.onpointerenter = (e) => {
-      if (e.pointerType !== "touch" && !this.#isOpen) {
-        this.#hoverTime = window.setTimeout(() => {
+      if (e.pointerType !== "touch" && !this.#is_open) {
+        this.#hover_time = window.setTimeout(() => {
           this.open();
-          this.#blockTime = window.setTimeout(() => {
-            this.#blockTime = 0;
+          this.#block_time = window.setTimeout(() => {
+            this.#block_time = 0;
           }, 500);
         }, 300);
       }
     };
     this.onpointerleave = () => {
-      clearTimeout(this.#hoverTime);
+      clearTimeout(this.#hover_time);
     };
     this.onkeydown = (e) => {
       switch (e.code) {
@@ -88,7 +88,7 @@ export class ContextMenuSub extends ContextMenuLine {
     (this.parentElement as Mutable<ContextMenu>).submenu = this;
     this.appendChild(this.#menu);
     this.#menu.set_position(0, 0, this);
-    this.#isOpen = true;
+    this.#is_open = true;
   }
 
   do_focus(): void {
@@ -100,7 +100,7 @@ export class ContextMenuSub extends ContextMenuLine {
     this.focus();
     (this.parentElement as Mutable<ContextMenu>).submenu = undefined;
     this.removeChild(this.#menu);
-    this.#isOpen = false;
+    this.#is_open = false;
   }
 
   /**Closes the context menu down the tree*/

@@ -114,7 +114,7 @@ export abstract class StateResourceROA<
     this.#valid = this.validity === true ? true : Date.now() + this.validity;
     this.#fetching = false;
     clearTimeout(this.#timeout_timout);
-    this.ful_R_prom(value);
+    this.ful_r_prom(value);
   }
 
   update_resource(value: ResultOk<RT>) {
@@ -146,7 +146,7 @@ export abstract class StateResourceROA<
     if (this.#valid === true || this.#valid >= Date.now())
       return func(this.#buffer!);
     else {
-      const prom = this.append_R_prom(func);
+      const prom = this.append_r_prom(func);
       if (!this.#fetching) {
         this.#fetching = true;
         this.#timeout_timout = setTimeout(

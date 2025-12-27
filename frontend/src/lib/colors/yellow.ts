@@ -13,3 +13,4 @@ export const YELLOW: ColorStruct = {
   "800": "#F9A825",
   "900": "#F57F17",
 };
+Object.freeze(YELLOW);

@@ -55,9 +55,9 @@ export class RES<RT, IN extends StateRES<any>[], WT>
   #buffer?: Result<RT, string>;
 
   #states: IN;
-  #stateBuffers: StateCollectedTransValUnk<IN> =
+  #state_buffers: StateCollectedTransValUnk<IN> =
     [] as StateCollectedTransValUnk<IN>;
-  #stateSubscribers: StateCollectedSubs<IN>[] = [];
+  #state_subscribers: StateCollectedSubs<IN>[] = [];
 
   protected getter(values: StateCollectedTransVal<IN>): Result<RT, string> {
     return values[0];
@@ -69,14 +69,14 @@ export class RES<RT, IN extends StateRES<any>[], WT>
       return (this.#buffer = err("No states registered"));
     let calc = false;
     for (let i = 0; i < this.#states.length; i++) {
-      this.#stateBuffers[i] = this.#states[i].get();
-      this.#stateSubscribers[i] = this.#states[i].sub((value) => {
-        this.#stateBuffers[i] = value;
+      this.#state_buffers[i] = this.#states[i].get();
+      this.#state_subscribers[i] = this.#states[i].sub((value) => {
+        this.#state_buffers[i] = value;
         if (!calc) {
           calc = true;
           Promise.resolve().then(() => {
             this.#buffer = this.getter(
-              this.#stateBuffers as StateCollectedTransVal<IN>
+              this.#state_buffers as StateCollectedTransVal<IN>
             );
             this.update_subs(this.#buffer);
             calc = false;
@@ -85,7 +85,7 @@ export class RES<RT, IN extends StateRES<any>[], WT>
       });
     }
     this.#buffer = this.getter(
-      this.#stateBuffers as StateCollectedTransVal<IN>
+      this.#state_buffers as StateCollectedTransVal<IN>
     );
     this.update_subs(this.#buffer);
   }
@@ -93,9 +93,9 @@ export class RES<RT, IN extends StateRES<any>[], WT>
   /**Called when subscriber is removed*/
   protected on_unsubscribe() {
     for (let i = 0; i < this.#states.length; i++)
-      this.#states[i].unsub(this.#stateSubscribers[i] as any);
-    this.#stateSubscribers = [];
-    this.#stateBuffers = [] as StateCollectedTransVal<IN>;
+      this.#states[i].unsub(this.#state_subscribers[i] as any);
+    this.#state_subscribers = [];
+    this.#state_buffers = [] as StateCollectedTransVal<IN>;
     this.#buffer = undefined;
   }
 

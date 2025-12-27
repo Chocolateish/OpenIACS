@@ -65,15 +65,15 @@ class REA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
             } catch (e) {
               this.#value = err(String(e));
             }
-            this.ful_R_prom(this.#value);
+            this.ful_r_prom(this.#value);
             this.#clean();
           })();
         }
-      return this.append_R_prom(func);
+      return this.append_r_prom(func);
     };
     this.set = (value) => {
       this.#clean();
-      this.set(this.ful_R_prom(value));
+      this.set(this.ful_r_prom(value));
     };
 
     const write_sync = this.write_sync.bind(this);
@@ -91,8 +91,8 @@ class REA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
 
   #value?: Result<RT, string>;
-  setterAsync?: StateSetREXWA<RT, Owner<RT, WT, REL>, WT>;
-  setterSync?: StateSetREXWS<RT, Owner<RT, WT, REL>, WT>;
+  setter_async?: StateSetREXWA<RT, Owner<RT, WT, REL>, WT>;
+  setter_sync?: StateSetREXWS<RT, Owner<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -134,17 +134,17 @@ class REA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
 
   //#Writer Context
   get writable(): boolean {
-    return Boolean(this.setterSync || this.setterAsync);
+    return Boolean(this.setter_sync || this.setter_async);
   }
   get wsync(): boolean {
-    return Boolean(this.setterSync);
+    return Boolean(this.setter_sync);
   }
   async write(value: WT): Promise<Result<void, string>> {
-    if (this.setterAsync) return this.setterAsync(value, this, this.#value);
+    if (this.setter_async) return this.setter_async(value, this, this.#value);
     return err("State not writable");
   }
   write_sync(value: WT): Result<void, string> {
-    if (this.setterSync) return this.setterSync(value, this, this.#value);
+    if (this.setter_sync) return this.setter_sync(value, this, this.#value);
     return err("State not writable");
   }
   limit(value: WT): Result<WT, string> {
@@ -250,15 +250,15 @@ class REAWS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
             } catch (e) {
               this.#value = err(String(e));
             }
-            this.ful_R_prom(this.#value);
+            this.ful_r_prom(this.#value);
             this.#clean();
           })();
         }
-      return this.append_R_prom(func);
+      return this.append_r_prom(func);
     };
     this.set = (value) => {
       this.#clean();
-      this.set(this.ful_R_prom(value));
+      this.set(this.ful_r_prom(value));
     };
 
     const write_sync = this.write_sync.bind(this);
@@ -439,15 +439,15 @@ class REAWA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
             } catch (e) {
               this.#value = err(String(e));
             }
-            this.ful_R_prom(this.#value);
+            this.ful_r_prom(this.#value);
             this.#clean();
           })();
         }
-      return this.append_R_prom(func);
+      return this.append_r_prom(func);
     };
     this.set = (value) => {
       this.#clean();
-      this.set(this.ful_R_prom(value));
+      this.set(this.ful_r_prom(value));
     };
 
     const write = this.write.bind(this);

@@ -93,7 +93,7 @@ export abstract class StateBase<
 
   //Promises
   /**Creates a promise which can be fulfilled later with fulRProm */
-  protected async append_R_prom<
+  protected async append_r_prom<
     T = Result<RT, string>,
     TResult1 = Result<RT, string>
   >(func: (value: T) => TResult1 | PromiseLike<TResult1>): Promise<TResult1> {
@@ -106,7 +106,7 @@ export abstract class StateBase<
     );
   }
   /**Fulfills all read promises with given value */
-  protected ful_R_prom(value: RRT): RRT {
+  protected ful_r_prom(value: RRT): RRT {
     if (this.#read_promises)
       for (let i = 0; i < this.#read_promises.length; i++)
         this.#read_promises[i](value);

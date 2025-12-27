@@ -67,7 +67,7 @@ class RES<
   private transform_read(value: Result<RIN, string>): Result<ROUT, string> {
     return value as Result<ROUT, string>;
   }
-  private transformWrite?: (value: WOUT) => WIN;
+  private transform_write?: (value: WOUT) => WIN;
   protected on_subscribe(run: boolean = false): void {
     this.#state.sub(this.#subscriber, run);
   }
@@ -94,7 +94,7 @@ class RES<
     } else this.transform_read = transform;
   }
   set_transform_write(transform: (val: WOUT) => WIN) {
-    this.transformWrite = transform;
+    this.transform_write = transform;
   }
   get state(): State<ROUT, WOUT, OptionNone> {
     return this as State<ROUT, WOUT, OptionNone>;
@@ -132,13 +132,13 @@ class RES<
   }
   async write(value: WOUT): Promise<Result<void, string>> {
     if (!this.#state.write) return err("State not writable");
-    if (!this.transformWrite) return err("State not writable");
-    return this.#state.write(this.transformWrite(value));
+    if (!this.transform_write) return err("State not writable");
+    return this.#state.write(this.transform_write(value));
   }
   write_sync(value: WOUT): Result<void, string> {
     if (!this.#state.write_sync) return err("State not writable");
-    if (!this.transformWrite) return err("State not writable");
-    return this.#state.write_sync(this.transformWrite(value));
+    if (!this.transform_write) return err("State not writable");
+    return this.#state.write_sync(this.transform_write(value));
   }
   limit(): Result<WOUT, string> {
     return err("Limit not supported on proxy states");

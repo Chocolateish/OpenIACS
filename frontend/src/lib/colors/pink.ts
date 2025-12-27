@@ -13,3 +13,4 @@ export const PINK: ColorStruct = {
   "800": "#AD1457",
   "900": "#880E4F",
 };
+Object.freeze(PINK);

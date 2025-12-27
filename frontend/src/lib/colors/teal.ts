@@ -13,3 +13,4 @@ export const TEAL: ColorStruct = {
   "800": "#00695C",
   "900": "#004D40",
 };
+Object.freeze(TEAL);

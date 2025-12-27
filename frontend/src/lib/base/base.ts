@@ -66,7 +66,7 @@ export abstract class Base extends HTMLElement {
   /**Events for element*/
   #base_events = new EventHandler<BaseEvents, Base>(this);
   /**Events for element*/
-  readonly baseEvents = this.#base_events.consumer;
+  readonly base_events = this.#base_events.consumer;
 
   #states: Map<StateSub<any>, [State<any>, boolean]> = new Map();
 
@@ -76,7 +76,7 @@ export abstract class Base extends HTMLElement {
   #observer?: BaseObserver;
 
   /**Works when element is connected to observer, otherwise it is an alias for isConnected*/
-  readonly isVisible: boolean = false;
+  readonly is_visible: boolean = false;
   #attached_observer?: BaseObserver;
 
   #access?: AccessTypes;
@@ -87,23 +87,19 @@ export abstract class Base extends HTMLElement {
   /**Runs when element is attached to document*/
   protected connectedCallback() {
     this.#base_events.emit("connect", ConnectEventVal.Connect);
-    for (const [f, [s, v]] of this.#states) {
-      if (!v) s.sub(f, true);
-    }
+    for (const [f, [s, v]] of this.#states) if (!v) s.sub(f, true);
     if (this.#attached_observer) this.#attached_observer.observe(this);
-    else this._set_visible(true);
+    else this.internal_set_visible(true);
     this.#is_connected = true;
   }
 
   /**Runs when element is dettached from document*/
   protected disconnectedCallback() {
     this.#base_events.emit("connect", ConnectEventVal.Disconnect);
-    for (const [f, [s, v]] of this.#states) {
-      if (!v) s.unsub(f);
-    }
+    for (const [f, [s, v]] of this.#states) if (!v) s.unsub(f);
     if (this.#attached_observer) {
       this.#attached_observer.unobserve(this);
-      this._set_visible(false);
+      this.internal_set_visible(false);
     }
     this.#is_connected = false;
   }
@@ -113,10 +109,10 @@ export abstract class Base extends HTMLElement {
     this.#base_events.emit("connect", ConnectEventVal.Adopted);
   }
 
-  private _set_visible(is: boolean) {
-    if (this.isVisible !== is) {
+  private internal_set_visible(is: boolean) {
+    if (this.is_visible !== is) {
       //@ts-expect-error Change readonly, in same class
-      this.isVisible = is;
+      this.is_visible = is;
       this.#base_events.emit("visible", is);
       if (is) {
         for (const [f, [s, v]] of this.#states) if (v) s.sub(f, true);
@@ -130,7 +126,7 @@ export abstract class Base extends HTMLElement {
   opts(opts: WithStateROA<DataProps<this>>): this {
     for (const key in opts) {
       const opt = opts[key] as this[typeof key] | StateROA<this[typeof key]>;
-      if (state.h.is.roa(opt)) this.attach_STATE_ROA_to_prop(key, opt);
+      if (state.h.is.roa(opt)) this.attach_state_ROA_to_prop(key, opt);
       else this[key] = opt;
     }
     return this;
@@ -157,7 +153,7 @@ export abstract class Base extends HTMLElement {
       this.#attached_observer = observer;
     } else if (this.#attached_observer) {
       if (this.#is_connected) this.#attached_observer.unobserve(this);
-      if (!this.isVisible) this._set_visible(true);
+      if (!this.is_visible) this.internal_set_visible(true);
       this.#attached_observer = undefined;
     }
     return this;
@@ -165,7 +161,7 @@ export abstract class Base extends HTMLElement {
 
   /**Attaches a state to a function, so that the function is subscribed to the state when the component is connected
    * @param visible when set true the function is only subscribed when the element is visible, this requires an observer to be attached to the element*/
-  attach_STATE<S extends State<any>>(
+  attach_state<S extends State<any>>(
     state: S,
     func: StateInferSub<S>,
     visible?: boolean
@@ -174,17 +170,17 @@ export abstract class Base extends HTMLElement {
       console.error("Function already registered with element", func, this);
     else {
       this.#states.set(func, [state, Boolean(visible)]);
-      if (visible ? this.isVisible : this.#is_connected)
+      if (visible ? this.is_visible : this.#is_connected)
         state.sub(func as StateSub<any>, true);
     }
     return func;
   }
 
   /**Dettaches the function from the state/component */
-  dettach_STATE(func: StateSub<any>): typeof func {
+  dettach_state(func: StateSub<any>): typeof func {
     const state = this.#states.get(func);
     if (state) {
-      if (state[1] ? this.isVisible : this.#is_connected) state[0].unsub(func);
+      if (state[1] ? this.is_visible : this.#is_connected) state[0].unsub(func);
       this.#states.delete(func);
     } else console.error("Function not registered with element", func, this);
     return func;
@@ -195,27 +191,30 @@ export abstract class Base extends HTMLElement {
    * @param state the state to attach to the property
    * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element
    * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
-  attach_STATE_ROA_to_prop<K extends keyof this>(
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  attach_state_ROA_to_prop<K extends keyof this>(
     prop: K,
     state: StateROA<this[K]>,
     ok?: (val: this[K]) => Option<this[K]>,
     visible?: boolean
   ): this;
-  attach_STATE_ROA_to_prop<K extends keyof this, T = this[K]>(
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  attach_state_ROA_to_prop<K extends keyof this, T = this[K]>(
     prop: K,
     state: StateROA<T>,
     ok: (val: T) => Option<this[K]>,
     visible?: boolean
   ): this;
-  attach_STATE_ROA_to_prop<K extends keyof this, T = this[K]>(
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  attach_state_ROA_to_prop<K extends keyof this, T = this[K]>(
     prop: K,
     state: StateROA<T>,
     ok?: (val: T) => Option<this[K]>,
     visible?: boolean
   ): this {
-    this.dettach_STATE_from_prop(prop).#props.set(
+    this.dettach_state_from_prop(prop).#props.set(
       prop,
-      this.attach_STATE(
+      this.attach_state(
         state,
         (val) => {
           const o = ok ? ok(val.value) : some(val.value as this[K]);
@@ -232,30 +231,30 @@ export abstract class Base extends HTMLElement {
    * @param state the state to attach to the property
    * @param error function called when state gives a ResultErr,
    * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element*/
-  attach_STATE_to_prop<K extends keyof this>(
+  attach_state_to_prop<K extends keyof this>(
     prop: K,
     state: StateREA<this[K]>,
     error: (error: string) => Option<this[K]>,
     ok?: (val: this[K]) => Option<this[K]>,
     visible?: boolean
   ): this;
-  attach_STATE_to_prop<K extends keyof this, T = this[K]>(
+  attach_state_to_prop<K extends keyof this, T = this[K]>(
     prop: K,
     state: StateREA<T>,
     error: (error: string) => Option<this[K]>,
     ok: (val: T) => Option<this[K]>,
     visible?: boolean
   ): this;
-  attach_STATE_to_prop<K extends keyof this, T = this[K]>(
+  attach_state_to_prop<K extends keyof this, T = this[K]>(
     prop: K,
     state: StateREA<T>,
     error: (error: string) => Option<this[K]>,
     ok?: (val: T) => Option<this[K]>,
     visible?: boolean
   ): this {
-    this.dettach_STATE_from_prop(prop).#props.set(
+    this.dettach_state_from_prop(prop).#props.set(
       prop,
-      this.attach_STATE(
+      this.attach_state(
         state,
         (v) => {
           const o = v.ok
@@ -272,36 +271,39 @@ export abstract class Base extends HTMLElement {
   }
 
   /**Dettaches the state from the property */
-  dettach_STATE_from_prop<T extends keyof this>(prop: T): this {
+  dettach_state_from_prop<T extends keyof this>(prop: T): this {
     const pro = this.#props.get(prop);
     if (pro) {
-      this.dettach_STATE(pro);
+      this.dettach_state(pro);
       this.#props.delete(prop);
     }
     return this;
   }
 
-  attach_STATE_ROA_to_attribute(
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  attach_state_ROA_to_attribute(
     qualified_name: string,
     state: StateROA<string>,
     ok?: (val: string) => Option<string>,
     visible?: boolean
   ): this;
-  attach_STATE_ROA_to_attribute<U>(
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  attach_state_ROA_to_attribute<U>(
     qualified_name: string,
     state: StateROA<U>,
     ok: (val: U) => Option<string>,
     visible?: boolean
   ): this;
-  attach_STATE_ROA_to_attribute<U>(
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  attach_state_ROA_to_attribute<U>(
     qualified_name: string,
     state: StateROA<U>,
     ok?: (val: U) => Option<string>,
     visible?: boolean
   ): this {
-    this.dettach_STATE_from_attribute(qualified_name).#attr.set(
+    this.dettach_state_from_attribute(qualified_name).#attr.set(
       qualified_name,
-      this.attach_STATE(
+      this.attach_state(
         state,
         (val) => {
           const o = ok ? ok(val.value) : some(val.value as string);
@@ -313,30 +315,30 @@ export abstract class Base extends HTMLElement {
     return this;
   }
 
-  attach_STATE_to_attribute(
+  attach_state_to_attribute(
     qualified_name: string,
     state: StateREA<string>,
     error: (error: string) => Option<string>,
     ok?: (val: string) => Option<string>,
     visible?: boolean
   ): this;
-  attach_STATE_to_attribute<U>(
+  attach_state_to_attribute<U>(
     qualified_name: string,
     state: StateREA<U>,
     error: (error: string) => Option<string>,
     ok: (val: U) => Option<string>,
     visible?: boolean
   ): this;
-  attach_STATE_to_attribute<U>(
+  attach_state_to_attribute<U>(
     qualified_name: string,
     state: StateREA<U>,
     error: (error: string) => Option<string>,
     ok?: (val: U) => Option<string>,
     visible?: boolean
   ): this {
-    this.dettach_STATE_from_attribute(qualified_name).#attr.set(
+    this.dettach_state_from_attribute(qualified_name).#attr.set(
       qualified_name,
-      this.attach_STATE(
+      this.attach_state(
         state,
         (v) => {
           const o = v.ok
@@ -353,9 +355,9 @@ export abstract class Base extends HTMLElement {
   }
 
   /**Dettaches the state from the property */
-  dettach_STATE_from_attribute(qualified_name: string): this {
+  dettach_state_from_attribute(qualified_name: string): this {
     const pro = this.#attr.get(qualified_name);
-    if (pro) this.dettach_STATE(pro);
+    if (pro) this.dettach_state(pro);
     return this;
   }
 

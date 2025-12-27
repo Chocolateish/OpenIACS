@@ -13,3 +13,4 @@ export const ORANGE: ColorStruct = {
   "800": "#EF6C00",
   "900": "#E65100",
 };
+Object.freeze(ORANGE);

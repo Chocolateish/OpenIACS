@@ -13,3 +13,4 @@ export const DEEP_ORANGE: ColorStruct = {
   "800": "#D84315",
   "900": "#BF360C",
 };
+Object.freeze(DEEP_ORANGE);

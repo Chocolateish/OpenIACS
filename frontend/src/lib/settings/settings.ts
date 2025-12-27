@@ -63,10 +63,10 @@ class Setting {
 
 /**Group of settings should never be instantiated manually use initSettings*/
 export class SettingsGroup {
-  private pathID: string;
+  private path_id: string;
   private settings: { [key: string]: Setting } = {};
-  private subGroups: { [key: string]: SettingsGroup } = {};
-  readonly versionChanged: string | undefined;
+  private sub_groups: { [key: string]: SettingsGroup } = {};
+  readonly version_changed: string | undefined;
   readonly name: string;
   readonly description: string;
 
@@ -76,8 +76,8 @@ export class SettingsGroup {
     description: string,
     version_changed?: string
   ) {
-    this.versionChanged = version_changed;
-    this.pathID = path;
+    this.version_changed = version_changed;
+    this.path_id = path;
     this.name = name;
     this.description = description;
   }
@@ -87,13 +87,13 @@ export class SettingsGroup {
    * @param name name of group formatted for user reading
    * @param description a description of what the setting group is about formatted for user reading*/
   make_sub_group(id: string, name: string, description: string) {
-    if (id in this.subGroups)
+    if (id in this.sub_groups)
       throw new Error("Sub group already registered " + id);
-    return (this.subGroups[id] = new SettingsGroup(
-      this.pathID + "/" + id,
+    return (this.sub_groups[id] = new SettingsGroup(
+      this.path_id + "/" + id,
       name,
       description,
-      this.versionChanged
+      this.version_changed
     ));
   }
 
@@ -108,13 +108,13 @@ export class SettingsGroup {
     check?: (parsed: unknown) => Option<TYPE>,
     version_changed?: (existing: string, oldVersion: string) => TYPE
   ): TYPE {
-    const saved = localStorage.getItem(this.pathID + "/" + id);
+    const saved = localStorage.getItem(this.path_id + "/" + id);
     if (saved === null) return fallback;
     try {
-      if (this.versionChanged && version_changed) {
-        const changed_value = version_changed(saved, this.versionChanged);
+      if (this.version_changed && version_changed) {
+        const changed_value = version_changed(saved, this.version_changed);
         localStorage.setItem(
-          this.pathID + "/" + id,
+          this.path_id + "/" + id,
           JSON.stringify(changed_value)
         );
         return changed_value;
@@ -131,8 +131,8 @@ export class SettingsGroup {
    * @param value value to set*/
   set(id: string, value: any) {
     if (id in this.settings)
-      throw new Error("Settings is registered " + this.pathID + "/" + id);
-    localStorage[this.pathID + "/" + id] = JSON.stringify(value);
+      throw new Error("Settings is registered " + this.path_id + "/" + id);
+    localStorage[this.path_id + "/" + id] = JSON.stringify(value);
   }
 
   /**Registers a state to a setting
@@ -148,10 +148,10 @@ export class SettingsGroup {
     state: StateROAWA<READ>
   ) {
     if (id in this.settings)
-      throw new Error("Settings already registered " + this.pathID + "/" + id);
+      throw new Error("Settings already registered " + this.path_id + "/" + id);
     this.settings[id] = new Setting(state, name, description);
     state.sub((value) => {
-      localStorage[this.pathID + "/" + id] = JSON.stringify(value.unwrap);
+      localStorage[this.path_id + "/" + id] = JSON.stringify(value.unwrap);
     });
   }
 
@@ -169,10 +169,10 @@ export class SettingsGroup {
     transform: (state: ResultOk<READ>) => TYPE
   ) {
     if (id in this.settings)
-      throw new Error("Settings already registered " + this.pathID + "/" + id);
+      throw new Error("Settings already registered " + this.path_id + "/" + id);
     this.settings[id] = new Setting(state, name, description);
     state.sub((value) => {
-      localStorage[this.pathID + "/" + id] = JSON.stringify(transform(value));
+      localStorage[this.path_id + "/" + id] = JSON.stringify(transform(value));
     });
   }
 }

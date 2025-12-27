@@ -55,7 +55,7 @@ export abstract class FormValue<
     return "@abstract@";
   }
 
-  readonly formID: ID;
+  readonly form_id: ID;
   protected _description?: string;
   protected _label: HTMLSpanElement = this.appendChild(
     document.createElement("span")
@@ -79,7 +79,7 @@ export abstract class FormValue<
 
   constructor(id?: ID) {
     super();
-    this.formID = id as ID;
+    this.form_id = id as ID;
   }
 
   /**Sets the current label of the element*/
@@ -104,9 +104,9 @@ export abstract class FormValue<
 
   /**This sets the value of the component*/
   set value_by_state(state: State<RT> | undefined) {
-    if (this.#func) this.dettach_STATE(this.#func);
+    if (this.#func) this.dettach_state(this.#func);
     if (state)
-      this.attach_STATE(state, (val) => {
+      this.attach_state(state, (val) => {
         if (val.ok) this.value = val.value;
         else this.error = val.error;
       });

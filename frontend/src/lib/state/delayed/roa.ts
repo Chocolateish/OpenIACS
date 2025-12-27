@@ -61,18 +61,18 @@ class ROA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
           (async () => {
             try {
               this.#value = await init();
-              this.ful_R_prom(this.#value);
+              this.ful_r_prom(this.#value);
             } catch (e) {
               console.error("Failed to initialize delayed RO state: ", e, this);
             }
             this.#clean();
           })();
         }
-      return this.append_R_prom(func);
+      return this.append_r_prom(func);
     };
     this.set = (value) => {
       this.#clean();
-      this.set(this.ful_R_prom(value));
+      this.set(this.ful_r_prom(value));
     };
 
     const write_sync = this.write_sync.bind(this);
@@ -90,8 +90,8 @@ class ROA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
 
   #value?: ResultOk<RT>;
-  setterAsync?: StateSetROXWA<RT, Owner<RT, WT, REL>, WT>;
-  setterSync?: StateSetROXWS<RT, Owner<RT, WT, REL>, WT>;
+  setter_async?: StateSetROXWA<RT, Owner<RT, WT, REL>, WT>;
+  setter_sync?: StateSetROXWS<RT, Owner<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -133,17 +133,17 @@ class ROA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
 
   //#Writer Context
   get writable(): boolean {
-    return Boolean(this.setterSync || this.setterAsync);
+    return Boolean(this.setter_sync || this.setter_async);
   }
   get wsync(): boolean {
-    return Boolean(this.setterSync);
+    return Boolean(this.setter_sync);
   }
   async write(value: WT): Promise<Result<void, string>> {
-    if (this.setterAsync) return this.setterAsync(value, this, this.#value);
+    if (this.setter_async) return this.setter_async(value, this, this.#value);
     return err("State not writable");
   }
   write_sync(value: WT): Result<void, string> {
-    if (this.setterSync) return this.setterSync(value, this, this.#value);
+    if (this.setter_sync) return this.setter_sync(value, this, this.#value);
     return err("State not writable");
   }
   limit(value: WT): Result<WT, string> {
@@ -233,18 +233,18 @@ class ROAWS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
           (async () => {
             try {
               this.#value = await init();
-              this.ful_R_prom(this.#value);
+              this.ful_r_prom(this.#value);
             } catch (e) {
               console.error("Failed to initialize delayed RO state: ", e, this);
             }
             this.#clean();
           })();
         }
-      return this.append_R_prom(func);
+      return this.append_r_prom(func);
     };
     this.set = (value) => {
       this.#clean();
-      this.set(this.ful_R_prom(value));
+      this.set(this.ful_r_prom(value));
     };
     const write_sync = this.write_sync.bind(this);
     this.write_sync = (value) =>
@@ -406,18 +406,18 @@ class ROAWA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
           (async () => {
             try {
               this.#value = await init();
-              this.ful_R_prom(this.#value);
+              this.ful_r_prom(this.#value);
             } catch (e) {
               console.error("Failed to initialize delayed RO state: ", e, this);
             }
             this.#clean();
           })();
         }
-      return this.append_R_prom(func);
+      return this.append_r_prom(func);
     };
     this.set = (value) => {
       this.#clean();
-      this.set(this.ful_R_prom(value));
+      this.set(this.ful_r_prom(value));
     };
     const write = this.write.bind(this);
     this.write = async (value) =>

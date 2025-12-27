@@ -13,3 +13,5 @@ export const BLUE_GREY: ColorStruct = {
   "800": "#37474F",
   "900": "#263238",
 };
+
+Object.freeze(BLUE_GREY);

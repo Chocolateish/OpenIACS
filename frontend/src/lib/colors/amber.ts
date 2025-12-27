@@ -13,3 +13,5 @@ export const AMBER: ColorStruct = {
   "800": "#FF8F00",
   "900": "#FF6F00",
 };
+
+Object.freeze(AMBER);

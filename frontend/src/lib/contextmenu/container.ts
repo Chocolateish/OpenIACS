@@ -3,7 +3,7 @@ import "./container.scss";
 import { ContextMenu } from "./menu";
 
 export class Container extends Base {
-  #activeElementBuffer: HTMLOrSVGElement | null | undefined;
+  #active_element_buffer: HTMLOrSVGElement | null | undefined;
 
   /**Returns the name used to define the element */
   static element_name() {
@@ -36,7 +36,7 @@ export class Container extends Base {
   /**Attaches a menu to the container */
   attach_menu(menu: ContextMenu) {
     menu.container = this;
-    this.#activeElementBuffer = this.ownerDocument
+    this.#active_element_buffer = this.ownerDocument
       .activeElement as HTMLOrSVGElement | null;
     this.replaceChildren(menu);
     return menu;
@@ -44,14 +44,15 @@ export class Container extends Base {
 
   /**Closes open context menu */
   close_up() {
-    if (this.#activeElementBuffer) {
-      this.#activeElementBuffer.focus();
+    if (this.#active_element_buffer) {
+      this.#active_element_buffer.focus();
       if (
-        (this.ownerDocument.activeElement as any) !== this.#activeElementBuffer
+        (this.ownerDocument.activeElement as any) !==
+        this.#active_element_buffer
       ) {
         this.focus();
       }
-      this.#activeElementBuffer = undefined;
+      this.#active_element_buffer = undefined;
     } else {
       this.focus();
     }

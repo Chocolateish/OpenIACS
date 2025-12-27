@@ -27,7 +27,7 @@ export class BaseObserver extends IntersectionObserver {
         ) {
           for (let i = 0; i < e.length; i++) {
             //@ts-expect-error Call of private method, is private to prevent external usage
-            (<Base>e[i].target)._set_visible(e[i].isIntersecting);
+            (<Base>e[i].target).internal_set_visible(e[i].isIntersecting);
           }
           return;
         }
@@ -50,7 +50,7 @@ export class BaseObserver extends IntersectionObserver {
           this.#deffered_visible_timeout = window.setTimeout(() => {
             for (let i = 0; i < this.#deffered_visible_queue.length; i++) {
               //@ts-expect-error Call of private method, is private to prevent external usage
-              this.#deffered_visible_queue[i]._set_visible(true);
+              this.#deffered_visible_queue[i].internal_set_visible(true);
             }
             this.#deffered_visible_queue = [];
             this.#deffered_visible_timeout = null;
@@ -60,7 +60,7 @@ export class BaseObserver extends IntersectionObserver {
           this.#deffered_hidden_timeout = window.setTimeout(() => {
             for (let i = 0; i < this.#deffered_hidden_queue.length; i++) {
               //@ts-expect-error Call of private method, is private to prevent external usage
-              this.#deffered_hidden_queue[i]._set_visible(false);
+              this.#deffered_hidden_queue[i].internal_set_visible(false);
             }
             this.#deffered_hidden_queue = [];
             this.#deffered_hidden_timeout = null;

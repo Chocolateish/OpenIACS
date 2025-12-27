@@ -25,7 +25,7 @@ type ExtractB<Arr extends any[]> = Arr extends [infer Head, ...infer Tail]
   : [];
 
 type ToKeyVal<Arr extends FormValue<any, any>[]> = {
-  [K in Arr[number] as K["formID"]]: K extends FormValue<infer T, any>
+  [K in Arr[number] as K["form_id"]]: K extends FormValue<infer T, any>
     ? T
     : never;
 };
@@ -69,16 +69,16 @@ export class FormGroup<
   set components(components: FormElement[]) {
     for (let i = 0, n = components.length; i < n; i++) {
       const comp = components[i];
-      if (comp instanceof FormValue && comp.formID) {
-        if (this.#value_components.has(comp.formID as string)) {
+      if (comp instanceof FormValue && comp.form_id) {
+        if (this.#value_components.has(comp.form_id as string)) {
           console.error(
             "Form element with form id " +
-              comp.formID +
+              comp.form_id +
               " already exists in group"
           );
           continue;
         }
-        this.#value_components.set(comp.formID as string, comp);
+        this.#value_components.set(comp.form_id as string, comp);
       }
       if (this.#collapsible) this.#collapsible.appendChild(comp);
       else this._body.appendChild(comp);

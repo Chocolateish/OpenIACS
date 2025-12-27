@@ -13,3 +13,4 @@ export const INDIGO: ColorStruct = {
   "800": "#283593",
   "900": "#1A237E",
 };
+Object.freeze(INDIGO);

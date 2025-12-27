@@ -13,3 +13,4 @@ export const LIME: ColorStruct = {
   "800": "#9E9D24",
   "900": "#827717",
 };
+Object.freeze(LIME);

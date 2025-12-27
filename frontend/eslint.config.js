@@ -38,8 +38,18 @@ export default defineConfig(
           format: ["snake_case"],
         },
         {
+          selector: "classMethod",
+          filter: {
+            regex:
+              "^(connectedCallback|disconnectedCallback|attributeChangedCallback|adoptedCallback)$",
+            match: true,
+          },
+          format: null,
+        },
+        {
           selector: "classProperty",
           format: ["snake_case"],
+          leadingUnderscore: "allow",
         },
         {
           selector: "typeLike",
