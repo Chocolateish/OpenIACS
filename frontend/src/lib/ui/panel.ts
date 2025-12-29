@@ -1,40 +1,44 @@
 import { Base, define_element } from "@libBase";
 import { px_to_rem, rem_to_px } from "@libTheme";
+import { ContentBase } from "./content";
 import "./panel.scss";
+import "./shared";
 
 const MIN_WIDTH = 4; //rem
 const MIN_HEIGHT = 4; //rem
 
-export const PanelPositioning = {
-  screen: "screen",
-  box: "box",
-} as const;
-export type PanelPositioning =
-  (typeof PanelPositioning)[keyof typeof PanelPositioning];
-
-type PS = "n" | "s" | "e" | "w";
-
 export type PanelSizers =
   | boolean
-  | `${PS}`
-  | `${PS}${PS}`
-  | `${PS}${PS}${PS}`
-  | `${PS}${PS}${PS}${PS}`;
+  | "all"
+  | "nsew"
+  | "nse"
+  | "ns"
+  | "n"
+  | "s"
+  | "se"
+  | "sw"
+  | "e"
+  | "ew"
+  | "w";
 export interface PanelOptions {
-  layer?: number;
   show_titlebar?: boolean;
   closeable?: boolean;
 
+  //Composition
+  layer?: number;
+
+  //Accessories
+  content?: ContentBase;
+
   //Positioning
   moveable?: boolean;
-  positioning?: PanelPositioning;
   top?: number;
   left?: number;
   right?: number;
   bottom?: number;
 
   //Sizing
-  sizeable?: boolean;
+  sizeable?: PanelSizers;
   width?: number;
   height?: number;
 }
@@ -42,8 +46,8 @@ export interface PanelOptions {
 export interface PanelContainer {
   readonly width: number;
   readonly height: number;
-  readonly window_width: number;
-  readonly window_height: number;
+  set_layer(panel: Panel, layer: number): void;
+  focus_panel(panel: Panel): void;
 }
 
 export class Panel extends Base {
@@ -54,27 +58,29 @@ export class Panel extends Base {
     return "ui";
   }
 
-  readonly layer: number;
   #container: PanelContainer;
   get #container_height(): number {
-    return this.#positioning === PanelPositioning.screen
-      ? this.#container.window_height
-      : this.#container.height;
+    return this.#container.height;
   }
   get #container_width(): number {
-    return this.#positioning === PanelPositioning.screen
-      ? this.#container.window_width
-      : this.#container.width;
+    return this.#container.width;
   }
-  #titlebar: HTMLDivElement;
-  #content: HTMLDivElement;
-  #sizer: HTMLDivElement;
 
   constructor(
     container: PanelContainer,
     options: PanelOptions & { layer: number }
   ) {
     super();
+
+    this.#container = container;
+    this.#layer = options.layer;
+
+    //Sizing
+    this.#sizer = this.appendChild(document.createElement("div"));
+    this.sizeable = options.sizeable ?? true;
+    this.width = options.width;
+    this.height = options.height;
+
     this.#titlebar = this.appendChild(document.createElement("div"));
     this.#titlebar.tabIndex = 0;
     this.#titlebar.onpointerdown = (e) => {
@@ -112,16 +118,30 @@ export class Panel extends Base {
         this.#titlebar.onpointerup = null;
       };
     };
+    this.#titlebar.onkeydown = (e) => {
+      const offset = e.shiftKey ? 5 : e.ctrlKey ? 0.1 : 1;
+      if (e.key === "ArrowDown") {
+        if (this.#top !== undefined) this.top = this.top + offset;
+        else this.bottom = this.bottom - offset;
+      } else if (e.key === "ArrowUp") {
+        if (this.#top !== undefined) this.top = this.top - offset;
+        else this.bottom = this.bottom + offset;
+      } else if (e.key === "ArrowLeft") {
+        if (this.#left !== undefined) this.left = this.left - offset;
+        else this.right = this.right + offset;
+      } else if (e.key === "ArrowRight") {
+        if (this.#left !== undefined) this.left = this.left + offset;
+        else this.right = this.right - offset;
+      } else return;
+
+      e.preventDefault();
+      e.stopPropagation();
+    };
 
     this.#content = this.appendChild(document.createElement("div"));
-    this.#sizer = this.appendChild(document.createElement("div"));
-    this.#sizer.tabIndex = 0;
-
-    this.#container = container;
-    this.layer = options.layer;
+    if (options.content) this.#content.appendChild(options.content);
 
     //Positioning
-    this.#positioning = options.positioning ?? PanelPositioning.box;
     this.#moveable = options.moveable ?? true;
     let pos = 0;
     if (options.top !== undefined) this.top = options.top;
@@ -131,11 +151,40 @@ export class Panel extends Base {
     else if (options.right !== undefined) this.right = options.right;
     else pos++;
     if (pos === 2) this.center = true;
+  }
+  //       _____ ____  __  __ _____   ____   _____ _____ _______ _____ ____  _   _
+  //      / ____/ __ \|  \/  |  __ \ / __ \ / ____|_   _|__   __|_   _/ __ \| \ | |
+  //     | |   | |  | | \  / | |__) | |  | | (___   | |    | |    | || |  | |  \| |
+  //     | |   | |  | | |\/| |  ___/| |  | |\___ \  | |    | |    | || |  | | . ` |
+  //     | |___| |__| | |  | | |    | |__| |____) |_| |_   | |   _| || |__| | |\  |
+  //      \_____\____/|_|  |_|_|     \____/|_____/|_____|  |_|  |_____\____/|_| \_|
+  #layer: number;
+  set layer(value: number) {
+    this.#layer = value;
+    this.#container.set_layer(this, value);
+  }
+  get layer(): number {
+    return this.#layer;
+  }
 
-    //Sizing
-    this.sizeable = options.sizeable ?? true;
-    this.width = options.width;
-    this.height = options.height;
+  focus_panel(): void {
+    this.#container.focus_panel(this);
+  }
+
+  //               _____ _____ ______  _____ _____  ____  _____  _____ ______  _____
+  //         /\   / ____/ ____|  ____|/ ____/ ____|/ __ \|  __ \|_   _|  ____|/ ____|
+  //        /  \ | |   | |    | |__  | (___| (___ | |  | | |__) | | | | |__  | (___
+  //       / /\ \| |   | |    |  __|  \___ \\___ \| |  | |  _  /  | | |  __|  \___ \
+  //      / ____ \ |___| |____| |____ ____) |___) | |__| | | \ \ _| |_| |____ ____) |
+  //     /_/    \_\_____\_____|______|_____/_____/ \____/|_|  \_\_____|______|_____/
+  #titlebar: HTMLDivElement;
+
+  #content: HTMLDivElement;
+  set content(cont: ContentBase) {
+    this.#content.replaceChildren(cont);
+  }
+  get content(): ContentBase | undefined {
+    return (this.#content.firstElementChild as ContentBase) ?? undefined;
   }
 
   //      _____   ____   _____ _____ _______ _____ ____  _   _ _____ _   _  _____
@@ -144,7 +193,6 @@ export class Panel extends Base {
   //     |  ___/| |  | |\___ \  | |    | |    | || |  | | . ` | | | | . ` | | |_ |
   //     | |    | |__| |____) |_| |_   | |   _| || |__| | |\  |_| |_| |\  | |__| |
   //     |_|     \____/|_____/|_____|  |_|  |_____\____/|_| \_|_____|_| \_|\_____|
-  #positioning: PanelPositioning;
   #moveable: boolean;
   #top?: number;
   #bottom?: number;
@@ -157,15 +205,8 @@ export class Panel extends Base {
     if (this.#bottom !== undefined) this.bottom = this.#bottom;
     if (this.#left !== undefined) this.left = this.#left;
     if (this.#right !== undefined) this.right = this.#right;
-  }
-
-  set positioning(value: PanelPositioning) {
-    if (value === PanelPositioning.screen) this.style.position = "fixed";
-    else this.style.position = "absolute";
-    this.#positioning = value;
-  }
-  get positioning(): PanelPositioning {
-    return this.#positioning;
+    this.width = Math.min(this.width, this.#container_width);
+    this.height = Math.min(this.height, this.#container_height);
   }
 
   set moveable(value: boolean) {
@@ -261,21 +302,26 @@ export class Panel extends Base {
   //      \___ \  | |   / /   | | | . ` | | |_ |
   //      ____) |_| |_ / /__ _| |_| |\  | |__| |
   //     |_____/|_____/_____|_____|_| \_|\_____|
+  #sizer: HTMLDivElement;
   #sizeable: PanelSizers = true;
   #width?: number;
   #height?: number;
 
   set sizeable(value: PanelSizers) {
+    if (typeof value === "string") this.classList.add("visible");
+    else this.classList.remove("visible");
+    if (value === true || value === "all") value = "nsew";
     if (value === false) {
-      if (this.#sizer.children.length === 0) this.#sizer.remove();
+      if (this.#sizer.children.length === 0) this.#sizer.replaceChildren();
       return;
-    } else if (value === true && this.#sizer.children.length === 8) return;
+    } else if (value === "nsew" && this.#sizer.children.length === 8) return;
     this.#sizeable = value;
-    if (typeof value === "string") this.#sizer.classList.add("visible");
-    else this.#sizer.classList.remove("visible");
-    if (value === true) value = "nsew";
     this.#sizer.replaceChildren();
+    this.#sizer.classList.remove("n", "s", "e", "w");
+    this.classList.remove("n", "s", "e", "w");
     const sizers = value.split("");
+    this.#sizer.classList.add(...sizers);
+    this.classList.add(...sizers);
     if (sizers.includes("n") && sizers.includes("e")) sizers.push("ne");
     if (sizers.includes("n") && sizers.includes("w")) sizers.push("nw");
     if (sizers.includes("s") && sizers.includes("e")) sizers.push("se");
@@ -283,6 +329,7 @@ export class Panel extends Base {
     for (const sizer of sizers) {
       const div = this.#sizer.appendChild(document.createElement("div"));
       div.classList.add(sizer);
+      if (sizer.length === 1) div.innerHTML = "<div>\ue25d</div>";
       const north = sizer.includes("n");
       const south = sizer.includes("s");
       const east = sizer.includes("e");
@@ -323,6 +370,7 @@ export class Panel extends Base {
           if (bottom) this.bottom = this.bottom;
           if (left) this.left = this.left;
           if (right) this.right = this.right;
+          this.#titlebar.focus();
         };
       };
     }

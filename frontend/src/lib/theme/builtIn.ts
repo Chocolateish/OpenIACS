@@ -59,13 +59,20 @@ fonts.make_variable(
   undefined
 );
 
+//       _____ ____  _      ____  _____   _____
+//      / ____/ __ \| |    / __ \|  __ \ / ____|
+//     | |   | |  | | |   | |  | | |__) | (___
+//     | |   | |  | | |   | |  | |  _  / \___ \
+//     | |___| |__| | |___| |__| | | \ \ ____) |
+//      \_____\____/|______\____/|_|  \_\_____/
+
 const colors = root.make_sub_group("colors", "Colors", "Color variables");
 colors.make_variable(
   "layer1",
   "UI Layer 1",
   "Color of the first layer of the UI",
-  "rgba(255,255,255)",
-  "rgba(255,255,255)",
+  GREY[50],
+  "#111111",
   "Color",
   undefined
 );

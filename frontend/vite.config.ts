@@ -33,6 +33,7 @@ export default defineConfig({
       "@libDocument": path.resolve(__dirname, "./src/lib/document/index"),
       "@libEvent": path.resolve(__dirname, "./src/lib/event/index"),
       "@libIcons": path.resolve(__dirname, "./src/lib/icons/index"),
+      "@libIconsFonts": path.resolve(__dirname, "./src/lib/icons/font.scss"),
       "@libMath": path.resolve(__dirname, "./src/lib/math/index"),
       "@libResult": path.resolve(__dirname, "./src/lib/result/index"),
       "@libSettings": path.resolve(__dirname, "./src/lib/settings/index"),

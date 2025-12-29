@@ -19,6 +19,7 @@ form-textmultiline {
     }
 
     > textarea {
+      @include base.value-font;
       all: unset;
       display: block;
       padding: 0.3rem;
@@ -39,6 +40,7 @@ form-textmultiline {
     }
 
     > div {
+      touch-action: none;
       height: calc(base.$size_height / 2);
       border-radius: base.$size_cornerRadius;
       border-top: base.$color_border solid base.$border_thickness;

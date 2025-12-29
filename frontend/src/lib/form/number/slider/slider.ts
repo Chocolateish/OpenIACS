@@ -51,88 +51,89 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
     this._body.appendChild(this.warn_input);
 
     this._body.onpointerdown = (e) => {
-      if (e.button === 0) {
-        e.stopPropagation();
-        this.#slider.classList.add("active");
-        const box = this.#slider.getBoundingClientRect();
-        const offset =
-          e.clientX >= box.x
-            ? e.clientX <= box.x + box.width
-              ? box.x - e.clientX
-              : -box.width
-            : 0;
-        if (this.#min === -Infinity || this.#max === Infinity) {
-          let value = this.buffer || 0;
-          const interval = setInterval(() => {
-            const val = (value += diff / 50);
-            if (this.#live) this.set_value_limit(val).map((v) => (value = v));
-            else {
-              this.limit_value(val).map((v) => {
-                this.#move_value(v);
-                value = v;
-              });
-            }
-          }, 100);
-          let diff = this.#x_to_perc(e.clientX + offset) - 50;
-          this.#move_slide(this.#x_to_perc(e.clientX + offset));
-          this.#slider.setPointerCapture(e.pointerId);
-          this.#slider.onpointermove = (ev) => {
-            ev.stopPropagation();
-            const perc = this.#x_to_perc(ev.clientX + offset);
-            diff = (this.#step || 1) * ((perc - 50) * 2);
-            this.#move_slide(perc);
-          };
-          const reset = () => {
-            this.#slider.classList.remove("active");
-            this.#slider.releasePointerCapture(e.pointerId);
-            this.#slider.onpointermove = null;
-            this.#slider.onpointerup = null;
-            this.#move_slide(50);
-            clearInterval(interval);
-          };
-          this.#slider.onpointerup = (ev) => {
-            ev.stopPropagation();
+      if (e.button !== 0) return;
+      if (e.pointerType !== "mouse" && !this.#slider.contains(e.target as Node))
+        return;
+      e.stopPropagation();
+      this.#slider.classList.add("active");
+      const box = this.#slider.getBoundingClientRect();
+      const offset =
+        e.clientX >= box.x
+          ? e.clientX <= box.x + box.width
+            ? box.x - e.clientX
+            : -box.width
+          : 0;
+      if (this.#min === -Infinity || this.#max === Infinity) {
+        let value = this.buffer || 0;
+        const interval = setInterval(() => {
+          const val = (value += diff / 50);
+          if (this.#live) this.set_value_limit(val).map((v) => (value = v));
+          else {
+            this.limit_value(val).map((v) => {
+              this.#move_value(v);
+              value = v;
+            });
+          }
+        }, 100);
+        let diff = this.#x_to_perc(e.clientX + offset) - 50;
+        this.#move_slide(this.#x_to_perc(e.clientX + offset));
+        this.#slider.setPointerCapture(e.pointerId);
+        this.#slider.onpointermove = (ev) => {
+          ev.stopPropagation();
+          const perc = this.#x_to_perc(ev.clientX + offset);
+          diff = (this.#step || 1) * ((perc - 50) * 2);
+          this.#move_slide(perc);
+        };
+        const reset = () => {
+          this.#slider.classList.remove("active");
+          this.#slider.releasePointerCapture(e.pointerId);
+          this.#slider.onpointermove = null;
+          this.#slider.onpointerup = null;
+          this.#move_slide(50);
+          clearInterval(interval);
+        };
+        this.#slider.onpointerup = (ev) => {
+          ev.stopPropagation();
+          reset();
+          if (!this.#live) this.set_value_limit(value);
+        };
+        this.#slider.onkeydown = (e) => {
+          if (e.key === "Escape") {
+            e.preventDefault();
+            e.stopPropagation();
             reset();
-            if (!this.#live) this.set_value_limit(value);
-          };
-          this.#slider.onkeydown = (e) => {
-            if (e.key === "Escape") {
-              e.preventDefault();
-              e.stopPropagation();
-              reset();
-              if (this.buffer !== undefined) this.new_value(this.buffer);
-              else this.clear_value();
-            }
-          };
-        } else {
-          const value = this.buffer || 0;
-          this.#move_absolute(e.clientX + offset);
-          this.#slider.setPointerCapture(e.pointerId);
-          this.#slider.onpointermove = (ev) => {
-            ev.stopPropagation();
-            this.#move_absolute(ev.clientX + offset);
-          };
-          const reset = () => {
-            this.#slider.classList.remove("active");
-            this.#slider.releasePointerCapture(e.pointerId);
-            this.#slider.onpointermove = null;
-            this.#slider.onpointerup = null;
-          };
-          this.#slider.onpointerup = (ev) => {
-            ev.stopPropagation();
+            if (this.buffer !== undefined) this.new_value(this.buffer);
+            else this.clear_value();
+          }
+        };
+      } else {
+        const value = this.buffer || 0;
+        this.#move_absolute(e.clientX + offset);
+        this.#slider.setPointerCapture(e.pointerId);
+        this.#slider.onpointermove = (ev) => {
+          ev.stopPropagation();
+          this.#move_absolute(ev.clientX + offset);
+        };
+        const reset = () => {
+          this.#slider.classList.remove("active");
+          this.#slider.releasePointerCapture(e.pointerId);
+          this.#slider.onpointermove = null;
+          this.#slider.onpointerup = null;
+        };
+        this.#slider.onpointerup = (ev) => {
+          ev.stopPropagation();
+          reset();
+          this.#move_absolute(ev.clientX + offset, value);
+        };
+        this.#slider.onkeydown = (e) => {
+          if (e.key === "Escape") {
+            e.preventDefault();
+            e.stopPropagation();
             reset();
-            this.#move_absolute(ev.clientX + offset, value);
-          };
-          this.#slider.onkeydown = (e) => {
-            if (e.key === "Escape") {
-              e.preventDefault();
-              e.stopPropagation();
-              reset();
-              if (this.buffer !== undefined) this.new_value(this.buffer);
-              else this.clear_value();
-            }
-          };
-        }
+            if (this.buffer !== undefined) this.new_value(this.buffer);
+            else this.clear_value();
+          }
+        };
       }
     };
     this.#slider.onkeydown = (e) => {

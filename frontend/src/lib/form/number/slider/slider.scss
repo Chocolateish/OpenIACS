@@ -20,7 +20,6 @@ form-slider {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    touch-action: none;
 
     .touch & {
       height: base.$size_touchHeight;
@@ -70,6 +69,7 @@ form-slider {
         padding-inline: 0.2rem;
         outline: none;
         cursor: grab;
+        touch-action: pan-y;
 
         &.active {
           cursor: grabbing;

@@ -19,6 +19,7 @@ import "./index.scss";
 import { form } from "./lib/form";
 import { FormColors } from "./lib/form/base";
 import { FormDateTimeType } from "./lib/form/special/dateTime/dateTimeInput";
+import { Content } from "./lib/ui/content";
 
 interface CharacterData {
   uuid: string;
@@ -54,9 +55,25 @@ main_panel_container.create_panel({
   // left: 5,
   width: 10,
   height: 10,
+  sizeable: "all",
+  content: new Content(),
+});
+main_panel_container.create_panel({
+  top: 5,
+  left: 5,
+  width: 10,
+  height: 10,
+  content: new Content(),
+});
+main_panel_container.create_panel({
+  top: 5,
+  left: 20,
+  width: 10,
+  height: 10,
+  sizeable: "e",
 });
 
-const FORM_CONT = document.body.appendChild(document.createElement("div"));
+const FORM_CONT = document.getElementById("app")!;
 FORM_CONT.style.flexGrow = "1";
 FORM_CONT.style.maxWidth = "40rem";
 FORM_CONT.style.overflow = "auto";

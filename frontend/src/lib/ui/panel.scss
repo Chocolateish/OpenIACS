@@ -1,41 +1,227 @@
+@use "@libIconsFonts" as font;
+
 ui-panel {
   $radius: 0.4rem;
+  $radius_visible: $radius * 2;
+  $sizer_width: 0.7rem;
+  $sizer_width_touch_ratio: 2.4;
 
   position: absolute;
   display: flex;
   flex-direction: column;
-  background-color: pink;
   width: fit-content;
   height: fit-content;
   min-width: 2rem;
   min-height: 2rem;
   border-radius: $radius;
-  box-shadow: 0 0 1rem black;
 
-  & > div:first-child {
+  //       _____ _    _          _____   ______          __
+  //      / ____| |  | |   /\   |  __ \ / __ \ \        / /
+  //     | (___ | |__| |  /  \  | |  | | |  | \ \  /\  / /
+  //      \___ \|  __  | / /\ \ | |  | | |  | |\ \/  \/ /
+  //      ____) | |  | |/ ____ \| |__| | |__| | \  /\  /
+  //     |_____/|_|  |_/_/    \_\_____/ \____/   \/  \/
+  &::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 0 0.4rem 0.05rem var(--ui-colors-shadow);
+    border-radius: $radius;
+  }
+
+  &:focus-within::before {
+    box-shadow: 0 0 0.4rem 0.05rem var(--ui-colors-shadowFocus);
+  }
+
+  &.visible.n::before {
+    margin-top: -$sizer_width;
+    padding-top: $sizer_width;
+    border-top-left-radius: $radius_visible;
+    border-top-right-radius: $radius_visible;
+  }
+
+  .touch &.n::before {
+    margin-top: -$sizer_width * $sizer_width_touch_ratio;
+    padding-top: $sizer_width * $sizer_width_touch_ratio;
+    border-top-left-radius: $radius_visible;
+    border-top-right-radius: $radius_visible;
+  }
+
+  &.visible.s::before {
+    margin-bottom: -$sizer_width;
+    padding-bottom: $sizer_width;
+    border-bottom-left-radius: $radius_visible;
+    border-bottom-right-radius: $radius_visible;
+  }
+
+  .touch &.s::before {
+    margin-bottom: -$sizer_width * $sizer_width_touch_ratio;
+    padding-bottom: $sizer_width * $sizer_width_touch_ratio;
+    border-bottom-left-radius: $radius_visible;
+    border-bottom-right-radius: $radius_visible;
+  }
+
+  &.visible.e::before {
+    margin-right: -$sizer_width;
+    padding-right: $sizer_width;
+    border-top-right-radius: $radius_visible;
+    border-bottom-right-radius: $radius_visible;
+  }
+
+  .touch &.e::before {
+    margin-right: -$sizer_width * $sizer_width_touch_ratio;
+    padding-right: $sizer_width * $sizer_width_touch_ratio;
+    border-top-right-radius: $radius_visible;
+    border-bottom-right-radius: $radius_visible;
+  }
+
+  &.visible.w::before {
+    margin-left: -$sizer_width;
+    padding-left: $sizer_width;
+    border-top-left-radius: $radius_visible;
+    border-bottom-left-radius: $radius_visible;
+  }
+
+  .touch &.w::before {
+    margin-left: -$sizer_width * $sizer_width_touch_ratio;
+    padding-left: $sizer_width * $sizer_width_touch_ratio;
+    border-top-left-radius: $radius_visible;
+    border-bottom-left-radius: $radius_visible;
+  }
+
+  //      _______ _____ _______ _      ______
+  //     |__   __|_   _|__   __| |    |  ____|
+  //        | |    | |    | |  | |    | |__
+  //        | |    | |    | |  | |    |  __|
+  //        | |   _| |_   | |  | |____| |____
+  //        |_|  |_____|  |_|  |______|______|
+  & > div:nth-child(2) {
+    position: relative;
     pointer-events: all;
     height: 1.6rem;
-    background-color: green;
+    background-color: var(--ui-colors-titlebar);
     border-radius: $radius $radius 0 0;
     cursor: grab;
 
     &.moving {
       cursor: grabbing;
     }
+
+    .touch & {
+      height: 2.6rem;
+    }
   }
 
-  & > div:nth-child(2) {
+  //       _____ ____  _   _ _______ ______ _   _ _______
+  //      / ____/ __ \| \ | |__   __|  ____| \ | |__   __|
+  //     | |   | |  | |  \| |  | |  | |__  |  \| |  | |
+  //     | |   | |  | | . ` |  | |  |  __| | . ` |  | |
+  //     | |___| |__| | |\  |  | |  | |____| |\  |  | |
+  //      \_____\____/|_| \_|  |_|  |______|_| \_|  |_|
+  & > *:nth-child(3) {
+    position: relative;
+    background-color: var(--ui-colors-background);
     pointer-events: all;
     flex-grow: 1;
     overflow: auto;
     border-radius: 0 0 $radius $radius;
-    background-color: lightgray;
   }
 
-  & > div:last-child {
-    z-index: -1;
+  //       _____ _____ ____________ _____   _____
+  //      / ____|_   _|___  /  ____|  __ \ / ____|
+  //     | (___   | |    / /| |__  | |__) | (___
+  //      \___ \  | |   / / |  __| |  _  / \___ \
+  //      ____) |_| |_ / /__| |____| | \ \ ____) |
+  //     |_____/|_____/_____|______|_|  \_\_____/
+  &.visible > div:nth-child(1),
+  .touch & > div:nth-child(1) {
+    background-color: var(--ui-colors-sizers);
+    border-radius: $radius_visible;
+
+    > div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      writing-mode: vertical-lr;
+      opacity: 1;
+
+      &.n,
+      &.s {
+        @include font.material-symbols-rounded;
+        height: $sizer_width;
+      }
+
+      &.n {
+        top: 0rem;
+      }
+
+      &.s {
+        bottom: 0rem;
+      }
+
+      &.e,
+      &.w {
+        @include font.material-symbols-rounded;
+        width: $sizer_width;
+
+        > div {
+          transform: rotate(90deg);
+        }
+      }
+
+      &.e {
+        right: 0rem;
+      }
+      &.w {
+        left: 0rem;
+      }
+    }
+  }
+
+  .touch & > div:nth-child(1) {
+    font-size: $sizer_width_touch_ratio * 1rem;
+  }
+
+  .touch & > div:nth-child(1) > div.n,
+  .touch & > div:nth-child(1) > div.s {
+    height: $sizer_width * $sizer_width_touch_ratio;
+  }
+
+  .touch & > div:nth-child(1) > div.e,
+  .touch & > div:nth-child(1) > div.w {
+    width: $sizer_width * $sizer_width_touch_ratio;
+  }
+
+  & > div:nth-child(1) {
     position: absolute;
-    inset: -0.7rem;
+    inset: 0;
+    color: var(--ui-colors-icons);
+
+    &.n {
+      top: -$sizer_width;
+      .touch & {
+        top: -$sizer_width * $sizer_width_touch_ratio;
+      }
+    }
+    &.s {
+      bottom: -$sizer_width;
+      .touch & {
+        bottom: -$sizer_width * $sizer_width_touch_ratio;
+      }
+    }
+    &.e {
+      right: -$sizer_width;
+      .touch & {
+        right: -$sizer_width * $sizer_width_touch_ratio;
+      }
+    }
+    &.w {
+      left: -$sizer_width;
+      .touch & {
+        left: -$sizer_width * $sizer_width_touch_ratio;
+      }
+    }
 
     > div {
       pointer-events: all;

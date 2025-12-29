@@ -46,11 +46,13 @@ class FormTextMultiline<ID extends string | undefined> extends FormValueWrite<
     this._body.appendChild(this.warn_input);
     this.#resizer.appendChild(material_editor_drag_handle_rounded());
     this.#resizer.onpointerdown = (e) => {
+      e.preventDefault();
+      const height = this.#value_box.getBoundingClientRect().height;
+      const start_y = e.clientY;
       this.#resizer.setPointerCapture(e.pointerId);
       this.#resizer.onpointermove = (ev) => {
-        const new_height =
-          ev.clientY - this.#value_box.getBoundingClientRect().top - 8;
-        this.#value_box.style.height = `${new_height}px`;
+        const dy = ev.clientY - start_y;
+        this.#value_box.style.height = `${height + dy}px`;
       };
       this.#resizer.onpointerup = (_ev) => {
         this.#resizer.releasePointerCapture(e.pointerId);

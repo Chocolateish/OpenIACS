@@ -19,7 +19,7 @@ form-stepper {
     user-select: none;
     cursor: ew-resize;
     outline: none;
-    touch-action: none;
+    touch-action: pan-y;
 
     .touch & {
       min-width: 14rem;

@@ -39,12 +39,12 @@ type WithStateROA<T> = {
 };
 
 /**Shared class for elements to extend
- * All none abstract elements must use the defineElement function to declare itself
+ * All none abstract elements must use the define_element function to declare itself
  *
- * All none abstracts classes must override the static method elementName to return the name of the element
+ * All none abstracts classes must override the static method element_name to return the name of the element
  * Abstract classes should return @abstract@
  *
- * If another library defines an abstract base class, it is recommended to change the static elementNameSpace method to the name of the library
+ * If another library defines an abstract base class, it is recommended to change the static element_name_space method to the name of the library
  * example for this library '@chocolatelibui/core' becomes 'chocolatelibui-core'
  * static element_name_space() { return 'chocolatelibui-core' }
  * This resets the nametree to the library name and prevents too long element names
@@ -55,7 +55,7 @@ type WithStateROA<T> = {
  * read = inert attribute is added making the element uninteractable, and add opacity 0.5 to make the element look inaccessible
  * none = adds display:none to element to make it */
 export abstract class Base extends HTMLElement {
-  /**Returns the name used to define the element */
+  /**Returns the name used to define the element, Abstract classes should return @abstract@ */
   static element_name() {
     return "@abstract@";
   }
