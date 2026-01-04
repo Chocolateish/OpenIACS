@@ -66,7 +66,6 @@ class InternalPanelContainer implements PC, PanelContainer {
     const old_layer = this.get_layer(panel.layer);
     const panel_index = old_layer.panels.indexOf(panel);
     if (panel_index !== -1) old_layer.panels.splice(panel_index, 1);
-
     const new_layer = this.get_layer(layer);
     new_layer.box.appendChild(panel);
     new_layer.panels.push(panel);
@@ -86,6 +85,7 @@ class InternalPanelContainer implements PC, PanelContainer {
     const panel = new Panel(this, options as PanelOptions & { layer: number });
     layer.box.appendChild(panel);
     layer.panels.push(panel);
+    panel.style.zIndex = layer.panels.length.toString();
     return panel;
   }
 

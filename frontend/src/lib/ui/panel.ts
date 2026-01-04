@@ -167,6 +167,22 @@ export class Panel extends Base {
     return this.#layer;
   }
 
+  set hide(hide: boolean) {
+    if (hide) this.classList.add("hidden");
+    else this.classList.remove("hidden");
+  }
+  get hide(): boolean {
+    return this.classList.contains("hidden");
+  }
+
+  set modal(modal: boolean) {
+    if (modal) this.classList.add("modal");
+    else this.classList.remove("modal");
+  }
+  get modal(): boolean {
+    return this.classList.contains("modal");
+  }
+
   focus_panel(): void {
     this.#container.focus_panel(this);
   }
