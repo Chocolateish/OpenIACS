@@ -29,6 +29,7 @@ export default defineConfig({
       "@libBase": path.resolve(__dirname, "src/lib/base/index"),
       "@libColors": path.resolve(__dirname, "./src/lib/colors/index"),
       "@libCommon": path.resolve(__dirname, "./src/lib/common/index"),
+      "@libComposition": path.resolve(__dirname, "./src/lib/composition/index"),
       "@libContextmenu": path.resolve(__dirname, "./src/lib/contextmenu/index"),
       "@libDocument": path.resolve(__dirname, "./src/lib/document/index"),
       "@libEvent": path.resolve(__dirname, "./src/lib/event/index"),
@@ -43,7 +44,6 @@ export default defineConfig({
       "@libSVG": path.resolve(__dirname, "./src/lib/svg/index"),
       "@libTheme": path.resolve(__dirname, "./src/lib/theme/index"),
       "@libThemeCommon": path.resolve(__dirname, "./src/lib/theme/builtIn"),
-      "@libUI": path.resolve(__dirname, "./src/lib/ui/index"),
     },
   },
 });

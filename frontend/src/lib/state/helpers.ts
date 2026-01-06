@@ -218,9 +218,10 @@ type StateEnumHelperList<K extends PropertyKey> = {
   [P in K]: EnumHelperEntry;
 };
 
-export interface StateEnumRelated<T extends StateEnumHelperList<any>>
+export interface StateEnumRelated<L extends StateEnumHelperList<any>>
   extends StateRelated {
-  list: T;
+  list: L;
+  map<K extends keyof L, R>(func: (key: K, val: EnumHelperEntry) => R): R[];
 }
 
 export class StateEnumHelper<
@@ -235,7 +236,7 @@ export class StateEnumHelper<
     this.list = list;
   }
 
-  map<T>(func: (key: K, val: EnumHelperEntry) => T): T[] {
+  map<K extends keyof L, R>(func: (key: K, val: EnumHelperEntry) => R): R[] {
     return Object.keys(this.list).map((key) =>
       func(key as K, this.list[key as K])
     );

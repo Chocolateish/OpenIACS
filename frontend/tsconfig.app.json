@@ -16,6 +16,7 @@
       "@libBase": ["./src/lib/base/index"],
       "@libColors": ["./src/lib/colors/index"],
       "@libCommon": ["./src/lib/common/index"],
+      "@libComposition": ["./src/lib/composition/index"],
       "@libContextmenu": ["./src/lib/contextmenu/index"],
       "@libDocument": ["./src/lib/document/index"],
       "@libEvent": ["./src/lib/event/index"],
@@ -29,8 +30,7 @@
       "@libString": ["./src/lib/string/index"],
       "@libSVG": ["./src/lib/svg/index"],
       "@libTheme": ["./src/lib/theme/index"],
-      "@libThemeCommon": ["./src/lib/theme/builtIn"],
-      "@libUI": ["./src/lib/ui/index"]
+      "@libThemeCommon": ["./src/lib/theme/builtIn"]
     },
     /* Bundler mode */
     "moduleResolution": "bundler",

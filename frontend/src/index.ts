@@ -1,4 +1,5 @@
 import { IPAddress, IPVersion } from "@libCommon";
+import { main_panel_container } from "@libComposition";
 import {
   context_line,
   context_menu,
@@ -13,13 +14,12 @@ import { err, ok, type Result } from "@libResult";
 import type { StateSyncROSWS } from "@libState";
 import { default as st, default as state } from "@libState";
 import { ANIMATION_LEVEL, INPUT_MODE, THEME } from "@libTheme";
-import "@libUI";
-import { main_panel_container } from "@libUI";
 import "./index.scss";
+import "./lib/composition";
+import { Content } from "./lib/composition/content";
 import { form } from "./lib/form";
 import { FormColors } from "./lib/form/base";
 import { FormDateTimeType } from "./lib/form/special/dateTime/dateTimeInput";
-import { Content } from "./lib/ui/content";
 
 interface CharacterData {
   uuid: string;

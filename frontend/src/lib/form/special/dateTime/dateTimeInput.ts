@@ -99,6 +99,10 @@ class FormDateTimeInput<
   }
 
   protected new_error(_val: string): void {}
+
+  protected clear_value(): void {
+    this.warn_input.value = "";
+  }
 }
 define_element(FormDateTimeInput);
 

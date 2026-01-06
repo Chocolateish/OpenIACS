@@ -97,6 +97,14 @@ export class FormToggleButton<
   }
 
   protected new_error(_val: string): void {}
+
+  protected clear_value(): void {
+    const prev = this.#map.get(this.#values[this.#selected]);
+    if (prev) {
+      prev.top.classList.remove("selected");
+      prev.bot.classList.remove("selected");
+    }
+  }
 }
 define_element(FormToggleButton);
 
