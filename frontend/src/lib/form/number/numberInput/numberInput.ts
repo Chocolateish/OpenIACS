@@ -195,15 +195,13 @@ class NumberInput<ID extends string | undefined> extends FormNumberWrite<ID> {
 }
 define_element(NumberInput);
 
-export const form_number_input = {
-  /**Creates a dropdown form element */
-  from<ID extends string | undefined>(
-    options?: FormNumberWriteOptions<ID>
-  ): NumberInput<ID> {
-    const input = new NumberInput<ID>(options?.id);
-    if (options) {
-      FormNumberWrite.apply_options(input, options);
-    }
-    return input;
-  },
-};
+/**Creates a dropdown form element */
+export function form_number_input<ID extends string | undefined>(
+  options?: FormNumberWriteOptions<ID>
+): NumberInput<ID> {
+  const input = new NumberInput<ID>(options?.id);
+  if (options) {
+    FormNumberWrite.apply_options(input, options);
+  }
+  return input;
+}

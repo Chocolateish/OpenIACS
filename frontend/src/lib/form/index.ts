@@ -6,7 +6,7 @@ import { form_number_input } from "./number/numberInput/numberInput";
 import { form_progress } from "./number/progress/progress";
 import { form_slider } from "./number/slider/slider";
 import { form_stepper } from "./number/stepper/stepper";
-import { FORM_DROPDOWN } from "./selectors/dropDown/dropDown";
+import { form_dropdown } from "./selectors/dropDown/dropDown";
 import { form_toggle_button } from "./selectors/toggleButton/toggleButton";
 import { form_color_input } from "./special/color/colorInput";
 import { form_date_time_input } from "./special/dateTime/dateTimeInput";
@@ -36,7 +36,7 @@ export const form = {
   slider: form_slider,
   stepper: form_stepper,
   //Selectors
-  dropdown: FORM_DROPDOWN,
+  dropdown: form_dropdown,
   toggle_button: form_toggle_button,
   //Text
   text: form_text,

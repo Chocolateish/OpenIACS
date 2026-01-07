@@ -106,16 +106,15 @@ class FormDateTimeInput<
 }
 define_element(FormDateTimeInput);
 
-export const form_date_time_input = {
-  /**Creates a color input form element */
-  from<RT extends Date | string | number, ID extends string | undefined>(
-    options?: DateTimeInputOptions<RT, ID>
-  ): FormDateTimeInput<RT, ID> {
-    const input = new FormDateTimeInput<RT, ID>(options?.id);
-    if (options) {
-      if (options.type) input.type = options.type;
-      FormValueWrite.apply_options(input, options);
-    }
-    return input;
-  },
-};
+/**Creates a color input form element */
+export function form_date_time_input<
+  RT extends Date | string | number,
+  ID extends string | undefined
+>(options?: DateTimeInputOptions<RT, ID>): FormDateTimeInput<RT, ID> {
+  const input = new FormDateTimeInput<RT, ID>(options?.id);
+  if (options) {
+    if (options.type) input.type = options.type;
+    FormValueWrite.apply_options(input, options);
+  }
+  return input;
+}

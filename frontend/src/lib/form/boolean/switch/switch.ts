@@ -135,18 +135,16 @@ export class FormSwitch<ID extends string | undefined> extends FormValueWrite<
 }
 define_element(FormSwitch);
 
-export const form_switch = {
-  /**Creates a switch form element */
-  from<ID extends string | undefined>(
-    options?: FormSwitchOptions<ID>
-  ): FormSwitch<ID> {
-    const swit = new FormSwitch<ID>(options?.id);
-    if (options) {
-      if (options.icon) swit.icon = options.icon;
-      if (options.on_color) swit.on_color = options.on_color;
-      if (options.off_color) swit.off_color = options.off_color;
-      FormValueWrite.apply_options(swit, options);
-    }
-    return swit;
-  },
-};
+/**Creates a switch form element */
+export function form_switch<ID extends string | undefined>(
+  options?: FormSwitchOptions<ID>
+): FormSwitch<ID> {
+  const swit = new FormSwitch<ID>(options?.id);
+  if (options) {
+    if (options.icon) swit.icon = options.icon;
+    if (options.on_color) swit.on_color = options.on_color;
+    if (options.off_color) swit.off_color = options.off_color;
+    FormValueWrite.apply_options(swit, options);
+  }
+  return swit;
+}

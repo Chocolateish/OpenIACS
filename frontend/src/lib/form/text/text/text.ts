@@ -39,9 +39,7 @@ class FormText extends FormElement {
 }
 define_element(FormText);
 
-export const form_text = {
-  /**Creates a button form element */
-  from(options: FormTextOptions): FormText {
-    return new FormText(options);
-  },
-};
+/**Creates a button form element */
+export function form_text(options: FormTextOptions): FormText {
+  return new FormText(options);
+}

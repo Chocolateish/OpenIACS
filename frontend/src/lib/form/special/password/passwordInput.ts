@@ -54,16 +54,14 @@ class FormPasswordInput<ID extends string | undefined> extends FormValueWrite<
 }
 define_element(FormPasswordInput);
 
-export const form_password_input = {
-  /**Creates a dropdown form element */
-  from<ID extends string | undefined>(
-    options?: FormPasswordInputOptions<ID>
-  ): FormPasswordInput<ID> {
-    const input = new FormPasswordInput<ID>(options?.id);
-    if (options) {
-      if (options.filter) input.filter = options.filter;
-      FormValue.apply_options(input, options);
-    }
-    return input;
-  },
-};
+/**Creates a dropdown form element */
+export function form_password_input<ID extends string | undefined>(
+  options?: FormPasswordInputOptions<ID>
+): FormPasswordInput<ID> {
+  const input = new FormPasswordInput<ID>(options?.id);
+  if (options) {
+    if (options.filter) input.filter = options.filter;
+    FormValue.apply_options(input, options);
+  }
+  return input;
+}

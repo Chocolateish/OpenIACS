@@ -150,7 +150,7 @@ class FormIpInput<ID extends string | undefined> extends FormValueWrite<
     };
     this._body.oncopy = (e) => {
       e.preventDefault();
-      e.clipboardData?.setData("text/plain", this.value_as_ip.to_string);
+      e.clipboardData?.setData("text/plain", this.value_as_ip.to_string());
     };
     this._body.onpaste = (e) => {
       e.preventDefault();
@@ -208,15 +208,13 @@ class FormIpInput<ID extends string | undefined> extends FormValueWrite<
 }
 define_element(FormIpInput);
 
-export const form_ip_input = {
-  /**Creates a color input form element */
-  from<ID extends string | undefined>(
-    options: IpInputOptions<ID>
-  ): FormIpInput<ID> {
-    const input = new FormIpInput<ID>(options.type, options?.id);
-    if (options) {
-      FormValueWrite.apply_options(input, options);
-    }
-    return input;
-  },
-};
+/**Creates a color input form element */
+export function form_ip_input<ID extends string | undefined>(
+  options: IpInputOptions<ID>
+): FormIpInput<ID> {
+  const input = new FormIpInput<ID>(options.type, options?.id);
+  if (options) {
+    FormValueWrite.apply_options(input, options);
+  }
+  return input;
+}

@@ -54,16 +54,14 @@ class FormColorInput<ID extends string | undefined> extends FormValueWrite<
 }
 define_element(FormColorInput);
 
-export const form_color_input = {
-  /**Creates a color input form element */
-  from<ID extends string | undefined>(
-    options?: FormColorInputOptions<ID, string>
-  ): FormColorInput<ID> {
-    const input = new FormColorInput<ID>(options?.id);
-    if (options) {
-      if (options.live) input.live = options.live;
-      FormValueWrite.apply_options(input, options);
-    }
-    return input;
-  },
-};
+/**Creates a color input form element */
+export function form_color_input<ID extends string | undefined>(
+  options?: FormColorInputOptions<ID, string>
+): FormColorInput<ID> {
+  const input = new FormColorInput<ID>(options?.id);
+  if (options) {
+    if (options.live) input.live = options.live;
+    FormValueWrite.apply_options(input, options);
+  }
+  return input;
+}

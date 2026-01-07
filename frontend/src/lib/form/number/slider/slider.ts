@@ -347,18 +347,16 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
 }
 define_element(FormSlider);
 
-export const form_slider = {
-  /**Creates a dropdown form element */
-  from<ID extends string | undefined>(
-    options?: FormStepperBaseOptions<ID>
-  ): FormSlider<ID> {
-    const slide = new FormSlider<ID>(options?.id);
-    if (options) {
-      if (options.live) slide.live = options.live;
-      if (options.icon_decrease) slide.icon_decrease = options.icon_decrease;
-      if (options.icon_increase) slide.icon_increase = options.icon_increase;
-      FormNumberWrite.apply_options(slide, options);
-    }
-    return slide;
-  },
-};
+/**Creates a dropdown form element */
+export function form_slider<ID extends string | undefined>(
+  options?: FormStepperBaseOptions<ID>
+): FormSlider<ID> {
+  const slide = new FormSlider<ID>(options?.id);
+  if (options) {
+    if (options.live) slide.live = options.live;
+    if (options.icon_decrease) slide.icon_decrease = options.icon_decrease;
+    if (options.icon_increase) slide.icon_increase = options.icon_increase;
+    FormNumberWrite.apply_options(slide, options);
+  }
+  return slide;
+}

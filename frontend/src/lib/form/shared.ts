@@ -346,8 +346,8 @@ sizes.make_variable(
   "touchHeight",
   "Touch Height",
   "Minimum height for touch devices used in all form elements",
-  "2.4rem",
-  "2.4rem",
+  "2.6rem",
+  "2.6rem",
   "Length",
   { min: 0.1, max: 10 }
 );
@@ -414,8 +414,8 @@ font.make_variable(
   "touchSize",
   "Touch Font Size",
   "Font size used in all form elements for touch devices",
-  "1.3rem",
-  "1.3rem",
+  "1.2rem",
+  "1.2rem",
   "Length",
   { min: 0.1, max: 10 }
 );

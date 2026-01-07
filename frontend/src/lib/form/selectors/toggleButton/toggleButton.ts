@@ -108,13 +108,11 @@ export class FormToggleButton<
 }
 define_element(FormToggleButton);
 
-export const form_toggle_button = {
-  /**Creates a toggle button form element */
-  from<RT, ID extends string | undefined>(
-    options?: FormSelectorBaseOptions<RT, ID>
-  ): FormToggleButton<RT, ID> {
-    const togg = new FormToggleButton<RT, ID>(options?.id);
-    if (options) FormSelectorBase.apply_options(togg, options);
-    return togg;
-  },
-};
+/**Creates a toggle button form element */
+export function form_toggle_button<RT, ID extends string | undefined>(
+  options?: FormSelectorBaseOptions<RT, ID>
+): FormToggleButton<RT, ID> {
+  const togg = new FormToggleButton<RT, ID>(options?.id);
+  if (options) FormSelectorBase.apply_options(togg, options);
+  return togg;
+}

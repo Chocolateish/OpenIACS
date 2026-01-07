@@ -170,18 +170,16 @@ class FormTextMultiline<ID extends string | undefined> extends FormValueWrite<
 }
 define_element(FormTextMultiline);
 
-export const form_text_multiline = {
-  /**Creates a multi line text input form element */
-  from<ID extends string | undefined>(
-    options?: FormTextInputOptions<ID>
-  ): FormTextMultiline<ID> {
-    const input = new FormTextMultiline<ID>(options?.id);
-    if (options) {
-      if (options.placeholder) input.placeholder = options.placeholder;
-      if (options.max_length) input.max_length = options.max_length;
-      if (options.max_bytes) input.max_bytes = options.max_bytes;
-      FormValueWrite.apply_options(input, options);
-    }
-    return input;
-  },
-};
+/**Creates a multi line text input form element */
+export function form_text_multiline<ID extends string | undefined>(
+  options?: FormTextInputOptions<ID>
+): FormTextMultiline<ID> {
+  const input = new FormTextMultiline<ID>(options?.id);
+  if (options) {
+    if (options.placeholder) input.placeholder = options.placeholder;
+    if (options.max_length) input.max_length = options.max_length;
+    if (options.max_bytes) input.max_bytes = options.max_bytes;
+    FormValueWrite.apply_options(input, options);
+  }
+  return input;
+}

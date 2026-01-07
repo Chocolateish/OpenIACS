@@ -140,19 +140,17 @@ class FormTextInput<ID extends string | undefined> extends FormValueWrite<
 }
 define_element(FormTextInput);
 
-export const form_text_input = {
-  /**Creates a single line text input form element */
-  from<ID extends string | undefined>(
-    options?: FormTextInputOptions<ID>
-  ): FormTextInput<ID> {
-    const input = new FormTextInput<ID>(options?.id);
-    if (options) {
-      if (options.filter) input.filter = options.filter;
-      if (options.placeholder) input.placeholder = options.placeholder;
-      if (options.max_length) input.max_length = options.max_length;
-      if (options.max_bytes) input.max_bytes = options.max_bytes;
-      FormValueWrite.apply_options(input, options);
-    }
-    return input;
-  },
-};
+/**Creates a single line text input form element */
+export function form_text_input<ID extends string | undefined>(
+  options?: FormTextInputOptions<ID>
+): FormTextInput<ID> {
+  const input = new FormTextInput<ID>(options?.id);
+  if (options) {
+    if (options.filter) input.filter = options.filter;
+    if (options.placeholder) input.placeholder = options.placeholder;
+    if (options.max_length) input.max_length = options.max_length;
+    if (options.max_bytes) input.max_bytes = options.max_bytes;
+    FormValueWrite.apply_options(input, options);
+  }
+  return input;
+}

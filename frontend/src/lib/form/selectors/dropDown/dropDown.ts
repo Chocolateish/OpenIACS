@@ -183,20 +183,18 @@ export class FormDropdown<
 }
 define_element(FormDropdown);
 
-export const FORM_DROPDOWN = {
-  /**Creates a dropdown form element */
-  from<RT, ID extends string | undefined>(
-    options?: FormDropDownOptions<RT, ID>
-  ): FormDropdown<RT, ID> {
-    const drop = new FormDropdown<RT, ID>(options?.id);
-    if (options) {
-      if (options.default) drop.default = options.default;
-      if (options.default_icon) drop.default_icon = options.default_icon;
-      FormSelectorBase.apply_options(drop, options);
-    }
-    return drop;
-  },
-};
+/**Creates a dropdown form element */
+export function form_dropdown<RT, ID extends string | undefined>(
+  options?: FormDropDownOptions<RT, ID>
+): FormDropdown<RT, ID> {
+  const drop = new FormDropdown<RT, ID>(options?.id);
+  if (options) {
+    if (options.default) drop.default = options.default;
+    if (options.default_icon) drop.default_icon = options.default_icon;
+    FormSelectorBase.apply_options(drop, options);
+  }
+  return drop;
+}
 
 ///##################################################################################################
 class DropDownBox extends Base {

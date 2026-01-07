@@ -100,7 +100,5 @@ function from<
   return lamp;
 }
 
-export const form_lamp = {
-  /**Creates a button form element */
-  from,
-};
+/**Creates a button form element */
+export const form_lamp = from;

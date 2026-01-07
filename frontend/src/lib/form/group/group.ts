@@ -213,23 +213,21 @@ export class FormGroup<
 }
 define_element(FormGroup);
 
-export const form_group = {
-  /**Creates a dropdown form element */
-  from<
-    L extends FormElement[],
-    ID extends string | undefined,
-    T extends object = Prettify<Partial<ToKeyVal<ExtractB<L>>>>
-  >(options?: FormGroupOptions<L, ID, T>): FormGroup<T, ID> {
-    const slide = new FormGroup<T, ID>(options?.id);
-    if (options) {
-      if (options.border) slide.border = options.border;
-      if (options.components) slide.elements = options.components;
-      if (options.collapse_text) slide.collapse_text = options.collapse_text;
-      if (options.collapsible) slide.collapsible = options.collapsible;
-      if (options.collapsed) slide.collapsed = options.collapsed;
-      if (options.max_height) slide.max_height = options.max_height;
-      FormValue.apply_options(slide, options);
-    }
-    return slide;
-  },
-};
+/**Creates a dropdown form element */
+export function form_group<
+  L extends FormElement[],
+  ID extends string | undefined,
+  T extends object = Prettify<Partial<ToKeyVal<ExtractB<L>>>>
+>(options?: FormGroupOptions<L, ID, T>): FormGroup<T, ID> {
+  const slide = new FormGroup<T, ID>(options?.id);
+  if (options) {
+    if (options.border) slide.border = options.border;
+    if (options.components) slide.elements = options.components;
+    if (options.collapse_text) slide.collapse_text = options.collapse_text;
+    if (options.collapsible) slide.collapsible = options.collapsible;
+    if (options.collapsed) slide.collapsed = options.collapsed;
+    if (options.max_height) slide.max_height = options.max_height;
+    FormValue.apply_options(slide, options);
+  }
+  return slide;
+}

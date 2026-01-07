@@ -66,19 +66,17 @@ export class FormProgress<ID extends string | undefined> extends FormValue<
 }
 define_element(FormProgress);
 
-export const form_progress = {
-  /**Creates a progress form element */
-  from<ID extends string | undefined>(
-    options?: FormNumberOptions<ID>
-  ): FormProgress<ID> {
-    const prog = new FormProgress<ID>(options?.id);
-    if (options) {
-      if (typeof options.min !== "undefined") prog.min = options.min;
-      if (typeof options.max !== "undefined") prog.max = options.max;
-      prog.decimals = options.decimals;
-      prog.unit = options.unit;
-      FormValue.apply_options(prog, options);
-    }
-    return prog;
-  },
-};
+/**Creates a progress form element */
+export function form_progress<ID extends string | undefined>(
+  options?: FormNumberOptions<ID>
+): FormProgress<ID> {
+  const prog = new FormProgress<ID>(options?.id);
+  if (options) {
+    if (typeof options.min !== "undefined") prog.min = options.min;
+    if (typeof options.max !== "undefined") prog.max = options.max;
+    prog.decimals = options.decimals;
+    prog.unit = options.unit;
+    FormValue.apply_options(prog, options);
+  }
+  return prog;
+}
