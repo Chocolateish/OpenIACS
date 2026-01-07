@@ -64,13 +64,13 @@ export class FormGroup<
   #collapsible?: HTMLDivElement;
   #collapsed: boolean = false;
   #collapse_button?: HTMLSpanElement;
-  #value_components: Map<string, FormValue<any, any>> = new Map();
+  #value_elements: Map<string, FormValue<any, any>> = new Map();
 
-  set components(components: FormElement[]) {
+  set elements(components: FormElement[]) {
     for (let i = 0, n = components.length; i < n; i++) {
       const comp = components[i];
       if (comp instanceof FormValue && comp.form_id) {
-        if (this.#value_components.has(comp.form_id as string)) {
+        if (this.#value_elements.has(comp.form_id as string)) {
           console.error(
             "Form element with form id " +
               comp.form_id +
@@ -78,15 +78,15 @@ export class FormGroup<
           );
           continue;
         }
-        this.#value_components.set(comp.form_id as string, comp);
+        this.#value_elements.set(comp.form_id as string, comp);
       }
       if (this.#collapsible) this.#collapsible.appendChild(comp);
       else this._body.appendChild(comp);
     }
   }
 
-  get components(): FormElement[] {
-    return [...this.#value_components.values()];
+  get elements(): FormElement[] {
+    return [...this.#value_elements.values()];
   }
 
   /**This places the group at an absolute position in one of the corners of the container*/
@@ -172,7 +172,7 @@ export class FormGroup<
   get value(): Result<RT, string> {
     if (this._state) return err("State based component");
     const result: RT = {} as RT;
-    for (const [key, comp] of this.#value_components) {
+    for (const [key, comp] of this.#value_elements) {
       const val = comp.value;
       if (val.err) return err("Component with id " + key + " has no value");
       result[key as keyof RT] = val.value as RT[keyof RT];
@@ -182,12 +182,12 @@ export class FormGroup<
 
   protected new_value(val: RT): void {
     for (const key in val)
-      if (this.#value_components.has(key))
-        this.#value_components.get(key)!.value = val[key as keyof RT];
+      if (this.#value_elements.has(key))
+        this.#value_elements.get(key)!.value = val[key as keyof RT];
   }
 
   protected clear_value(): void {
-    for (const comp of this.#value_components.values()) comp.clear();
+    for (const comp of this.#value_elements.values()) comp.clear();
   }
 
   protected new_error(err: string): void {
@@ -223,7 +223,7 @@ export const form_group = {
     const slide = new FormGroup<T, ID>(options?.id);
     if (options) {
       if (options.border) slide.border = options.border;
-      if (options.components) slide.components = options.components;
+      if (options.components) slide.elements = options.components;
       if (options.collapse_text) slide.collapse_text = options.collapse_text;
       if (options.collapsible) slide.collapsible = options.collapsible;
       if (options.collapsed) slide.collapsed = options.collapsed;

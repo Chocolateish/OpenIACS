@@ -157,20 +157,18 @@ class FormButton<ID extends string | undefined> extends FormValueWrite<
 }
 define_element(FormButton);
 
-export const form_button = {
-  /**Creates a button form element */
-  from<ID extends string | undefined>(
-    options?: FormButtonOptions<ID>
-  ): FormButton<ID> {
-    const butt = new FormButton<ID>(options?.id);
-    if (options) {
-      if (options.text) butt.text = options.text;
-      if (options.icon) butt.icon = options.icon;
-      if (options.on_click) butt.on_click = options.on_click;
-      if (options.toggle) butt.toggle = options.toggle;
-      if (options.color) butt.color = options.color;
-      FormValue.apply_options(butt, options);
-    }
-    return butt;
-  },
-};
+/**Creates a button form element */
+export function form_button<ID extends string | undefined>(
+  options?: FormButtonOptions<ID>
+): FormButton<ID> {
+  const butt = new FormButton<ID>(options?.id);
+  if (options) {
+    if (options.text) butt.text = options.text;
+    if (options.icon) butt.icon = options.icon;
+    if (options.on_click) butt.on_click = options.on_click;
+    if (options.toggle) butt.toggle = options.toggle;
+    if (options.color) butt.color = options.color;
+    FormValue.apply_options(butt, options);
+  }
+  return butt;
+}

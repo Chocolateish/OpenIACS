@@ -81,7 +81,7 @@ export class IPAddress {
     return result;
   }
 
-  get to_string(): string {
+  to_string(): string {
     if (this.is_v4) return this.as_array.join(".");
     return this.as_array.map((n) => n.toString(16)).join(":");
   }

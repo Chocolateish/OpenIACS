@@ -33,6 +33,7 @@ export default defineConfig({
       "@libContextmenu": path.resolve(__dirname, "./src/lib/contextmenu/index"),
       "@libDocument": path.resolve(__dirname, "./src/lib/document/index"),
       "@libEvent": path.resolve(__dirname, "./src/lib/event/index"),
+      "@libForm": path.resolve(__dirname, "./src/lib/form/index"),
       "@libIcons": path.resolve(__dirname, "./src/lib/icons/index"),
       "@libIconsFonts": path.resolve(__dirname, "./src/lib/icons/font.scss"),
       "@libMath": path.resolve(__dirname, "./src/lib/math/index"),

@@ -13,7 +13,7 @@ describe("IPAddress Class", () => {
     it("should initialize from a number", () => {
       const ip = new IPAddress(3232235777);
       expect(ip.is_v4).toBe(true);
-      expect(ip.to_string).toBe("192.168.1.1");
+      expect(ip.to_string()).toBe("192.168.1.1");
     });
 
     it("should initialize from a 4-element number array", () => {

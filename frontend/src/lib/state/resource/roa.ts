@@ -30,7 +30,7 @@ import {
  * @template RT - The type of the state’s value when read.
  * @template REL - The type of related states, defaults to an empty object.*/
 export interface StateResourceOwnerROA<RT, WT, REL extends Option<RELATED>> {
-  update_single(value: ResultOk<RT>): void;
+  update_single(value: ResultOk<RT>, update?: boolean): void;
   update_resource(value: ResultOk<RT>): void;
   get buffer(): ResultOk<RT> | undefined;
   get state(): State<RT, WT, REL>;
@@ -110,17 +110,21 @@ export abstract class StateResourceROA<
     state: StateResourceOwnerROA<RT, WT, REL>
   ): void;
 
-  update_single(value: ResultOk<RT>) {
-    this.#valid = this.validity === true ? true : Date.now() + this.validity;
+  update_single(value: ResultOk<RT>, update: boolean = false) {
     this.#fetching = false;
     clearTimeout(this.#timeout_timout);
     this.ful_r_prom(value);
+    if (update) {
+      if (!this.#buffer?.compare(value)) this.update_subs(value);
+      this.#buffer = value;
+      this.#valid = this.validity === true ? true : Date.now() + this.validity;
+    }
   }
 
   update_resource(value: ResultOk<RT>) {
-    this.#valid = this.validity === true ? true : Date.now() + this.validity;
     if (!this.#buffer?.compare(value)) this.update_subs(value);
     this.#buffer = value;
+    this.#valid = this.validity === true ? true : Date.now() + this.validity;
   }
 
   get buffer(): ResultOk<RT> | undefined {

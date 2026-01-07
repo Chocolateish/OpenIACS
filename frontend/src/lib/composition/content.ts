@@ -8,7 +8,7 @@ import "./shared";
 const PRIVATE_FOCUSED_CONTENT = state.err<ContentBase>("No content focused");
 export const FOCUSED_CONTENT = PRIVATE_FOCUSED_CONTENT.read_only;
 
-export abstract class ContentBase extends Base {
+export abstract class ContentBase<Close = void> extends Base {
   static element_name() {
     return "@abstract@";
   }
@@ -18,6 +18,8 @@ export abstract class ContentBase extends Base {
 
   abstract readonly name: StateROS<string>;
   abstract readonly icon: StateROS<Option<SVGFunc>>;
+  abstract close(args: Close): Promise<Option<Close>>;
+  abstract on_close(): Promise<Close>;
 
   constructor() {
     super();

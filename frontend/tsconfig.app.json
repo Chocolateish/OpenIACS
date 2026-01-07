@@ -20,6 +20,7 @@
       "@libContextmenu": ["./src/lib/contextmenu/index"],
       "@libDocument": ["./src/lib/document/index"],
       "@libEvent": ["./src/lib/event/index"],
+      "@libForm": ["./src/lib/form/index"],
       "@libIcons": ["./src/lib/icons/index"],
       "@libIconsFonts": ["./src/lib/icons/font.scss"],
       "@libMath": ["./src/lib/math/index"],

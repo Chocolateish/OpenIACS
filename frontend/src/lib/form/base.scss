@@ -64,16 +64,11 @@ $animation: $animation_transitionType $animation_transitionDuration;
 @mixin base {
   display: flex;
   flex-direction: column;
-  min-width: $min_width;
   position: relative;
 
   &[inert] > * {
     opacity: 0.6;
     pointer-events: none;
-  }
-
-  .touch & {
-    min-width: $min_width_touch;
   }
 
   > span {

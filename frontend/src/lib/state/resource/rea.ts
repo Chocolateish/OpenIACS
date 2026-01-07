@@ -38,7 +38,7 @@ import {
  * @template RT - The type of the state’s value when read.
  * @template REL - The type of related states, defaults to an empty object.*/
 export interface StateResourceOwnerREA<RT, WT, REL extends Option<RELATED>> {
-  update_single(value: Result<RT, string>): void;
+  update_single(value: Result<RT, string>, update?: boolean): void;
   update_resource(value: Result<RT, string>): void;
   get buffer(): Result<RT, string> | undefined;
   get state(): State<RT, WT, REL>;
@@ -118,17 +118,21 @@ export abstract class StateResourceREA<
     state: StateResourceOwnerREA<RT, WT, REL>
   ): void;
 
-  update_single(value: Result<RT, string>) {
-    this.#valid = this.validity === true ? true : Date.now() + this.validity;
+  update_single(value: Result<RT, string>, update: boolean = false) {
     this.#fetching = false;
     clearTimeout(this.#timeout_timout);
     this.ful_r_prom(value);
+    if (update) {
+      if (!this.#buffer?.compare(value)) this.update_subs(value);
+      this.#buffer = value;
+      this.#valid = this.validity === true ? true : Date.now() + this.validity;
+    }
   }
 
   update_resource(value: Result<RT, string>) {
-    this.#valid = this.validity === true ? true : Date.now() + this.validity;
     if (!this.#buffer?.compare(value)) this.update_subs(value);
     this.#buffer = value;
+    this.#valid = this.validity === true ? true : Date.now() + this.validity;
   }
 
   get buffer(): Result<RT, string> | undefined {
@@ -300,7 +304,7 @@ const rea = {
  * @template WT - The type which can be written to the state.
  * @template REL - The type of related states, defaults to an empty object.*/
 export interface StateResourceOwnerREAWA<RT, WT, REL extends Option<RELATED>> {
-  update_single(value: Result<RT, string>): void;
+  update_single(value: Result<RT, string>, update?: boolean): void;
   update_resource(value: Result<RT, string>): void;
   get buffer(): Result<RT, string> | undefined;
   get state(): State<RT, WT, REL>;
@@ -393,17 +397,21 @@ export abstract class StateResourceREAWA<
     state: StateResourceOwnerREAWA<RT, WT, REL>
   ): Promise<Result<void, string>>;
 
-  update_single(value: Result<RT, string>) {
-    this.#valid = this.validity === true ? true : Date.now() + this.validity;
+  update_single(value: Result<RT, string>, update: boolean = false) {
     this.#fetching = false;
     clearTimeout(this.#timeout_timout);
     this.ful_r_prom(value);
+    if (update) {
+      if (!this.#buffer?.compare(value)) this.update_subs(value);
+      this.#buffer = value;
+      this.#valid = this.validity === true ? true : Date.now() + this.validity;
+    }
   }
 
   update_resource(value: Result<RT, string>) {
-    this.#valid = this.validity === true ? true : Date.now() + this.validity;
     if (!this.#buffer?.compare(value)) this.update_subs(value);
     this.#buffer = value;
+    this.#valid = this.validity === true ? true : Date.now() + this.validity;
   }
 
   get buffer(): Result<RT, string> | undefined {
