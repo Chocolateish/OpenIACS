@@ -6,15 +6,15 @@
  * * @param func - The function to throttle.
  * @param wait - The number of milliseconds to throttle invocations to.
  * @returns A new throttled function.*/
-export function throttle<A extends any[], T extends (...args: A) => any>(
+export function throttle<T extends (...args: any[]) => any>(
   func: T,
   wait: number = 0
-): (...args: A) => void {
-  let args_buffer: A;
+): (...args: Parameters<T>) => void {
+  let args_buffer: Parameters<T>;
   let has_args = false;
   let state: number = 0;
   let interval: number;
-  return (...args: A) => {
+  return (...args: Parameters<T>) => {
     if (state > 0) {
       args_buffer = args;
       has_args = true;

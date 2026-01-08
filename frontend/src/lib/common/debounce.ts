@@ -2,20 +2,20 @@
  * 'wait' milliseconds have elapsed since the last time it was invoked.
  * @template A - The type of the arguments array.
  * @template T - The type of the function to debounce.
- * @param {T} func - The function to debounce.
- * @param {number} [wait=0] - The delay in milliseconds, when 0 or unspecified it only removes calls to the function in the same cycle.
- * @param {boolean} [leading=false] - If true, triggers the function on the leading edge of the timeout.
- * @returns {(...args: A) => void} A new debounced function. */
-export function debounce<A extends any[], T extends (...args: A) => any>(
+ * @param func - The function to debounce.
+ * @param wait - The delay in milliseconds, when 0 or unspecified it only removes calls to the function in the same cycle.
+ * @param leading - If true, triggers the function on the leading edge of the timeout.
+ * @returns  A new debounced function. */
+export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number = 0,
   leading: boolean = false
-): (...args: A) => void {
+): (...args: Parameters<T>) => void {
   let running = false;
-  let args_buffer: A;
+  let args_buffer: Parameters<T>;
   let has_args = false;
   let timeout: number;
-  return (...args: A) => {
+  return (...args: Parameters<T>) => {
     if (running) {
       args_buffer = args;
       has_args = true;
