@@ -1,4 +1,4 @@
-import { IPAddress, IPVersion } from "@libCommon";
+import { array_from_range, IPAddress, IPVersion } from "@libCommon";
 import { main_panel_container } from "@libComposition";
 import {
   context_line,
@@ -79,7 +79,7 @@ FORM_CONT.style.maxWidth = "40rem";
 FORM_CONT.style.overflow = "auto";
 
 FORM_CONT.appendChild(
-  form.group.from({
+  form.group({
     label: "Group Box",
     border: "inset",
     max_height: 16,
@@ -87,15 +87,15 @@ FORM_CONT.appendChild(
     collapsed: true,
     collapse_text: "Theme",
     components: [
-      form.toggle_button.from({
+      form.toggle_button({
         label: "Theme",
         value_by_state: THEME,
       }),
-      form.toggle_button.from({
+      form.toggle_button({
         label: "Input Mode",
         value_by_state: INPUT_MODE,
       }),
-      form.toggle_button.from({
+      form.toggle_button({
         label: "Animation Level",
         value_by_state: ANIMATION_LEVEL,
       }),
@@ -112,7 +112,7 @@ FORM_CONT.appendChild(
 const PASSWORD_STATE = state.s.ros_ws.ok("");
 PASSWORD_STATE.sub(console.error);
 FORM_CONT.appendChild(
-  form.password_input.from({
+  form.password_input({
     label: "IP Input",
     value_by_state: PASSWORD_STATE,
     filter: /[0-9]/,
@@ -128,14 +128,14 @@ FORM_CONT.appendChild(
 const IP_STATE = state.s.ros_ws.ok(new IPAddress("192.168.1.1"));
 IP_STATE.sub(console.error);
 FORM_CONT.appendChild(
-  form.ip_input.from({
+  form.ip_input({
     type: IPVersion.V4,
     label: "IP Input",
     value_by_state: IP_STATE,
   })
 );
 FORM_CONT.appendChild(
-  form.ip_input.from({
+  form.ip_input({
     type: IPVersion.V6,
     label: "IP Input",
   })
@@ -149,14 +149,14 @@ FORM_CONT.appendChild(
 //      \_____\____/|______\____/|_|  \_\ |_____|_| \_|_|     \____/   |_|
 const COLOR_STATE = state.s.ros_ws.ok("#00ff00");
 FORM_CONT.appendChild(
-  form.color_input.from({
+  form.color_input({
     label: "Color Input",
     value_by_state: COLOR_STATE,
   })
 );
 
 FORM_CONT.appendChild(
-  form.color_input.from({
+  form.color_input({
     label: "Color Input 2",
     live: true,
     value_by_state: COLOR_STATE,
@@ -171,20 +171,20 @@ FORM_CONT.appendChild(
 //     |_____/_/    \_\_|  |______|  |_|  |_____|_|  |_|______|
 const DATE_TIME_STATE = state.s.ros_ws.ok(new Date());
 FORM_CONT.appendChild(
-  form.date_time_input.from({
+  form.date_time_input({
     label: "Date Time Input",
     type: FormDateTimeType.TIME,
     value_by_state: DATE_TIME_STATE,
   })
 );
 FORM_CONT.appendChild(
-  form.date_time_input.from({
+  form.date_time_input({
     label: "Date Time Input",
     value_by_state: DATE_TIME_STATE,
   })
 );
 FORM_CONT.appendChild(
-  form.date_time_input.from({
+  form.date_time_input({
     label: "Date Time Input",
     value: 5000 as number,
   })
@@ -198,7 +198,7 @@ FORM_CONT.appendChild(
 //        |_|  |______/_/ \_\  |_|    |_____|_| \_|_|     \____/   |_|
 const TEXT_STATE = state.s.ros_ws.ok("");
 FORM_CONT.appendChild(
-  form.input_text.from({
+  form.input_text({
     label: "Text Input",
     placeholder: "Enter text here...",
     max_length: 20,
@@ -208,7 +208,7 @@ FORM_CONT.appendChild(
   })
 );
 FORM_CONT.appendChild(
-  form.input_text.from({
+  form.input_text({
     label: "Text Input2",
     placeholder: "Enter text here...",
     max_length: 20,
@@ -219,7 +219,7 @@ FORM_CONT.appendChild(
 
 const MULTI_LINE_TEXT_STATE = state.s.ros_ws.ok("");
 FORM_CONT.appendChild(
-  form.multiline_text.from({
+  form.multiline_text({
     label: "Multiline Text Input",
     placeholder: "Enter text here...",
     max_length: 20,
@@ -229,7 +229,7 @@ FORM_CONT.appendChild(
 );
 
 FORM_CONT.appendChild(
-  form.multiline_text.from({
+  form.multiline_text({
     label: "Multiline Text Input2",
     placeholder: "Enter text here...",
     max_length: 20,
@@ -245,7 +245,7 @@ FORM_CONT.appendChild(
 //     | |\  | |__| | |  | | |_) | |____| | \ \   _| |_| |\  | |    | |__| |  | |
 //     |_| \_|\____/|_|  |_|____/|______|_|  \_\ |_____|_| \_|_|     \____/   |_|
 FORM_CONT.appendChild(
-  form.input_number.from({
+  form.input_number({
     label: "Number Input",
     unit: "mA",
     min: -100,
@@ -263,26 +263,26 @@ FORM_CONT.appendChild(
 //     | |__| | | \ \| |__| | |__| | |
 //      \_____|_|  \_\\____/ \____/|_|
 const grouptest = FORM_CONT.appendChild(
-  form.group.from({
+  form.group({
     label: "Group Box",
     border: "outset",
     max_height: 6,
     components: [
-      form.button
-        .from({
+      form
+        .button({
           id: "test",
           label: "Button in Group",
           text: "Click Me",
         })
         .opts({ access: "r" }),
-      form.button
-        .from({
+      form
+        .button({
           id: "test2",
           label: "Button in Group",
           text: "Click Me",
         })
         .opts({ access: "r" }),
-      form.slider.from({
+      form.slider({
         label: "Slider in Group",
         id: "slider_in_group",
         unit: "mA",
@@ -300,22 +300,22 @@ grouptest.value = {
 grouptest.value.map(console.error);
 
 FORM_CONT.appendChild(
-  form.group.from({
+  form.group({
     label: "Group Box",
     border: "outset",
     collapsible: true,
     collapse_text: "Toggle",
     components: [
-      form.text.from({ text: "Hello inside group!", size: 2 }),
-      form.button
-        .from({ label: "Button in Group", text: "Click Me" })
+      form.text({ text: "Hello inside group!", size: 2 }),
+      form
+        .button({ label: "Button in Group", text: "Click Me" })
         .opts({ access: "r" }),
     ],
   })
 );
 
 FORM_CONT.appendChild(
-  form.group.from({
+  form.group({
     label: "Group Box",
     border: "inset",
     collapsible: true,
@@ -323,16 +323,16 @@ FORM_CONT.appendChild(
     collapse_text:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
     components: [
-      form.text.from({ text: "Hello inside group!", size: 2 }),
-      form.button
-        .from({ label: "Button in Group", text: "Click Me" })
+      form.text({ text: "Hello inside group!", size: 2 }),
+      form
+        .button({ label: "Button in Group", text: "Click Me" })
         .opts({ access: "r" }),
     ],
   })
 );
 
 FORM_CONT.appendChild(
-  form.text.from({
+  form.text({
     text: "Hello World!",
     size: 2,
   })
@@ -340,8 +340,8 @@ FORM_CONT.appendChild(
 
 const bool = state.s.ros_ws.ok(false);
 FORM_CONT.appendChild(
-  form.button
-    .from({
+  form
+    .button({
       id: "test",
       label: "YOYOYOY",
       text: "YOYOYOYO",
@@ -354,13 +354,13 @@ FORM_CONT.appendChild(
 ).value_by_state = bool;
 
 FORM_CONT.appendChild(
-  form.switch.from({
+  form.switch({
     label: "Toggle Me",
   })
 ).value_by_state = bool;
 
 FORM_CONT.appendChild(
-  form.lamp.from({
+  form.lamp({
     text: "Status Lamp",
     colors: [FormColors.Red, FormColors.Green],
     icon: material_av_add_to_queue_rounded,
@@ -375,7 +375,7 @@ FORM_CONT.appendChild(
 //     |_____/|_|  \_\\____/|_|    |_____/ \____/   \/  \/   |_| \_|
 const num = state.s.ros.ok(0);
 FORM_CONT.appendChild(
-  form.dropdown.from({
+  form.dropdown({
     label: "Dropdown",
     selections: [
       {
@@ -398,12 +398,12 @@ FORM_CONT.appendChild(
 ).value_by_state = num;
 
 FORM_CONT.appendChild(
-  form.dropdown.from({
+  form.dropdown({
     label: "Dropdown",
     default:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
     default_icon: material_av_add_to_queue_rounded,
-    selections: Array.from({ length: 100 }, (_v, i) => {
+    selections: array_from_range(0, 100, (i) => {
       return {
         value: i,
         text: `Option ${i + 1}`,
@@ -414,12 +414,12 @@ FORM_CONT.appendChild(
 ).value_by_state = num;
 
 FORM_CONT.appendChild(
-  form.dropdown.from({
+  form.dropdown({
     label: "Dropdown",
     default:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
     default_icon: material_av_add_to_queue_rounded,
-    selections: Array.from({ length: 100 }, (_v, i) => {
+    selections: array_from_range(0, 100, (i) => {
       return {
         value: i,
         text: `Option ${i + 1}`,
@@ -435,7 +435,7 @@ FORM_CONT.appendChild(
 //        | | | |__| | |__| | |__| | |____| |____  | |_) | |__| |  | |     | | | |__| | |\  |____) |
 //        |_|  \____/ \_____|\_____|______|______| |____/ \____/   |_|     |_|  \____/|_| \_|_____/
 FORM_CONT.appendChild(
-  form.toggle_button.from({
+  form.toggle_button({
     label: "Toggle Buttons",
     selections: [
       {
@@ -458,9 +458,9 @@ FORM_CONT.appendChild(
 ).value_by_state = num;
 
 FORM_CONT.appendChild(
-  form.toggle_button.from({
+  form.toggle_button({
     label: "Toggle Buttons",
-    selections: Array.from({ length: 20 }, (_v, i) => {
+    selections: array_from_range(0, 5, (i) => {
       return {
         value: i,
         text: `Option ${i + 1}`,
@@ -471,9 +471,9 @@ FORM_CONT.appendChild(
 ).value_by_state = num;
 
 FORM_CONT.appendChild(
-  form.toggle_button.from({
+  form.toggle_button({
     label: "Toggle Buttons",
-    selections: Array.from({ length: 20 }, (_v, i) => {
+    selections: array_from_range(0, 20, (i) => {
       return {
         value: i,
         text: `Option ${i + 1}`,
@@ -490,7 +490,7 @@ FORM_CONT.appendChild(
 //     |_____/|______|_____|_____/|______|_|  \_\
 const SLIDER_NUM = state.s.ros_ws.ok(0);
 FORM_CONT.appendChild(
-  form.slider.from({
+  form.slider({
     label: "Slider",
     unit: "mA",
     max: 50,
@@ -500,7 +500,7 @@ FORM_CONT.appendChild(
   })
 ).value_by_state = SLIDER_NUM;
 FORM_CONT.appendChild(
-  form.slider.from({
+  form.slider({
     label: "Slider",
     unit: "mA",
     live: true,
@@ -511,7 +511,7 @@ FORM_CONT.appendChild(
   })
 ).value_by_state = SLIDER_NUM;
 FORM_CONT.appendChild(
-  form.slider.from({
+  form.slider({
     label: "Slider",
     unit: "mA",
     min: -50,
@@ -522,7 +522,7 @@ FORM_CONT.appendChild(
   })
 ).value_by_state = SLIDER_NUM;
 FORM_CONT.appendChild(
-  form.slider.from({
+  form.slider({
     label: "Slider",
     unit: "mA",
     min: -50,
@@ -535,7 +535,7 @@ FORM_CONT.appendChild(
 ).value_by_state = SLIDER_NUM;
 
 FORM_CONT.appendChild(
-  form.slider.from({
+  form.slider({
     label: "Slider",
     unit: "mA",
     min: -50,
@@ -555,7 +555,7 @@ FORM_CONT.appendChild(
 //     |_____/   |_|  |______|_|    |_|    |______|_|  \_\
 const STEPPER_NUM = state.s.ros_ws.ok(0);
 FORM_CONT.appendChild(
-  form.stepper.from({
+  form.stepper({
     label: "Stepper",
     unit: "mA",
     step: 0.5,
@@ -564,7 +564,7 @@ FORM_CONT.appendChild(
   })
 ).value_by_state = STEPPER_NUM;
 FORM_CONT.appendChild(
-  form.stepper.from({
+  form.stepper({
     label: "Stepper",
     unit: "mA",
     live: true,
@@ -575,7 +575,7 @@ FORM_CONT.appendChild(
   })
 ).value_by_state = STEPPER_NUM;
 FORM_CONT.appendChild(
-  form.stepper.from({
+  form.stepper({
     label: "Stepper",
     unit: "mA",
     min: -50,
@@ -586,7 +586,7 @@ FORM_CONT.appendChild(
   })
 ).value_by_state = STEPPER_NUM;
 FORM_CONT.appendChild(
-  form.stepper.from({
+  form.stepper({
     label: "Stepper",
     unit: "mA",
     min: -50,
@@ -604,7 +604,7 @@ FORM_CONT.appendChild(
 //     | |    | | \ \| |__| | |__| | | \ \| |____ ____) |___) |
 //     |_|    |_|  \_\\____/ \_____|_|  \_\______|_____/_____/
 FORM_CONT.appendChild(
-  form.progress.from({
+  form.progress({
     label: "Progress",
     unit: "mA",
   })

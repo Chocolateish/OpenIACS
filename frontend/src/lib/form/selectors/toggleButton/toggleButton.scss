@@ -5,8 +5,9 @@ form-togglebutton {
 
   > div {
     padding: base.$padding;
-    padding-bottom: 0.3rem;
+    padding-bottom: 0.1rem;
     overflow-x: auto;
+    // scrollbar-gutter: stable both-edges;
     -webkit-user-select: none;
     user-select: none;
     display: grid;
