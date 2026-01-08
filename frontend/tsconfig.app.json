@@ -23,6 +23,7 @@
       "@libForm": ["./src/lib/form/index"],
       "@libIcons": ["./src/lib/icons/index"],
       "@libIconsFonts": ["./src/lib/icons/font.scss"],
+      "@libList": ["./src/lib/list/index"],
       "@libMath": ["./src/lib/math/index"],
       "@libResult": ["./src/lib/result/index"],
       "@libSettings": ["./src/lib/settings/index"],

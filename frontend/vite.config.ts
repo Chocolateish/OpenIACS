@@ -36,6 +36,7 @@ export default defineConfig({
       "@libForm": path.resolve(__dirname, "./src/lib/form/index"),
       "@libIcons": path.resolve(__dirname, "./src/lib/icons/index"),
       "@libIconsFonts": path.resolve(__dirname, "./src/lib/icons/font.scss"),
+      "@libList": path.resolve(__dirname, "./src/lib/list/index"),
       "@libMath": path.resolve(__dirname, "./src/lib/math/index"),
       "@libResult": path.resolve(__dirname, "./src/lib/result/index"),
       "@libSettings": path.resolve(__dirname, "./src/lib/settings/index"),

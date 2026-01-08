@@ -1,5 +1,4 @@
 import { array_from_range, IPAddress, IPVersion } from "@libCommon";
-import { main_panel_container } from "@libComposition";
 import {
   context_line,
   context_menu,
@@ -10,13 +9,13 @@ import {
   material_av_add_to_queue_rounded,
   material_av_remove_from_queue_rounded,
 } from "@libIcons";
+import { list } from "@libList";
 import { err, ok, type Result } from "@libResult";
 import type { StateSyncROSWS } from "@libState";
 import { default as st, default as state } from "@libState";
 import { ANIMATION_LEVEL, INPUT_MODE, THEME } from "@libTheme";
 import "./index.scss";
 import "./lib/composition";
-import { Content } from "./lib/composition/content";
 import { form } from "./lib/form";
 import { FormColors } from "./lib/form/base";
 import { FormDateTimeType } from "./lib/form/special/dateTime/dateTimeInput";
@@ -50,28 +49,28 @@ class Character {
 
 console.warn(Character.deserialize({ uuid: "1234", name: "Hero" }));
 
-main_panel_container.create_panel({
-  // top: 5,
-  // left: 5,
-  width: 10,
-  height: 10,
-  sizeable: "all",
-  content: new Content(),
-});
-main_panel_container.create_panel({
-  top: 5,
-  left: 5,
-  width: 10,
-  height: 10,
-  content: new Content(),
-});
-main_panel_container.create_panel({
-  top: 5,
-  left: 20,
-  width: 10,
-  height: 10,
-  sizeable: "e",
-});
+// main_panel_container.create_panel({
+//   // top: 5,
+//   // left: 5,
+//   width: 10,
+//   height: 10,
+//   sizeable: "all",
+//   content: new Content(),
+// });
+// main_panel_container.create_panel({
+//   top: 5,
+//   left: 5,
+//   width: 10,
+//   height: 10,
+//   content: new Content(),
+// });
+// main_panel_container.create_panel({
+//   top: 5,
+//   left: 20,
+//   width: 10,
+//   height: 10,
+//   sizeable: "e",
+// });
 
 const FORM_CONT = document.getElementById("app")!;
 FORM_CONT.style.flexGrow = "1";
@@ -102,6 +101,28 @@ FORM_CONT.appendChild(
     ],
   })
 );
+
+const test_list = list.container_transform(
+  [1, 2, 3],
+  (item) => {
+    console.error(item);
+    return {
+      col1: item,
+      col2: item,
+    };
+  },
+  {
+    col1: {
+      title: "Column 1",
+      transform: (k, v) => list.text_field(`Item ${v} - Field 1`),
+    },
+    col2: {
+      title: "Column 2",
+      transform: (k, v) => list.text_field(`Item ${v} - Field 2`),
+    },
+  }
+);
+FORM_CONT.appendChild(test_list);
 
 //      _____         _____ _______          ______  _____  _____
 //     |  __ \ /\    / ____/ ____\ \        / / __ \|  __ \|  __ \
