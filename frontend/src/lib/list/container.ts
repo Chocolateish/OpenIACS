@@ -2,7 +2,7 @@ import { Base, define_element } from "@libBase";
 import { some } from "@libResult";
 import type { State } from "@libState";
 import state from "@libState";
-import type { StateArrayMethods } from "../state/array/shared";
+import type { StateArray } from "../state/array/array";
 import "./container.scss";
 import { Field, TextField } from "./field";
 
@@ -64,15 +64,15 @@ class Container<R extends {}, T extends {}> extends Base {
 
   constructor(
     columns: { [K in keyof T]: Column<K, T[K]> },
-    rows: R[] | State<R[]> | StateArrayMethods<R>,
+    rows: R[] | State<R[]> | StateArray<R>,
     transform?: (row: R) => T
   ) {
     super();
     this.#transform = transform;
     this.columns = columns;
-    if (state.is(rows)) this.rows_by_state = rows;
-    // else if (false) this.rows_by_state_array = rows as StateArrayMethods<R>;
-    // else this.rows = rows;
+    if (state.a.is(rows)) this.rows_by_state_array = rows;
+    else if (state.is(rows)) this.rows_by_state = rows;
+    else this.rows = rows;
   }
 
   set columns(columns: { [K in keyof T]: Column<K, T[K]> }) {
@@ -108,8 +108,8 @@ class Container<R extends {}, T extends {}> extends Base {
     this.attach_state_to_prop("rows", state, () => some([]));
   }
 
-  set rows_by_state_array(state: StateArrayMethods<R>) {
-    state.delete(undefined as unknown as R);
+  set rows_by_state_array(state: StateArray<R>) {
+    console.error("NO");
   }
 }
 define_element(Container);

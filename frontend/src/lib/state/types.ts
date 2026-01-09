@@ -110,11 +110,6 @@ export interface StateBase<
   limit?(value: WT): Result<WT, string>;
   /**Checks if the value is valid and returns reason for invalidity */
   check?(value: WT): Result<WT, string>;
-
-  /**Is state guarenteed to represent an array*/
-  readonly is_array?: boolean;
-  /**Is state guarenteed to represent an object*/
-  readonly is_object?: boolean;
 }
 
 interface REA<RT, REL extends Option<StateRelated>, WT>
@@ -123,8 +118,6 @@ interface REA<RT, REL extends Option<StateRelated>, WT>
   readonly rok: false;
   readonly writable: false;
   readonly wsync: false;
-  readonly is_array: false;
-  readonly is_object: false;
 }
 
 interface ROA<RT, REL extends Option<StateRelated>, WT>
@@ -133,8 +126,6 @@ interface ROA<RT, REL extends Option<StateRelated>, WT>
   readonly rok: true;
   readonly writable: false;
   readonly wsync: false;
-  readonly is_array: false;
-  readonly is_object: false;
 }
 
 interface RES<RT, REL extends Option<StateRelated>, WT>
@@ -144,8 +135,6 @@ interface RES<RT, REL extends Option<StateRelated>, WT>
   get(): Result<RT, string>;
   readonly writable: false;
   readonly wsync: false;
-  readonly is_array: false;
-  readonly is_object: false;
 }
 
 interface ROS<RT, REL extends Option<StateRelated>, WT>
@@ -156,8 +145,6 @@ interface ROS<RT, REL extends Option<StateRelated>, WT>
   ok(): RT;
   readonly writable: false;
   readonly wsync: false;
-  readonly is_array: false;
-  readonly is_object: false;
 }
 
 interface REAWA<RT, WT, REL extends Option<StateRelated>>
@@ -169,8 +156,6 @@ interface REAWA<RT, WT, REL extends Option<StateRelated>>
   write(value: WT): Promise<Result<void, string>>;
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
-  readonly is_array: false;
-  readonly is_object: false;
 }
 
 interface REAWS<RT, WT, REL extends Option<StateRelated>>
@@ -183,8 +168,6 @@ interface REAWS<RT, WT, REL extends Option<StateRelated>>
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
   write_sync(value: WT): Result<void, string>;
-  readonly is_array: false;
-  readonly is_object: false;
 }
 
 interface ROAWA<RT, WT, REL extends Option<StateRelated>>
@@ -196,8 +179,6 @@ interface ROAWA<RT, WT, REL extends Option<StateRelated>>
   write(value: WT): Promise<Result<void, string>>;
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
-  readonly is_array: false;
-  readonly is_object: false;
 }
 
 interface ROAWS<RT, WT, REL extends Option<StateRelated>>
@@ -210,8 +191,6 @@ interface ROAWS<RT, WT, REL extends Option<StateRelated>>
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
   write_sync(value: WT): Result<void, string>;
-  readonly is_array: false;
-  readonly is_object: false;
 }
 
 interface RESWA<RT, WT, REL extends Option<StateRelated>>
@@ -224,8 +203,6 @@ interface RESWA<RT, WT, REL extends Option<StateRelated>>
   write(value: WT): Promise<Result<void, string>>;
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
-  readonly is_array: false;
-  readonly is_object: false;
 }
 
 interface RESWS<RT, WT, REL extends Option<StateRelated>>
@@ -239,8 +216,6 @@ interface RESWS<RT, WT, REL extends Option<StateRelated>>
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
   write_sync(value: WT): Result<void, string>;
-  readonly is_array: false;
-  readonly is_object: false;
 }
 
 interface ROSWA<RT, WT, REL extends Option<StateRelated>>
@@ -254,8 +229,6 @@ interface ROSWA<RT, WT, REL extends Option<StateRelated>>
   write(value: WT): Promise<Result<void, string>>;
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
-  readonly is_array: false;
-  readonly is_object: false;
 }
 
 interface ROSWS<RT, WT, REL extends Option<StateRelated>>
@@ -270,8 +243,6 @@ interface ROSWS<RT, WT, REL extends Option<StateRelated>>
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
   write_sync(value: WT): Result<void, string>;
-  readonly is_array: false;
-  readonly is_object: false;
 }
 
 //###########################################################################################################################################################

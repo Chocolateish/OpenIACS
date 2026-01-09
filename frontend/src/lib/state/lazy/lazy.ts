@@ -168,11 +168,11 @@ class RXS<
   get state(): State<RT, WT, REL> {
     return this as State<RT, WT, REL>;
   }
-  get read_only(): StateROS<RT, REL, WT> {
-    return this as StateROS<RT, REL, WT>;
+  get read_only(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get read_write(): StateROSWS<RT, WT, REL> | undefined {
-    return this.#setter ? (this as StateROSWS<RT, WT, REL>) : undefined;
+  get read_write(): State<RT, WT, REL> | undefined {
+    return this.#setter ? (this as State<RT, WT, REL>) : undefined;
   }
 
   //#Reader Context
@@ -221,13 +221,6 @@ class RXS<
   }
   check(value: WT): Result<WT, string> {
     return this.#helper?.check ? this.#helper.check(value) : ok(value);
-  }
-
-  get is_array(): boolean {
-    return false;
-  }
-  get is_object(): boolean {
-    return false;
   }
 }
 

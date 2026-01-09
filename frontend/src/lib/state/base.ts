@@ -12,20 +12,13 @@ export abstract class StateBase<
   #read_promises?: ((val: RRT) => void)[];
 
   //#Reader Context
-  /**Can state value be retrieved syncronously*/
   abstract readonly rsync: boolean;
-  /**Is state guarenteed to be Ok */
   abstract readonly rok: boolean;
-  /**Allows getting value of state*/
   abstract then<T = RRT>(
     func: (value: RRT) => T | PromiseLike<T>
   ): PromiseLike<T>;
-  /**Gets the current value of the state if state is sync*/
   get?(): RRT;
-  /**Gets the value of the state without result, only works when state is OK */
   ok?(): RT;
-  /**This adds a function as a subscriber to changes to the state
-   * @param update set true to update subscriber immediatly*/
   sub<T = StateSub<RRT>>(func: StateSub<RRT>, update?: boolean): T {
     if (this.#subscribers.has(func)) {
       console.error("Function already registered as subscriber", this, func);
@@ -36,47 +29,32 @@ export abstract class StateBase<
     if (update) this.then(func as (value: Result<RT, string>) => void);
     return func as T;
   }
-  /**This removes a function as a subscriber to the state*/
   unsub<T = StateSub<RRT>>(func: T): T {
     if (this.#subscribers.delete(func as StateSub<RRT>)) {
       if (this.#subscribers.size == 0) this.on_unsubscribe();
     } else console.error("Subscriber not found with state", this, func);
     return func;
   }
-  /**This returns related states if any*/
   abstract related(): REL;
 
-  /**Returns if the state is being used */
   in_use(): this | undefined {
     return this.#subscribers.size > 0 ? this : undefined;
   }
-  /**Returns if the state has a subscriber */
   has(subscriber: StateSub<RRT>): this | undefined {
     return this.#subscribers.has(subscriber) ? this : undefined;
   }
-  /**Returns if the state has a subscriber */
   amount(): number {
     return this.#subscribers.size;
   }
 
-  /**Can state be written syncronously*/
+  //#Writer Context
   abstract readonly wsync: boolean;
-  /**Is state writable*/
   abstract readonly writable: boolean;
 
-  /** This attempts a write to the state, write is not guaranteed to succeed
-   * @returns promise of result with error for the write*/
   write?(value: WT): Promise<Result<void, string>>;
-  /**Limits given value to valid range if possible returns None if not possible */
   limit?(value: WT): Result<WT, string>;
-  /**Checks if the value is valid and returns reason for invalidity */
   check?(value: WT): Result<WT, string>;
-  /** This attempts a write to the state, write is not guaranteed to succeed, this sync method is available on sync states
-   * @returns result with error for the write*/
   write_sync?(value: WT): Result<void, string>;
-
-  abstract readonly is_array: boolean;
-  abstract readonly is_object: boolean;
 
   /**Called when subscriber is added*/
   protected on_subscribe(): void {}

@@ -277,14 +277,14 @@ class RXA<
   get state(): State<RT, WT, REL> {
     return this as State<RT, WT, REL>;
   }
-  get read_only(): StateROA<RT, REL, WT> {
-    return this as StateROA<RT, REL, WT>;
+  get read_only(): State<RT, WT, REL> {
+    return this as State<RT, WT, REL>;
   }
-  get read_write_sync(): StateROAWS<RT, WT, REL> | undefined {
-    return this.#setter_sync ? (this as StateROAWS<RT, WT, REL>) : undefined;
+  get read_write_sync(): State<RT, WT, REL> | undefined {
+    return this.#setter_sync ? (this as State<RT, WT, REL>) : undefined;
   }
-  get read_write_async(): StateROAWA<RT, WT, REL> | undefined {
-    return this.#setter_async ? (this as StateROAWA<RT, WT, REL>) : undefined;
+  get read_write_async(): State<RT, WT, REL> | undefined {
+    return this.#setter_async ? (this as State<RT, WT, REL>) : undefined;
   }
 
   //#Reader Context
@@ -346,13 +346,6 @@ class RXA<
   }
   check(value: WT): Result<WT, string> {
     return this.#helper?.check ? this.#helper.check(value) : ok(value);
-  }
-
-  get is_array(): boolean {
-    return false;
-  }
-  get is_object(): boolean {
-    return false;
   }
 }
 

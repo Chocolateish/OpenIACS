@@ -143,12 +143,6 @@ class REA<
   check(_value: WOUT): Result<WOUT, string> {
     return err("Check not supported on proxy states");
   }
-  get is_array(): boolean {
-    return this.#state.is_array;
-  }
-  get is_object(): boolean {
-    return this.#state.is_object;
-  }
 }
 
 /**Creates a proxy state which mirrors another state, with an optional transform function.
@@ -338,13 +332,6 @@ class REAWS<
   check(_value: WOUT): Result<WOUT, string> {
     return err("Check not supported on proxy states");
   }
-
-  get is_array(): boolean {
-    return this.#state.is_array;
-  }
-  get is_object(): boolean {
-    return this.#state.is_object;
-  }
 }
 
 /**Creates a proxy state which mirrors another state, with an optional transform function.
@@ -533,13 +520,6 @@ class REAWA<
   }
   check(_value: WOUT): Result<WOUT, string> {
     return err("Check not supported on proxy states");
-  }
-
-  get is_array(): boolean {
-    return this.#state.is_array;
-  }
-  get is_object(): boolean {
-    return this.#state.is_object;
   }
 }
 
