@@ -98,13 +98,16 @@ form-togglebutton {
         }
 
         > svg {
-          height: base.$size_height - base.$padding * 2 - base.$border_thickness *
-            2;
+          height: calc(
+            base.$size_height - base.$padding * 2 - base.$border_thickness * 2
+          );
           width: auto;
 
           .touch & {
-            height: base.$size_touchHeight - base.$padding * 2 -
-              base.$border_thickness * 2;
+            height: calc(
+              base.$size_touchHeight - base.$padding * 2 -
+                base.$border_thickness * 2
+            );
           }
         }
 
