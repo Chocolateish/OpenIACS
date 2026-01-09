@@ -19,7 +19,7 @@ import type {
   StateArrayReadType as READ_TYPE,
   StateArrayRead as SAR,
   StateArrayWrite as SAW,
-  StateArray,
+  StateArrayMethods,
 } from "./shared";
 
 //##################################################################################################################################################
@@ -30,7 +30,7 @@ import type {
 //     | | \ \| |____ ____) |
 //     |_|  \_\______|_____/
 
-interface Owner<AT, REL extends Option<RELATED>> extends StateArray<AT> {
+interface Owner<AT, REL extends Option<RELATED>> extends StateArrayMethods<AT> {
   set(value: Result<AT[], string>): void;
   get state(): State<SAR<AT>, SAW<AT>, REL>;
   get read_only(): StateRES<SAR<AT>, REL, SAW<AT>>;
@@ -109,6 +109,10 @@ class RES<AT, REL extends Option<RELATED>>
   }
 
   //Array/Owner Context
+  get is_array(): boolean {
+    return true;
+  }
+
   set(value: Result<AT[], string>) {
     this.#a = value.ok ? value.value : [];
     this.#e = value.ok ? undefined : value.error;
@@ -179,6 +183,10 @@ class RES<AT, REL extends Option<RELATED>>
       for (let i = 0; i < its.length; i++) this.#a[index + i] = items[i];
     this.update_subs(ok(this.#mr(type, index, items)));
   }
+
+  get is_object(): boolean {
+    return false;
+  }
 }
 
 const res = {
@@ -209,7 +217,8 @@ const res = {
 //     |  _  /|  __|  \___ \    \ \/  \/ / \___ \
 //     | | \ \| |____ ____) |    \  /\  /  ____) |
 //     |_|  \_\______|_____/      \/  \/  |_____/
-interface OwnerWS<AT, REL extends Option<RELATED>> extends StateArray<AT> {
+interface OwnerWS<AT, REL extends Option<RELATED>>
+  extends StateArrayMethods<AT> {
   set(value: Result<AT[], string>): void;
   get state(): State<SAR<AT>, SAW<AT>, REL>;
   get read_only(): StateRES<SAR<AT>, REL, SAW<AT>>;
@@ -253,13 +262,13 @@ class RESWS<AT, REL extends Option<RELATED>>
   }
 
   get state(): State<SAR<AT>, SAW<AT>, REL> {
-    return this;
+    return this as State<SAR<AT>, SAW<AT>, REL>;
   }
   get read_only(): StateRES<SAR<AT>, REL, SAW<AT>> {
-    return this;
+    return this as StateRES<SAR<AT>, REL, SAW<AT>>;
   }
   get read_write(): StateRESWS<SAR<AT>, SAW<AT>, REL> {
-    return this;
+    return this as StateRESWS<SAR<AT>, SAW<AT>, REL>;
   }
 
   //#Reader Context
@@ -303,6 +312,10 @@ class RESWS<AT, REL extends Option<RELATED>>
   }
 
   //Array/Owner Context
+  get is_array(): boolean {
+    return true;
+  }
+
   set(value: Result<AT[], string>) {
     this.#a = value.ok ? value.value : [];
     this.#e = value.ok ? undefined : value.error;
@@ -372,6 +385,10 @@ class RESWS<AT, REL extends Option<RELATED>>
     else if (type === "changed")
       for (let i = 0; i < its.length; i++) this.#a[index + i] = items[i];
     this.update_subs(ok(this.#mr(type, index, items)));
+  }
+
+  get is_object(): boolean {
+    return false;
   }
 }
 

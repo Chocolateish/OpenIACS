@@ -75,6 +75,9 @@ export abstract class StateBase<
    * @returns result with error for the write*/
   write_sync?(value: WT): Result<void, string>;
 
+  abstract readonly is_array: boolean;
+  abstract readonly is_object: boolean;
+
   /**Called when subscriber is added*/
   protected on_subscribe(): void {}
   /**Called when subscriber is removed*/

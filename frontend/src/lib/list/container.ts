@@ -1,6 +1,10 @@
 import { Base, define_element } from "@libBase";
+import { some } from "@libResult";
+import type { State } from "@libState";
+import state from "@libState";
+import type { StateArrayMethods } from "../state/array/shared";
 import "./container.scss";
-import { Field } from "./field";
+import { Field, TextField } from "./field";
 
 interface Column<K, V> {
   title: string;
@@ -22,6 +26,26 @@ class Row extends Base {
 }
 define_element(Row);
 
+class HeaderField extends Field {
+  static element_name() {
+    return "headerfield";
+  }
+
+  constructor(text?: string) {
+    super();
+    if (text) this.innerHTML = text;
+  }
+
+  set text(value: string) {
+    this.innerHTML = value;
+  }
+
+  get text(): string {
+    return this.innerHTML;
+  }
+}
+define_element(HeaderField);
+
 class Container<R extends {}, T extends {}> extends Base {
   static element_name() {
     return "container";
@@ -33,29 +57,59 @@ class Container<R extends {}, T extends {}> extends Base {
   #box = this.appendChild(document.createElement("div"));
   #column_map: Map<keyof T, Column<keyof T, T[keyof T]>> = new Map();
   #column_ids: (keyof T)[] = [];
+  #column_row?: Row;
   #rows: Row[] = [];
+  #state?: State<R[]>;
+  #transform?: (row: R) => T;
 
   constructor(
     columns: { [K in keyof T]: Column<K, T[K]> },
-    rows: R[],
+    rows: R[] | State<R[]> | StateArrayMethods<R>,
     transform?: (row: R) => T
   ) {
     super();
+    this.#transform = transform;
+    this.columns = columns;
+    if (state.is(rows)) this.rows_by_state = rows;
+    // else if (false) this.rows_by_state_array = rows as StateArrayMethods<R>;
+    // else this.rows = rows;
+  }
+
+  set columns(columns: { [K in keyof T]: Column<K, T[K]> }) {
+    this.#column_map.clear();
+    this.#column_ids = [];
+    const fields: TextField[] = [];
     for (const key in columns) {
       this.#column_map.set(key, columns[key as keyof T]);
       this.#column_ids.push(key);
+      fields.push(new HeaderField(columns[key].title));
     }
+    const row = new Row(fields);
+    if (this.#column_row) this.#box.replaceChild(row, this.#column_row);
+    else this.#box.appendChild(row);
+    this.#column_row = row;
+  }
 
-    const test = rows.map((row) => {
-      const values = transform ? transform(row) : (row as unknown as T);
-      const fields = this.#column_ids.map((col_key) => {
-        const field = columns[col_key].transform(col_key, values[col_key]);
-        return field;
-      });
-      return new Row(fields);
+  set rows(rows: R[]) {
+    rows.forEach((row) => {
+      const values = this.#transform
+        ? this.#transform(row)
+        : (row as unknown as T);
+      const row_element = new Row(
+        this.#column_ids.map((col_key) =>
+          this.#column_map.get(col_key)!.transform(col_key, values[col_key])
+        )
+      );
+      this.#rows.push(this.#box.appendChild(row_element));
     });
+  }
 
-    this.#box.replaceChildren(...test);
+  set rows_by_state(state: State<R[]>) {
+    this.attach_state_to_prop("rows", state, () => some([]));
+  }
+
+  set rows_by_state_array(state: StateArrayMethods<R>) {
+    state.delete(undefined as unknown as R);
   }
 }
 define_element(Container);

@@ -69,10 +69,12 @@ export interface StateBase<
   RRT extends Result<RT, string>
 > {
   //#Reader Context
+  /**Is state guarenteed sync*/
   readonly rsync: boolean;
+  /**Is state guarenteed OK*/
   readonly rok: boolean;
 
-  /**Allows getting value of state*/
+  /**Allows getting value of the state*/
   then<T = RRT>(func: (value: RRT) => T | PromiseLike<T>): PromiseLike<T>;
   /**Gets the current value of the state if state is sync*/
   get?(): RRT;
@@ -93,7 +95,10 @@ export interface StateBase<
   /**Returns if the state has a subscriber */
   amount(): number;
 
+  //#Writer Context
+  /**Is state guarenteed writable*/
   readonly writable: boolean;
+  /**Is state guarenteed sync for writes*/
   readonly wsync?: boolean;
   /** This attempts a write to the state, write is not guaranteed to succeed
    * @returns promise of result with error for the write*/
@@ -105,6 +110,11 @@ export interface StateBase<
   limit?(value: WT): Result<WT, string>;
   /**Checks if the value is valid and returns reason for invalidity */
   check?(value: WT): Result<WT, string>;
+
+  /**Is state guarenteed to represent an array*/
+  readonly is_array?: boolean;
+  /**Is state guarenteed to represent an object*/
+  readonly is_object?: boolean;
 }
 
 interface REA<RT, REL extends Option<StateRelated>, WT>
@@ -113,6 +123,8 @@ interface REA<RT, REL extends Option<StateRelated>, WT>
   readonly rok: false;
   readonly writable: false;
   readonly wsync: false;
+  readonly is_array: false;
+  readonly is_object: false;
 }
 
 interface ROA<RT, REL extends Option<StateRelated>, WT>
@@ -121,25 +133,31 @@ interface ROA<RT, REL extends Option<StateRelated>, WT>
   readonly rok: true;
   readonly writable: false;
   readonly wsync: false;
+  readonly is_array: false;
+  readonly is_object: false;
 }
 
 interface RES<RT, REL extends Option<StateRelated>, WT>
   extends StateBase<RT, WT, REL, Result<RT, string>> {
   readonly rsync: true;
   readonly rok: false;
+  get(): Result<RT, string>;
   readonly writable: false;
   readonly wsync: false;
-  get(): Result<RT, string>;
+  readonly is_array: false;
+  readonly is_object: false;
 }
 
 interface ROS<RT, REL extends Option<StateRelated>, WT>
   extends StateBase<RT, WT, REL, ResultOk<RT>> {
   readonly rsync: true;
   readonly rok: true;
-  readonly writable: false;
-  readonly wsync: false;
   get(): ResultOk<RT>;
   ok(): RT;
+  readonly writable: false;
+  readonly wsync: false;
+  readonly is_array: false;
+  readonly is_object: false;
 }
 
 interface REAWA<RT, WT, REL extends Option<StateRelated>>
@@ -151,6 +169,8 @@ interface REAWA<RT, WT, REL extends Option<StateRelated>>
   write(value: WT): Promise<Result<void, string>>;
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
+  readonly is_array: false;
+  readonly is_object: false;
 }
 
 interface REAWS<RT, WT, REL extends Option<StateRelated>>
@@ -163,6 +183,8 @@ interface REAWS<RT, WT, REL extends Option<StateRelated>>
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
   write_sync(value: WT): Result<void, string>;
+  readonly is_array: false;
+  readonly is_object: false;
 }
 
 interface ROAWA<RT, WT, REL extends Option<StateRelated>>
@@ -174,6 +196,8 @@ interface ROAWA<RT, WT, REL extends Option<StateRelated>>
   write(value: WT): Promise<Result<void, string>>;
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
+  readonly is_array: false;
+  readonly is_object: false;
 }
 
 interface ROAWS<RT, WT, REL extends Option<StateRelated>>
@@ -186,58 +210,68 @@ interface ROAWS<RT, WT, REL extends Option<StateRelated>>
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
   write_sync(value: WT): Result<void, string>;
+  readonly is_array: false;
+  readonly is_object: false;
 }
 
 interface RESWA<RT, WT, REL extends Option<StateRelated>>
   extends StateBase<RT, WT, REL, Result<RT, string>> {
   readonly rsync: true;
   readonly rok: false;
+  get(): Result<RT, string>;
   readonly writable: true;
   readonly wsync: false;
-  get(): Result<RT, string>;
   write(value: WT): Promise<Result<void, string>>;
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
+  readonly is_array: false;
+  readonly is_object: false;
 }
 
 interface RESWS<RT, WT, REL extends Option<StateRelated>>
   extends StateBase<RT, WT, REL, Result<RT, string>> {
   readonly rsync: true;
   readonly rok: false;
+  get(): Result<RT, string>;
   readonly writable: true;
   readonly wsync: true;
-  get(): Result<RT, string>;
   write(value: WT): Promise<Result<void, string>>;
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
   write_sync(value: WT): Result<void, string>;
+  readonly is_array: false;
+  readonly is_object: false;
 }
 
 interface ROSWA<RT, WT, REL extends Option<StateRelated>>
   extends StateBase<RT, WT, REL, ResultOk<RT>> {
   readonly rsync: true;
   readonly rok: true;
-  readonly writable: true;
-  readonly wsync: false;
   get(): ResultOk<RT>;
   ok(): RT;
+  readonly writable: true;
+  readonly wsync: false;
   write(value: WT): Promise<Result<void, string>>;
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
+  readonly is_array: false;
+  readonly is_object: false;
 }
 
 interface ROSWS<RT, WT, REL extends Option<StateRelated>>
   extends StateBase<RT, WT, REL, ResultOk<RT>> {
   readonly rsync: true;
   readonly rok: true;
-  readonly writable: true;
-  readonly wsync: true;
   get(): ResultOk<RT>;
   ok(): RT;
+  readonly writable: true;
+  readonly wsync: true;
   write(value: WT): Promise<Result<void, string>>;
   limit(value: WT): Result<WT, string>;
   check(value: WT): Result<WT, string>;
   write_sync(value: WT): Result<void, string>;
+  readonly is_array: false;
+  readonly is_object: false;
 }
 
 //###########################################################################################################################################################

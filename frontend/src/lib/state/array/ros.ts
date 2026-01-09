@@ -20,7 +20,7 @@ import type {
   StateArrayReadType as READ_TYPE,
   StateArrayRead as SAR,
   StateArrayWrite as SAW,
-  StateArray,
+  StateArrayMethods,
 } from "./shared";
 
 //##################################################################################################################################################
@@ -31,7 +31,7 @@ import type {
 //     | | \ \| |__| |____) |
 //     |_|  \_\\____/|_____/
 
-interface Owner<AT, REL extends Option<RELATED>> extends StateArray<AT> {
+interface Owner<AT, REL extends Option<RELATED>> extends StateArrayMethods<AT> {
   set(value: ResultOk<AT[]>): void;
   get state(): State<SAR<AT>, SAW<AT>, REL>;
   get read_only(): StateROS<SAR<AT>, REL, SAW<AT>>;
@@ -110,6 +110,10 @@ class ROS<AT, REL extends Option<RELATED> = OptionNone>
   }
 
   //Array/Owner Context
+  get is_array(): boolean {
+    return true;
+  }
+
   set(value: ResultOk<AT[]>) {
     this.#a = value.value;
     this.update_subs(this.get());
@@ -178,6 +182,10 @@ class ROS<AT, REL extends Option<RELATED> = OptionNone>
       for (let i = 0; i < its.length; i++) this.#a[index + i] = items[i];
     this.update_subs(ok(this.#mr(type, index, items)));
   }
+
+  get is_object(): boolean {
+    return false;
+  }
 }
 const ros = {
   /**Creates a state representing an array
@@ -199,7 +207,8 @@ const ros = {
 //     | | \ \| |__| |____) |    \  /\  /  ____) |
 //     |_|  \_\\____/|_____/      \/  \/  |_____/
 
-interface OwnerWS<AT, REL extends Option<RELATED>> extends StateArray<AT> {
+interface OwnerWS<AT, REL extends Option<RELATED>>
+  extends StateArrayMethods<AT> {
   set(value: ResultOk<AT[]>): void;
   get state(): State<SAR<AT>, SAW<AT>, REL>;
   get read_only(): StateROS<SAR<AT>, REL, SAW<AT>>;
@@ -294,6 +303,10 @@ class ROSWS<AT, REL extends Option<RELATED> = OptionNone>
   }
 
   //Array/Owner Context
+  get is_array(): boolean {
+    return true;
+  }
+
   set(value: ResultOk<AT[]>) {
     this.#a = value.value;
     this.update_subs(ok(this.#mr("none", 0, this.#a)));
@@ -362,6 +375,10 @@ class ROSWS<AT, REL extends Option<RELATED> = OptionNone>
       for (let i = 0; i < its.length; i++) this.#a[index + i] = items[i];
     this.update_subs(ok(this.#mr(type, index, items)));
   }
+
+  get is_object(): boolean {
+    return false;
+  }
 }
 
 const ros_ws = {
@@ -389,7 +406,7 @@ const ros_ws = {
 //     | |____ / . \| |    | |__| | | \ \  | |  ____) |
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 /**States representing arrays */
-export const state_array_ros = {
+export const STATE_ARRAY_ROS = {
   ros,
   ros_ws,
 };

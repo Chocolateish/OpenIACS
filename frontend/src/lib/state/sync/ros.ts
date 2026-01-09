@@ -14,7 +14,6 @@ import {
   type State,
   type StateROS,
   type StateROSWS,
-  type StateSetREXWS,
   type StateSetROXWS,
 } from "../types";
 
@@ -49,7 +48,7 @@ class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
 
   #value: ResultOk<RT>;
-  setter?: StateSetREXWS<RT, Owner<RT, WT, REL>, WT>;
+  setter?: StateSetROXWS<RT, Owner<RT, WT, REL>, WT>;
   #helper?: Helper<WT, REL>;
 
   //#Owner Context
@@ -107,6 +106,13 @@ class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   }
   check(value: WT): Result<WT, string> {
     return this.#helper?.check ? this.#helper.check(value) : ok(value);
+  }
+
+  get is_array(): boolean {
+    return false;
+  }
+  get is_object(): boolean {
+    return false;
   }
 }
 const ros = {
@@ -239,6 +245,13 @@ class ROSWS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   }
   check(value: WT): Result<WT, string> {
     return this.#helper?.check ? this.#helper.check(value) : ok(value);
+  }
+
+  get is_array(): boolean {
+    return false;
+  }
+  get is_object(): boolean {
+    return false;
   }
 }
 const ros_ws = {

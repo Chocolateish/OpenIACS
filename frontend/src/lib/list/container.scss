@@ -4,26 +4,40 @@ list-container {
   padding: 1px;
   border: 1px solid #ccc;
 
+  max-height: 20rem;
+
   > div {
     display: grid;
     grid-template-columns: auto auto;
     gap: 1px;
-
-    > :nth-child(even) {
-      color: blue;
-      background-color: #f9f9f9;
-    }
   }
 }
 
 list-row {
   display: contents;
 
+  &:first-child {
+    > * {
+      top: 0;
+      position: sticky;
+    }
+  }
+
+  &:nth-child(even) {
+    color: blue;
+    background-color: #f9f9f9;
+  }
+
   &:hover {
     > * {
       background-color: #e0e0e0;
     }
   }
+}
+
+list-headerfield {
+  padding: 8px;
+  background-color: purple;
 }
 
 list-textfield {

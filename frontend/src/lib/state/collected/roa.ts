@@ -162,6 +162,13 @@ export class ROA<RT, IN extends [State<any>, ...State<any>[]], WT>
   get wsync(): boolean {
     return false;
   }
+
+  get is_array(): boolean {
+    return false;
+  }
+  get is_object(): boolean {
+    return false;
+  }
 }
 
 export const STATE_COLLECTED_ROA = {

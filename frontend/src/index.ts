@@ -1,4 +1,9 @@
-import { array_from_range, IPAddress, IPVersion } from "@libCommon";
+import {
+  array_from_length,
+  array_from_range,
+  IPAddress,
+  IPVersion,
+} from "@libCommon";
 import {
   context_line,
   context_menu,
@@ -103,7 +108,7 @@ FORM_CONT.appendChild(
 );
 
 const test_list = list.container_transform(
-  [1, 2, 3],
+  array_from_length(10, (i) => i),
   (item) => {
     console.error(item);
     return {
@@ -147,6 +152,7 @@ FORM_CONT.appendChild(
 //      _| |_| |       _| |_| |\  | |    | |__| |  | |
 //     |_____|_|      |_____|_| \_|_|     \____/   |_|
 const IP_STATE = state.s.ros_ws.ok(new IPAddress("192.168.1.1"));
+const yoyoyo = state.s.ros_ws.ok("Test");
 IP_STATE.sub(console.error);
 FORM_CONT.appendChild(
   form.ip_input({

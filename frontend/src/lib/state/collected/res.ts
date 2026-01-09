@@ -154,6 +154,13 @@ export class RES<RT, IN extends StateRES<any>[], WT>
   get wsync(): boolean {
     return false;
   }
+
+  get is_array(): boolean {
+    return false;
+  }
+  get is_object(): boolean {
+    return false;
+  }
 }
 
 /**Collected states, collects values from multiple states and reduces it to one */

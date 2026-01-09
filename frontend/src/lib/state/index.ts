@@ -1,5 +1,5 @@
 import { STATE_ARRAY_RES } from "./array/res";
-import { state_array_ros } from "./array/ros";
+import { STATE_ARRAY_ROS } from "./array/ros";
 import { STATE_ARRAY_SHARED } from "./array/shared";
 import { StateBase } from "./base";
 import { STATE_COLLECTS_NUMBER } from "./collected/number";
@@ -23,7 +23,7 @@ import { STATE_SYNC_ROS } from "./sync/ros";
 import type { State } from "./types";
 
 export default {
-  a: { ...STATE_ARRAY_RES, ...state_array_ros, ...STATE_ARRAY_SHARED },
+  a: { ...STATE_ARRAY_RES, ...STATE_ARRAY_ROS, ...STATE_ARRAY_SHARED },
   /**Collected states, collects values from multiple states and reduces it to one */
   c: {
     rea: STATE_COLLECTED_REA,

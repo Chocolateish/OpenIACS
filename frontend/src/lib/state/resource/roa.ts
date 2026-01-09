@@ -172,6 +172,13 @@ export abstract class StateResourceROA<
   get wsync(): boolean {
     return false;
   }
+
+  get is_array(): boolean {
+    return false;
+  }
+  get is_object(): boolean {
+    return false;
+  }
 }
 
 //##################################################################################################################################################

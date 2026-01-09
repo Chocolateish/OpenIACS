@@ -21,7 +21,7 @@ export interface StateArrayRead<TYPE> {
   items: readonly TYPE[];
 }
 
-export interface StateArray<AT> {
+export interface StateArrayMethods<AT> {
   push(...items: AT[]): number;
   pop(): AT | undefined;
   shift(): AT | undefined;

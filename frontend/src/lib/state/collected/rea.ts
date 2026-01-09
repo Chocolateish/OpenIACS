@@ -167,6 +167,13 @@ export class REA<RT, IN extends State<any>[], WT>
   get wsync(): boolean {
     return false;
   }
+
+  get is_array(): boolean {
+    return false;
+  }
+  get is_object(): boolean {
+    return false;
+  }
 }
 
 export const STATE_COLLECTED_REA = {

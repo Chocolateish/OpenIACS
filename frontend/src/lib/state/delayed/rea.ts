@@ -153,6 +153,13 @@ class REA<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   check(value: WT): Result<WT, string> {
     return this.#helper?.check ? this.#helper.check(value) : ok(value);
   }
+
+  get is_array(): boolean {
+    return false;
+  }
+  get is_object(): boolean {
+    return false;
+  }
 }
 
 const rea = {
@@ -332,6 +339,13 @@ class REAWS<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   }
   check(value: WT): Result<WT, string> {
     return this.#helper?.check ? this.#helper.check(value) : ok(value);
+  }
+
+  get is_array(): boolean {
+    return false;
+  }
+  get is_object(): boolean {
+    return false;
   }
 }
 
@@ -518,6 +532,13 @@ class REAWA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
   }
   check(value: WT): Result<WT, string> {
     return this.#helper?.check ? this.#helper.check(value) : ok(value);
+  }
+
+  get is_array(): boolean {
+    return false;
+  }
+  get is_object(): boolean {
+    return false;
   }
 }
 

@@ -181,6 +181,13 @@ export abstract class StateResourceREA<
   get wsync(): boolean {
     return false;
   }
+
+  get is_array(): boolean {
+    return false;
+  }
+  get is_object(): boolean {
+    return false;
+  }
 }
 
 //##################################################################################################################################################
@@ -483,6 +490,13 @@ export abstract class StateResourceREAWA<
   abstract limit(value: WT): Result<WT, string>;
 
   abstract check(value: WT): Result<WT, string>;
+
+  get is_array(): boolean {
+    return false;
+  }
+  get is_object(): boolean {
+    return false;
+  }
 }
 
 //##################################################################################################################################################

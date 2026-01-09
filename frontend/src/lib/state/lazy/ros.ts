@@ -116,6 +116,13 @@ class ROS<RT, REL extends Option<RELATED> = OptionNone, WT = any>
   check(value: WT): Result<WT, string> {
     return this.#helper?.check ? this.#helper.check(value) : ok(value);
   }
+
+  get is_array(): boolean {
+    return false;
+  }
+  get is_object(): boolean {
+    return false;
+  }
 }
 const ros = {
   /**Creates a lazy ok state from an initial value, lazy meaning the value is only evaluated on first access.
@@ -257,6 +264,13 @@ class ROSWS<RT, WT, REL extends Option<RELATED>>
   }
   check(value: WT): Result<WT, string> {
     return this.#helper?.check ? this.#helper.check(value) : ok(value);
+  }
+
+  get is_array(): boolean {
+    return false;
+  }
+  get is_object(): boolean {
+    return false;
   }
 }
 const ros_ws = {

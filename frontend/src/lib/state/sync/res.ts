@@ -106,6 +106,13 @@ class RES<RT, REL extends Option<RELATED>, WT>
   check(value: WT): Result<WT, string> {
     return this.#helper?.check ? this.#helper.check(value) : ok(value);
   }
+
+  get is_array(): boolean {
+    return false;
+  }
+  get is_object(): boolean {
+    return false;
+  }
 }
 const res = {
   /**Creates a sync state from an initial value.
@@ -248,6 +255,13 @@ class RESWS<RT, WT, REL extends Option<RELATED>>
   }
   check(value: WT): Result<WT, string> {
     return this.#helper?.check ? this.#helper.check(value) : ok(value);
+  }
+
+  get is_array(): boolean {
+    return false;
+  }
+  get is_object(): boolean {
+    return false;
   }
 }
 const res_ws = {
