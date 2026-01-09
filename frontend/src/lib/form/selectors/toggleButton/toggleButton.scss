@@ -26,6 +26,7 @@ form-togglebutton {
       text-align: center;
       box-sizing: border-box;
       position: relative;
+      padding-inline: base.$border_thickness;
 
       &.selected {
         color: base.$color_text_selected;
@@ -33,7 +34,6 @@ form-togglebutton {
       }
 
       &:nth-child(odd) {
-        position: relative;
         grid-row: 1;
         align-items: center;
         background-color: base.$color_background;
@@ -44,13 +44,15 @@ form-togglebutton {
 
         &.selected {
           background-color: base.$color_background_hover;
+          z-index: 2;
 
           &::after {
             content: "";
             position: absolute;
-            inset: -(base.$border_thickness);
-            box-shadow: 0 0.155rem 0.1875rem -0.03rem base.$color_border;
-            z-index: -1;
+            inset: 0;
+            box-shadow: 0 0.21rem 0.2rem 0 base.$color_border,
+              0 0 0 1px base.$color_border;
+            z-index: 1;
           }
         }
 
@@ -66,7 +68,7 @@ form-togglebutton {
             position: absolute;
             box-shadow: base.$focus_out;
             inset: 0;
-            z-index: 1;
+            z-index: 2;
           }
 
           &:first-child {
