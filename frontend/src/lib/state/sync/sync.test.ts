@@ -67,7 +67,7 @@ describe("Sync states", function () {
     });
   });
   //##################################################################################################################################################
-  describe("ROS_WS", { timeout: 100 }, function () {
+  describe("ROSWS", { timeout: 100 }, function () {
     it("ok", async function () {
       st.s.ros_ws.ok(1, true);
     });
@@ -104,7 +104,7 @@ describe("Sync states", function () {
     });
   });
   //##################################################################################################################################################
-  describe("RES_WS", { timeout: 100 }, function () {
+  describe("RESWS", { timeout: 100 }, function () {
     it("ok", async function () {
       st.s.res_ws.ok(1, true);
     });

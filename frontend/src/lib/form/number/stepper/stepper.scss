@@ -53,6 +53,7 @@ form-stepper {
         min-width: 3rem;
         text-align: end;
         outline: none;
+        cursor: text;
 
         .touch & {
           min-width: 4rem;

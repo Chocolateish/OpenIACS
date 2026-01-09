@@ -89,7 +89,7 @@ class InternalPanelContainer implements PC, PanelContainer {
     return panel;
   }
 
-  addopt_panel(panel: Panel): void {}
+  addopt_panel(_panel: Panel): void {}
 }
 
 function create_panel_container(parent: HTMLElement): PanelContainer {

@@ -52,6 +52,9 @@ class Character {
   }
 }
 
+const yo = state.l.ros.ok(() => 1);
+yo.ok();
+
 console.warn(Character.deserialize({ uuid: "1234", name: "Hero" }));
 
 // main_panel_container.create_panel({
@@ -400,7 +403,7 @@ FORM_CONT.appendChild(
 //     | |  | |  _  /| |  | |  ___/| |  | | |  | |\ \/  \/ / | . ` |
 //     | |__| | | \ \| |__| | |    | |__| | |__| | \  /\  /  | |\  |
 //     |_____/|_|  \_\\____/|_|    |_____/ \____/   \/  \/   |_| \_|
-const num = state.s.ros.ok(0);
+const num = state.s.ros_ws.ok(0);
 FORM_CONT.appendChild(
   form.dropdown({
     label: "Dropdown",

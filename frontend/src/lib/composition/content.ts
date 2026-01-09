@@ -52,6 +52,14 @@ export class Content extends ContentBase {
     this._icon.set_ok(value);
   }
 
+  async close(_args: void): Promise<Option<void>> {
+    return none();
+  }
+
+  async on_close(): Promise<void> {
+    return;
+  }
+
   constructor() {
     super();
   }

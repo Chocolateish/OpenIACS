@@ -7,7 +7,6 @@ form-togglebutton {
     padding: base.$padding;
     padding-bottom: 0.1rem;
     overflow-x: auto;
-    // scrollbar-gutter: stable both-edges;
     -webkit-user-select: none;
     user-select: none;
     display: grid;
@@ -45,6 +44,14 @@ form-togglebutton {
 
         &.selected {
           background-color: base.$color_background_hover;
+
+          &::after {
+            content: "";
+            position: absolute;
+            inset: -(base.$border_thickness);
+            box-shadow: 0 0.155rem 0.1875rem -0.03rem base.$color_border;
+            z-index: -1;
+          }
         }
 
         .touch & {
