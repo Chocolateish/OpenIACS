@@ -27,6 +27,8 @@ import type {
 //        | |     | |  | |    | |____ ____) |
 //        |_|     |_|  |_|    |______|_____/
 
+const STATE_ARRAY_KEY = Symbol("is_state_array");
+
 export const StateArrayWriteType = {
   added: "added",
   removed: "removed",
@@ -35,7 +37,12 @@ export const StateArrayWriteType = {
 export type StateArrayWriteType =
   (typeof StateArrayWriteType)[keyof typeof StateArrayWriteType];
 
-export type StateArrayReadType = StateArrayWriteType | "none";
+export const StateArrayReadType = {
+  ...StateArrayWriteType,
+  fresh: "fresh",
+} as const;
+export type StateArrayReadType =
+  (typeof StateArrayReadType)[keyof typeof StateArrayReadType];
 
 export interface StateArrayWrite<TYPE> {
   type: StateArrayWriteType;
@@ -147,12 +154,6 @@ export type StateArrayRESWS<
 //     | |  | | |____| |____| |    | |____| | \ \ ____) |
 //     |_|  |_|______|______|_|    |______|_|  \_\_____/
 
-/** Applies a read from a state array to another array
- * @template AT - Types allowed in both arrays.
- * @template TAT - Optional type if state array type is different from array
- * @param array Array to modify in place
- * @param read Read struct from state array
- * @param transform optional tranform function for when state array is not same type of array*/
 export function apply_read<AT>(array: AT[], read: StateArrayRead<AT>): AT[];
 export function apply_read<AT, TAT = AT>(
   array: AT[],
@@ -167,7 +168,7 @@ export function apply_read<AT, TAT = AT>(
   const a = array;
   const t = transform;
   const { type: ty, index: ix, items: it } = read;
-  if (ty === "none") a.splice(ix, a.length, ...(t ? it.map(t) : it));
+  if (ty === "fresh") a.splice(ix, a.length, ...(t ? it.map(t) : it));
   else if (ty === "added") a.splice(ix, 0, ...(t ? it.map(t) : it));
   else if (ty === "removed") a.splice(ix, it.length);
   else if (ty === "changed")
@@ -217,7 +218,7 @@ class RXS<
   set(value: Result<AT[], string>) {
     this.#array = value.ok ? value.value : [];
     this.#error = value.ok ? undefined : value.error;
-    this.update_subs(ok(this.#mr("none", 0, this.#array)) as RRT);
+    this.update_subs(ok(this.#mr("fresh", 0, this.#array)) as RRT);
   }
   set_ok(value: AT[]): void {
     this.set(ok(value));
@@ -254,10 +255,10 @@ class RXS<
   }
   get(): RRT {
     if (this.#error) return err(this.#error) as RRT;
-    return ok(this.#mr("none", 0, this.#array)) as RRT;
+    return ok(this.#mr("fresh", 0, this.#array)) as RRT;
   }
   ok(): SAR<AT> {
-    return this.#mr("none", 0, this.#array);
+    return this.#mr("fresh", 0, this.#array);
   }
   related(): REL {
     return this.#helper?.related ? this.#helper.related() : (none() as REL);
@@ -346,7 +347,7 @@ class RXS<
   ) {
     const { index, items: its, type } = result.value;
     const items = transform(its, type);
-    if (type === "none") return this.set(ok(items));
+    if (type === "fresh") return this.set(ok(items));
     else if (type === "added") this.#array.splice(index, 0, ...items);
     else if (type === "removed") this.#array.splice(index, items.length);
     else if (type === "changed")
@@ -475,12 +476,23 @@ const RES_WS = {
 //     |______/_/ \_\_|     \____/|_|  \_\ |_| |_____/
 /**States representing arrays */
 export const STATE_ARRAY = {
+  /**The state key is a symbol used to identify state array objects
+   * To implement a custom state, set this key to true on the object */
+  STATE_ARRAY_KEY,
+  /** Applies a read from a state array to another array
+   * @template AT - Types allowed in both arrays.
+   * @template TAT - Optional type if state array type is different from array
+   * @param array Array to modify in place
+   * @param read Read struct from state array
+   * @param transform optional tranform function for when state array is not same type of array*/
   apply_read,
   ros: ROS,
   ros_ws: ROS_WS,
   res: RES,
   res_ws: RES_WS,
-  is(s: any): s is State<StateArrayRead<any>, any> {
-    return s instanceof RXS;
+  /**Returns true if the given object promises to be a state array */
+  is(s: unknown): s is StateArray<any, any> {
+    //@ts-expect-error Will not crash
+    return Boolean(s) && s[STATE_ARRAY_KEY] === true;
   },
 };

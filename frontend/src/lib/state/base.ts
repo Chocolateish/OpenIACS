@@ -1,5 +1,10 @@
 import { type Option, type Result } from "@libResult";
-import type { StateBase as Base, StateRelated, StateSub } from "./types";
+import {
+  STATE_KEY,
+  type StateBase as Base,
+  type StateRelated,
+  type StateSub,
+} from "./types";
 
 export abstract class StateBase<
   RT,
@@ -8,6 +13,10 @@ export abstract class StateBase<
   RRT extends Result<RT, string>
 > implements Base<RT, WT, REL, RRT>
 {
+  get [STATE_KEY](): true {
+    return true;
+  }
+
   #subscribers: Set<StateSub<RRT>> = new Set();
   #read_promises?: ((val: RRT) => void)[];
 

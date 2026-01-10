@@ -1,6 +1,10 @@
 import type { Result } from "@libResult";
-import { default as st, type StateArrayRead, type StateSub } from "@libState";
-import type { StateArrayRES } from "../state/array/res";
+import {
+  default as st,
+  type StateArray,
+  type StateArrayRead,
+  type StateSub,
+} from "@libState";
 import { Base } from "./base";
 
 interface A<T, E extends Node> {
@@ -8,7 +12,7 @@ interface A<T, E extends Node> {
   error: (err: string) => Node;
   destructor?: (val: T, element: E) => void;
   array?: T[];
-  state?: StateArrayRES<T>;
+  state?: StateArray<T>;
 }
 
 interface B<T, E extends Node> extends A<T, E> {
@@ -18,7 +22,7 @@ interface B<T, E extends Node> extends A<T, E> {
 
 interface C<T, E extends Node> extends A<T, E> {
   array?: undefined;
-  state: StateArrayRES<T>;
+  state: StateArray<T>;
 }
 export type LoopOptions<T, E extends Node> = B<T, E> | C<T, E>;
 
@@ -26,7 +30,7 @@ export class Loop<T, E extends Node> extends Base {
   #generator: (val: T) => E;
   //#error: (err: string) => Node = () => document.createTextNode("");
   #destructor?: (val: T, element: E) => void;
-  #state_array?: StateArrayRES<T>;
+  #state_array?: StateArray<T>;
   #sub_subscriber?: StateSub<Result<StateArrayRead<T>, string>>;
   #values: T[] = [];
   #children: E[] = [];
@@ -43,7 +47,7 @@ export class Loop<T, E extends Node> extends Base {
     this.replaceChildren(...array.map(this.#generator));
   }
 
-  set state(state: StateArrayRES<T>) {
+  set state(state: StateArray<T>) {
     if (state === this.#state_array) return;
     if (this.#sub_subscriber) this.#state_array?.unsub(this.#sub_subscriber);
     this.#state_array = state;
@@ -56,37 +60,31 @@ export class Loop<T, E extends Node> extends Base {
           value,
           this.#generator
         );
-        switch (value.type) {
-          case "none":
-            return this.replaceChildren(...this.#children);
-          case "added":
-            const child_nodes = this.childNodes;
-            if (value.index === child_nodes.length) {
-              this.append(...this.#children);
-            } else {
-              for (let i = value.items.length; i > 0; i--) {
-                this.insertBefore(
-                  this.childNodes[value.index],
-                  this.#generator(value.items[i - 1])
-                );
-              }
+        if (value.type === "fresh") this.replaceChildren(...this.#children);
+        else if (value.type === "added") {
+          const child_nodes = this.childNodes;
+          if (value.index === child_nodes.length)
+            this.append(...this.#children);
+          else {
+            for (let i = value.items.length; i > 0; i--) {
+              this.insertBefore(
+                this.childNodes[value.index],
+                this.#generator(value.items[i - 1])
+              );
             }
-            break;
-          case "removed":
-            for (let i = 0; i < value.items.length; i++) {
-              if (this.#destructor)
-                this.#destructor(
-                  this.#values[value.index],
-                  this.#children[value.index]
-                );
-              this.childNodes[value.index].remove();
-            }
-            break;
-          case "changed":
-            for (let i = 0; i < value.items.length; i++)
-              this.childNodes[i].replaceWith(this.#generator(value.items[i]));
-            break;
-        }
+          }
+        } else if (value.type === "removed") {
+          for (let i = 0; i < value.items.length; i++) {
+            if (this.#destructor)
+              this.#destructor(
+                this.#values[value.index],
+                this.#children[value.index]
+              );
+            this.childNodes[value.index].remove();
+          }
+        } else if (value.type === "changed")
+          for (let i = 0; i < value.items.length; i++)
+            this.childNodes[i].replaceWith(this.#generator(value.items[i]));
       }
     }, true);
   }

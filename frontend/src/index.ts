@@ -82,7 +82,6 @@ console.warn(Character.deserialize({ uuid: "1234", name: "Hero" }));
 
 const FORM_CONT = document.getElementById("app")!;
 FORM_CONT.style.flexGrow = "1";
-FORM_CONT.style.maxWidth = "40rem";
 FORM_CONT.style.overflow = "auto";
 
 FORM_CONT.appendChild(
@@ -110,26 +109,41 @@ FORM_CONT.appendChild(
   })
 );
 
-const test_list = list.container_transform(
-  array_from_length(10, (i) => i),
-  (item) => {
-    console.error(item);
+function sub_rows_generator() {
+  return array_from_length(3, (i) => i);
+}
+
+const test_list = list.container_transform({
+  rows: array_from_length(10, (i) => i),
+  transform: (item) => {
     return {
-      col1: item,
-      col2: item,
+      openable: Math.random() > 0.5,
+      sub_rows: sub_rows_generator,
+      values: {
+        col1: item,
+        col2: item,
+        col3: item,
+      },
     };
   },
-  {
+  columns: {
     col1: {
+      init_width: 15,
+      // title: "Column 1, the one and only, the best, the biggest",
       title: "Column 1",
-      transform: (k, v) => list.text_field(`Item ${v} - Field 1`),
+      transform: (k, v) => list.text_field(`Row ${v} - Field 1`),
     },
     col2: {
       title: "Column 2",
-      transform: (k, v) => list.text_field(`Item ${v} - Field 2`),
+      transform: (k, v) => list.text_field(`Row ${v} - Field 2`),
     },
-  }
-);
+    col3: {
+      fixed_width: 10,
+      title: "Column 3",
+      transform: (k, v) => list.text_field(`Row ${v} - Field 3`),
+    },
+  },
+});
 FORM_CONT.appendChild(test_list);
 
 //      _____         _____ _______          ______  _____  _____

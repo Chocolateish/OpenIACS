@@ -176,8 +176,8 @@ export abstract class Base extends HTMLElement {
     return func;
   }
 
-  /**Dettaches the function from the state/component */
-  dettach_state(func: StateSub<any>): typeof func {
+  /**Detaches the function from the state/component */
+  detach_state(func: StateSub<any>): typeof func {
     const state = this.#states.get(func);
     if (state) {
       if (state[1] ? this.is_visible : this.#is_connected) state[0].unsub(func);
@@ -212,7 +212,7 @@ export abstract class Base extends HTMLElement {
     ok?: (val: T) => Option<this[K]>,
     visible?: boolean
   ): this {
-    this.dettach_state_from_prop(prop).#props.set(
+    this.detach_state_from_prop(prop).#props.set(
       prop,
       this.attach_state(
         state,
@@ -252,7 +252,7 @@ export abstract class Base extends HTMLElement {
     ok?: (val: T) => Option<this[K]>,
     visible?: boolean
   ): this {
-    this.dettach_state_from_prop(prop).#props.set(
+    this.detach_state_from_prop(prop).#props.set(
       prop,
       this.attach_state(
         state,
@@ -270,11 +270,11 @@ export abstract class Base extends HTMLElement {
     return this;
   }
 
-  /**Dettaches the state from the property */
-  dettach_state_from_prop<T extends keyof this>(prop: T): this {
+  /**Detaches the state from the property */
+  detach_state_from_prop<T extends keyof this>(prop: T): this {
     const pro = this.#props.get(prop);
     if (pro) {
-      this.dettach_state(pro);
+      this.detach_state(pro);
       this.#props.delete(prop);
     }
     return this;
@@ -301,7 +301,7 @@ export abstract class Base extends HTMLElement {
     ok?: (val: U) => Option<string>,
     visible?: boolean
   ): this {
-    this.dettach_state_from_attribute(qualified_name).#attr.set(
+    this.detach_state_from_attribute(qualified_name).#attr.set(
       qualified_name,
       this.attach_state(
         state,
@@ -336,7 +336,7 @@ export abstract class Base extends HTMLElement {
     ok?: (val: U) => Option<string>,
     visible?: boolean
   ): this {
-    this.dettach_state_from_attribute(qualified_name).#attr.set(
+    this.detach_state_from_attribute(qualified_name).#attr.set(
       qualified_name,
       this.attach_state(
         state,
@@ -354,10 +354,10 @@ export abstract class Base extends HTMLElement {
     return this;
   }
 
-  /**Dettaches the state from the property */
-  dettach_state_from_attribute(qualified_name: string): this {
+  /**Detaches the state from the property */
+  detach_state_from_attribute(qualified_name: string): this {
     const pro = this.#attr.get(qualified_name);
-    if (pro) this.dettach_state(pro);
+    if (pro) this.detach_state(pro);
     return this;
   }
 

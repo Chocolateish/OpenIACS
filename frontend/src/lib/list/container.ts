@@ -2,49 +2,88 @@ import { Base, define_element } from "@libBase";
 import { some } from "@libResult";
 import type { State } from "@libState";
 import state from "@libState";
-import type { StateArray } from "../state/array/array";
+import { px_to_rem } from "@libTheme";
+import type { StateArray, StateArrayRead } from "../state/array/array";
 import "./container.scss";
-import { Field, TextField } from "./field";
+import { ListField, text_field } from "./field";
+import { ListRow } from "./row.ts";
+import "./shared.ts";
+import type {
+  ListColumnOptions,
+  ListRoot,
+  ListRowTransformer,
+} from "./types.ts";
 
-interface Column<K, V> {
-  title: string;
-  transform: (key: K, value: V) => Field;
-}
-
-class Row extends Base {
+class HeaderField extends ListField {
   static element_name() {
-    return "row";
+    return "headerfield";
+  }
+
+  #box = this.appendChild(document.createElement("div"));
+  #text = this.#box.appendChild(document.createElement("span"));
+  #sizer?: HTMLDivElement;
+
+  constructor(text?: string) {
+    super();
+    if (text) this.text = text;
+  }
+
+  set text(value: string) {
+    this.#text.innerHTML = value;
+  }
+
+  sizable(sizeable: boolean, sizer: (width: number | undefined) => void) {
+    if (sizeable) {
+      this.#sizer = this.#box.appendChild(document.createElement("div"));
+      let double_timeout: number;
+      this.#sizer.onpointerdown = (e) => {
+        e.preventDefault();
+        if (double_timeout) {
+          sizer(undefined);
+          return;
+        }
+        double_timeout = window.setTimeout(() => {
+          double_timeout = 0;
+        }, 300);
+        this.setPointerCapture(e.pointerId);
+        const start_x = e.pageX;
+        const start_width = this.#box.offsetWidth;
+        this.onpointermove = (ev: PointerEvent) => {
+          sizer(px_to_rem(start_width + (ev.pageX - start_x)));
+        };
+        this.onpointerup = () => {
+          this.releasePointerCapture(e.pointerId);
+          this.onpointermove = null;
+          this.onpointerup = null;
+        };
+      };
+    } else if (this.#sizer) {
+      this.#sizer.remove();
+      this.#sizer = undefined;
+    }
+  }
+}
+define_element(HeaderField);
+
+class HeaderRow extends Base {
+  static element_name() {
+    return "headerrow";
   }
   static element_name_space(): string {
     return "list";
   }
 
-  constructor(fields: Field[]) {
-    super();
-    this.replaceChildren(...fields);
+  set fields(fields: HeaderField[]) {
+    this.replaceChildren(text_field(), ...fields);
   }
 }
-define_element(Row);
+define_element(HeaderRow);
 
-class HeaderField extends Field {
-  static element_name() {
-    return "headerfield";
-  }
-
-  constructor(text?: string) {
-    super();
-    if (text) this.innerHTML = text;
-  }
-
-  set text(value: string) {
-    this.innerHTML = value;
-  }
-
-  get text(): string {
-    return this.innerHTML;
-  }
+interface ContainerOptions<R extends {}, T extends {}> {
+  columns: { [K in keyof T]: ListColumnOptions<K, T[K]> };
+  rows: R[] | State<R[]> | StateArray<R>;
+  transform: ListRowTransformer<R, T>;
 }
-define_element(HeaderField);
 
 class Container<R extends {}, T extends {}> extends Base {
   static element_name() {
@@ -54,77 +93,96 @@ class Container<R extends {}, T extends {}> extends Base {
     return "list";
   }
 
+  #root: ListRoot<R, T>;
   #box = this.appendChild(document.createElement("div"));
-  #column_map: Map<keyof T, Column<keyof T, T[keyof T]>> = new Map();
-  #column_ids: (keyof T)[] = [];
-  #column_row?: Row;
-  #rows: Row[] = [];
+  #header: HeaderRow = this.#box.appendChild(new HeaderRow());
+  #row_box: HTMLDivElement = this.#box.appendChild(
+    document.createElement("div")
+  );
   #state?: State<R[]>;
-  #transform?: (row: R) => T;
 
-  constructor(
-    columns: { [K in keyof T]: Column<K, T[K]> },
-    rows: R[] | State<R[]> | StateArray<R>,
-    transform?: (row: R) => T
-  ) {
+  constructor(options: ContainerOptions<R, T>) {
     super();
-    this.#transform = transform;
-    this.columns = columns;
-    if (state.a.is(rows)) this.rows_by_state_array = rows;
-    else if (state.is(rows)) this.rows_by_state = rows;
-    else this.rows = rows;
+    this.#root = {
+      columns: new Map(),
+      columns_visible: [],
+      transform: options.transform,
+    };
+    this.columns = options.columns;
+    if (state.a.is(options.rows)) this.rows_by_state_array = options.rows;
+    else if (state.is(options.rows)) this.rows_by_state = options.rows;
+    else this.rows = options.rows;
   }
 
-  set columns(columns: { [K in keyof T]: Column<K, T[K]> }) {
-    this.#column_map.clear();
-    this.#column_ids = [];
-    const fields: TextField[] = [];
+  set columns(columns: { [K in keyof T]: ListColumnOptions<K, T[K]> }) {
+    this.#root.columns.clear();
+    this.#root.columns_visible = [];
+
+    const fields: HeaderField[] = [];
     for (const key in columns) {
-      this.#column_map.set(key, columns[key as keyof T]);
-      this.#column_ids.push(key);
-      fields.push(new HeaderField(columns[key].title));
+      this.#root.columns.set(key, columns[key as keyof T]);
+      this.#root.columns_visible.push(key);
+      const header = new HeaderField(columns[key].title);
+      fields.push(header);
+      header.sizable(
+        typeof columns[key].fixed_width === "undefined",
+        (width) => {
+          this.#root.columns.get(key)!.init_width = width;
+          this.#update_column_widths();
+        }
+      );
     }
-    const row = new Row(fields);
-    if (this.#column_row) this.#box.replaceChild(row, this.#column_row);
-    else this.#box.appendChild(row);
-    this.#column_row = row;
+
+    this.#update_column_widths();
+    this.#header.fields = fields;
+  }
+
+  #update_column_widths() {
+    const widths: string[] = [
+      "min-content",
+      ...this.#root.columns_visible.map((key) => {
+        const col = this.#root.columns.get(key)!;
+        const width = col.fixed_width ?? col.init_width;
+        return typeof width === "undefined"
+          ? "auto"
+          : `${Math.max(width, 1)}rem`;
+      }),
+    ];
+    this.#box.style.gridTemplateColumns = widths.join(" ");
   }
 
   set rows(rows: R[]) {
-    rows.forEach((row) => {
-      const values = this.#transform
-        ? this.#transform(row)
-        : (row as unknown as T);
-      const row_element = new Row(
-        this.#column_ids.map((col_key) =>
-          this.#column_map.get(col_key)!.transform(col_key, values[col_key])
-        )
-      );
-      this.#rows.push(this.#box.appendChild(row_element));
-    });
+    this.#row_box.replaceChildren(
+      ...rows.map(
+        (row) => new ListRow<R, T>(this.#root, this.#root.transform(row), -1)
+      )
+    );
   }
 
-  set rows_by_state(state: State<R[]>) {
-    this.attach_state_to_prop("rows", state, () => some([]));
+  set rows_by_state_array_read(sar: StateArrayRead<R>) {}
+
+  set rows_by_state(state: State<R[]> | undefined) {
+    if (state) this.attach_state_to_prop("rows", state, () => some([]));
+    else this.detach_state_from_prop("rows");
   }
 
   set rows_by_state_array(state: StateArray<R>) {
-    console.error("NO");
+    if (state)
+      this.attach_state_to_prop("rows_by_state_array_read", state, () =>
+        some({
+          type: "fresh",
+          array: [],
+          index: 0,
+          items: [],
+        } satisfies StateArrayRead<R>)
+      );
+    else this.detach_state_from_prop("rows_by_state_array_read");
   }
 }
 define_element(Container);
 
-export function container<T extends {}>(
-  rows: T[],
-  columns: { [K in keyof T]: Column<K, T[K]> }
+export function container<R extends {}, T extends {}>(
+  options: ContainerOptions<R, T>
 ) {
-  return new Container(columns, rows);
-}
-
-export function container_transform<R extends {}, T extends {}>(
-  rows: R[],
-  transform: (row: R) => T,
-  columns: { [K in keyof T]: Column<K, T[K]> }
-) {
-  return new Container(columns, rows, transform);
+  return new Container(options);
 }

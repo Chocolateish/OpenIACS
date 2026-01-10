@@ -1,46 +1,75 @@
 list-container {
+  $sizer_width: 0.3rem;
+
+  position: relative;
   display: block;
   overflow: auto;
-  padding: 1px;
-  border: 1px solid #ccc;
-
-  max-height: 20rem;
+  max-height: 30rem;
+  z-index: 0;
 
   > div {
     display: grid;
-    grid-template-columns: auto auto;
-    gap: 1px;
-  }
-}
+    grid-template-columns: min-content 15rem 15rem;
 
-list-row {
-  display: contents;
+    > list-headerrow {
+      display: contents;
 
-  &:first-child {
-    > * {
-      top: 0;
-      position: sticky;
+      > * {
+        top: 0;
+        position: sticky;
+        border-bottom: 1px solid var(--list-colors-border-header);
+        background-color: var(--list-colors-background-row_odd);
+        z-index: 1;
+
+        &:first-child {
+          left: 0;
+          z-index: 3;
+          border-right: 1px solid var(--list-colors-border-column);
+        }
+      }
+
+      > list-headerfield {
+        box-sizing: border-box;
+
+        > div {
+          display: flex;
+          justify-content: flex-end;
+          color: var(--list-colors-text-header);
+          height: 100%;
+          overflow: hidden;
+
+          > span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            padding-left: $sizer_width + 0.1rem;
+            padding-right: 0.1rem;
+            border-right: 1px solid var(--list-colors-border-column);
+            height: 100%;
+          }
+
+          > div {
+            position: relative;
+            right: -1px;
+            flex-shrink: 0;
+            width: $sizer_width;
+            height: 100%;
+            // background-color: pink;
+            cursor: ew-resize;
+            border-right: 1px solid var(--list-colors-border-column);
+            margin-right: 1px;
+
+            &:hover {
+              background-color: pink;
+            }
+          }
+        }
+      }
+    }
+
+    > div {
+      display: contents;
     }
   }
-
-  &:nth-child(even) {
-    color: blue;
-    background-color: #f9f9f9;
-  }
-
-  &:hover {
-    > * {
-      background-color: #e0e0e0;
-    }
-  }
-}
-
-list-headerfield {
-  padding: 8px;
-  background-color: purple;
-}
-
-list-textfield {
-  padding: 8px;
-  background-color: orange;
 }

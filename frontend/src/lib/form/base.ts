@@ -104,7 +104,7 @@ export abstract class FormValue<
 
   /**This sets the value of the component*/
   set value_by_state(state: State<RT> | undefined) {
-    if (this.#func) this.dettach_state(this.#func);
+    if (this.#func) this.detach_state(this.#func);
     if (state)
       this.attach_state(state, (val) => {
         if (val.ok) this.value = val.value;

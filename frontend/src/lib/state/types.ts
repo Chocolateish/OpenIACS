@@ -62,12 +62,16 @@ export type StateSetROXWS<RT, S, WT = RT> = (
 //     | | \ \| |____ / ____ \| |__| | |____| | \ \  | |___| |__| | |\  |  | |  | |____ / . \   | |
 //     |_|  \_\______/_/    \_\_____/|______|_|  \_\  \_____\____/|_| \_|  |_|  |______/_/ \_\  |_|
 
+export const STATE_KEY = Symbol("is_state");
+
 export interface StateBase<
   RT,
   WT,
   REL extends Option<StateRelated>,
   RRT extends Result<RT, string>
 > {
+  [STATE_KEY]: true;
+
   //#Reader Context
   /**Is state guarenteed sync*/
   readonly rsync: boolean;

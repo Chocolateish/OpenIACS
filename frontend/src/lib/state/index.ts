@@ -15,9 +15,12 @@ import { STATE_PROXY_ROS } from "./proxy/ros";
 import { STATE_RESOURCE_REA } from "./resource/rea";
 import { STATE_RESOURCE_ROA } from "./resource/roa";
 import { STATE_SYNC } from "./sync/sync";
-import type { State } from "./types";
+import { STATE_KEY, type State } from "./types";
 
 export default {
+  /**The state key is a symbol used to identify state objects
+   * To implement a custom state, set this key to true on the object */
+  STATE_KEY,
   a: STATE_ARRAY,
   /**Collected states, collects values from multiple states and reduces it to one */
   c: {
@@ -38,9 +41,12 @@ export default {
   },
   r: { ...STATE_RESOURCE_REA, ...STATE_RESOURCE_ROA },
   s: STATE_SYNC,
-  is(s: any): s is State<any, any> {
-    return s instanceof StateBase;
+  /**Returns true if the given object promises to be a state */
+  is(s: unknown): s is State<any, any> {
+    //@ts-expect-error Will not crash
+    return Boolean(s) && s[STATE_KEY] === true;
   },
+  /**Utility base class for state, with basic state functionality */
   class: StateBase,
   ok: STATE_SYNC.ros.ok,
   err: STATE_SYNC.res.err,
@@ -61,7 +67,6 @@ export {
   type StateArrayWrite,
   type StateArrayWriteType,
 } from "./array/array";
-export { StateBase } from "./base";
 export { type StateCollectedREA } from "./collected/rea";
 export { type StateCollectedRES } from "./collected/res";
 export { type StateCollectedROA } from "./collected/roa";
