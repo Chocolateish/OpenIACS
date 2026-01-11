@@ -5,16 +5,17 @@ import state from "@libState";
 import { px_to_rem } from "@libTheme";
 import type { StateArray, StateArrayRead } from "../state/array/array";
 import "./container.scss";
-import { ListField, text_field } from "./field";
+import { text_field } from "./field";
 import { ListRow } from "./row.ts";
 import "./shared.ts";
 import type {
   ListColumnOptions,
   ListRoot,
+  ListRowParent,
   ListRowTransformer,
 } from "./types.ts";
 
-class HeaderField extends ListField {
+class HeaderField extends Base {
   static element_name() {
     return "headerfield";
   }
@@ -79,13 +80,13 @@ class HeaderRow extends Base {
 }
 define_element(HeaderRow);
 
-interface ContainerOptions<R extends {}, T extends {}> {
+interface ContainerOptions<R, T extends {}> {
+  transform: ListRowTransformer<R, T>;
   columns: { [K in keyof T]: ListColumnOptions<K, T[K]> };
   rows: R[] | State<R[]> | StateArray<R>;
-  transform: ListRowTransformer<R, T>;
 }
 
-class Container<R extends {}, T extends {}> extends Base {
+class Container<R, T extends {}> extends Base {
   static element_name() {
     return "container";
   }
@@ -94,12 +95,14 @@ class Container<R extends {}, T extends {}> extends Base {
   }
 
   #root: ListRoot<R, T>;
+  #parent: ListRowParent = {
+    select_adjacent() {},
+  };
   #box = this.appendChild(document.createElement("div"));
   #header: HeaderRow = this.#box.appendChild(new HeaderRow());
   #row_box: HTMLDivElement = this.#box.appendChild(
     document.createElement("div")
   );
-  #state?: State<R[]>;
 
   constructor(options: ContainerOptions<R, T>) {
     super();
@@ -151,23 +154,65 @@ class Container<R extends {}, T extends {}> extends Base {
     this.#box.style.gridTemplateColumns = widths.join(" ");
   }
 
-  set rows(rows: R[]) {
+  set rows(rows: readonly R[]) {
     this.#row_box.replaceChildren(
       ...rows.map(
-        (row) => new ListRow<R, T>(this.#root, this.#root.transform(row), -1)
+        (row) =>
+          new ListRow<R, T>(
+            this.#root,
+            this.#parent,
+            this.#root.transform(row),
+            -1
+          )
       )
     );
   }
 
-  set rows_by_state_array_read(sar: StateArrayRead<R>) {}
-
-  set rows_by_state(state: State<R[]> | undefined) {
-    if (state) this.attach_state_to_prop("rows", state, () => some([]));
-    else this.detach_state_from_prop("rows");
+  set rows_by_state_array_read(sar: StateArrayRead<R>) {
+    if (sar.type === "added") {
+      const rows = sar.items.map(
+        (row) =>
+          new ListRow<R, T>(
+            this.#root,
+            this.#parent,
+            this.#root.transform(row),
+            -1
+          )
+      );
+      const child = this.#row_box.children[sar.index];
+      if (child) child.before(...rows);
+      else this.#row_box.append(...rows);
+    } else if (sar.type === "removed") {
+      if (sar.array.length === 0) this.rows = [];
+      else
+        for (let i = 0; i < sar.items.length; i++)
+          this.#row_box.children[sar.index].remove();
+    } else if (sar.type === "changed")
+      for (let i = 0; i < sar.items.length; i++) {
+        this.#row_box.replaceChild(
+          new ListRow<R, T>(
+            this.#root,
+            this.#parent,
+            this.#root.transform(sar.items[i]),
+            -1
+          ),
+          this.#row_box.children[sar.index + i]
+        );
+      }
+    else this.rows = sar.array;
   }
 
-  set rows_by_state_array(state: StateArray<R>) {
-    if (state)
+  set rows_by_state(state: State<R[]> | undefined) {
+    if (state) {
+      this.detach_state_from_prop("rows_by_state_array");
+      this.attach_state_to_prop("rows", state, () => some([]));
+    } else this.detach_state_from_prop("rows");
+  }
+
+  set rows_by_state_array(state: StateArray<R> | undefined) {
+    if (state) {
+      this.detach_state_from_prop("rows");
+
       this.attach_state_to_prop("rows_by_state_array_read", state, () =>
         some({
           type: "fresh",
@@ -176,13 +221,14 @@ class Container<R extends {}, T extends {}> extends Base {
           items: [],
         } satisfies StateArrayRead<R>)
       );
-    else this.detach_state_from_prop("rows_by_state_array_read");
+    } else this.detach_state_from_prop("rows_by_state_array_read");
   }
 }
 define_element(Container);
 
-export function container<R extends {}, T extends {}>(
+export function container<R, T extends {}>(
+  transform: ListRowTransformer<R, T>,
   options: ContainerOptions<R, T>
 ) {
-  return new Container(options);
+  return new Container({ ...options, transform });
 }

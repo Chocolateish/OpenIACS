@@ -113,9 +113,27 @@ function sub_rows_generator() {
   return array_from_length(3, (i) => i);
 }
 
-const test_list = list.container_transform({
-  rows: array_from_length(10, (i) => i),
-  transform: (item) => {
+const test: number[] = [];
+const st_rows = state.a.ros.ok(array_from_length(10, (i) => i));
+
+// let flip_flop = true;
+// setInterval(() => {
+//   if (flip_flop) {
+//     st_rows.shift();
+//     if (st_rows.length <= 3) flip_flop = false;
+//   } else {
+//     st_rows.push(Math.floor(Math.random() * 1000));
+//     if (st_rows.length >= 10) flip_flop = true;
+//   }
+// }, 500);
+
+setTimeout(() => {
+  // st_rows.splice(0, 3, 11, 22, 33);
+  st_rows.set_index(0, 9999);
+}, 3000);
+
+const test_list = list.container_transform(
+  (item) => {
     return {
       openable: Math.random() > 0.5,
       sub_rows: sub_rows_generator,
@@ -126,24 +144,28 @@ const test_list = list.container_transform({
       },
     };
   },
-  columns: {
-    col1: {
-      init_width: 15,
-      // title: "Column 1, the one and only, the best, the biggest",
-      title: "Column 1",
-      transform: (k, v) => list.text_field(`Row ${v} - Field 1`),
+  {
+    columns: {
+      col1: {
+        init_width: 15,
+        title: "Column 1, the one and only, the best, the biggest",
+        // title: "Column 1",
+        field_gen: (k) => [(v: number) => String(v), list.text_field()],
+      },
+      col2: {
+        title: "Column 2",
+        field_gen: (k) => [(v: number) => String(v), list.text_field()],
+      },
+      col3: {
+        fixed_width: 10,
+        title: "Column 3",
+        field_gen: (k) => [(v: number) => String(v), list.text_field()],
+      },
     },
-    col2: {
-      title: "Column 2",
-      transform: (k, v) => list.text_field(`Row ${v} - Field 2`),
-    },
-    col3: {
-      fixed_width: 10,
-      title: "Column 3",
-      transform: (k, v) => list.text_field(`Row ${v} - Field 3`),
-    },
-  },
-});
+
+    rows: st_rows,
+  }
+);
 FORM_CONT.appendChild(test_list);
 
 //      _____         _____ _______          ______  _____  _____

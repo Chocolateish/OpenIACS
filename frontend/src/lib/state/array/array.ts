@@ -88,6 +88,8 @@ interface Owner<
 
   get array(): readonly AT[];
   readonly length: number;
+  at(index: number): AT | undefined;
+  set_index(index: number, value: AT): void;
   push(...items: AT[]): number;
   pop(): AT | undefined;
   shift(): AT | undefined;
@@ -100,6 +102,7 @@ interface Owner<
     transform: (val: readonly B[], type: StateArrayReadType) => AT[]
   ): void;
 }
+
 interface OwnerWS<
   AT,
   RRT extends Result<SAR<AT>, string>,
@@ -192,6 +195,10 @@ class RXS<
   extends StateBase<SAR<AT>, SAW<AT>, REL, RRT>
   implements Owner<AT, RRT, REL>
 {
+  get [STATE_ARRAY_KEY](): true {
+    return true;
+  }
+
   constructor(
     init: Result<AT[], string>,
     helper?: HELPER<SAW<AT>, REL>,
@@ -295,6 +302,15 @@ class RXS<
     return this.#array.length;
   }
 
+  at(index: number): AT | undefined {
+    return this.#array.at(index);
+  }
+
+  set_index(index: number, value: AT): void {
+    this.#array[index] = value;
+    this.update_subs(ok(this.#mr("changed", index, [value])) as RRT);
+  }
+
   push(...items: AT[]): number {
     const index = this.#array.length;
     const new_len = this.#array.push(...items);
@@ -303,18 +319,21 @@ class RXS<
   }
 
   pop(): AT | undefined {
+    const l = this.#array.length;
     const p = this.#array.pop();
-    if (p)
+    if (this.#array.length < l)
       this.update_subs(
-        ok(this.#mr("removed", this.#array.length + 1, [p])) as RRT
+        ok(this.#mr("removed", this.#array.length, [p as AT])) as RRT
       );
     return p;
   }
 
   shift(): AT | undefined {
-    const shifted = this.#array.shift();
-    if (shifted) this.update_subs(ok(this.#mr("removed", 0, [shifted])) as RRT);
-    return shifted;
+    const l = this.#array.length;
+    const s = this.#array.shift();
+    if (this.#array.length < l)
+      this.update_subs(ok(this.#mr("removed", 0, [s as AT])) as RRT);
+    return s;
   }
 
   unshift(...items: AT[]): number {

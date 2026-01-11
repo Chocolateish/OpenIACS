@@ -1,16 +1,16 @@
 import { Base, define_element } from "@libBase";
 import { array_from_length } from "@libCommon";
 import { material_navigation_chevron_right_rounded } from "@libIcons";
-import { some } from "@libResult";
+import { none, some, type Option } from "@libResult";
 import state, {
   type State,
   type StateArray,
   type StateArrayRead,
 } from "@libState";
 import "./row.scss";
-import type { ListRoot, ListRowOptions } from "./types";
+import type { ListRoot, ListRowOptions, ListRowParent } from "./types";
 
-export class ListRow<R extends {}, T extends {}> extends Base {
+export class ListRow<R, T extends {}> extends Base implements ListRowParent {
   static element_name() {
     return "row";
   }
@@ -18,6 +18,7 @@ export class ListRow<R extends {}, T extends {}> extends Base {
     return "list";
   }
   #root: ListRoot<R, T>;
+  #parent: ListRowParent;
   #row: ListRowOptions<R, T>;
   #depth: number;
   #opener: SVGSVGElement;
@@ -25,20 +26,44 @@ export class ListRow<R extends {}, T extends {}> extends Base {
   #field_box: HTMLDivElement;
   #child_box: HTMLSpanElement;
 
-  constructor(root: ListRoot<R, T>, row: ListRowOptions<R, T>, depth: number) {
+  constructor(
+    root: ListRoot<R, T>,
+    parent: ListRowParent,
+    row: ListRowOptions<R, T>,
+    depth: number
+  ) {
     super();
     this.#root = root;
+    this.#parent = parent;
     this.#row = row;
     this.#depth = depth + 1;
     this.#key_field = document.createElement("div");
     this.#field_box = this.appendChild(document.createElement("div"));
     this.#child_box = this.appendChild(document.createElement("span"));
 
+    this.#key_field.tabIndex = 0;
+    this.#key_field.onkeydown = (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        this.open = !this.open;
+      } else if (e.key === "ArrowRight") {
+        this.open = true;
+      } else if (e.key === "ArrowLeft") {
+        this.open = false;
+      } else if (e.key === "ArrowDown") {
+        this.select_adjacent("next", none());
+      } else if (e.key === "ArrowUp") {
+        this.select_adjacent("previous", none());
+      } else {
+        return;
+      }
+      e.preventDefault();
+    };
+
     //Generate fields
     this.#field_box.replaceChildren(
       this.#key_field,
       ...root.columns_visible.map((key) =>
-        root.columns.get(key)!.transform(key, row.values[key])
+        root.columns.get(key)!.field_gen(key, row.values[key])
       )
     );
 
@@ -50,16 +75,70 @@ export class ListRow<R extends {}, T extends {}> extends Base {
       });
     else if (row.openable) this.openable = row.openable;
 
-    this.#opener = material_navigation_chevron_right_rounded();
+    const opener_box = document.createElement("span");
+
+    this.#opener = opener_box.appendChild(
+      material_navigation_chevron_right_rounded()
+    );
     this.#key_field.replaceChildren(
       ...array_from_length(this.#depth, () => document.createElement("div")),
-      this.#opener,
-      document.createElement("hr")
+      opener_box
     );
-    this.#opener.addEventListener("click", () => {
+    this.#opener.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
       this.open = !this.open;
     });
   }
+
+  select_adjacent(
+    direction: "next" | "previous" | "p_next" | "p_previous" | "last",
+    field: Option<number>
+  ) {
+    if (direction === "next" || direction === "p_next") {
+      if (direction === "next" && this.open)
+        (
+          this.#child_box.firstElementChild! as ListRow<R, T>
+        ).#key_field.focus();
+      else {
+        const sibling = this.nextElementSibling;
+        if (sibling instanceof ListRow) sibling.#key_field.focus();
+        else this.#parent.select_adjacent("p_next", field);
+      }
+    } else if (direction === "previous") {
+      const sibling = this.previousElementSibling;
+      if (sibling instanceof ListRow) {
+        if (sibling.open) sibling.select_adjacent("last", field);
+        else sibling.#key_field.focus();
+      } else this.#parent.select_adjacent("p_previous", field);
+    } else if (direction === "p_previous") this.#key_field.focus();
+    else if (direction === "last") {
+      if (this.open) {
+        (this.#child_box.lastElementChild as ListRow<R, T>).select_adjacent(
+          "last",
+          field
+        );
+      } else this.#key_field.focus();
+    }
+  }
+
+  //      _____       _______
+  //     |  __ \   /\|__   __|/\
+  //     | |  | | /  \  | |  /  \
+  //     | |  | |/ /\ \ | | / /\ \
+  //     | |__| / ____ \| |/ ____ \
+  //     |_____/_/    \_\_/_/    \_\
+
+  set row(row: ListRowOptions<R, T>) {
+    this.#row = row;
+  }
+
+  //       ____  _____  ______ _   _ _____ _   _  _____
+  //      / __ \|  __ \|  ____| \ | |_   _| \ | |/ ____|
+  //     | |  | | |__) | |__  |  \| | | | |  \| | |  __
+  //     | |  | |  ___/|  __| | . ` | | | | . ` | | |_ |
+  //     | |__| | |    | |____| |\  |_| |_| |\  | |__| |
+  //      \____/|_|    |______|_| \_|_____|_| \_|\_____|
 
   set openable(value: boolean) {
     if (value && this.#row.sub_rows) this.#key_field.classList.add("openable");
@@ -98,7 +177,12 @@ export class ListRow<R extends {}, T extends {}> extends Base {
     this.#child_box.replaceChildren(
       ...rows.map(
         (row) =>
-          new ListRow<R, T>(this.#root, this.#root.transform(row), this.#depth)
+          new ListRow<R, T>(
+            this.#root,
+            this,
+            this.#root.transform(row),
+            this.#depth
+          )
       )
     );
   }

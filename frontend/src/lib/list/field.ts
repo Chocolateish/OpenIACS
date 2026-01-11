@@ -1,7 +1,7 @@
 import { Base, define_element } from "@libBase";
 import "./field.scss";
 
-export abstract class ListField extends Base {
+export abstract class ListField<T> extends Base {
   static element_name() {
     return "@abstract@";
   }
@@ -12,28 +12,21 @@ export abstract class ListField extends Base {
   constructor() {
     super();
   }
+
+  abstract set data(value: T);
 }
 
-export class ListTextField extends ListField {
+export class ListTextField extends ListField<string> {
   static element_name() {
     return "textfield";
   }
 
-  constructor(text?: string) {
-    super();
-    if (text) this.innerHTML = text;
-  }
-
-  set text(value: string) {
+  set data(value: string) {
     this.innerHTML = value;
-  }
-
-  get text(): string {
-    return this.innerHTML;
   }
 }
 define_element(ListTextField);
 
-export function text_field(text?: string) {
-  return new ListTextField(text);
+export function text_field() {
+  return new ListTextField();
 }

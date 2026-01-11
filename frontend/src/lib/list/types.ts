@@ -1,5 +1,22 @@
+import type { Option } from "@libResult";
 import type { State, StateArray } from "@libState";
 import type { ListField } from "./field";
+
+export interface ListRoot<R, T extends {}> {
+  /**Columns options mapped by column key */
+  columns: Map<keyof T, ListColumnOptions<keyof T, T[keyof T]>>;
+  /**Order of visible columns by column key */
+  columns_visible: (keyof T)[];
+  transform: ListRowTransformer<R, T>;
+}
+
+export interface ListRowParent {
+  /**Selects the adjacent row in the given direction */
+  select_adjacent(
+    direction: "next" | "previous" | "p_next" | "p_previous" | "last",
+    field: Option<number>
+  ): void;
+}
 
 export const ListDataType = {
   number: "number",
@@ -7,6 +24,8 @@ export const ListDataType = {
   bool: "bool",
 } as const;
 export type ListDataType = (typeof ListDataType)[keyof typeof ListDataType];
+
+type FieldGen<K, V> = (key: K, value: V) => [ListField<V>];
 
 export interface ListColumnOptions<K, V> {
   /**Initial width of the column in rem, auto when undefined*/
@@ -21,24 +40,16 @@ export interface ListColumnOptions<K, V> {
   type?: ListDataType;
   /**Column title*/
   title: string;
-  /**Function to transform the value into a Field element*/
-  transform: (key: K, value: V) => ListField;
+  /**Function generate a field element*/
+  field_gen<T = V>(key: K, value: V): [(v: V) => T, ListField<T>];
 }
 
-export interface ListRowOptions<R extends {}, T extends {}> {
+export interface ListRowOptions<R, T extends {}> {
   openable?: boolean | State<boolean>;
   sub_rows?(): R[] | State<R[]> | StateArray<R>;
   values: T;
 }
 
-export type ListRowTransformer<R extends {}, T extends {}> = (
+export type ListRowTransformer<R, T extends {}> = (
   row: R
 ) => ListRowOptions<R, T>;
-
-export interface ListRoot<R extends {}, T extends {}> {
-  /**Columns options mapped by column key */
-  columns: Map<keyof T, ListColumnOptions<keyof T, T[keyof T]>>;
-  /**Order of visible columns by column key */
-  columns_visible: (keyof T)[];
-  transform: ListRowTransformer<R, T>;
-}
