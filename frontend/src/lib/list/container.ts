@@ -228,7 +228,8 @@ define_element(Container);
 
 export function container<R, T extends {}>(
   transform: ListRowTransformer<R, T>,
-  options: ContainerOptions<R, T>
+  columns: { [K in keyof T]: ListColumnOptions<K, T[K]> },
+  rows: R[] | State<R[]> | StateArray<R>
 ) {
-  return new Container({ ...options, transform });
+  return new Container<R, T>({ transform, columns, rows });
 }

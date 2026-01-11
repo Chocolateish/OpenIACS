@@ -145,26 +145,24 @@ const test_list = list.container_transform(
     };
   },
   {
-    columns: {
-      col1: {
-        init_width: 15,
-        title: "Column 1, the one and only, the best, the biggest",
-        // title: "Column 1",
-        field_gen: (k) => [(v: number) => String(v), list.text_field()],
-      },
-      col2: {
-        title: "Column 2",
-        field_gen: (k) => [(v: number) => String(v), list.text_field()],
-      },
-      col3: {
-        fixed_width: 10,
-        title: "Column 3",
-        field_gen: (k) => [(v: number) => String(v), list.text_field()],
-      },
+    col1: {
+      init_width: 15,
+      title: "Column 1, the one and only, the best, the biggest",
+      // title: "Column 1",
+      field_gen: (k) => [(v: number) => String(v), list.text_field()],
     },
+    col2: {
+      title: "Column 2",
+      field_gen: (k) => [(v: number) => String(v), list.text_field()],
+    },
+    col3: {
+      fixed_width: 10,
+      title: "Column 3",
+      field_gen: (k) => [(v: number) => String(v), list.text_field()],
+    },
+  },
 
-    rows: st_rows,
-  }
+  st_rows
 );
 FORM_CONT.appendChild(test_list);
 
