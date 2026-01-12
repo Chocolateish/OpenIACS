@@ -2,6 +2,7 @@ list-addrow {
   display: contents;
 
   > span {
+    color: var(--list-colors-text-add);
     grid-column: 2 / -1;
     display: flex;
     align-items: center;

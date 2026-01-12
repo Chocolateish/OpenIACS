@@ -54,6 +54,10 @@ export interface ListRoot<R, T extends {}> {
 }
 
 export interface ListRowParent {
+  /**Sub row depth */
+  depth: number;
+  /**Whether the row is open to show sub rows */
+  open: boolean;
   /**Selects the adjacent row in the given direction */
   select_adjacent(
     direction: "next" | "previous" | "p_next" | "p_previous" | "last",

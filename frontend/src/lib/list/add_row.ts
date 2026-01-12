@@ -2,9 +2,10 @@ import { Base, define_element } from "@libBase";
 import { some } from "@libResult";
 import state from "@libState";
 import "./add_row.scss";
-import type { ListAddRowOptions } from "./types";
+import { ListKeyField } from "./key_field";
+import type { ListAddRowOptions, ListRowParent } from "./types";
 
-export class ListAddRow extends Base {
+export class ListAddRow extends Base implements ListRowParent {
   static element_name() {
     return "addrow";
   }
@@ -13,10 +14,12 @@ export class ListAddRow extends Base {
   }
 
   #button: HTMLSpanElement;
+  readonly depth: number;
 
-  constructor() {
+  constructor(parent: ListRowParent) {
     super();
-    this.appendChild(document.createElement("div"));
+    this.depth = parent.depth + 1;
+    this.appendChild(new ListKeyField(this));
     this.#button = this.appendChild(document.createElement("span"));
     this.#button.tabIndex = 0;
   }
@@ -42,5 +45,12 @@ export class ListAddRow extends Base {
     if (value) this.#button.setAttribute("disabled", "true");
     else this.#button.removeAttribute("disabled");
   }
+
+  set open(value: boolean) {}
+  get open(): boolean {
+    return false;
+  }
+
+  select_adjacent(): void {}
 }
 define_element(ListAddRow);

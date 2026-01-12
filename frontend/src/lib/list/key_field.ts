@@ -1,5 +1,8 @@
 import { Base, define_element } from "@libBase";
-import "./field.scss";
+import { array_from_length } from "@libCommon";
+import { none } from "@libResult";
+import "./key_field.scss";
+import type { ListRowParent } from "./types";
 
 export class ListKeyField extends Base {
   static element_name() {
@@ -7,6 +10,54 @@ export class ListKeyField extends Base {
   }
   static element_name_space() {
     return "list";
+  }
+
+  #opener: HTMLDivElement;
+
+  constructor(parent: ListRowParent) {
+    super();
+    this.tabIndex = 0;
+    this.onkeydown = (e) => {
+      if (e.key === "Enter" || e.key === " ") parent.open = !parent.open;
+      else if (e.key === "ArrowRight") parent.open = true;
+      else if (e.key === "ArrowLeft") parent.open = false;
+      else if (e.key === "ArrowDown") parent.select_adjacent("next", none());
+      else if (e.key === "ArrowUp") parent.select_adjacent("previous", none());
+      else return;
+      e.preventDefault();
+    };
+
+    const opener_box = document.createElement("span");
+    this.#opener = opener_box.appendChild(document.createElement("div"));
+    this.replaceChildren(
+      ...array_from_length(parent.depth, (i) => {
+        const div = document.createElement("div");
+        div.style.borderColor = "var(--i-" + i + ")";
+        return div;
+      }),
+      opener_box
+    );
+
+    this.#opener.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      parent.open = !parent.open;
+    });
+  }
+
+  //       ____  _____  ______ _   _ _____ _   _  _____
+  //      / __ \|  __ \|  ____| \ | |_   _| \ | |/ ____|
+  //     | |  | | |__) | |__  |  \| | | | |  \| | |  __
+  //     | |  | |  ___/|  __| | . ` | | | | . ` | | |_ |
+  //     | |__| | |    | |____| |\  |_| |_| |\  | |__| |
+  //      \____/|_|    |______|_| \_|_____|_| \_|\_____|
+
+  set openable(value: boolean) {
+    if (value) this.classList.add("openable");
+    else this.classList.remove("openable");
+  }
+  get openable(): boolean {
+    return this.classList.contains("openable");
   }
 }
 define_element(ListKeyField);

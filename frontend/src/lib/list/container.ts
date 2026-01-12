@@ -103,6 +103,8 @@ class Container<
 
   #root: ListRoot<R, T>;
   #parent: ListRowParent = {
+    depth: -1,
+    open: false,
     select_adjacent() {},
   };
   #box = this.appendChild(document.createElement("div"));
@@ -128,7 +130,7 @@ class Container<
     this.#child_box = this.#box.appendChild(document.createElement("div"));
     if (options?.sub_rows) this.#box.classList.add("sub-rows");
     if (options?.add_row) {
-      this.#add_row = this.#box.appendChild(new ListAddRow());
+      this.#add_row = this.#box.appendChild(new ListAddRow(this.#parent));
       this.#add_row.options = options.add_row;
     }
 
@@ -203,7 +205,7 @@ class Container<
         this.#child_box.append(
           ...rows
             .slice(this.#child_box.childElementCount)
-            .map((row) => new ListRow<R, T>(this.#root, this.#parent, row, -1))
+            .map((row) => new ListRow<R, T>(this.#root, this.#parent, row))
         );
       } else if (rows.length < this.#child_box.childElementCount) {
         for (
@@ -219,7 +221,7 @@ class Container<
   #update_rows_by_state_array_read(sar: StateArrayRead<R>) {
     if (sar.type === "added") {
       const rows = sar.items.map(
-        (row) => new ListRow<R, T>(this.#root, this.#parent, row, -1)
+        (row) => new ListRow<R, T>(this.#root, this.#parent, row)
       );
       const child = this.#child_box.children[sar.index];
       if (child) child.before(...rows);

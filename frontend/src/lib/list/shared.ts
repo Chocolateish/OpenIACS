@@ -80,6 +80,15 @@ colors_text.make_variable(
   "Color",
   undefined
 );
+colors_text.make_variable(
+  "add",
+  "Row Adder Text Color",
+  "Text color of row adder button",
+  GREY["900"],
+  GREY["50"],
+  "Color",
+  undefined
+);
 
 //      _____ _____ ____  _   _    _____ ____  _      ____  _____   _____
 //     |_   _/ ____/ __ \| \ | |  / ____/ __ \| |    / __ \|  __ \ / ____|

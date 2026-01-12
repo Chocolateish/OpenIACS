@@ -6,6 +6,7 @@ form-group {
   display: flex;
   flex-direction: column;
   background-color: inherit;
+  z-index: 0;
 
   &.inset {
     border: base.$border;
@@ -41,7 +42,7 @@ form-group {
       }
     }
     > span {
-      z-index: 1;
+      z-index: 2;
       border: base.$border;
       min-height: base.$size_height;
       box-shadow: base.$shadow_out;

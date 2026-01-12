@@ -112,7 +112,6 @@ const test_list = list.container(
     col1: {
       init_width: 15,
       title: "Column 1, the one and only, the best, the biggest",
-      // title: "Column 1",
       transform: (v: number) => v.toString(),
       field_gen: () => list.text_field(),
     },
@@ -130,15 +129,19 @@ const test_list = list.container(
   },
   (item) => {
     const sub_rows = state.a.ros.ok(array_from_length(3, (i) => i));
+    const add_row =
+      Math.random() > 0.5
+        ? {
+            text: "Add New Row",
+            on_add: () => {
+              sub_rows.push(sub_rows.length);
+            },
+          }
+        : undefined;
     return {
       openable: Math.random() > 0.5,
       sub_rows: () => sub_rows,
-      add_row: {
-        text: "Add New Row",
-        on_add: () => {
-          sub_rows.push(sub_rows.length);
-        },
-      },
+      add_row,
       values: {
         col1: item,
         col2: item,

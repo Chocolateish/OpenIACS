@@ -8,6 +8,8 @@ list-container {
   z-index: 0;
 
   > div {
+    --list-row-indent-color-0: var(--list-colors-border-column);
+
     display: grid;
     grid-template-columns: min-content 15rem 15rem;
 

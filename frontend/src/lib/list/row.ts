@@ -1,7 +1,5 @@
 import { Base, define_element } from "@libBase";
-import { array_from_length } from "@libCommon";
-import { material_navigation_chevron_right_rounded } from "@libIcons";
-import { none, some, type Option } from "@libResult";
+import { some, type Option } from "@libResult";
 import state, {
   type State,
   type StateArray,
@@ -10,6 +8,7 @@ import state, {
 } from "@libState";
 import { ListAddRow } from "./add_row";
 import type { ListField } from "./field";
+import { ListKeyField } from "./key_field";
 import "./row.scss";
 import type { ListRoot, ListRowParent, ListSubRows } from "./types";
 
@@ -23,60 +22,23 @@ export class ListRow<R, T extends {}> extends Base implements ListRowParent {
   #root: ListRoot<R, T>;
   #parent: ListRowParent;
   #sub_rows?: ListSubRows<R>;
-  #depth: number;
-  #opener: SVGSVGElement;
-  #key_field: HTMLDivElement;
+  readonly depth: number;
+  #key_field: ListKeyField;
   #field_box: HTMLDivElement;
   #child_box: HTMLSpanElement;
   #add_row?: ListAddRow;
   #fields: ListField<any>[];
   #state_sub?: StateInferSub<State<R[]> | StateArray<R>>;
 
-  constructor(
-    root: ListRoot<R, T>,
-    parent: ListRowParent,
-    data: R,
-    depth: number
-  ) {
+  constructor(root: ListRoot<R, T>, parent: ListRowParent, data: R) {
     super();
     this.#root = root;
     this.#parent = parent;
-    this.#depth = depth + 1;
-    this.#key_field = document.createElement("div");
+    this.depth = parent.depth + 1;
+    this.style.setProperty("--i-" + this.depth, "var(--c)");
+    this.#key_field = new ListKeyField(this);
     this.#field_box = this.appendChild(document.createElement("div"));
     this.#child_box = this.appendChild(document.createElement("span"));
-
-    this.#key_field.tabIndex = 0;
-    this.#key_field.onkeydown = (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        this.open = !this.open;
-      } else if (e.key === "ArrowRight") {
-        this.open = true;
-      } else if (e.key === "ArrowLeft") {
-        this.open = false;
-      } else if (e.key === "ArrowDown") {
-        this.select_adjacent("next", none());
-      } else if (e.key === "ArrowUp") {
-        this.select_adjacent("previous", none());
-      } else {
-        return;
-      }
-      e.preventDefault();
-    };
-
-    const opener_box = document.createElement("span");
-    this.#opener = opener_box.appendChild(
-      material_navigation_chevron_right_rounded()
-    );
-    this.#key_field.replaceChildren(
-      ...array_from_length(this.#depth, () => document.createElement("div")),
-      opener_box
-    );
-    this.#opener.addEventListener("click", (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      this.open = !this.open;
-    });
 
     this.#fields = this.#root.columns_visible.map((key) =>
       this.#root.columns.get(key)!.field_gen()
@@ -132,11 +94,14 @@ export class ListRow<R, T extends {}> extends Base implements ListRowParent {
     this.#sub_rows = row_options.sub_rows;
 
     if (row_options.add_row) {
-      if (!this.#add_row) this.#add_row = this.appendChild(new ListAddRow());
+      if (!this.#add_row)
+        this.#add_row = this.appendChild(new ListAddRow(this));
       this.#add_row.options = row_options.add_row;
+      this.classList.add("addrow");
     } else if (this.#add_row) {
       this.#add_row.remove();
       this.#add_row = undefined;
+      this.classList.remove("addrow");
     }
 
     //Generate fields
@@ -164,14 +129,11 @@ export class ListRow<R, T extends {}> extends Base implements ListRowParent {
   //      \____/|_|    |______|_| \_|_____|_| \_|\_____|
 
   set openable(value: boolean) {
-    if (value && this.#sub_rows) this.#key_field.classList.add("openable");
-    else {
-      this.open = false;
-      this.#key_field.classList.remove("openable");
-    }
+    if (!value) this.open = false;
+    this.#key_field.openable = value;
   }
   get openable(): boolean {
-    return this.#key_field.classList.contains("openable");
+    return this.#key_field.openable;
   }
 
   set open(open: boolean) {
@@ -219,10 +181,7 @@ export class ListRow<R, T extends {}> extends Base implements ListRowParent {
         this.#child_box.append(
           ...rows
             .slice(this.#child_box.childElementCount)
-            .map(
-              (row) =>
-                new ListRow<R, T>(this.#root, this.#parent, row, this.#depth)
-            )
+            .map((row) => new ListRow<R, T>(this.#root, this, row))
         );
       } else if (rows.length < this.#child_box.childElementCount) {
         for (
@@ -238,7 +197,7 @@ export class ListRow<R, T extends {}> extends Base implements ListRowParent {
   #update_rows_by_state_array_read(sar: StateArrayRead<R>) {
     if (sar.type === "added") {
       const rows = sar.items.map(
-        (row) => new ListRow<R, T>(this.#root, this.#parent, row, this.#depth)
+        (row) => new ListRow<R, T>(this.#root, this, row)
       );
       const child = this.#child_box.children[sar.index];
       if (child) child.before(...rows);
