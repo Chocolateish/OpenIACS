@@ -8,7 +8,6 @@ import "./key_field.scss";
 import type { ListRowParent } from "./types";
 
 export interface ListKeyFieldOptions {
-  text?: string | State<string>;
   icon?: SVGFunc | State<SVGFunc>;
 }
 
@@ -56,23 +55,9 @@ export class ListKeyField extends Base {
   }
 
   set options(options: ListKeyFieldOptions | undefined) {
-    if (state.is(options?.text)) {
-      this.attach_state_to_prop("text", options.text, (e) => some(e));
-    } else this.text = options?.text;
     if (state.is(options?.icon)) {
       this.attach_state_to_prop("icon", options.icon, () => some(undefined));
     } else this.icon = options?.icon;
-  }
-
-  set text(value: string | undefined) {
-    if (!value) {
-      if (this.#text_box) this.#text_box.remove();
-      this.#text_box = undefined;
-      return;
-    }
-    if (!this.#text_box)
-      this.#text_box = this.appendChild(document.createElement("span"));
-    this.#text_box.innerHTML = value;
   }
 
   set icon(value: SVGFunc | undefined) {

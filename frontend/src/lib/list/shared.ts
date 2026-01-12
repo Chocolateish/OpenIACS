@@ -110,6 +110,24 @@ colors_icon.make_variable(
   "Color",
   undefined
 );
+colors_icon.make_variable(
+  "key_icon",
+  "Key Field Icon Color",
+  "Color of the key field icon",
+  GREY["800"],
+  GREY["200"],
+  "Color",
+  undefined
+);
+colors_icon.make_variable(
+  "add_icon",
+  "Add Row Icon Color",
+  "Color of the add row icon",
+  GREY["800"],
+  GREY["200"],
+  "Color",
+  undefined
+);
 
 //      ____          _____ _  _______ _____   ____  _    _ _   _ _____     _____ ____  _      ____  _____   _____
 //     |  _ \   /\   / ____| |/ / ____|  __ \ / __ \| |  | | \ | |  __ \   / ____/ __ \| |    / __ \|  __ \ / ____|
