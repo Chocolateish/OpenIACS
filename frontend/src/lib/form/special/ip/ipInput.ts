@@ -29,8 +29,8 @@ class FormIpInput<ID extends string | undefined> extends FormValueWrite<
 
   #type: IPVersion;
   #parts: HTMLDivElement[] = Array.from({ length: 8 }, (_, i) => {
-    const inp = this._body.appendChild(document.createElement("div"));
-    if (i < 7) this._body.appendChild(document.createElement("span"));
+    const inp = this.appendChild(document.createElement("div"));
+    if (i < 7) this.appendChild(document.createElement("span"));
     inp.contentEditable = "true";
     inp.onbeforeinput = async (ev) => {
       if (ev.inputType === "insertParagraph") ev.preventDefault();
@@ -122,37 +122,37 @@ class FormIpInput<ID extends string | undefined> extends FormValueWrite<
     super(id);
     this.type = type;
     this.#type = type;
-    this._body.appendChild(this.warn_input);
-    this._body.onpointerdown = (e) => {
+    this.appendChild(this.warn_input);
+    this.onpointerdown = (e) => {
       if (!this.#parts.includes(e.target as HTMLDivElement)) {
         e.preventDefault();
         set_cursor_end(this.#parts[this.#type === IPVersion.V4 ? 3 : 7]);
       }
     };
-    this._body.ondblclick = (e) => {
-      if (e.target !== this._body) return;
+    this.ondblclick = (e) => {
+      if (e.target !== this) return;
       e.preventDefault();
       set_selection_all(this.#parts[0]);
     };
-    this._body.addEventListener("focusin", (e) => {
+    this.addEventListener("focusin", (e) => {
       e.preventDefault();
     });
-    this._body.addEventListener("focusout", (e) => {
+    this.addEventListener("focusout", (e) => {
       if (e.relatedTarget && this.contains(e.relatedTarget as Node)) return;
       this.set_value_check(this.value_as_ip);
     });
-    this._body.onkeydown = (e) => {
+    this.onkeydown = (e) => {
       if (e.key === "Enter") this.set_value_check(this.value_as_ip);
       else if (e.key === "Escape") {
         if (this.buffer) this.new_value(this.buffer);
         else this.clear_value();
       }
     };
-    this._body.oncopy = (e) => {
+    this.oncopy = (e) => {
       e.preventDefault();
       e.clipboardData?.setData("text/plain", this.value_as_ip.to_string());
     };
-    this._body.onpaste = (e) => {
+    this.onpaste = (e) => {
       e.preventDefault();
       const paste = e.clipboardData?.getData("text/plain") || "";
       const new_ip = new IPAddress(paste);
@@ -177,9 +177,9 @@ class FormIpInput<ID extends string | undefined> extends FormValueWrite<
   set type(val: IPVersion) {
     if (this.#type === val) return;
     this.#type = val;
-    this._body.classList.toggle("ipv4", val === IPVersion.V4);
-    this._body.classList.toggle("ipv6", val === IPVersion.V6);
-    this._body.replaceChildren(
+    this.classList.toggle("ipv4", val === IPVersion.V4);
+    this.classList.toggle("ipv6", val === IPVersion.V6);
+    this.replaceChildren(
       ...this.#parts
         .slice(0, val === IPVersion.V4 ? 4 : 8)
         .flatMap((v, i) =>

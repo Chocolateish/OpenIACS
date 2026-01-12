@@ -98,7 +98,7 @@ $shadow_in_focus_in: $focus_in, $shadow_in;
     display: none;
   }
 
-  .anim & {
+  .anim-all & {
     transition: color $animation;
   }
 

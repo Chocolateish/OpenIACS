@@ -179,7 +179,6 @@ export const INPUT_MODE = PRIVATE_INPUT_MODE.read_write;
 //     /_/    \_\_| \_|_____|_|  |_/_/    \_\_|  |_____\____/|_| \_| |______|______|   \/   |______|______|
 export const AnimationLevels = {
   All: "all",
-  Most: "most",
   Some: "some",
   None: "none",
 } as const;
@@ -188,13 +187,9 @@ export type AnimationLevels =
 
 const ANIMATION_LEVELS = st.h.enums.list<AnimationLevels>({
   [AnimationLevels.All]: { name: "All", description: "All animations" },
-  [AnimationLevels.Most]: {
-    name: "Most",
-    description: "All but the heaviest animations",
-  },
   [AnimationLevels.Some]: {
     name: "Some",
-    description: "Only the lightest animations",
+    description: "Only animations that improve usability",
   },
   [AnimationLevels.None]: { name: "None", description: "No animations" },
 });

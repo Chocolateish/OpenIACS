@@ -16,6 +16,7 @@ import { form_text_input } from "./text/input/textInput";
 import { form_text_multiline } from "./text/multiLine/textMultiLine";
 import { form_text } from "./text/text/text";
 
+/**Form elements with label */
 export const form = {
   //Boolean
   button: form_button,

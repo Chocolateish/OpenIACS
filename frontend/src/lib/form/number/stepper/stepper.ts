@@ -30,12 +30,12 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
   #start: number = 0;
   #live: boolean = false;
   #icon_dec = this.#stepper_func(
-    this._body.appendChild(material_content_remove_rounded()),
+    this.appendChild(material_content_remove_rounded()),
     false
   );
-  #text = this._body.appendChild(document.createElement("span"));
+  #text = this.appendChild(document.createElement("span"));
   #icon_inc = this.#stepper_func(
-    this._body.appendChild(material_content_add_rounded()),
+    this.appendChild(material_content_add_rounded()),
     true
   );
   #value_box = this.#text.appendChild(document.createElement("span"));
@@ -46,8 +46,8 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
 
   constructor(id?: ID) {
     super(id);
-    this._body.setAttribute("tabindex", "0");
-    this._body.appendChild(this.warn_input);
+    this.setAttribute("tabindex", "0");
+    this.appendChild(this.warn_input);
 
     this.#value_box.setAttribute("tabindex", "-1");
     this.#value_box.contentEditable = "true";
@@ -106,7 +106,7 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
       }
     };
 
-    this._body.onkeydown = (e) => {
+    this.onkeydown = (e) => {
       if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
         e.preventDefault();
         e.stopPropagation();
@@ -201,7 +201,7 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
   }
 
   set icon_decrease(icon: SVGFunc | undefined) {
-    this._body.replaceChild(
+    this.replaceChild(
       this.#icon_dec,
       this.#stepper_func(
         icon ? icon() : material_content_remove_rounded(),
@@ -211,7 +211,7 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
   }
 
   set icon_increase(icon: SVGFunc | undefined) {
-    this._body.replaceChild(
+    this.replaceChild(
       this.#icon_inc,
       this.#stepper_func(icon ? icon() : material_content_add_rounded(), true)
     );

@@ -7,11 +7,8 @@ form-text {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0.2rem;
-  min-width: 5rem;
-  line-height: 1.1em;
 
-  .anim & {
+  .anim-all & {
     transition: color base.$animation;
   }
 }

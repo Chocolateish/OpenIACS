@@ -28,9 +28,7 @@ class FormLamp<
     return "form";
   }
 
-  #text: HTMLSpanElement = this._body.appendChild(
-    document.createElement("span")
-  );
+  #text: HTMLSpanElement = this.appendChild(document.createElement("span"));
   #icon: SVGSVGElement | undefined;
   #colors: FormColors[] = [];
 
@@ -44,9 +42,9 @@ class FormLamp<
 
   /**Changes the icon of the lamp*/
   set icon(icon: SVGFunc | undefined) {
-    if (icon) this.#icon = this._body.insertBefore(icon(), this.#text);
+    if (icon) this.#icon = this.insertBefore(icon(), this.#text);
     else if (this.#icon) {
-      this._body.removeChild(this.#icon);
+      this.removeChild(this.#icon);
       this.#icon = undefined;
     }
   }
@@ -60,12 +58,12 @@ class FormLamp<
   /**Called when value is changed */
   protected new_value(value: number | boolean) {
     const color = this.#colors[Number(value)];
-    if (color) this._body.setAttribute("color", color);
-    else this._body.removeAttribute("color");
+    if (color) this.setAttribute("color", color);
+    else this.removeAttribute("color");
   }
 
   protected clear_value(): void {
-    this._body.removeAttribute("color");
+    this.removeAttribute("color");
   }
 
   protected new_error(err: string): void {

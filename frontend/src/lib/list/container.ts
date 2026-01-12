@@ -1,23 +1,28 @@
 import { Base, define_element } from "@libBase";
-import { some } from "@libResult";
-import type { State } from "@libState";
+import type { State, StateInferSub } from "@libState";
 import state from "@libState";
 import { px_to_rem } from "@libTheme";
 import type { StateArray, StateArrayRead } from "../state/array/array";
+import { ListAddRow } from "./add_row.ts";
 import "./container.scss";
 import { text_field } from "./field";
 import { ListRow } from "./row.ts";
 import "./shared.ts";
 import type {
+  ListAddRowOptions,
   ListColumnOptions,
   ListRoot,
   ListRowParent,
   ListRowTransformer,
+  ListValidateCols,
 } from "./types.ts";
 
 class HeaderField extends Base {
   static element_name() {
     return "headerfield";
+  }
+  static element_name_space(): string {
+    return "list";
   }
 
   #box = this.appendChild(document.createElement("div"));
@@ -80,13 +85,15 @@ class HeaderRow extends Base {
 }
 define_element(HeaderRow);
 
-interface ContainerOptions<R, T extends {}> {
-  transform: ListRowTransformer<R, T>;
-  columns: { [K in keyof T]: ListColumnOptions<K, T[K]> };
-  rows: R[] | State<R[]> | StateArray<R>;
+interface ContainerOptions {
+  sub_rows: boolean;
+  add_row?: ListAddRowOptions;
 }
 
-class Container<R, T extends {}> extends Base {
+class Container<
+  R,
+  T extends { [key: string]: ListColumnOptions<any, any> }
+> extends Base {
   static element_name() {
     return "container";
   }
@@ -99,25 +106,37 @@ class Container<R, T extends {}> extends Base {
     select_adjacent() {},
   };
   #box = this.appendChild(document.createElement("div"));
-  #header: HeaderRow = this.#box.appendChild(new HeaderRow());
-  #row_box: HTMLDivElement = this.#box.appendChild(
-    document.createElement("div")
-  );
+  #header: HeaderRow;
+  #child_box: HTMLDivElement;
+  #add_row?: ListAddRow;
+  #state_sub?: StateInferSub<State<R[]> | StateArray<R>>;
 
-  constructor(options: ContainerOptions<R, T>) {
+  constructor(
+    columns: T & ListValidateCols<T>,
+    transform: ListRowTransformer<R, T>,
+    rows: R[] | State<R[]> | StateArray<R>,
+    options?: ContainerOptions
+  ) {
     super();
     this.#root = {
+      sub_rows: options?.sub_rows ?? false,
       columns: new Map(),
       columns_visible: [],
-      transform: options.transform,
+      transform,
     };
-    this.columns = options.columns;
-    if (state.a.is(options.rows)) this.rows_by_state_array = options.rows;
-    else if (state.is(options.rows)) this.rows_by_state = options.rows;
-    else this.rows = options.rows;
+    this.#header = this.#box.appendChild(new HeaderRow());
+    this.#child_box = this.#box.appendChild(document.createElement("div"));
+    if (options?.sub_rows) this.#box.classList.add("sub-rows");
+    if (options?.add_row) {
+      this.#add_row = this.#box.appendChild(new ListAddRow());
+      this.#add_row.options = options.add_row;
+    }
+
+    this.columns = columns;
+    this.rows = rows;
   }
 
-  set columns(columns: { [K in keyof T]: ListColumnOptions<K, T[K]> }) {
+  set columns(columns: T) {
     this.#root.columns.clear();
     this.#root.columns_visible = [];
 
@@ -154,82 +173,79 @@ class Container<R, T extends {}> extends Base {
     this.#box.style.gridTemplateColumns = widths.join(" ");
   }
 
-  set rows(rows: readonly R[]) {
-    this.#row_box.replaceChildren(
-      ...rows.map(
-        (row) =>
-          new ListRow<R, T>(
-            this.#root,
-            this.#parent,
-            this.#root.transform(row),
-            -1
-          )
-      )
-    );
+  //      _____   ______          _______
+  //     |  __ \ / __ \ \        / / ____|
+  //     | |__) | |  | \ \  /\  / / (___
+  //     |  _  /| |  | |\ \/  \/ / \___ \
+  //     | | \ \| |__| | \  /\  /  ____) |
+  //     |_|  \_\\____/   \/  \/  |_____/
+  set rows(rows: R[] | State<R[]> | StateArray<R>) {
+    if (this.#state_sub) this.detach_state(this.#state_sub);
+    if (state.a.is(rows))
+      this.#state_sub = this.attach_state(rows, (r) => {
+        if (r.ok) this.#update_rows_by_state_array_read(r.value);
+        else this.#update_rows([]);
+      });
+    else if (state.is(rows))
+      this.#state_sub = this.attach_state(rows, (r) =>
+        this.#update_rows(r.ok ? r.value : [])
+      );
+    else this.#update_rows(rows);
   }
 
-  set rows_by_state_array_read(sar: StateArrayRead<R>) {
+  #update_rows(rows: readonly R[]) {
+    if (rows.length === 0) this.#child_box.replaceChildren();
+    else {
+      const min = Math.min(this.#child_box.childElementCount, rows.length);
+      for (let i = 0; i < min; i++)
+        (this.#child_box.children[i] as ListRow<R, T>).data = rows[i];
+      if (rows.length > this.#child_box.childElementCount) {
+        this.#child_box.append(
+          ...rows
+            .slice(this.#child_box.childElementCount)
+            .map((row) => new ListRow<R, T>(this.#root, this.#parent, row, -1))
+        );
+      } else if (rows.length < this.#child_box.childElementCount) {
+        for (
+          let i = this.#child_box.childElementCount - 1;
+          i >= rows.length;
+          i--
+        )
+          this.#child_box.children[i].remove();
+      }
+    }
+  }
+
+  #update_rows_by_state_array_read(sar: StateArrayRead<R>) {
     if (sar.type === "added") {
       const rows = sar.items.map(
-        (row) =>
-          new ListRow<R, T>(
-            this.#root,
-            this.#parent,
-            this.#root.transform(row),
-            -1
-          )
+        (row) => new ListRow<R, T>(this.#root, this.#parent, row, -1)
       );
-      const child = this.#row_box.children[sar.index];
+      const child = this.#child_box.children[sar.index];
       if (child) child.before(...rows);
-      else this.#row_box.append(...rows);
+      else this.#child_box.append(...rows);
     } else if (sar.type === "removed") {
-      if (sar.array.length === 0) this.rows = [];
+      if (sar.array.length === 0) this.#update_rows([]);
       else
         for (let i = 0; i < sar.items.length; i++)
-          this.#row_box.children[sar.index].remove();
+          this.#child_box.children[sar.index].remove();
     } else if (sar.type === "changed")
-      for (let i = 0; i < sar.items.length; i++) {
-        this.#row_box.replaceChild(
-          new ListRow<R, T>(
-            this.#root,
-            this.#parent,
-            this.#root.transform(sar.items[i]),
-            -1
-          ),
-          this.#row_box.children[sar.index + i]
-        );
-      }
-    else this.rows = sar.array;
-  }
-
-  set rows_by_state(state: State<R[]> | undefined) {
-    if (state) {
-      this.detach_state_from_prop("rows_by_state_array");
-      this.attach_state_to_prop("rows", state, () => some([]));
-    } else this.detach_state_from_prop("rows");
-  }
-
-  set rows_by_state_array(state: StateArray<R> | undefined) {
-    if (state) {
-      this.detach_state_from_prop("rows");
-
-      this.attach_state_to_prop("rows_by_state_array_read", state, () =>
-        some({
-          type: "fresh",
-          array: [],
-          index: 0,
-          items: [],
-        } satisfies StateArrayRead<R>)
-      );
-    } else this.detach_state_from_prop("rows_by_state_array_read");
+      for (let i = 0; i < sar.items.length; i++)
+        (this.#child_box.children[sar.index + i] as ListRow<R, T>).data =
+          sar.items[i];
+    else this.#update_rows(sar.array);
   }
 }
 define_element(Container);
 
-export function container<R, T extends {}>(
+export function container<
+  R,
+  T extends Record<string, ListColumnOptions<any, any>>
+>(
+  columns: T & ListValidateCols<T>,
   transform: ListRowTransformer<R, T>,
-  columns: { [K in keyof T]: ListColumnOptions<K, T[K]> },
-  rows: R[] | State<R[]> | StateArray<R>
+  rows: R[] | State<R[]> | StateArray<R>,
+  options?: ContainerOptions
 ) {
-  return new Container<R, T>({ transform, columns, rows });
+  return new Container<R, T>(columns, transform, rows, options);
 }

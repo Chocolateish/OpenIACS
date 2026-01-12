@@ -30,15 +30,15 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
   #start: number = 0;
   #live: boolean = false;
   #icon_dec = this.#stepper_func(
-    this._body.appendChild(material_content_remove_rounded()),
+    this.appendChild(material_content_remove_rounded()),
     false
   );
-  #slide = this._body.appendChild(document.createElement("div"));
-  #legend = this._body.appendChild(document.createElement("span"));
+  #slide = this.appendChild(document.createElement("div"));
+  #legend = this.appendChild(document.createElement("span"));
   #left_legend = this.#legend.appendChild(document.createElement("span"));
   #right_legend = this.#legend.appendChild(document.createElement("span"));
   #icon_inc = this.#stepper_func(
-    this._body.appendChild(material_content_add_rounded()),
+    this.appendChild(material_content_add_rounded()),
     true
   );
   #slider = this.#slide.appendChild(document.createElement("div"));
@@ -48,9 +48,9 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
   constructor(id?: ID) {
     super(id);
     this.#slider.setAttribute("tabindex", "0");
-    this._body.appendChild(this.warn_input);
+    this.appendChild(this.warn_input);
 
-    this._body.onpointerdown = (e) => {
+    this.onpointerdown = (e) => {
       if (e.button !== 0) return;
       if (e.pointerType !== "mouse" && !this.#slider.contains(e.target as Node))
         return;
@@ -203,7 +203,7 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
   }
 
   set icon_decrease(icon: SVGFunc | undefined) {
-    this._body.replaceChild(
+    this.replaceChild(
       this.#icon_dec,
       this.#stepper_func(
         icon ? icon() : material_content_remove_rounded(),
@@ -213,7 +213,7 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
   }
 
   set icon_increase(icon: SVGFunc | undefined) {
-    this._body.replaceChild(
+    this.replaceChild(
       this.#icon_inc,
       this.#stepper_func(icon ? icon() : material_content_add_rounded(), true)
     );

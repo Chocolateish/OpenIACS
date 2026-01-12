@@ -37,9 +37,9 @@ class FormTextInput<ID extends string | undefined> extends FormValueWrite<
   constructor(id?: ID) {
     super(id);
     this.warn_input.type = "text";
-    this._body.appendChild(this.warn_input);
+    this.appendChild(this.warn_input);
     this.warn_input.onchange = () => this.#set();
-    this._body.onbeforeinput = (e) => {
+    this.onbeforeinput = (e) => {
       this.warn("");
       const data = e.data || e.dataTransfer?.getData("text/plain");
       if (data) {
@@ -66,7 +66,7 @@ class FormTextInput<ID extends string | undefined> extends FormValueWrite<
         }
       }
     };
-    this._body.onkeydown = (e) => {
+    this.onkeydown = (e) => {
       if (e.key === "Escape") {
         e.preventDefault();
         e.stopPropagation();

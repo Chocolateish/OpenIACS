@@ -25,7 +25,7 @@ class FormColorInput<ID extends string | undefined> extends FormValueWrite<
 
   constructor(id?: ID) {
     super(id);
-    this._body.appendChild(this.warn_input);
+    this.appendChild(this.warn_input);
     this.warn_input.type = "color";
     this.warn_input.oninput = () => {
       if (this.#live) this.set_value_check(this.warn_input.value);

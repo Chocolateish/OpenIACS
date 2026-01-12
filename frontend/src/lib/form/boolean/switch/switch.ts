@@ -24,16 +24,14 @@ export class FormSwitch<ID extends string | undefined> extends FormValueWrite<
     return "form";
   }
 
-  #switch: HTMLDivElement = this._body.appendChild(
-    document.createElement("div")
-  );
+  #switch: HTMLDivElement = this.appendChild(document.createElement("div"));
   #icon: SVGSVGElement | undefined;
   #prevent_click: boolean = false;
 
   constructor(id?: ID) {
     super(id);
 
-    this._body.appendChild(this.warn_input);
+    this.appendChild(this.warn_input);
     this.#switch.setAttribute("tabindex", "0");
     this.#switch.onkeydown = (e) => {
       switch (e.key) {
@@ -94,7 +92,7 @@ export class FormSwitch<ID extends string | undefined> extends FormValueWrite<
 
     this.#switch.onclick = (e) => e.stopPropagation();
 
-    this._body.onclick = (e) => {
+    this.onclick = (e) => {
       e.stopPropagation();
       if (this.#prevent_click) return (this.#prevent_click = false);
       this.set_value_check(!this.buffer);
@@ -103,9 +101,9 @@ export class FormSwitch<ID extends string | undefined> extends FormValueWrite<
 
   /**Changes the icon of the switch*/
   set icon(icon: SVGFunc | undefined) {
-    if (icon) this.#icon = this._body.insertBefore(icon(), this.#switch);
+    if (icon) this.#icon = this.insertBefore(icon(), this.#switch);
     else if (this.#icon) {
-      this._body.removeChild(this.#icon);
+      this.removeChild(this.#icon);
       this.#icon = undefined;
     }
   }

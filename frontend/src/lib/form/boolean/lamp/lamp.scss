@@ -1,87 +1,83 @@
 @use "../../base";
 
 form-lamp {
-  @include base.base;
+  border: 1px solid base.$color_border;
+  min-height: base.$size_height;
+  box-shadow: base.$shadow_out;
+  border-radius: base.$size_height;
+  background-color: base.$color_background;
+  display: flex;
+  box-sizing: border-box;
+  min-width: min-content;
+  -webkit-user-select: none;
+  user-select: none;
+  align-items: center;
 
-  > div {
-    border: 1px solid base.$color_border;
-    min-height: base.$size_height;
-    box-shadow: base.$shadow_out;
-    border-radius: base.$size_height;
-    background-color: base.$color_background;
-    display: flex;
+  .touch & {
+    min-height: base.$size_touchHeight;
+    border-radius: base.$size_touchHeight;
+  }
+
+  .anim-all & {
+    transition: min-height base.$animation, border-color base.$animation,
+      background-color base.$animation;
+  }
+
+  > svg {
+    fill: base.$color_text;
+    height: calc(base.$size_height - 2px);
     box-sizing: border-box;
-    min-width: min-content;
-    -webkit-user-select: none;
-    user-select: none;
-    align-items: center;
+    width: auto;
+    flex-shrink: 0;
+    background-color: initial;
+    padding: 0.2rem;
+    padding-left: 0.4rem;
 
     .touch & {
-      min-height: base.$size_touchHeight;
-      border-radius: base.$size_touchHeight;
+      height: calc(base.$size_touchHeight - 2px);
+      padding: 0.5rem;
     }
 
-    .anim & {
-      transition: min-height base.$animation, border-color base.$animation,
-        background-color base.$animation;
+    .anim-all & {
+      transition: fill base.$animation, height base.$animation;
+    }
+  }
+
+  > span {
+    color: base.$color_text;
+    display: flex;
+    justify-content: center;
+    padding-inline: 0.8rem;
+    padding-block: 0.2rem;
+
+    &:empty {
+      display: none;
+    }
+
+    .touch & {
+      padding-inline: 1.6rem;
+      padding-block: 0.5rem;
+      font-size: 1.4rem;
+    }
+
+    .anim-all & {
+      transition: color base.$animation;
+    }
+  }
+
+  > svg + span {
+    padding-left: 0.4rem !important;
+  }
+
+  @include base.form-colors(color, background-color);
+
+  &[color="black"] {
+    > span {
+      color: base.$color_text_black;
     }
 
     > svg {
-      fill: base.$color_text;
-      height: calc(base.$size_height - 2px);
-      box-sizing: border-box;
-      width: auto;
-      flex-shrink: 0;
-      background-color: initial;
-      padding: 0.2rem;
-      padding-left: 0.4rem;
-
-      .touch & {
-        height: calc(base.$size_touchHeight - 2px);
-        padding: 0.5rem;
-      }
-
-      .anim & {
-        transition: fill base.$animation, height base.$animation;
-      }
-    }
-
-    > span {
-      color: base.$color_text;
-      display: flex;
-      justify-content: center;
-      padding-inline: 0.8rem;
-      padding-block: 0.2rem;
-
-      &:empty {
-        display: none;
-      }
-
-      .touch & {
-        padding-inline: 1.6rem;
-        padding-block: 0.5rem;
-        font-size: 1.4rem;
-      }
-
-      .anim & {
-        transition: color base.$animation;
-      }
-    }
-
-    > svg + span {
-      padding-left: 0.4rem !important;
-    }
-
-    @include base.form-colors(color, background-color);
-
-    &[color="black"] {
-      > span {
-        color: base.$color_text_black;
-      }
-
-      > svg {
-        fill: base.$color_text_black;
-      }
+      fill: base.$color_text_black;
     }
   }
 }

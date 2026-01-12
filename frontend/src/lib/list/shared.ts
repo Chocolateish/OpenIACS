@@ -216,21 +216,41 @@ const sizes = theme_root.make_sub_group(
 );
 
 sizes.make_variable(
-  "height",
-  "Height",
-  "Default height used in all list elements",
-  "1.8rem",
-  "1.8rem",
+  "row_min",
+  "Row Minimum Height",
+  "Minimum height for list rows",
+  "1.4rem",
+  "1.4rem",
   "Length",
   { min: 0.1, max: 10 }
 );
 
 sizes.make_variable(
-  "touchHeight",
-  "Touch Height",
-  "Minimum height for touch devices used in all list elements",
+  "touch_row_min",
+  "Touch Row Minimum Height",
+  "Minimum height for list rows on touch devices",
   "2.6rem",
   "2.6rem",
+  "Length",
+  { min: 0.1, max: 10 }
+);
+
+sizes.make_variable(
+  "add_min",
+  "Add Row Minimum Height",
+  "Minimum height for add row button",
+  "1rem",
+  "1rem",
+  "Length",
+  { min: 0.1, max: 10 }
+);
+
+sizes.make_variable(
+  "touch_add_min",
+  "Touch Add Row Minimum Height",
+  "Minimum height for add row button on touch devices",
+  "2rem",
+  "2rem",
   "Length",
   { min: 0.1, max: 10 }
 );

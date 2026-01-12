@@ -45,10 +45,10 @@ class FormDateTimeInput<
     this.warn_input.type = "datetime-local";
     this.warn_input.lang = "da-DK";
     this.warn_input.step = "0.1";
-    this._body.appendChild(this.warn_input);
-    this._body.appendChild(material_action_calendar_month_rounded()).onclick =
-      () => this.warn_input.showPicker();
-    this._body.appendChild(material_action_schedule_rounded()).onclick = () =>
+    this.appendChild(this.warn_input);
+    this.appendChild(material_action_calendar_month_rounded()).onclick = () =>
+      this.warn_input.showPicker();
+    this.appendChild(material_action_schedule_rounded()).onclick = () =>
       this.warn_input.showPicker();
     this.warn_input.onchange = () => {
       if (this.warn_input.value) {

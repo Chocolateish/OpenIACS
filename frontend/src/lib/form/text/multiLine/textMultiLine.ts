@@ -34,16 +34,14 @@ class FormTextMultiline<ID extends string | undefined> extends FormValueWrite<
   #filter?: RegExp;
   #max_length?: number;
   #max_bytes?: number;
-  #value_box: HTMLTextAreaElement = this._body.appendChild(
+  #value_box: HTMLTextAreaElement = this.appendChild(
     document.createElement("textarea")
   );
-  #resizer: HTMLDivElement = this._body.appendChild(
-    document.createElement("div")
-  );
+  #resizer: HTMLDivElement = this.appendChild(document.createElement("div"));
 
   constructor(id?: ID) {
     super(id);
-    this._body.appendChild(this.warn_input);
+    this.appendChild(this.warn_input);
     this.#resizer.appendChild(material_editor_drag_handle_rounded());
     this.#resizer.onpointerdown = (e) => {
       e.preventDefault();

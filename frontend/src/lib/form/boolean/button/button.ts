@@ -34,9 +34,7 @@ class FormButton<ID extends string | undefined> extends FormValueWrite<
     return "form";
   }
 
-  #text: HTMLSpanElement = this._body.appendChild(
-    document.createElement("span")
-  );
+  #text: HTMLSpanElement = this.appendChild(document.createElement("span"));
   #on_click?: () => void;
   #toggle?: boolean;
   #icon?: SVGSVGElement;
@@ -44,45 +42,45 @@ class FormButton<ID extends string | undefined> extends FormValueWrite<
   constructor(id?: ID) {
     super(id);
 
-    this._body.appendChild(this.warn_input);
-    this._body.setAttribute("tabindex", "0");
-    this._body.onclick = () => {
+    this.appendChild(this.warn_input);
+    this.setAttribute("tabindex", "0");
+    this.onclick = () => {
       if (this.#on_click) this.#on_click();
     };
-    this._body.onpointerdown = (e) => {
+    this.onpointerdown = (e) => {
       if (e.pointerType !== "touch" && e.button === 0) {
         e.stopPropagation();
-        this._body.setPointerCapture(e.pointerId);
+        this.setPointerCapture(e.pointerId);
         if (!this.#toggle) this.set_value_check(true);
-        this._body.onpointerup = (ev) => {
+        this.onpointerup = (ev) => {
           ev.stopPropagation();
-          this._body.releasePointerCapture(ev.pointerId);
+          this.releasePointerCapture(ev.pointerId);
           if (this.#toggle) this.set_value_check(!this.buffer);
           else this.set_value_check(false);
-          this._body.onpointerup = null;
+          this.onpointerup = null;
         };
       }
     };
-    this._body.ontouchstart = (e) => {
+    this.ontouchstart = (e) => {
       e.stopPropagation();
       if (!this.#toggle) this.set_value_check(true);
-      this._body.ontouchend = (ev) => {
+      this.ontouchend = (ev) => {
         ev.stopPropagation();
         if (ev.targetTouches.length === 0) {
           if (this.#toggle) this.set_value_check(!this.buffer);
           else this.set_value_check(false);
-          this._body.ontouchend = null;
+          this.ontouchend = null;
         }
       };
     };
-    this._body.onkeydown = (e) => {
+    this.onkeydown = (e) => {
       switch (e.key) {
         case " ":
         case "Enter": {
           e.stopPropagation();
           e.preventDefault();
           if (!this.#toggle) this.set_value_check(true);
-          this._body.onkeyup = (e) => {
+          this.onkeyup = (e) => {
             switch (e.key) {
               case "Enter":
               case " ": {
@@ -94,7 +92,7 @@ class FormButton<ID extends string | undefined> extends FormValueWrite<
                 break;
               }
             }
-            this._body.onkeyup = null;
+            this.onkeyup = null;
           };
           break;
         }
@@ -112,9 +110,9 @@ class FormButton<ID extends string | undefined> extends FormValueWrite<
 
   /**Changes the icon of the button*/
   set icon(icon: SVGFunc | undefined) {
-    if (icon) this.#icon = this._body.insertBefore(icon(), this.#text);
+    if (icon) this.#icon = this.insertBefore(icon(), this.#text);
     else if (this.#icon) {
-      this._body.removeChild(this.#icon);
+      this.removeChild(this.#icon);
       this.#icon = undefined;
     }
   }
@@ -129,14 +127,14 @@ class FormButton<ID extends string | undefined> extends FormValueWrite<
 
   /**Changes the color of the button*/
   set color(color: FormColors) {
-    if (color === FormColors.None) this._body.removeAttribute("color");
-    else this._body.setAttribute("color", color);
+    if (color === FormColors.None) this.removeAttribute("color");
+    else this.setAttribute("color", color);
   }
 
   /**Called when value is changed */
   protected new_value(value: boolean) {
-    if (value) this._body.classList.add("active");
-    else this._body.classList.remove("active");
+    if (value) this.classList.add("active");
+    else this.classList.remove("active");
   }
 
   protected clear_value(): void {

@@ -18,13 +18,9 @@ export class FormProgress<ID extends string | undefined> extends FormValue<
   #max: number = 100;
   #span: number = 100;
   #decimals: number = 0;
-  #bar: HTMLDivElement = this._body.appendChild(document.createElement("div"));
-  #val: HTMLSpanElement = this._body.appendChild(
-    document.createElement("span")
-  );
-  #unit: HTMLSpanElement = this._body.appendChild(
-    document.createElement("span")
-  );
+  #bar: HTMLDivElement = this.appendChild(document.createElement("div"));
+  #val: HTMLSpanElement = this.appendChild(document.createElement("span"));
+  #unit: HTMLSpanElement = this.appendChild(document.createElement("span"));
 
   /**Set the minimum value*/
   set min(min: number) {

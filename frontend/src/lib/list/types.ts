@@ -1,22 +1,7 @@
 import type { Option } from "@libResult";
 import type { State, StateArray } from "@libState";
+import type { SVGFunc } from "@libSVG";
 import type { ListField } from "./field";
-
-export interface ListRoot<R, T extends {}> {
-  /**Columns options mapped by column key */
-  columns: Map<keyof T, ListColumnOptions<keyof T, T[keyof T]>>;
-  /**Order of visible columns by column key */
-  columns_visible: (keyof T)[];
-  transform: ListRowTransformer<R, T>;
-}
-
-export interface ListRowParent {
-  /**Selects the adjacent row in the given direction */
-  select_adjacent(
-    direction: "next" | "previous" | "p_next" | "p_previous" | "last",
-    field: Option<number>
-  ): void;
-}
 
 export const ListDataType = {
   number: "number",
@@ -25,9 +10,7 @@ export const ListDataType = {
 } as const;
 export type ListDataType = (typeof ListDataType)[keyof typeof ListDataType];
 
-type FieldGen<K, V> = (key: K, value: V) => [ListField<V>];
-
-export interface ListColumnOptions<K, V> {
+export interface ListColumnOptions<V, C> {
   /**Initial width of the column in rem, auto when undefined*/
   init_width?: number;
   /**If the column has a fixed width in rem, overrides init_width and disables resizing*/
@@ -41,15 +24,55 @@ export interface ListColumnOptions<K, V> {
   /**Column title*/
   title: string;
   /**Function generate a field element*/
-  field_gen<T = V>(key: K, value: V): [(v: V) => T, ListField<T>];
+  field_gen: () => ListField<C>;
+  /**Function to transform the field value to something the field element understands */
+  transform: (value: V) => C;
 }
 
-export interface ListRowOptions<R, T extends {}> {
-  openable?: boolean | State<boolean>;
-  sub_rows?(): R[] | State<R[]> | StateArray<R>;
-  values: T;
-}
+export type ListValidateCols<T> = {
+  [K in keyof T]: T[K] extends ListColumnOptions<infer V, infer _C>
+    ? ListColumnOptions<V, ReturnType<T[K]["transform"]>> // Force C to be the transform return type
+    : never;
+};
+
+export type ListInferFieldTypes<T> = {
+  [K in keyof T]: T[K] extends ListColumnOptions<infer V, any> ? V : never;
+};
 
 export type ListRowTransformer<R, T extends {}> = (
   row: R
-) => ListRowOptions<R, T>;
+) => ListRowOptions<R, ListInferFieldTypes<T>>;
+export interface ListRoot<R, T extends {}> {
+  /**Sub rows */
+  sub_rows: boolean;
+  /**Columns options mapped by column key */
+  columns: Map<keyof T, ListColumnOptions<keyof T, T[keyof T]>>;
+  /**Order of visible columns by column key */
+  columns_visible: (keyof T)[];
+  /**Function to transform a row data into row options */
+  transform: ListRowTransformer<R, T>;
+}
+
+export interface ListRowParent {
+  /**Selects the adjacent row in the given direction */
+  select_adjacent(
+    direction: "next" | "previous" | "p_next" | "p_previous" | "last",
+    field: Option<number>
+  ): void;
+}
+
+export type ListSubRows<R> = () => R[] | State<R[]> | StateArray<R>;
+
+export interface ListRowOptions<R, T extends {}> {
+  openable?: boolean | State<boolean>;
+  sub_rows?: ListSubRows<R>;
+  add_row?: ListAddRowOptions;
+  values: T;
+}
+
+export interface ListAddRowOptions {
+  text: string | State<string>;
+  disabled?: boolean | State<boolean>;
+  icon?: SVGFunc | State<SVGFunc>;
+  on_add: () => void;
+}

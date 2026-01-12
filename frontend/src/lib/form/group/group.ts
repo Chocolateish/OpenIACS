@@ -81,7 +81,7 @@ export class FormGroup<
         this.#value_elements.set(comp.form_id as string, comp);
       }
       if (this.#collapsible) this.#collapsible.appendChild(comp);
-      else this._body.appendChild(comp);
+      else this.appendChild(comp);
     }
   }
 
@@ -96,17 +96,17 @@ export class FormGroup<
       FormGroupBorderStyle.Outset
     );
     if (border && border !== FormGroupBorderStyle.None)
-      this._body.classList.add(border);
+      this.classList.add(border);
   }
 
   set collapsible(collapsible: boolean) {
     if (collapsible && !this.#collapsible) {
       this.#collapsible = document.createElement("div");
       if (this.children.length > 1)
-        this.#collapsible.replaceChildren(...this._body.children);
-      this._body.appendChild(this.#collapsible);
-      this._body.classList.add("collapsible");
-      this._body.appendChild(
+        this.#collapsible.replaceChildren(...this.children);
+      this.appendChild(this.#collapsible);
+      this.classList.add("collapsible");
+      this.appendChild(
         this.#collapse_button ||
           (this.collapse_text = "") ||
           this.#collapse_button!
@@ -114,9 +114,9 @@ export class FormGroup<
       this.collapsed = true;
     } else if (!collapsible && this.#collapsible) {
       this.collapsed = false;
-      this._body.replaceChildren(...this.#collapsible.children);
+      this.replaceChildren(...this.#collapsible.children);
       this.#collapsible = undefined;
-      this._body.classList.remove("collapsible");
+      this.classList.remove("collapsible");
     }
   }
   get collapsible(): boolean {
@@ -125,9 +125,9 @@ export class FormGroup<
 
   set collapsed(collapsed: boolean) {
     if (this.#collapsible) {
-      if (collapsed && !this.#collapsed) this._body.classList.add("collapsed");
+      if (collapsed && !this.#collapsed) this.classList.add("collapsed");
       else if (!collapsed && this.#collapsed)
-        this._body.classList.remove("collapsed");
+        this.classList.remove("collapsed");
       this.#collapsed = collapsed;
     }
   }
@@ -158,10 +158,7 @@ export class FormGroup<
   }
 
   set max_height(height: number | undefined) {
-    this._body.style.setProperty(
-      "--max_height",
-      height ? height + "rem" : "none"
-    );
+    this.style.setProperty("--max_height", height ? height + "rem" : "none");
   }
 
   set value(val: RT) {

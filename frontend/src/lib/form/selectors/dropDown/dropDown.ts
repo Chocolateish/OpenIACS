@@ -42,8 +42,8 @@ export class FormDropdown<
   #selected: number = -1;
 
   #icon?: SVGSVGElement;
-  #text: HTMLDivElement = this._body.appendChild(document.createElement("div"));
-  #open: SVGSVGElement = this._body.appendChild(
+  #text: HTMLDivElement = this.appendChild(document.createElement("div"));
+  #open: SVGSVGElement = this.appendChild(
     material_navigation_unfold_more_rounded()
   );
   #default: Text = document.createTextNode("Select something");
@@ -53,16 +53,16 @@ export class FormDropdown<
   constructor(id?: ID) {
     super(id);
     this.#text.append(this.#default);
-    this._body.appendChild(this.warn_input);
-    this._body.tabIndex = 0;
-    this._body.onclick = () => (this.open = true);
-    this._body.onpointerdown = (e) => {
+    this.appendChild(this.warn_input);
+    this.tabIndex = 0;
+    this.onclick = () => (this.open = true);
+    this.onpointerdown = (e) => {
       if (e.pointerType === "mouse") {
         this.open = true;
         e.preventDefault();
       }
     };
-    this._body.onkeydown = (e) => {
+    this.onkeydown = (e) => {
       switch (e.key) {
         case " ":
         case "Enter":
@@ -113,7 +113,7 @@ export class FormDropdown<
   set open(open: boolean) {
     if (open && !this.is_open) {
       this.#open.replaceChildren(material_navigation_unfold_less_rounded());
-      box.open_menu(this.#map, this, this._body, this.buffer);
+      box.open_menu(this.#map, this, this.buffer);
     } else if (!open && this.is_open) {
       this.#open.replaceChildren(material_navigation_unfold_more_rounded());
       box.close_menu();
@@ -125,11 +125,11 @@ export class FormDropdown<
   set #set_icon(icon: SVGFunc | undefined) {
     if (icon) {
       const i = icon();
-      if (this.#icon) this._body.replaceChild(i, this.#icon);
-      else this._body.insertBefore(i, this.#text);
+      if (this.#icon) this.replaceChild(i, this.#icon);
+      else this.insertBefore(i, this.#text);
       this.#icon = i;
     } else if (this.#icon) {
-      this._body.removeChild(this.#icon);
+      this.removeChild(this.#icon);
       this.#icon = undefined;
     }
   }
@@ -175,10 +175,6 @@ export class FormDropdown<
     setTimeout(() => {
       super.warn(message);
     }, 0);
-  }
-
-  focus() {
-    this._body.focus();
   }
 }
 define_element(FormDropdown);
@@ -279,12 +275,11 @@ class DropDownBox extends Base {
   open_menu(
     map: Map<any, SelOptions>,
     parent: FormDropdown<any, any>,
-    ref: HTMLDivElement,
     value: any
   ) {
     const inner_height = this.ownerDocument.defaultView?.innerHeight || 0;
     this.classList.add("open");
-    const bounds = ref.getBoundingClientRect();
+    const bounds = parent.getBoundingClientRect();
     if (bounds.y + bounds.height / 2 < inner_height / 2) {
       const top = bounds.y + bounds.height;
       this.#container.style.top = top + "px";

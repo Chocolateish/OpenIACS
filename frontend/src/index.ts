@@ -18,7 +18,7 @@ import { list } from "@libList";
 import { err, ok, type Result } from "@libResult";
 import type { StateSyncROSWS } from "@libState";
 import { default as st, default as state } from "@libState";
-import { ANIMATION_LEVEL, INPUT_MODE, THEME } from "@libTheme";
+import { ANIMATION_LEVEL, INPUT_MODE, SCALE, THEME } from "@libTheme";
 import "./index.scss";
 import "./lib/composition";
 import { form } from "./lib/form";
@@ -86,57 +86,59 @@ FORM_CONT.style.overflow = "auto";
 
 FORM_CONT.appendChild(
   form.group({
-    label: "Group Box",
     border: "inset",
     max_height: 16,
     collapsible: true,
     collapsed: true,
     collapse_text: "Theme",
     components: [
-      form.toggle_button({
-        label: "Theme",
-        value_by_state: THEME,
-      }),
-      form.toggle_button({
-        label: "Input Mode",
-        value_by_state: INPUT_MODE,
-      }),
-      form.toggle_button({
-        label: "Animation Level",
-        value_by_state: ANIMATION_LEVEL,
-      }),
+      form.text({ text: "Theme" }),
+      form.toggle_button({ value_by_state: THEME }),
+      form.text({ text: "Input Mode" }),
+      form.toggle_button({ value_by_state: INPUT_MODE }),
+      form.text({ text: "Animation Level" }),
+      form.toggle_button({ value_by_state: ANIMATION_LEVEL }),
+      form.text({ text: "UI Scale" }),
+      form.stepper({ value_by_state: SCALE }),
     ],
   })
 );
 
-function sub_rows_generator() {
-  return array_from_length(3, (i) => i);
-}
-
 const test: number[] = [];
 const st_rows = state.a.ros.ok(array_from_length(10, (i) => i));
 
-// let flip_flop = true;
-// setInterval(() => {
-//   if (flip_flop) {
-//     st_rows.shift();
-//     if (st_rows.length <= 3) flip_flop = false;
-//   } else {
-//     st_rows.push(Math.floor(Math.random() * 1000));
-//     if (st_rows.length >= 10) flip_flop = true;
-//   }
-// }, 500);
-
-setTimeout(() => {
-  // st_rows.splice(0, 3, 11, 22, 33);
-  st_rows.set_index(0, 9999);
-}, 3000);
-
-const test_list = list.container_transform(
+const test_list = list.container(
+  {
+    col1: {
+      init_width: 15,
+      title: "Column 1, the one and only, the best, the biggest",
+      // title: "Column 1",
+      transform: (v: number) => v.toString(),
+      field_gen: () => list.text_field(),
+    },
+    col2: {
+      title: "Column 2",
+      transform: (v: number) => v.toString(),
+      field_gen: () => list.text_field(),
+    },
+    col3: {
+      fixed_width: 10,
+      title: "Column 3",
+      transform: (v: number) => v.toString(),
+      field_gen: () => list.text_field(),
+    },
+  },
   (item) => {
+    const sub_rows = state.a.ros.ok(array_from_length(3, (i) => i));
     return {
       openable: Math.random() > 0.5,
-      sub_rows: sub_rows_generator,
+      sub_rows: () => sub_rows,
+      add_row: {
+        text: "Add New Row",
+        on_add: () => {
+          sub_rows.push(sub_rows.length);
+        },
+      },
       values: {
         col1: item,
         col2: item,
@@ -144,25 +146,16 @@ const test_list = list.container_transform(
       },
     };
   },
+  st_rows,
   {
-    col1: {
-      init_width: 15,
-      title: "Column 1, the one and only, the best, the biggest",
-      // title: "Column 1",
-      field_gen: (k) => [(v: number) => String(v), list.text_field()],
+    sub_rows: true,
+    add_row: {
+      text: "Add Row",
+      on_add: () => {
+        st_rows.push(st_rows.length);
+      },
     },
-    col2: {
-      title: "Column 2",
-      field_gen: (k) => [(v: number) => String(v), list.text_field()],
-    },
-    col3: {
-      fixed_width: 10,
-      title: "Column 3",
-      field_gen: (k) => [(v: number) => String(v), list.text_field()],
-    },
-  },
-
-  st_rows
+  }
 );
 FORM_CONT.appendChild(test_list);
 
@@ -174,9 +167,9 @@ FORM_CONT.appendChild(test_list);
 //     |_| /_/    \_\_____/_____/    \/  \/   \____/|_|  \_\_____/
 const PASSWORD_STATE = state.s.ros_ws.ok("");
 PASSWORD_STATE.sub(console.error);
+FORM_CONT.appendChild(form.text({ text: "IP Input" }));
 FORM_CONT.appendChild(
   form.password_input({
-    label: "IP Input",
     value_by_state: PASSWORD_STATE,
     filter: /[0-9]/,
   })
@@ -189,19 +182,17 @@ FORM_CONT.appendChild(
 //      _| |_| |       _| |_| |\  | |    | |__| |  | |
 //     |_____|_|      |_____|_| \_|_|     \____/   |_|
 const IP_STATE = state.s.ros_ws.ok(new IPAddress("192.168.1.1"));
-const yoyoyo = state.s.ros_ws.ok("Test");
-IP_STATE.sub(console.error);
+FORM_CONT.appendChild(form.text({ text: "IP Input" }));
 FORM_CONT.appendChild(
   form.ip_input({
     type: IPVersion.V4,
-    label: "IP Input",
     value_by_state: IP_STATE,
   })
 );
+FORM_CONT.appendChild(form.text({ text: "IP Input" }));
 FORM_CONT.appendChild(
   form.ip_input({
     type: IPVersion.V6,
-    label: "IP Input",
   })
 );
 
@@ -212,16 +203,15 @@ FORM_CONT.appendChild(
 //     | |___| |__| | |___| |__| | | \ \   _| |_| |\  | |    | |__| |  | |
 //      \_____\____/|______\____/|_|  \_\ |_____|_| \_|_|     \____/   |_|
 const COLOR_STATE = state.s.ros_ws.ok("#00ff00");
+FORM_CONT.appendChild(form.text({ text: "Color Input" }));
 FORM_CONT.appendChild(
   form.color_input({
-    label: "Color Input",
     value_by_state: COLOR_STATE,
   })
 );
-
+FORM_CONT.appendChild(form.text({ text: "Color Input 2" }));
 FORM_CONT.appendChild(
   form.color_input({
-    label: "Color Input 2",
     live: true,
     value_by_state: COLOR_STATE,
   })
@@ -234,22 +224,22 @@ FORM_CONT.appendChild(
 //     | |__| / ____ \| |  | |____   | |   _| |_| |  | | |____
 //     |_____/_/    \_\_|  |______|  |_|  |_____|_|  |_|______|
 const DATE_TIME_STATE = state.s.ros_ws.ok(new Date());
+FORM_CONT.appendChild(form.text({ text: "Date Time Input" }));
 FORM_CONT.appendChild(
   form.date_time_input({
-    label: "Date Time Input",
     type: FormDateTimeType.TIME,
     value_by_state: DATE_TIME_STATE,
   })
 );
+FORM_CONT.appendChild(form.text({ text: "Date Time Input" }));
 FORM_CONT.appendChild(
   form.date_time_input({
-    label: "Date Time Input",
     value_by_state: DATE_TIME_STATE,
   })
 );
+FORM_CONT.appendChild(form.text({ text: "Date Time Input" }));
 FORM_CONT.appendChild(
   form.date_time_input({
-    label: "Date Time Input",
     value: 5000 as number,
   })
 );
@@ -261,9 +251,9 @@ FORM_CONT.appendChild(
 //        | |  | |____ / . \   | |     _| |_| |\  | |    | |__| |  | |
 //        |_|  |______/_/ \_\  |_|    |_____|_| \_|_|     \____/   |_|
 const TEXT_STATE = state.s.ros_ws.ok("");
+FORM_CONT.appendChild(form.text({ text: "Text Input" }));
 FORM_CONT.appendChild(
   form.input_text({
-    label: "Text Input",
     placeholder: "Enter text here...",
     max_length: 20,
     max_bytes: 20,
@@ -271,9 +261,9 @@ FORM_CONT.appendChild(
     filter: /[a-zA-Z ]/,
   })
 );
+FORM_CONT.appendChild(form.text({ text: "Text Input 2" }));
 FORM_CONT.appendChild(
   form.input_text({
-    label: "Text Input2",
     placeholder: "Enter text here...",
     max_length: 20,
     max_bytes: 20,
@@ -282,9 +272,9 @@ FORM_CONT.appendChild(
 );
 
 const MULTI_LINE_TEXT_STATE = state.s.ros_ws.ok("");
+FORM_CONT.appendChild(form.text({ text: "Multiline Text Input" }));
 FORM_CONT.appendChild(
   form.multiline_text({
-    label: "Multiline Text Input",
     placeholder: "Enter text here...",
     max_length: 20,
     max_bytes: 20,
@@ -292,9 +282,9 @@ FORM_CONT.appendChild(
   })
 );
 
+FORM_CONT.appendChild(form.text({ text: "Multiline Text Input2" }));
 FORM_CONT.appendChild(
   form.multiline_text({
-    label: "Multiline Text Input2",
     placeholder: "Enter text here...",
     max_length: 20,
     max_bytes: 20,
@@ -308,9 +298,9 @@ FORM_CONT.appendChild(
 //     | . ` | |  | | |\/| |  _ <|  __| |  _  /    | | | . ` |  ___/| |  | |  | |
 //     | |\  | |__| | |  | | |_) | |____| | \ \   _| |_| |\  | |    | |__| |  | |
 //     |_| \_|\____/|_|  |_|____/|______|_|  \_\ |_____|_| \_|_|     \____/   |_|
+FORM_CONT.appendChild(form.text({ text: "Number Input" }));
 FORM_CONT.appendChild(
   form.input_number({
-    label: "Number Input",
     unit: "mA",
     min: -100,
     max: 100,
@@ -326,28 +316,28 @@ FORM_CONT.appendChild(
 //     | | |_ |  _  /| |  | | |  | |  ___/
 //     | |__| | | \ \| |__| | |__| | |
 //      \_____|_|  \_\\____/ \____/|_|
+FORM_CONT.appendChild(form.text({ text: "Group Box" }));
 const grouptest = FORM_CONT.appendChild(
   form.group({
-    label: "Group Box",
     border: "outset",
     max_height: 6,
     components: [
+      form.text({ text: "Button in Group" }),
       form
         .button({
           id: "test",
-          label: "Button in Group",
           text: "Click Me",
         })
         .opts({ access: "r" }),
+      form.text({ text: "Button in Group" }),
       form
         .button({
           id: "test2",
-          label: "Button in Group",
           text: "Click Me",
         })
         .opts({ access: "r" }),
+      form.text({ text: "Slider in Group" }),
       form.slider({
-        label: "Slider in Group",
         id: "slider_in_group",
         unit: "mA",
         min: -100,
@@ -363,24 +353,23 @@ grouptest.value = {
 };
 grouptest.value.map(console.error);
 
+FORM_CONT.appendChild(form.text({ text: "Group Box" }));
 FORM_CONT.appendChild(
   form.group({
-    label: "Group Box",
     border: "outset",
     collapsible: true,
     collapse_text: "Toggle",
     components: [
       form.text({ text: "Hello inside group!", size: 2 }),
-      form
-        .button({ label: "Button in Group", text: "Click Me" })
-        .opts({ access: "r" }),
+      form.text({ text: "Button in Group" }),
+      form.button({ text: "Click Me" }).opts({ access: "r" }),
     ],
   })
 );
 
+FORM_CONT.appendChild(form.text({ text: "Group Box" }));
 FORM_CONT.appendChild(
   form.group({
-    label: "Group Box",
     border: "inset",
     collapsible: true,
     collapsed: true,
@@ -388,9 +377,8 @@ FORM_CONT.appendChild(
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
     components: [
       form.text({ text: "Hello inside group!", size: 2 }),
-      form
-        .button({ label: "Button in Group", text: "Click Me" })
-        .opts({ access: "r" }),
+      form.text({ text: "Button in Group" }),
+      form.button({ text: "Click Me" }).opts({ access: "r" }),
     ],
   })
 );
@@ -403,11 +391,11 @@ FORM_CONT.appendChild(
 );
 
 const bool = state.s.ros_ws.ok(false);
+FORM_CONT.appendChild(form.text({ text: "YOYOYOY" }));
 FORM_CONT.appendChild(
   form
     .button({
       id: "test",
-      label: "YOYOYOY",
       text: "YOYOYOYO",
       icon: material_av_add_to_queue_rounded,
       color: FormColors.Yellow,
@@ -417,11 +405,8 @@ FORM_CONT.appendChild(
     })
 ).value_by_state = bool;
 
-FORM_CONT.appendChild(
-  form.switch({
-    label: "Toggle Me",
-  })
-).value_by_state = bool;
+FORM_CONT.appendChild(form.text({ text: "Toggle Me" }));
+FORM_CONT.appendChild(form.switch({})).value_by_state = bool;
 
 FORM_CONT.appendChild(
   form.lamp({
@@ -438,9 +423,9 @@ FORM_CONT.appendChild(
 //     | |__| | | \ \| |__| | |    | |__| | |__| | \  /\  /  | |\  |
 //     |_____/|_|  \_\\____/|_|    |_____/ \____/   \/  \/   |_| \_|
 const num = state.s.ros_ws.ok(0);
+FORM_CONT.appendChild(form.text({ text: "Dropdown" }));
 FORM_CONT.appendChild(
   form.dropdown({
-    label: "Dropdown",
     selections: [
       {
         text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
@@ -461,9 +446,9 @@ FORM_CONT.appendChild(
   })
 ).value_by_state = num;
 
+FORM_CONT.appendChild(form.text({ text: "Dropdown" }));
 FORM_CONT.appendChild(
   form.dropdown({
-    label: "Dropdown",
     default:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
     default_icon: material_av_add_to_queue_rounded,
@@ -477,9 +462,9 @@ FORM_CONT.appendChild(
   })
 ).value_by_state = num;
 
+FORM_CONT.appendChild(form.text({ text: "Dropdown" }));
 FORM_CONT.appendChild(
   form.dropdown({
-    label: "Dropdown",
     default:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
     default_icon: material_av_add_to_queue_rounded,
@@ -498,9 +483,9 @@ FORM_CONT.appendChild(
 //        | | | |  | | | |_ | | |_ | |    |  __|   |  _ <| |  | |  | |     | | | |  | | . ` |\___ \
 //        | | | |__| | |__| | |__| | |____| |____  | |_) | |__| |  | |     | | | |__| | |\  |____) |
 //        |_|  \____/ \_____|\_____|______|______| |____/ \____/   |_|     |_|  \____/|_| \_|_____/
+FORM_CONT.appendChild(form.text({ text: "Toggle Buttons" }));
 FORM_CONT.appendChild(
   form.toggle_button({
-    label: "Toggle Buttons",
     selections: [
       {
         text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vel risus sem. Curabitur a morbi.",
@@ -521,9 +506,9 @@ FORM_CONT.appendChild(
   })
 ).value_by_state = num;
 
+FORM_CONT.appendChild(form.text({ text: "Toggle Buttons" }));
 FORM_CONT.appendChild(
   form.toggle_button({
-    label: "Toggle Buttons",
     selections: array_from_range(0, 5, (i) => {
       return {
         value: i,
@@ -534,9 +519,9 @@ FORM_CONT.appendChild(
   })
 ).value_by_state = num;
 
+FORM_CONT.appendChild(form.text({ text: "Toggle Buttons" }));
 FORM_CONT.appendChild(
   form.toggle_button({
-    label: "Toggle Buttons",
     selections: array_from_range(0, 20, (i) => {
       return {
         value: i,
@@ -553,9 +538,9 @@ FORM_CONT.appendChild(
 //      ____) | |____ _| |_| |__| | |____| | \ \
 //     |_____/|______|_____|_____/|______|_|  \_\
 const SLIDER_NUM = state.s.ros_ws.ok(0);
+FORM_CONT.appendChild(form.text({ text: "Slider" }));
 FORM_CONT.appendChild(
   form.slider({
-    label: "Slider",
     unit: "mA",
     max: 50,
     step: 0.5,
@@ -563,9 +548,9 @@ FORM_CONT.appendChild(
     decimals: 1,
   })
 ).value_by_state = SLIDER_NUM;
+FORM_CONT.appendChild(form.text({ text: "Slider" }));
 FORM_CONT.appendChild(
   form.slider({
-    label: "Slider",
     unit: "mA",
     live: true,
     max: 50,
@@ -574,9 +559,9 @@ FORM_CONT.appendChild(
     decimals: 1,
   })
 ).value_by_state = SLIDER_NUM;
+FORM_CONT.appendChild(form.text({ text: "Slider" }));
 FORM_CONT.appendChild(
   form.slider({
-    label: "Slider",
     unit: "mA",
     min: -50,
     max: 50,
@@ -585,9 +570,9 @@ FORM_CONT.appendChild(
     decimals: 1,
   })
 ).value_by_state = SLIDER_NUM;
+FORM_CONT.appendChild(form.text({ text: "Slider" }));
 FORM_CONT.appendChild(
   form.slider({
-    label: "Slider",
     unit: "mA",
     min: -50,
     max: 50,
@@ -598,9 +583,9 @@ FORM_CONT.appendChild(
   })
 ).value_by_state = SLIDER_NUM;
 
+FORM_CONT.appendChild(form.text({ text: "Slider" }));
 FORM_CONT.appendChild(
   form.slider({
-    label: "Slider",
     unit: "mA",
     min: -50,
     max: 50,
@@ -618,18 +603,18 @@ FORM_CONT.appendChild(
 //      ____) |  | |  | |____| |    | |    | |____| | \ \
 //     |_____/   |_|  |______|_|    |_|    |______|_|  \_\
 const STEPPER_NUM = state.s.ros_ws.ok(0);
+FORM_CONT.appendChild(form.text({ text: "Stepper" }));
 FORM_CONT.appendChild(
   form.stepper({
-    label: "Stepper",
     unit: "mA",
     step: 0.5,
     start: 0.1,
     decimals: 1,
   })
 ).value_by_state = STEPPER_NUM;
+FORM_CONT.appendChild(form.text({ text: "Stepper" }));
 FORM_CONT.appendChild(
   form.stepper({
-    label: "Stepper",
     unit: "mA",
     live: true,
     max: 50,
@@ -638,9 +623,9 @@ FORM_CONT.appendChild(
     decimals: 1,
   })
 ).value_by_state = STEPPER_NUM;
+FORM_CONT.appendChild(form.text({ text: "Stepper" }));
 FORM_CONT.appendChild(
   form.stepper({
-    label: "Stepper",
     unit: "mA",
     min: -50,
     max: 50,
@@ -649,9 +634,9 @@ FORM_CONT.appendChild(
     decimals: 1,
   })
 ).value_by_state = STEPPER_NUM;
+FORM_CONT.appendChild(form.text({ text: "Stepper" }));
 FORM_CONT.appendChild(
   form.stepper({
-    label: "Stepper",
     unit: "mA",
     min: -50,
     max: 50,
@@ -667,12 +652,8 @@ FORM_CONT.appendChild(
 //     |  ___/|  _  /| |  | | | |_ |  _  /|  __|  \___ \\___ \
 //     | |    | | \ \| |__| | |__| | | \ \| |____ ____) |___) |
 //     |_|    |_|  \_\\____/ \_____|_|  \_\______|_____/_____/
-FORM_CONT.appendChild(
-  form.progress({
-    label: "Progress",
-    unit: "mA",
-  })
-).value_by_state = num;
+FORM_CONT.appendChild(form.text({ text: "Progress" }));
+FORM_CONT.appendChild(form.progress({ unit: "mA" })).value_by_state = num;
 
 context_menu_default(
   context_menu([

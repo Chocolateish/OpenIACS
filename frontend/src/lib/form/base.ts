@@ -38,8 +38,6 @@ export interface FormValueOptions<RT, ID extends string | undefined> {
   /**Value for form element */
   value?: RT;
   value_by_state?: State<RT>;
-  /**Text for label above form element */
-  label?: string;
   /**Longer description what form element does */
   description?: string;
   /**Change listener function*/
@@ -57,12 +55,6 @@ export abstract class FormValue<
 
   readonly form_id: ID;
   protected _description?: string;
-  protected _label: HTMLSpanElement = this.appendChild(
-    document.createElement("span")
-  );
-  protected _body: HTMLDivElement = this.appendChild(
-    document.createElement("div")
-  );
   protected _state?: State<RT>;
   protected _buffer?: RT;
   #func?: StateSub<Result<RT, string>>;
@@ -71,7 +63,6 @@ export abstract class FormValue<
     element: FormValue<RT, ID>,
     options: FormValueOptions<RT, ID>
   ) {
-    if (options.label) element.label = options.label;
     if (options.description) element.description = options.description;
     if (options.value_by_state) element.value_by_state = options.value_by_state;
     else if (options.value !== undefined) element.value = options.value;
@@ -80,14 +71,6 @@ export abstract class FormValue<
   constructor(id?: ID) {
     super();
     this.form_id = id as ID;
-  }
-
-  /**Sets the current label of the element*/
-  set label(text: string) {
-    this._label.textContent = text;
-  }
-  get label(): string {
-    return this._label.textContent;
   }
 
   /**Sets the current label of the element*/

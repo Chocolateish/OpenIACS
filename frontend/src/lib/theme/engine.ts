@@ -55,15 +55,10 @@ export const theme_engine = new (class ThemeEngine {
     });
   }
   private apply_animation_to_doc(doc: Document, anim: AnimationLevels) {
-    doc.documentElement.classList.remove("anim-all", "anim-most", "anim-some");
+    doc.documentElement.classList.remove("anim-all", "anim-some");
     switch (anim) {
       case AnimationLevels.All:
         doc.documentElement.classList.add("anim-all");
-        doc.documentElement.classList.add("anim-most");
-        doc.documentElement.classList.add("anim-some");
-        break;
-      case AnimationLevels.Most:
-        doc.documentElement.classList.add("anim-most");
         doc.documentElement.classList.add("anim-some");
         break;
       case AnimationLevels.Some:

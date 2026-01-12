@@ -43,9 +43,9 @@ export class FormToggleButton<
   }
 
   #add_selection(selection: FormSelectorOption<RT>) {
-    const top = this._body.appendChild(document.createElement("div"));
+    const top = this.appendChild(document.createElement("div"));
     top.tabIndex = 0;
-    const bot = this._body.appendChild(document.createElement("div"));
+    const bot = this.appendChild(document.createElement("div"));
     if (selection.icon) {
       top.appendChild(selection.icon());
       bot.textContent = selection.text;

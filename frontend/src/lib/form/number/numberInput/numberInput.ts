@@ -27,17 +27,17 @@ class NumberInput<ID extends string | undefined> extends FormNumberWrite<ID> {
   #start: number = 0;
   #decimals: number = 0;
 
-  #value_box = this._body.appendChild(document.createElement("span"));
-  #unit_box = this._body.appendChild(document.createElement("span"));
-  #legend = this._body.appendChild(document.createElement("div"));
+  #value_box = this.appendChild(document.createElement("span"));
+  #unit_box = this.appendChild(document.createElement("span"));
+  #legend = this.appendChild(document.createElement("div"));
   #max_legend = this.#legend.appendChild(document.createElement("span"));
   #min_legend = this.#legend.appendChild(document.createElement("span"));
 
   constructor(id?: ID) {
     super(id);
-    this._body.appendChild(this.warn_input);
+    this.appendChild(this.warn_input);
     this.#value_box.contentEditable = "true";
-    this._body.onpointerdown = (e) => {
+    this.onpointerdown = (e) => {
       this.#selected = true;
       if (e.target !== this.#value_box) {
         e.preventDefault();
@@ -56,7 +56,7 @@ class NumberInput<ID extends string | undefined> extends FormNumberWrite<ID> {
         this.#set(false);
       }, 0);
     };
-    this._body.onkeydown = (e) => {
+    this.onkeydown = (e) => {
       if (e.key === "Enter") this.#set(true);
       else if (e.key === "Escape") {
         if (this.buffer !== undefined) this.new_value(this.buffer);
@@ -67,7 +67,7 @@ class NumberInput<ID extends string | undefined> extends FormNumberWrite<ID> {
       e.preventDefault();
       e.stopPropagation();
     };
-    this._body.onbeforeinput = (e) => {
+    this.onbeforeinput = (e) => {
       if (e.inputType === "insertParagraph") e.preventDefault();
       else if (e.data) {
         if (!/[\d,.-]/g.test(e.data)) e.preventDefault();

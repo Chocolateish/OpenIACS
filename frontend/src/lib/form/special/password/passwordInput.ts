@@ -23,7 +23,7 @@ class FormPasswordInput<ID extends string | undefined> extends FormValueWrite<
 
   constructor(id?: ID) {
     super(id);
-    this._body.appendChild(this.warn_input);
+    this.appendChild(this.warn_input);
     this.warn_input.type = "password";
     this.warn_input.onchange = () => {
       this.set_value_check(this.warn_input.value);
