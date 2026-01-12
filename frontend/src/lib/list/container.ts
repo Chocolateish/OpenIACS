@@ -3,13 +3,12 @@ import type { State, StateInferSub } from "@libState";
 import state from "@libState";
 import { px_to_rem } from "@libTheme";
 import type { StateArray, StateArrayRead } from "../state/array/array";
-import { ListAddRow } from "./add_row.ts";
+import { ListAddRow, type ListAddRowOptions } from "./add_row.ts";
 import "./container.scss";
 import { text_field } from "./field";
 import { ListRow } from "./row.ts";
 import "./shared.ts";
 import type {
-  ListAddRowOptions,
   ListColumnOptions,
   ListRoot,
   ListRowParent,

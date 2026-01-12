@@ -6,11 +6,21 @@ import state, {
   type StateArrayRead,
   type StateInferSub,
 } from "@libState";
-import { ListAddRow } from "./add_row";
+import { ListAddRow, type ListAddRowOptions } from "./add_row";
 import type { ListField } from "./field";
-import { ListKeyField } from "./key_field";
+import { ListKeyField, type ListKeyFieldOptions } from "./key_field";
 import "./row.scss";
-import type { ListRoot, ListRowParent, ListSubRows } from "./types";
+import type { ListRoot, ListRowParent } from "./types";
+
+export type ListSubRows<R> = () => R[] | State<R[]> | StateArray<R>;
+
+export interface ListRowOptions<R, T extends {}> {
+  openable?: boolean | State<boolean>;
+  key_field?: ListKeyFieldOptions;
+  sub_rows?: ListSubRows<R>;
+  add_row?: ListAddRowOptions;
+  values: T;
+}
 
 export class ListRow<R, T extends {}> extends Base implements ListRowParent {
   static element_name() {
@@ -91,6 +101,7 @@ export class ListRow<R, T extends {}> extends Base implements ListRowParent {
 
   set data(data: R) {
     const row_options = this.#root.transform(data);
+    this.#key_field.options = row_options.key_field;
     this.#sub_rows = row_options.sub_rows;
 
     if (row_options.add_row) {

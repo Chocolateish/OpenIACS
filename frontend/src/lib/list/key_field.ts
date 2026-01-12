@@ -1,8 +1,16 @@
 import { Base, define_element } from "@libBase";
 import { array_from_length } from "@libCommon";
-import { none } from "@libResult";
+import { none, some } from "@libResult";
+import type { State } from "@libState";
+import state from "@libState";
+import type { SVGFunc } from "@libSVG";
 import "./key_field.scss";
 import type { ListRowParent } from "./types";
+
+export interface ListKeyFieldOptions {
+  text?: string | State<string>;
+  icon?: SVGFunc | State<SVGFunc>;
+}
 
 export class ListKeyField extends Base {
   static element_name() {
@@ -13,6 +21,8 @@ export class ListKeyField extends Base {
   }
 
   #opener: HTMLDivElement;
+  #text_box?: HTMLSpanElement;
+  #icon?: SVGSVGElement;
 
   constructor(parent: ListRowParent) {
     super();
@@ -43,6 +53,35 @@ export class ListKeyField extends Base {
       e.preventDefault();
       parent.open = !parent.open;
     });
+  }
+
+  set options(options: ListKeyFieldOptions | undefined) {
+    if (state.is(options?.text)) {
+      this.attach_state_to_prop("text", options.text, (e) => some(e));
+    } else this.text = options?.text;
+    if (state.is(options?.icon)) {
+      this.attach_state_to_prop("icon", options.icon, () => some(undefined));
+    } else this.icon = options?.icon;
+  }
+
+  set text(value: string | undefined) {
+    if (!value) {
+      if (this.#text_box) this.#text_box.remove();
+      this.#text_box = undefined;
+      return;
+    }
+    if (!this.#text_box)
+      this.#text_box = this.appendChild(document.createElement("span"));
+    this.#text_box.innerHTML = value;
+  }
+
+  set icon(value: SVGFunc | undefined) {
+    if (!value && this.#icon) this.#icon.remove();
+    this.#icon = undefined;
+    if (!value) return;
+    this.#icon = value();
+    if (this.#text_box) this.insertBefore(this.#icon, this.#text_box);
+    else this.appendChild(this.#icon);
   }
 
   //       ____  _____  ______ _   _ _____ _   _  _____

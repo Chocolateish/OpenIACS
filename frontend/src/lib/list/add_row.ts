@@ -1,9 +1,17 @@
 import { Base, define_element } from "@libBase";
 import { some } from "@libResult";
-import state from "@libState";
+import state, { type State } from "@libState";
+import type { SVGFunc } from "@libSVG";
 import "./add_row.scss";
 import { ListKeyField } from "./key_field";
-import type { ListAddRowOptions, ListRowParent } from "./types";
+import type { ListRowParent } from "./types";
+
+export interface ListAddRowOptions {
+  text: string | State<string>;
+  disabled?: boolean | State<boolean>;
+  icon?: SVGFunc | State<SVGFunc>;
+  on_add: () => void;
+}
 
 export class ListAddRow extends Base implements ListRowParent {
   static element_name() {

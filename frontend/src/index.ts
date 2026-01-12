@@ -140,6 +140,10 @@ const test_list = list.container(
         : undefined;
     return {
       openable: Math.random() > 0.5,
+      key_field: {
+        text: "YOYOYO",
+        icon: material_av_add_to_queue_rounded,
+      },
       sub_rows: () => sub_rows,
       add_row,
       values: {

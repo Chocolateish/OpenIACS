@@ -1,7 +1,6 @@
 import type { Option } from "@libResult";
-import type { State, StateArray } from "@libState";
-import type { SVGFunc } from "@libSVG";
 import type { ListField } from "./field";
+import type { ListRowOptions } from "./row";
 
 export const ListDataType = {
   number: "number",
@@ -63,20 +62,4 @@ export interface ListRowParent {
     direction: "next" | "previous" | "p_next" | "p_previous" | "last",
     field: Option<number>
   ): void;
-}
-
-export type ListSubRows<R> = () => R[] | State<R[]> | StateArray<R>;
-
-export interface ListRowOptions<R, T extends {}> {
-  openable?: boolean | State<boolean>;
-  sub_rows?: ListSubRows<R>;
-  add_row?: ListAddRowOptions;
-  values: T;
-}
-
-export interface ListAddRowOptions {
-  text: string | State<string>;
-  disabled?: boolean | State<boolean>;
-  icon?: SVGFunc | State<SVGFunc>;
-  on_add: () => void;
 }
