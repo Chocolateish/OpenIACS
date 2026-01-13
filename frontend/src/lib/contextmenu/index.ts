@@ -19,3 +19,4 @@ export const ctm = {
   sub: context_sub,
   devider: context_devider,
 };
+export default ctm;

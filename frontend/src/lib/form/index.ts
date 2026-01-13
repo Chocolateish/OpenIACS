@@ -48,3 +48,4 @@ export const form = {
   //List
   list_field: form_list_field,
 };
+export default form;

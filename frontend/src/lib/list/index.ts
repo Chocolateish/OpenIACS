@@ -10,3 +10,5 @@ export const list = {
 };
 
 export { ListField } from "./field";
+
+export default list;

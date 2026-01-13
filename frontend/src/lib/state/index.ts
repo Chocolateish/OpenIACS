@@ -65,7 +65,6 @@ export {
   type StateArrayROS,
   type StateArrayROSWS,
   type StateArrayWrite,
-  type StateArrayWriteType,
 } from "./array/array";
 export { type StateCollectedREA } from "./collected/rea";
 export { type StateCollectedRES } from "./collected/res";

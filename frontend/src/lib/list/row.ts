@@ -123,7 +123,7 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
   }
 
   set global_amount(amount: number) {
-    this.#parent.global_amount = amount - this.#global_amount;
+    this.#parent.global_amount += amount - this.#global_amount;
     this.#global_amount = amount;
   }
   get global_amount(): number {
@@ -142,16 +142,7 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
     this.#key_field.options = row_options.key_field;
     this.#sub_rows = row_options.sub_rows;
 
-    if (row_options.add_row) {
-      if (!this.#add_row)
-        this.#add_row = this.appendChild(new ListAddRow(this));
-      this.#add_row.options = row_options.add_row;
-      this.classList.add("addrow");
-    } else if (this.#add_row) {
-      this.#add_row.remove();
-      this.#add_row = undefined;
-      this.classList.remove("addrow");
-    }
+    this.add_row = row_options.add_row;
 
     //Generate fields
     this.#root.columns_visible.forEach((key, index) => {
@@ -169,6 +160,22 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
     else if (row_options.openable) {
       this.detach_state_from_prop("openable");
       this.openable = row_options.openable;
+    }
+  }
+
+  set add_row(options: ListAddRowOptions | undefined) {
+    if (!options && this.#add_row) {
+      this.#add_row.remove();
+      this.classList.remove("addrow");
+      this.#add_row = undefined;
+      this.#parent.global_amount--;
+    } else if (options) {
+      if (!this.#add_row) {
+        this.classList.add("addrow");
+        this.#add_row = this.appendChild(new ListAddRow(this));
+        this.#parent.global_amount++;
+      }
+      this.#add_row.options = options;
     }
   }
 

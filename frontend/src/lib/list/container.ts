@@ -140,10 +140,7 @@ class Container<
     this.#header = this.#box.appendChild(new HeaderRow());
     this.#child_box = this.#box.appendChild(document.createElement("div"));
     if (options?.sub_rows) this.#box.classList.add("sub-rows");
-    if (options?.add_row) {
-      this.#add_row = this.#box.appendChild(new ListAddRow(this.#parent));
-      this.#add_row.options = options.add_row;
-    }
+    this.add_row = options?.add_row;
 
     this.columns = columns;
     this.rows = rows;
@@ -184,6 +181,20 @@ class Container<
       }),
     ];
     this.#box.style.gridTemplateColumns = widths.join(" ");
+  }
+
+  set add_row(options: ListAddRowOptions | undefined) {
+    if (!options && this.#add_row) {
+      this.#add_row.remove();
+      this.#parent.global_amount--;
+      this.#add_row = undefined;
+    } else if (options) {
+      if (!this.#add_row) {
+        this.#parent.global_amount++;
+        this.#add_row = this.#box.appendChild(new ListAddRow(this.#parent));
+      }
+      this.#add_row.options = options;
+    }
   }
 
   //      _____   ______          _______
