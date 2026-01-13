@@ -118,7 +118,7 @@ const test_list = list.container(
       field_gen: () => list.text_field(),
     }),
     col3: list.column({
-      fixed_width: 6,
+      fixed_width: "min",
       title: "Remove",
       field_apply: (field, v: () => ReturnType<typeof st_rows.write_sync>) => {
         field.element.on_click = () => {

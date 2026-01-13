@@ -411,11 +411,11 @@ font.make_variable(
 );
 
 font.make_variable(
-  "touchSize",
+  "touch_size",
   "Touch Font Size",
   "Font size used in all form elements for touch devices",
-  "1.2rem",
-  "1.2rem",
+  "1.1rem",
+  "1.1rem",
   "Length",
   { min: 0.1, max: 10 }
 );

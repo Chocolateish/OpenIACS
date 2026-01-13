@@ -48,16 +48,13 @@ form-lamp {
     display: flex;
     justify-content: center;
     padding-inline: 0.8rem;
-    padding-block: 0.2rem;
+
+    .touch & {
+      font-size: base.$touch_font_size;
+    }
 
     &:empty {
       display: none;
-    }
-
-    .touch & {
-      padding-inline: 1.6rem;
-      padding-block: 0.5rem;
-      font-size: 1.4rem;
     }
 
     .anim-all & {

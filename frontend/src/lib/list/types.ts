@@ -25,7 +25,7 @@ export interface ListColumnOptions<V, C extends ListField> {
   /**Initial width of the column in rem, auto when undefined*/
   init_width?: number;
   /**If the column has a fixed width in rem, overrides init_width and disables resizing*/
-  fixed_width?: number;
+  fixed_width?: number | "min" | "max";
   /**Initial order of the column, lower numbers appear first, will order by column object if undefined*/
   order?: number;
   /**Whether the column is reorderable by the user*/

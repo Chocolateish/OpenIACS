@@ -175,9 +175,12 @@ class Container<
       ...this.#root.columns_visible.map((key) => {
         const col = this.#root.columns.get(key)!;
         const width = col.fixed_width ?? col.init_width;
-        return typeof width === "undefined"
-          ? "auto"
-          : `${Math.max(width, 1)}rem`;
+        if (width) {
+          if (width === "min") return "min-content";
+          else if (width === "max") return "max-content";
+          return `${Math.max(width, 1)}rem`;
+        }
+        return "auto";
       }),
     ];
     this.#box.style.gridTemplateColumns = widths.join(" ");
