@@ -133,7 +133,6 @@ class Container<
       open: false,
       select_adjacent() {},
       state: rows,
-      global_index: 0,
       global_amount: 0,
     };
 
@@ -245,13 +244,9 @@ class Container<
       for (let i = 0; i < min; i++)
         (this.#child_box.children[i] as ListRow<R, T, A>).data = rows[i];
       if (rows.length > this.#child_box.childElementCount) {
-        const offset = this.#parent.global_amount;
         const row_elements = rows
           .slice(this.#child_box.childElementCount)
-          .map(
-            (row, i) =>
-              new ListRow<R, T, A>(this.#root, this.#parent, row, offset + i)
-          );
+          .map((row) => new ListRow<R, T, A>(this.#root, this.#parent, row));
         this.#child_box.append(...row_elements);
         this.#parent.global_amount += row_elements.length;
       } else if (rows.length < this.#child_box.childElementCount) {
@@ -273,10 +268,8 @@ class Container<
       const child = this.#child_box.children[sar.index] as
         | ListRow<R, T, A>
         | undefined;
-      const offset = child ? child.global_index : this.#parent.global_amount;
       const rows = sar.items.map(
-        (row, i) =>
-          new ListRow<R, T, A>(this.#root, this.#parent, row, offset + i)
+        (row) => new ListRow<R, T, A>(this.#root, this.#parent, row)
       );
       if (child) {
         child.before(...rows);

@@ -44,14 +44,8 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
   #state_sub?: StateInferSub<State<R[]> | StateArray<R>>;
   state!: A;
   #global_amount: number = 0;
-  #global_index: number = 0;
 
-  constructor(
-    root: ListRoot<R, T, A>,
-    parent: ListRowParent<A>,
-    data: R,
-    global_index: number
-  ) {
+  constructor(root: ListRoot<R, T, A>, parent: ListRowParent<A>, data: R) {
     super();
     this.#root = root;
     this.#parent = parent;
@@ -69,7 +63,6 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
       if (this.#root.observer) field.attach_to_observer(this.#root.observer);
       return field;
     });
-    this.global_index = global_index;
 
     //Generate fields
     this.#field_box.replaceChildren(this.#key_field, ...this.#fields);
@@ -127,14 +120,6 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
         );
       } else this.#key_field.focus();
     }
-  }
-
-  set global_index(index: number) {
-    this.#global_index = index;
-    this.odd_even = index % 2 === 1;
-  }
-  get global_index(): number {
-    return this.#global_index;
   }
 
   set global_amount(amount: number) {
@@ -268,12 +253,9 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
       for (let i = 0; i < min; i++)
         (this.#child_box.children[i] as ListRow<R, T, A>).data = rows[i];
       if (rows.length > this.#child_box.childElementCount) {
-        const offset = this.global_index + this.global_amount + 1;
         const row_elements = rows
           .slice(this.#child_box.childElementCount)
-          .map(
-            (row, i) => new ListRow<R, T, A>(this.#root, this, row, offset + i)
-          );
+          .map((row) => new ListRow<R, T, A>(this.#root, this, row));
         this.#child_box.append(...row_elements);
         this.global_amount += row_elements.length;
       } else if (rows.length < this.#child_box.childElementCount) {
@@ -295,11 +277,8 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
       const child = this.#child_box.children[sar.index] as
         | ListRow<R, T, A>
         | undefined;
-      const offset = child
-        ? child.global_index
-        : this.#global_index + this.#global_amount + 1;
       const rows = sar.items.map(
-        (row, i) => new ListRow<R, T, A>(this.#root, this, row, offset + i)
+        (row) => new ListRow<R, T, A>(this.#root, this, row)
       );
       if (child) child.before(...rows);
       else this.#child_box.append(...rows);

@@ -80,6 +80,4 @@ export interface ListRowParent<A extends ListType<any>> {
   state: A;
   /**Total amount of rows including sub rows */
   global_amount: number;
-  /**Row global index in list accounting for sub rows */
-  global_index: number;
 }

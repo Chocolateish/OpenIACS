@@ -19,7 +19,6 @@ import "./lib/composition";
 import { form } from "./lib/form";
 import { FormColors } from "./lib/form/base";
 import { FormDateTimeType } from "./lib/form/special/dateTime/dateTimeInput";
-import type { ListRow } from "./lib/list/row";
 
 interface CharacterData {
   uuid: string;
@@ -115,8 +114,8 @@ const test_list = list.container(
     }),
     col2: list.column({
       title: "Column 2",
-      field_apply: (field, v: ListRow<any, any, any>) =>
-        setInterval(() => (field.text = v.global_index.toString()), 1000),
+      field_apply: (field, v: number) =>
+        (field.text = (v * Math.random()).toFixed(2)),
       field_gen: () => list.text_field(),
     }),
     col3: list.column({
@@ -162,7 +161,7 @@ const test_list = list.container(
       add_row,
       values: {
         col1: item,
-        col2: row,
+        col2: item,
         col3: () => stat.write_sync(state.a.pluck(row.index)),
       },
     };
