@@ -19,6 +19,7 @@ import "./lib/composition";
 import { form } from "./lib/form";
 import { FormColors } from "./lib/form/base";
 import { FormDateTimeType } from "./lib/form/special/dateTime/dateTimeInput";
+import type { ListRow } from "./lib/list/row";
 
 interface CharacterData {
   uuid: string;
@@ -114,7 +115,8 @@ const test_list = list.container(
     }),
     col2: list.column({
       title: "Column 2",
-      field_apply: (field, v: number) => (field.text = v.toString()),
+      field_apply: (field, v: ListRow<any, any, any>) =>
+        setInterval(() => (field.text = v.global_index.toString()), 1000),
       field_gen: () => list.text_field(),
     }),
     col3: list.column({
@@ -137,7 +139,7 @@ const test_list = list.container(
       Math.random() > 0.5
         ? {
             text: "Add New Row",
-            on_add: () => stat.write_sync(state.a.push(Math.random())),
+            on_add: () => sub_rows.write_sync(state.a.push(Math.random())),
           }
         : undefined;
     ctm.attach(
@@ -160,7 +162,7 @@ const test_list = list.container(
       add_row,
       values: {
         col1: item,
-        col2: item,
+        col2: row,
         col3: () => stat.write_sync(state.a.pluck(row.index)),
       },
     };
@@ -177,6 +179,9 @@ const test_list = list.container(
   }
 );
 FORM_CONT.appendChild(test_list);
+setInterval(() => {
+  console.error(test_list.row_amount, test_list.amount_rows(true));
+}, 1000);
 
 //      _____         _____ _______          ______  _____  _____
 //     |  __ \ /\    / ____/ ____\ \        / / __ \|  __ \|  __ \

@@ -66,11 +66,11 @@ export interface ListRoot<R, T extends {}, A extends ListType<any>> {
   observer?: BaseObserver;
 }
 
-export interface ListRowParent<A> {
+export interface ListRowParent<A extends ListType<any>> {
   /**Sub row depth */
   readonly depth: number;
   /**Whether the row is open to show sub rows */
-  readonly open: boolean;
+  open: boolean;
   /**Selects the adjacent row in the given direction */
   select_adjacent(
     direction: "next" | "previous" | "p_next" | "p_previous" | "last",

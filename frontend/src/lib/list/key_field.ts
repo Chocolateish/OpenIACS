@@ -5,13 +5,13 @@ import type { State } from "@libState";
 import state from "@libState";
 import type { SVGFunc } from "@libSVG";
 import "./key_field.scss";
-import type { ListRowParent } from "./types";
+import type { ListRowParent, ListType } from "./types";
 
 export interface ListKeyFieldOptions {
   icon?: SVGFunc | State<SVGFunc>;
 }
 
-export class ListKeyField extends Base {
+export class ListKeyField<A extends ListType<any>> extends Base {
   static element_name() {
     return "keyfield";
   }
@@ -23,7 +23,7 @@ export class ListKeyField extends Base {
   #text_box?: HTMLSpanElement;
   #icon?: SVGSVGElement;
 
-  constructor(parent: ListRowParent) {
+  constructor(parent: ListRowParent<A>) {
     super();
     this.tabIndex = 0;
     this.onkeydown = (e) => {

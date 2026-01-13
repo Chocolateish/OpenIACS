@@ -4,7 +4,7 @@ import state, { type State } from "@libState";
 import type { SVGFunc } from "@libSVG";
 import "./add_row.scss";
 import { ListKeyField } from "./key_field";
-import type { ListRowParent } from "./types";
+import type { ListRowParent, ListType } from "./types";
 
 export interface ListAddRowOptions {
   text: string | State<string>;
@@ -13,7 +13,10 @@ export interface ListAddRowOptions {
   on_add: () => void;
 }
 
-export class ListAddRow extends Base implements ListRowParent {
+export class ListAddRow<A extends ListType<any>>
+  extends Base
+  implements ListRowParent<A>
+{
   static element_name() {
     return "addrow";
   }
@@ -24,7 +27,7 @@ export class ListAddRow extends Base implements ListRowParent {
   #button: HTMLSpanElement;
   readonly depth: number;
 
-  constructor(parent: ListRowParent) {
+  constructor(parent: ListRowParent<A>) {
     super();
     this.depth = parent.depth + 1;
     this.appendChild(new ListKeyField(this));
@@ -57,6 +60,20 @@ export class ListAddRow extends Base implements ListRowParent {
   set open(value: boolean) {}
   get open(): boolean {
     return false;
+  }
+
+  set global_index(value: number) {}
+  get global_index(): number {
+    return 0;
+  }
+
+  set state(value: A) {}
+  get state(): A {
+    throw new Error("Method not implemented.");
+  }
+
+  get global_amount(): number {
+    return 0;
   }
 
   select_adjacent(): void {}

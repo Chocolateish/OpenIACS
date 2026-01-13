@@ -36,14 +36,15 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
   #parent: ListRowParent<A>;
   #sub_rows?: ListSubRows<R>;
   readonly depth: number;
-  #key_field: ListKeyField;
+  #key_field: ListKeyField<A>;
   #field_box: HTMLDivElement;
   #child_box: HTMLSpanElement;
-  #add_row?: ListAddRow;
+  #add_row?: ListAddRow<A>;
   #fields: ListField[];
   #state_sub?: StateInferSub<State<R[]> | StateArray<R>>;
   state!: A;
   #global_amount: number = 0;
+  #global_index: number = 0;
 
   constructor(
     root: ListRoot<R, T, A>,
@@ -61,6 +62,7 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
       this.#key_field.attach_to_observer(this.#root.observer);
     this.#field_box = this.appendChild(document.createElement("div"));
     this.#child_box = this.appendChild(document.createElement("span"));
+    this.swap_color = false;
 
     this.#fields = this.#root.columns_visible.map((key) => {
       const field = this.#root.columns.get(key)!.field_gen();
@@ -82,6 +84,19 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
   //     |  ___/ /\ \ |  _  /|  __| | . ` |  | |
   //     | |  / ____ \| | \ \| |____| |\  |  | |
   //     |_| /_/    \_\_|  \_\______|_| \_|  |_|
+
+  set swap_color(swap: boolean) {
+    const o = "--o-" + (this.depth + 1);
+    const e = "--e-" + (this.depth + 1);
+    this.style.setProperty(swap ? e : o, "var(--o-" + this.depth + ")");
+    this.style.setProperty(swap ? o : e, "var(--e-" + this.depth + ")");
+    this.style.setProperty("--o", "var(" + o + ")");
+    this.style.setProperty("--e", "var(" + e + ")");
+  }
+
+  set odd_even(oe: boolean) {
+    this.style.setProperty("--b", oe ? "var(--e)" : "var(--o)");
+  }
 
   select_adjacent(
     direction: "next" | "previous" | "p_next" | "p_previous" | "last",
@@ -115,11 +130,11 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
   }
 
   set global_index(index: number) {
-    this.setAttribute("global-index", index.toString());
-    this.classList.add(index % 2 === 0 ? "odd" : "even");
+    this.#global_index = index;
+    this.odd_even = index % 2 === 1;
   }
   get global_index(): number {
-    return parseInt(this.getAttribute("global-index") ?? "0", 10);
+    return this.#global_index;
   }
 
   set global_amount(amount: number) {
@@ -168,12 +183,10 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
       this.#add_row.remove();
       this.classList.remove("addrow");
       this.#add_row = undefined;
-      this.#parent.global_amount--;
     } else if (options) {
       if (!this.#add_row) {
         this.classList.add("addrow");
-        this.#add_row = this.appendChild(new ListAddRow(this));
-        this.#parent.global_amount++;
+        this.#add_row = this.appendChild(new ListAddRow<A>(this));
       }
       this.#add_row.options = options;
     }
@@ -219,6 +232,16 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
     return Array.prototype.indexOf.call(this.parentElement!.children, this);
   }
 
+  amount_rows(rec: boolean = false): number {
+    let count = this.#child_box.childElementCount;
+    if (rec)
+      for (let i = 0; i < this.#child_box.childElementCount; i++)
+        count += (this.#child_box.children[i] as ListRow<R, T, A>).amount_rows(
+          true
+        );
+    return count;
+  }
+
   set rows(rows: R[] | State<R[]> | StateArray<R>) {
     if (this.#state_sub) this.detach_state(this.#state_sub);
     this.#state_sub = undefined;
@@ -237,28 +260,32 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
   }
 
   #update_rows(rows: readonly R[]) {
-    if (rows.length === 0) this.#child_box.replaceChildren();
-    else {
+    if (rows.length === 0) {
+      this.global_amount = 0;
+      this.#child_box.replaceChildren();
+    } else {
       const min = Math.min(this.#child_box.childElementCount, rows.length);
       for (let i = 0; i < min; i++)
         (this.#child_box.children[i] as ListRow<R, T, A>).data = rows[i];
       if (rows.length > this.#child_box.childElementCount) {
-        const offset = this.#parent.global_amount;
-        this.#child_box.append(
-          ...rows
-            .slice(this.#child_box.childElementCount)
-            .map(
-              (row, i) =>
-                new ListRow<R, T, A>(this.#root, this, row, offset + i)
-            )
-        );
+        const offset = this.global_index + this.global_amount + 1;
+        const row_elements = rows
+          .slice(this.#child_box.childElementCount)
+          .map(
+            (row, i) => new ListRow<R, T, A>(this.#root, this, row, offset + i)
+          );
+        this.#child_box.append(...row_elements);
+        this.global_amount += row_elements.length;
       } else if (rows.length < this.#child_box.childElementCount) {
         for (
           let i = this.#child_box.childElementCount - 1;
           i >= rows.length;
           i--
-        )
-          this.#child_box.children[i].remove();
+        ) {
+          const row = this.#child_box.children[i] as ListRow<R, T, A>;
+          this.global_amount -= row.global_amount;
+          row.remove();
+        }
       }
     }
   }
@@ -268,17 +295,26 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
       const child = this.#child_box.children[sar.index] as
         | ListRow<R, T, A>
         | undefined;
-      const offset = child ? child.global_index : this.#parent.global_amount;
+      const offset = child
+        ? child.global_index
+        : this.#global_index + this.#global_amount + 1;
       const rows = sar.items.map(
         (row, i) => new ListRow<R, T, A>(this.#root, this, row, offset + i)
       );
       if (child) child.before(...rows);
       else this.#child_box.append(...rows);
+      this.global_amount += rows.length;
     } else if (sar.type === "removed") {
       if (sar.array.length === 0) this.#update_rows([]);
-      else
-        for (let i = 0; i < sar.items.length; i++)
+      else {
+        for (let i = 0; i < sar.items.length; i++) {
+          this.#parent.global_amount -= (
+            this.#child_box.children[sar.index + i] as ListRow<R, T, A>
+          ).global_amount;
           this.#child_box.children[sar.index].remove();
+        }
+        this.global_amount -= sar.items.length;
+      }
     } else if (sar.type === "changed")
       for (let i = 0; i < sar.items.length; i++)
         (this.#child_box.children[sar.index + i] as ListRow<R, T, A>).data =

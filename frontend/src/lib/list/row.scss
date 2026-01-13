@@ -2,27 +2,16 @@ list-row:not(.addrow) > span > :last-child {
   --c: transparent;
 }
 list-row {
-  $self: &;
+  display: contents;
 
   --list-row-size: var(--list-size-row_min);
   .touch & {
     --list-row-size: var(--list-size-touch_row_min);
   }
-
   --c: var(--list-colors-border-column);
 
-  display: contents;
-
-  &.even {
-    > div > * {
-      background-color: var(--list-colors-background-row_even);
-    }
-  }
-
-  &.odd {
-    > div > * {
-      background-color: var(--list-colors-background-row_odd);
-    }
+  > div > * {
+    background-color: var(--b);
   }
 
   &:last-child {

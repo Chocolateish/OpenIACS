@@ -111,7 +111,7 @@ class Container<
   #box = this.appendChild(document.createElement("div"));
   #header: HeaderRow;
   #child_box: HTMLDivElement;
-  #add_row?: ListAddRow;
+  #add_row?: ListAddRow<A>;
   #state_sub?: StateInferSub<State<R[]> | StateArray<R>>;
 
   constructor(
@@ -189,15 +189,17 @@ class Container<
   set add_row(options: ListAddRowOptions | undefined) {
     if (!options && this.#add_row) {
       this.#add_row.remove();
-      this.#parent.global_amount--;
       this.#add_row = undefined;
     } else if (options) {
       if (!this.#add_row) {
-        this.#parent.global_amount++;
         this.#add_row = this.#box.appendChild(new ListAddRow(this.#parent));
       }
       this.#add_row.options = options;
     }
+  }
+
+  get row_amount(): number {
+    return this.#parent.global_amount;
   }
 
   //      _____   ______          _______
@@ -206,6 +208,17 @@ class Container<
   //     |  _  /| |  | |\ \/  \/ / \___ \
   //     | | \ \| |__| | \  /\  /  ____) |
   //     |_|  \_\\____/   \/  \/  |_____/
+
+  amount_rows(rec: boolean = false): number {
+    let count = this.#child_box.childElementCount;
+    if (rec)
+      for (let i = 0; i < this.#child_box.childElementCount; i++)
+        count += (this.#child_box.children[i] as ListRow<R, T, A>).amount_rows(
+          true
+        );
+    return count;
+  }
+
   set rows(rows: R[] | State<R[]> | StateArray<R>) {
     if (this.#state_sub) this.detach_state(this.#state_sub);
     this.#state_sub = undefined;
@@ -225,8 +238,8 @@ class Container<
 
   #update_rows(rows: readonly R[]) {
     if (rows.length === 0) {
-      this.#child_box.replaceChildren();
       this.#parent.global_amount = 0;
+      this.#child_box.replaceChildren();
     } else {
       const min = Math.min(this.#child_box.childElementCount, rows.length);
       for (let i = 0; i < min; i++)
@@ -253,7 +266,6 @@ class Container<
         }
       }
     }
-    console.error(this.#parent.global_amount);
   }
 
   #update_rows_by_state_array_read(sar: StateArrayRead<R>) {
@@ -272,15 +284,20 @@ class Container<
       this.#parent.global_amount += rows.length;
     } else if (sar.type === "removed") {
       if (sar.array.length === 0) this.#update_rows([]);
-      else
-        for (let i = 0; i < sar.items.length; i++)
+      else {
+        for (let i = 0; i < sar.items.length; i++) {
+          this.#parent.global_amount -= (
+            this.#child_box.children[sar.index + i] as ListRow<R, T, A>
+          ).global_amount;
           this.#child_box.children[sar.index].remove();
+        }
+        this.#parent.global_amount -= sar.items.length;
+      }
     } else if (sar.type === "changed")
       for (let i = 0; i < sar.items.length; i++)
         (this.#child_box.children[sar.index + i] as ListRow<R, T, A>).data =
           sar.items[i];
     else this.#update_rows(sar.array);
-    console.error(this.#parent.global_amount);
   }
 }
 define_element(Container);
