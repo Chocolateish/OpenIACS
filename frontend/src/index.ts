@@ -4,12 +4,7 @@ import {
   IPAddress,
   IPVersion,
 } from "@libCommon";
-import {
-  context_line,
-  context_menu,
-  context_menu_default,
-  context_sub,
-} from "@libContextmenu";
+import { ctm } from "@libContextmenu";
 import {
   material_av_add_to_queue_rounded,
   material_av_remove_from_queue_rounded,
@@ -104,51 +99,69 @@ FORM_CONT.appendChild(
   })
 );
 
-const test: number[] = [];
-const st_rows = state.a.ros.ok(array_from_length(10, (i) => i));
+const st_rows = state.a.ros_ws.ok(
+  array_from_length(10, (i) => i),
+  true
+);
 
 const test_list = list.container(
   {
-    col1: {
+    col1: list.column({
       init_width: 15,
       title: "Column 1, the one and only, the best, the biggest",
-      transform: (v: number) => v.toString(),
+      field_apply: (field, v: number) => (field.text = v.toString()),
       field_gen: () => list.text_field(),
-    },
-    col2: {
+    }),
+    col2: list.column({
       title: "Column 2",
-      transform: (v: number) => v.toString(),
+      field_apply: (field, v: number) => (field.text = v.toString()),
       field_gen: () => list.text_field(),
-    },
-    col3: {
-      fixed_width: 10,
-      title: "Column 3",
-      transform: (v: number) => v.toString(),
-      field_gen: () => list.text_field(),
-    },
+    }),
+    col3: list.column({
+      fixed_width: 6,
+      title: "Remove",
+      field_apply: (field, v: () => ReturnType<typeof st_rows.write_sync>) => {
+        field.element.on_click = () => {
+          v().map_err((err) => field.element.warn(err));
+        };
+      },
+      field_gen: () => form.list_field(form.button({ text: "Remove" })),
+    }),
   },
-  (item) => {
-    const sub_rows = state.a.ros.ok(array_from_length(3, (i) => i));
+  (item, row, stat) => {
+    const sub_rows = state.a.ros_ws.ok(
+      array_from_length(3, (i) => i),
+      true
+    );
     const add_row =
       Math.random() > 0.5
         ? {
             text: "Add New Row",
-            on_add: () => {
-              sub_rows.push(sub_rows.length);
-            },
+            on_add: () => stat.write_sync(state.a.push(Math.random())),
           }
         : undefined;
+    ctm.attach(
+      row,
+      ctm.menu([
+        ctm.line("Remove", () => stat.write_sync(state.a.pluck(row.index))),
+        ctm.line("Add New Row", () =>
+          stat.write_sync(state.a.insert(row.index, Math.random()))
+        ),
+        ctm.line("Empty", () => stat.write_sync(state.a.write([]))),
+      ])
+    );
     return {
       openable: Math.random() > 0.5,
       key_field: {
-        icon: material_av_add_to_queue_rounded,
+        icon:
+          Math.random() > 0.5 ? material_av_add_to_queue_rounded : undefined,
       },
       sub_rows: () => sub_rows,
       add_row,
       values: {
         col1: item,
         col2: item,
-        col3: item,
+        col3: () => stat.write_sync(state.a.pluck(row.index)),
       },
     };
   },
@@ -661,28 +674,28 @@ FORM_CONT.appendChild(
 FORM_CONT.appendChild(form.text({ text: "Progress" }));
 FORM_CONT.appendChild(form.progress({ unit: "mA" })).value_by_state = num;
 
-context_menu_default(
-  context_menu([
-    context_line("Default Option", () => console.warn("Clicked")),
-    context_line("Default Option", () => console.warn("Clicked")),
-    context_sub(
+ctm.default(
+  ctm.menu([
+    ctm.line("Default Option", () => console.warn("Clicked")),
+    ctm.line("Default Option", () => console.warn("Clicked")),
+    ctm.sub(
       "Default Submenu",
-      context_menu([
-        context_line("Sub Option", () => console.warn("Sub Clicked")),
-        context_line("Sub Option", () => console.warn("Sub Clicked")),
+      ctm.menu([
+        ctm.line("Sub Option", () => console.warn("Sub Clicked")),
+        ctm.line("Sub Option", () => console.warn("Sub Clicked")),
       ])
     ),
-    context_line("Default Option", () => console.warn("Clicked")),
-    context_line("Default Option", () => console.warn("Clicked")),
-    context_line("Default Option", () => console.warn("Clicked")),
-    context_line("Default Option", () => console.warn("Clicked")),
-    context_line("Default Option", () => console.warn("Clicked")),
-    context_line("Default Option", () => console.warn("Clicked")),
-    context_sub(
+    ctm.line("Default Option", () => console.warn("Clicked")),
+    ctm.line("Default Option", () => console.warn("Clicked")),
+    ctm.line("Default Option", () => console.warn("Clicked")),
+    ctm.line("Default Option", () => console.warn("Clicked")),
+    ctm.line("Default Option", () => console.warn("Clicked")),
+    ctm.line("Default Option", () => console.warn("Clicked")),
+    ctm.sub(
       "Default Submenu",
-      context_menu([
-        context_line("Sub Option", () => console.warn("Sub Clicked")),
-        context_line("Sub Option", () => console.warn("Sub Clicked")),
+      ctm.menu([
+        ctm.line("Sub Option", () => console.warn("Sub Clicked")),
+        ctm.line("Sub Option", () => console.warn("Sub Clicked")),
       ])
     ),
   ])

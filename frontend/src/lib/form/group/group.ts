@@ -66,9 +66,9 @@ export class FormGroup<
   #collapse_button?: HTMLSpanElement;
   #value_elements: Map<string, FormValue<any, any>> = new Map();
 
-  set elements(components: FormElement[]) {
-    for (let i = 0, n = components.length; i < n; i++) {
-      const comp = components[i];
+  set elements(elements: FormElement[]) {
+    for (let i = 0, n = elements.length; i < n; i++) {
+      const comp = elements[i];
       if (comp instanceof FormValue && comp.form_id) {
         if (this.#value_elements.has(comp.form_id as string)) {
           console.error(

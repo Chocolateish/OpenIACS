@@ -144,8 +144,8 @@ colors_background.make_variable(
   "row_even",
   "Even Row Background Color",
   "Color of even row element backgrounds",
-  GREY["50"],
-  GREY["900"],
+  GREY["100"],
+  GREY["800"],
   "Color",
   undefined
 );
@@ -153,8 +153,8 @@ colors_background.make_variable(
   "row_odd",
   "Odd Row Background Color",
   "Color of odd row element backgrounds",
-  GREY["100"],
-  GREY["800"],
+  GREY["50"],
+  GREY["900"],
   "Color",
   undefined
 );

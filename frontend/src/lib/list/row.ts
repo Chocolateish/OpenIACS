@@ -10,7 +10,7 @@ import { ListAddRow, type ListAddRowOptions } from "./add_row";
 import type { ListField } from "./field";
 import { ListKeyField, type ListKeyFieldOptions } from "./key_field";
 import "./row.scss";
-import type { ListRoot, ListRowParent } from "./types";
+import type { ListRoot, ListRowParent, ListType } from "./types";
 
 export type ListSubRows<R> = () => R[] | State<R[]> | StateArray<R>;
 
@@ -22,37 +22,52 @@ export interface ListRowOptions<R, T extends {}> {
   values: T;
 }
 
-export class ListRow<R, T extends {}> extends Base implements ListRowParent {
+export class ListRow<R, T extends {}, A extends ListType<R>>
+  extends Base
+  implements ListRowParent<A>
+{
   static element_name() {
     return "row";
   }
   static element_name_space(): string {
     return "list";
   }
-  #root: ListRoot<R, T>;
-  #parent: ListRowParent;
+  #root: ListRoot<R, T, A>;
+  #parent: ListRowParent<A>;
   #sub_rows?: ListSubRows<R>;
   readonly depth: number;
   #key_field: ListKeyField;
   #field_box: HTMLDivElement;
   #child_box: HTMLSpanElement;
   #add_row?: ListAddRow;
-  #fields: ListField<any>[];
+  #fields: ListField[];
   #state_sub?: StateInferSub<State<R[]> | StateArray<R>>;
+  state!: A;
+  #global_amount: number = 0;
 
-  constructor(root: ListRoot<R, T>, parent: ListRowParent, data: R) {
+  constructor(
+    root: ListRoot<R, T, A>,
+    parent: ListRowParent<A>,
+    data: R,
+    global_index: number
+  ) {
     super();
     this.#root = root;
     this.#parent = parent;
     this.depth = parent.depth + 1;
     this.style.setProperty("--i-" + this.depth, "var(--c)");
     this.#key_field = new ListKeyField(this);
+    if (this.#root.observer)
+      this.#key_field.attach_to_observer(this.#root.observer);
     this.#field_box = this.appendChild(document.createElement("div"));
     this.#child_box = this.appendChild(document.createElement("span"));
 
-    this.#fields = this.#root.columns_visible.map((key) =>
-      this.#root.columns.get(key)!.field_gen()
-    );
+    this.#fields = this.#root.columns_visible.map((key) => {
+      const field = this.#root.columns.get(key)!.field_gen();
+      if (this.#root.observer) field.attach_to_observer(this.#root.observer);
+      return field;
+    });
+    this.global_index = global_index;
 
     //Generate fields
     this.#field_box.replaceChildren(this.#key_field, ...this.#fields);
@@ -61,6 +76,13 @@ export class ListRow<R, T extends {}> extends Base implements ListRowParent {
     this.data = data;
   }
 
+  //      _____        _____  ______ _   _ _______
+  //     |  __ \ /\   |  __ \|  ____| \ | |__   __|
+  //     | |__) /  \  | |__) | |__  |  \| |  | |
+  //     |  ___/ /\ \ |  _  /|  __| | . ` |  | |
+  //     | |  / ____ \| | \ \| |____| |\  |  | |
+  //     |_| /_/    \_\_|  \_\______|_| \_|  |_|
+
   select_adjacent(
     direction: "next" | "previous" | "p_next" | "p_previous" | "last",
     field: Option<number>
@@ -68,7 +90,7 @@ export class ListRow<R, T extends {}> extends Base implements ListRowParent {
     if (direction === "next" || direction === "p_next") {
       if (direction === "next" && this.open)
         (
-          this.#child_box.firstElementChild! as ListRow<R, T>
+          this.#child_box.firstElementChild! as ListRow<R, T, A>
         ).#key_field.focus();
       else {
         const sibling = this.nextElementSibling;
@@ -84,12 +106,28 @@ export class ListRow<R, T extends {}> extends Base implements ListRowParent {
     } else if (direction === "p_previous") this.#key_field.focus();
     else if (direction === "last") {
       if (this.open) {
-        (this.#child_box.lastElementChild as ListRow<R, T>).select_adjacent(
+        (this.#child_box.lastElementChild as ListRow<R, T, A>).select_adjacent(
           "last",
           field
         );
       } else this.#key_field.focus();
     }
+  }
+
+  set global_index(index: number) {
+    this.setAttribute("global-index", index.toString());
+    this.classList.add(index % 2 === 0 ? "odd" : "even");
+  }
+  get global_index(): number {
+    return parseInt(this.getAttribute("global-index") ?? "0", 10);
+  }
+
+  set global_amount(amount: number) {
+    this.#parent.global_amount = amount - this.#global_amount;
+    this.#global_amount = amount;
+  }
+  get global_amount(): number {
+    return this.#global_amount;
   }
 
   //      _____       _______
@@ -100,7 +138,7 @@ export class ListRow<R, T extends {}> extends Base implements ListRowParent {
   //     |_____/_/    \_\_/_/    \_\
 
   set data(data: R) {
-    const row_options = this.#root.transform(data);
+    const row_options = this.#root.transform(data, this, this.#parent.state);
     this.#key_field.options = row_options.key_field;
     this.#sub_rows = row_options.sub_rows;
 
@@ -117,7 +155,9 @@ export class ListRow<R, T extends {}> extends Base implements ListRowParent {
 
     //Generate fields
     this.#root.columns_visible.forEach((key, index) => {
-      this.#fields[index].data = row_options.values[key];
+      this.#root.columns
+        .get(key)!
+        .field_apply(this.#fields[index], row_options.values[key]);
     });
 
     //Setup openable
@@ -167,18 +207,25 @@ export class ListRow<R, T extends {}> extends Base implements ListRowParent {
   //     |  _  /| |  | |\ \/  \/ / \___ \
   //     | | \ \| |__| | \  /\  /  ____) |
   //     |_|  \_\\____/   \/  \/  |_____/
+
+  get index(): number {
+    return Array.prototype.indexOf.call(this.parentElement!.children, this);
+  }
+
   set rows(rows: R[] | State<R[]> | StateArray<R>) {
     if (this.#state_sub) this.detach_state(this.#state_sub);
     this.#state_sub = undefined;
-    if (state.a.is(rows))
-      this.#state_sub = this.attach_state(rows, (r) => {
-        if (r.ok) this.#update_rows_by_state_array_read(r.value);
-        else this.#update_rows([]);
-      });
-    else if (state.is(rows))
-      this.#state_sub = this.attach_state(rows, (r) =>
-        this.#update_rows(r.ok ? r.value : [])
-      );
+    this.state = rows as A;
+    if (state.is(rows))
+      if (state.a.is(rows))
+        this.#state_sub = this.attach_state(rows, (r) => {
+          if (r.ok) this.#update_rows_by_state_array_read(r.value);
+          else this.#update_rows([]);
+        });
+      else
+        this.#state_sub = this.attach_state(rows, (r) =>
+          this.#update_rows(r.ok ? r.value : [])
+        );
     else this.#update_rows(rows);
   }
 
@@ -187,12 +234,16 @@ export class ListRow<R, T extends {}> extends Base implements ListRowParent {
     else {
       const min = Math.min(this.#child_box.childElementCount, rows.length);
       for (let i = 0; i < min; i++)
-        (this.#child_box.children[i] as ListRow<R, T>).data = rows[i];
+        (this.#child_box.children[i] as ListRow<R, T, A>).data = rows[i];
       if (rows.length > this.#child_box.childElementCount) {
+        const offset = this.#parent.global_amount;
         this.#child_box.append(
           ...rows
             .slice(this.#child_box.childElementCount)
-            .map((row) => new ListRow<R, T>(this.#root, this, row))
+            .map(
+              (row, i) =>
+                new ListRow<R, T, A>(this.#root, this, row, offset + i)
+            )
         );
       } else if (rows.length < this.#child_box.childElementCount) {
         for (
@@ -207,10 +258,13 @@ export class ListRow<R, T extends {}> extends Base implements ListRowParent {
 
   #update_rows_by_state_array_read(sar: StateArrayRead<R>) {
     if (sar.type === "added") {
+      const child = this.#child_box.children[sar.index] as
+        | ListRow<R, T, A>
+        | undefined;
+      const offset = child ? child.global_index : this.#parent.global_amount;
       const rows = sar.items.map(
-        (row) => new ListRow<R, T>(this.#root, this, row)
+        (row, i) => new ListRow<R, T, A>(this.#root, this, row, offset + i)
       );
-      const child = this.#child_box.children[sar.index];
       if (child) child.before(...rows);
       else this.#child_box.append(...rows);
     } else if (sar.type === "removed") {
@@ -220,7 +274,7 @@ export class ListRow<R, T extends {}> extends Base implements ListRowParent {
           this.#child_box.children[sar.index].remove();
     } else if (sar.type === "changed")
       for (let i = 0; i < sar.items.length; i++)
-        (this.#child_box.children[sar.index + i] as ListRow<R, T>).data =
+        (this.#child_box.children[sar.index + i] as ListRow<R, T, A>).data =
           sar.items[i];
     else this.#update_rows(sar.array);
   }

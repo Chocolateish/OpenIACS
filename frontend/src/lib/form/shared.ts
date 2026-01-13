@@ -336,8 +336,8 @@ sizes.make_variable(
   "height",
   "Height",
   "Default height used in all form elements",
-  "1.8rem",
-  "1.8rem",
+  "1.6rem",
+  "1.6rem",
   "Length",
   { min: 0.1, max: 10 }
 );

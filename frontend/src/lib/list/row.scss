@@ -13,13 +13,13 @@ list-row {
 
   display: contents;
 
-  &:nth-child(even) {
+  &.even {
     > div > * {
       background-color: var(--list-colors-background-row_even);
     }
   }
 
-  &:nth-child(odd) {
+  &.odd {
     > div > * {
       background-color: var(--list-colors-background-row_odd);
     }

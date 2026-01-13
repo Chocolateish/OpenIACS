@@ -2,6 +2,7 @@ import { form_button } from "./boolean/button/button";
 import { form_lamp } from "./boolean/lamp/lamp";
 import { form_switch } from "./boolean/switch/switch";
 import { form_group } from "./group/group";
+import { form_list_field } from "./list/list_field";
 import { form_number_input } from "./number/numberInput/numberInput";
 import { form_progress } from "./number/progress/progress";
 import { form_slider } from "./number/slider/slider";
@@ -43,4 +44,7 @@ export const form = {
   text: form_text,
   input_text: form_text_input,
   multiline_text: form_text_multiline,
+
+  //List
+  list_field: form_list_field,
 };

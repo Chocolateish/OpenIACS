@@ -29,26 +29,29 @@ import type {
 
 const STATE_ARRAY_KEY = Symbol("is_state_array");
 
-export const StateArrayWriteType = {
+export type StateArrayWrite<TYPE> =
+  | { type: "write"; items: readonly TYPE[] }
+  | { type: "change"; index: number; item: TYPE }
+  | { type: "push"; items: readonly TYPE[] }
+  | { type: "unshift"; items: readonly TYPE[] }
+  | { type: "pop" }
+  | { type: "shift" }
+  | { type: "delete"; item: TYPE }
+  | {
+      type: "splice";
+      index: number;
+      delete_count: number;
+      items?: readonly TYPE[];
+    };
+
+export const StateArrayReadType = {
   added: "added",
   removed: "removed",
   changed: "changed",
-} as const;
-export type StateArrayWriteType =
-  (typeof StateArrayWriteType)[keyof typeof StateArrayWriteType];
-
-export const StateArrayReadType = {
-  ...StateArrayWriteType,
   fresh: "fresh",
 } as const;
 export type StateArrayReadType =
   (typeof StateArrayReadType)[keyof typeof StateArrayReadType];
-
-export interface StateArrayWrite<TYPE> {
-  type: StateArrayWriteType;
-  index: number;
-  items: readonly TYPE[];
-}
 
 export interface StateArrayRead<TYPE> {
   array: readonly TYPE[];
@@ -205,9 +208,7 @@ class RXS<
     setter?: ArraySetter<AT, RRT, REL> | true
   ) {
     super();
-    if (setter === true)
-      this.#setter = (val) =>
-        ok(this.apply_read(ok(val as SAR<AT>), (v) => [...v]));
+    if (setter === true) this.#setter = (val) => ok(this.apply_write(ok(val)));
     else this.#setter = setter;
     if (helper) this.#helper = helper;
     this.set(init);
@@ -222,12 +223,12 @@ class RXS<
     return { array: this.#array, type, index, items };
   }
 
-  set(value: Result<AT[], string>) {
-    this.#array = value.ok ? value.value : [];
+  set(value: Result<readonly AT[], string>) {
+    this.#array = value.ok ? [...value.value] : [];
     this.#error = value.ok ? undefined : value.error;
     this.update_subs(ok(this.#mr("fresh", 0, this.#array)) as RRT);
   }
-  set_ok(value: AT[]): void {
+  set_ok(value: readonly AT[]): void {
     this.set(ok(value));
   }
   set_err(error: string): void {
@@ -373,6 +374,52 @@ class RXS<
       for (let i = 0; i < its.length; i++) this.#array[index + i] = items[i];
     this.update_subs(ok(this.#mr(type, index, items)) as RRT);
   }
+
+  apply_write(result: Result<SAW<AT>, string>) {
+    if (!result.ok) return;
+    const type = result.value.type;
+    if (type === "write") this.set_ok(result.value.items);
+    else if (type === "pop") this.pop();
+    else if (type === "shift") this.shift();
+    else if (type === "push") this.push(...result.value.items);
+    else if (type === "unshift") this.unshift(...result.value.items);
+    else if (type === "delete") this.delete(result.value.item);
+    else if (type === "splice")
+      this.splice(
+        result.value.index,
+        result.value.delete_count,
+        ...(result.value.items ? result.value.items : [])
+      );
+    else if (type === "change")
+      this.set_index(result.value.index, result.value.item);
+  }
+
+  apply_write_transform<B>(
+    result: Result<SAW<B>, string>,
+    transform: (val: B) => AT
+  ) {
+    if (!result.ok) return;
+    const type = result.value.type;
+    if (type === "write")
+      this.set_ok(result.value.items.map((item) => transform(item)));
+    else if (type === "pop") this.pop();
+    else if (type === "shift") this.shift();
+    else if (type === "push")
+      this.push(...result.value.items.map((item) => transform(item)));
+    else if (type === "unshift")
+      this.unshift(...result.value.items.map((item) => transform(item)));
+    else if (type === "delete") this.delete(transform(result.value.item));
+    else if (type === "splice")
+      this.splice(
+        result.value.index,
+        result.value.delete_count,
+        ...(result.value.items
+          ? result.value.items.map((item) => transform(item))
+          : [])
+      );
+    else if (type === "change")
+      this.set_index(result.value.index, transform(result.value.item));
+  }
 }
 
 //##################################################################################################################################################
@@ -513,5 +560,42 @@ export const STATE_ARRAY = {
   is(s: unknown): s is StateArray<any, any> {
     //@ts-expect-error Will not crash
     return Boolean(s) && s[STATE_ARRAY_KEY] === true;
+  },
+  //# Array Write Helpers
+  write<T>(items: T[]): StateArrayWrite<T> {
+    return { type: "write", items };
+  },
+  index<T>(index: number, value: T): StateArrayWrite<T> {
+    return { type: "change", index, item: value };
+  },
+  push<T>(...items: T[]): StateArrayWrite<T> {
+    return { type: "push", items };
+  },
+  pop<T>(): StateArrayWrite<T> {
+    return { type: "pop" };
+  },
+  shift<T>(): StateArrayWrite<T> {
+    return { type: "shift" };
+  },
+  unshift<T>(...items: T[]): StateArrayWrite<T> {
+    return { type: "unshift", items };
+  },
+  splice<T>(
+    start: number,
+    delete_count?: number,
+    ...items: T[]
+  ): StateArrayWrite<T> {
+    return {
+      type: "splice",
+      index: start,
+      delete_count: delete_count ?? 0,
+      items,
+    };
+  },
+  pluck<T>(index: number): StateArrayWrite<T> {
+    return { type: "splice", index, delete_count: 1 };
+  },
+  insert<T>(index: number, ...items: T[]): StateArrayWrite<T> {
+    return { type: "splice", index, delete_count: 0, items };
   },
 };

@@ -1,6 +1,18 @@
-import type { Option } from "@libResult";
+import type { BaseObserver } from "@libBase";
+import { type Option } from "@libResult";
+import type { State, StateArray } from "@libState";
 import type { ListField } from "./field";
-import type { ListRowOptions } from "./row";
+import type { ListRow, ListRowOptions } from "./row";
+
+export type ListType<R> = R[] | State<R[]> | StateArray<R>;
+
+export type ListTypeExtract<A extends ListType<any>> = A extends (infer U)[]
+  ? U
+  : A extends State<(infer U)[]>
+  ? U
+  : A extends StateArray<infer V>
+  ? V
+  : never;
 
 export const ListDataType = {
   number: "number",
@@ -9,7 +21,7 @@ export const ListDataType = {
 } as const;
 export type ListDataType = (typeof ListDataType)[keyof typeof ListDataType];
 
-export interface ListColumnOptions<V, C> {
+export interface ListColumnOptions<V, C extends ListField> {
   /**Initial width of the column in rem, auto when undefined*/
   init_width?: number;
   /**If the column has a fixed width in rem, overrides init_width and disables resizing*/
@@ -22,44 +34,52 @@ export interface ListColumnOptions<V, C> {
   type?: ListDataType;
   /**Column title*/
   title: string;
-  /**Function generate a field element*/
-  field_gen: () => ListField<C>;
-  /**Function to transform the field value to something the field element understands */
-  transform: (value: V) => C;
+  /**Generates the field element, only called during row or column creation */
+  field_gen(): C;
+  /**Applies the value to the field */
+  field_apply(field: C, value: V): void;
 }
 
-export type ListValidateCols<T> = {
-  [K in keyof T]: T[K] extends ListColumnOptions<infer V, infer _C>
-    ? ListColumnOptions<V, ReturnType<T[K]["transform"]>> // Force C to be the transform return type
-    : never;
-};
+export function column<V, C extends ListField>(
+  options: ListColumnOptions<V, C>
+): ListColumnOptions<V, C> {
+  return options;
+}
 
-export type ListInferFieldTypes<T> = {
-  [K in keyof T]: T[K] extends ListColumnOptions<infer V, any> ? V : never;
-};
+export type ListRowTransformer<R, T extends {}, A extends ListType<any>> = (
+  /**Test */
+  data: R,
+  row: ListRow<R, T, A>,
+  state: A
+) => ListRowOptions<R, T>;
 
-export type ListRowTransformer<R, T extends {}> = (
-  row: R
-) => ListRowOptions<R, ListInferFieldTypes<T>>;
-export interface ListRoot<R, T extends {}> {
+export interface ListRoot<R, T extends {}, A extends ListType<any>> {
   /**Sub rows */
-  sub_rows: boolean;
+  readonly sub_rows: boolean;
   /**Columns options mapped by column key */
-  columns: Map<keyof T, ListColumnOptions<keyof T, T[keyof T]>>;
+  readonly columns: Map<keyof T, ListColumnOptions<T[keyof T], ListField>>;
   /**Order of visible columns by column key */
   columns_visible: (keyof T)[];
   /**Function to transform a row data into row options */
-  transform: ListRowTransformer<R, T>;
+  transform: ListRowTransformer<R, T, A>;
+  /**Observer for the container if observer is active */
+  observer?: BaseObserver;
 }
 
-export interface ListRowParent {
+export interface ListRowParent<A> {
   /**Sub row depth */
-  depth: number;
+  readonly depth: number;
   /**Whether the row is open to show sub rows */
-  open: boolean;
+  readonly open: boolean;
   /**Selects the adjacent row in the given direction */
   select_adjacent(
     direction: "next" | "previous" | "p_next" | "p_previous" | "last",
     field: Option<number>
   ): void;
+  /**State associated with the row parent, if state is used */
+  state: A;
+  /**Total amount of rows including sub rows */
+  global_amount: number;
+  /**Row global index in list accounting for sub rows */
+  global_index: number;
 }
