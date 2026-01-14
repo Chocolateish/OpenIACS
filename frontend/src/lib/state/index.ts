@@ -1,4 +1,4 @@
-import { STATE_ARRAY } from "./array/array";
+import { STATE_ARRAY } from "./array/sync";
 import { StateBase } from "./base";
 import { STATE_COLLECTS_NUMBER } from "./collected/number";
 import { STATE_COLLECTED_REA } from "./collected/rea";
@@ -57,15 +57,14 @@ export default {
 };
 
 export {
-  type StateArray,
   type StateArrayRead,
   type StateArrayReadType,
-  type StateArrayRES,
-  type StateArrayRESWS,
-  type StateArrayROS,
-  type StateArrayROSWS,
+  type StateArraySyncRES,
+  type StateArraySyncRESWS,
+  type StateArraySyncROS,
+  type StateArraySyncROSWS,
   type StateArrayWrite,
-} from "./array/array";
+} from "./array/sync";
 export { type StateCollectedREA } from "./collected/rea";
 export { type StateCollectedRES } from "./collected/res";
 export { type StateCollectedROA } from "./collected/roa";
@@ -137,6 +136,19 @@ export {
 //     |_____/   |_/_/    \_\_|  |______|    |_|     |_|  |_|    |______|_____/
 export type {
   State,
+  StateArray,
+  StateArrayREA,
+  StateArrayREAWA,
+  StateArrayREAWS,
+  StateArrayRES,
+  StateArrayRESWA,
+  StateArrayRESWS,
+  StateArrayROA,
+  StateArrayROAWA,
+  StateArrayROAWS,
+  StateArrayROS,
+  StateArrayROSWA,
+  StateArrayROSWS,
   StateInferResult,
   StateInferSub,
   StateInferType,

@@ -8,8 +8,6 @@ list-container {
 
   > div {
     --list-row-indent-color-0: var(--list-colors-border-column);
-    --o-0: var(--list-colors-background-row_odd);
-    --e-0: var(--list-colors-background-row_even);
 
     display: grid;
     grid-template-columns: min-content 15rem 15rem;

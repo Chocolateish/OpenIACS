@@ -78,6 +78,4 @@ export interface ListRowParent<A extends ListType<any>> {
   ): void;
   /**State associated with the row parent, if state is used */
   state: A;
-  /**Total amount of rows including sub rows */
-  global_amount: number;
 }

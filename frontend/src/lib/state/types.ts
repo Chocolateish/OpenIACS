@@ -1,4 +1,5 @@
 import { type Option, type Result, type ResultOk } from "@libResult";
+import type { StateArrayRead, StateArrayWrite } from "./array/sync";
 
 /**Function used to subscribe to state changes
  * @template RT - The type of the state’s value when read.*/
@@ -369,3 +370,69 @@ export type StateROSWS<
   WT = RT,
   REL extends Option<StateRelated> = Option<any>
 > = ROSWS<RT, WT, REL>;
+
+//#State Array Types
+export type StateArray<
+  AT,
+  REL extends Option<StateRelated> = Option<any>
+> = State<StateArrayRead<AT>, StateArrayWrite<AT>, REL>;
+
+export type StateArrayREA<
+  AT,
+  REL extends Option<StateRelated> = Option<any>
+> = StateREA<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+
+export type StateArrayROA<
+  AT,
+  REL extends Option<StateRelated> = Option<any>
+> = StateROA<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+
+export type StateArrayRES<
+  AT,
+  REL extends Option<StateRelated> = Option<any>
+> = StateRES<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+
+export type StateArrayROS<
+  AT,
+  REL extends Option<StateRelated> = Option<any>
+> = StateROS<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+
+export type StateArrayREAWS<
+  AT,
+  REL extends Option<StateRelated> = Option<any>
+> = StateREA<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+
+export type StateArrayREAWA<
+  AT,
+  REL extends Option<StateRelated> = Option<any>
+> = StateREA<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+
+export type StateArrayROAWS<
+  AT,
+  REL extends Option<StateRelated> = Option<any>
+> = StateROA<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+
+export type StateArrayROAWA<
+  AT,
+  REL extends Option<StateRelated> = Option<any>
+> = StateROA<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+
+export type StateArrayRESWS<
+  AT,
+  REL extends Option<StateRelated> = Option<any>
+> = StateRES<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+
+export type StateArrayRESWA<
+  AT,
+  REL extends Option<StateRelated> = Option<any>
+> = StateRES<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+
+export type StateArrayROSWS<
+  AT,
+  REL extends Option<StateRelated> = Option<any>
+> = StateROS<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+
+export type StateArrayROSWA<
+  AT,
+  REL extends Option<StateRelated> = Option<any>
+> = StateROS<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;

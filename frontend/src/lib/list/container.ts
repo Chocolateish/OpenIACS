@@ -1,8 +1,12 @@
 import { Base, define_element, type BaseObserverOptions } from "@libBase";
-import type { State, StateInferSub } from "@libState";
+import type {
+  State,
+  StateArray,
+  StateArrayRead,
+  StateInferSub,
+} from "@libState";
 import state from "@libState";
 import { px_to_rem } from "@libTheme";
-import type { StateArray, StateArrayRead } from "../state/array/array";
 import { ListAddRow, type ListAddRowOptions } from "./add_row.ts";
 import "./container.scss";
 import { text_field } from "./field";
@@ -133,7 +137,6 @@ class Container<
       open: false,
       select_adjacent() {},
       state: rows,
-      global_amount: 0,
     };
 
     this.#header = this.#box.appendChild(new HeaderRow());
@@ -197,10 +200,6 @@ class Container<
     }
   }
 
-  get row_amount(): number {
-    return this.#parent.global_amount;
-  }
-
   //      _____   ______          _______
   //     |  __ \ / __ \ \        / / ____|
   //     | |__) | |  | \ \  /\  / / (___
@@ -236,29 +235,24 @@ class Container<
   }
 
   #update_rows(rows: readonly R[]) {
-    if (rows.length === 0) {
-      this.#parent.global_amount = 0;
-      this.#child_box.replaceChildren();
-    } else {
+    if (rows.length === 0) this.#child_box.replaceChildren();
+    else {
       const min = Math.min(this.#child_box.childElementCount, rows.length);
       for (let i = 0; i < min; i++)
         (this.#child_box.children[i] as ListRow<R, T, A>).data = rows[i];
-      if (rows.length > this.#child_box.childElementCount) {
-        const row_elements = rows
-          .slice(this.#child_box.childElementCount)
-          .map((row) => new ListRow<R, T, A>(this.#root, this.#parent, row));
-        this.#child_box.append(...row_elements);
-        this.#parent.global_amount += row_elements.length;
-      } else if (rows.length < this.#child_box.childElementCount) {
+      if (rows.length > this.#child_box.childElementCount)
+        this.#child_box.append(
+          ...rows
+            .slice(this.#child_box.childElementCount)
+            .map((row) => new ListRow<R, T, A>(this.#root, this.#parent, row))
+        );
+      else if (rows.length < this.#child_box.childElementCount) {
         for (
           let i = this.#child_box.childElementCount - 1;
           i >= rows.length;
           i--
-        ) {
-          const row = this.#child_box.children[i] as ListRow<R, T, A>;
-          this.#parent.global_amount -= row.global_amount;
-          row.remove();
-        }
+        )
+          (this.#child_box.children[i] as ListRow<R, T, A>).remove();
       }
     }
   }
@@ -271,21 +265,13 @@ class Container<
       const rows = sar.items.map(
         (row) => new ListRow<R, T, A>(this.#root, this.#parent, row)
       );
-      if (child) {
-        child.before(...rows);
-      } else this.#child_box.append(...rows);
-      this.#parent.global_amount += rows.length;
+      if (child) child.before(...rows);
+      else this.#child_box.append(...rows);
     } else if (sar.type === "removed") {
       if (sar.array.length === 0) this.#update_rows([]);
-      else {
-        for (let i = 0; i < sar.items.length; i++) {
-          this.#parent.global_amount -= (
-            this.#child_box.children[sar.index + i] as ListRow<R, T, A>
-          ).global_amount;
+      else
+        for (let i = 0; i < sar.items.length; i++)
           this.#child_box.children[sar.index].remove();
-        }
-        this.#parent.global_amount -= sar.items.length;
-      }
     } else if (sar.type === "changed")
       for (let i = 0; i < sar.items.length; i++)
         (this.#child_box.children[sar.index + i] as ListRow<R, T, A>).data =

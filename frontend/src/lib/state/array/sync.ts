@@ -12,6 +12,9 @@ import type {
   StateHelper as HELPER,
   StateRelated as RELATED,
   State,
+  StateArray,
+  StateArrayROS,
+  StateArrayROSWS,
   StateRES,
   StateRESWS,
   StateROS,
@@ -59,12 +62,6 @@ export interface StateArrayRead<TYPE> {
   index: number;
   items: readonly TYPE[];
 }
-
-export type StateArray<AT, REL extends Option<RELATED> = OptionNone> = State<
-  StateArrayRead<AT>,
-  StateArrayWrite<AT>,
-  REL
->;
 
 type SAR<AT> = StateArrayRead<AT>;
 type SAW<AT> = StateArrayWrite<AT>;
@@ -114,7 +111,7 @@ interface OwnerWS<
   setter: ArraySetter<AT, RRT, REL>;
 }
 
-export type StateArrayROS<
+export type StateArraySyncROS<
   AT,
   REL extends Option<RELATED> = OptionNone
 > = StateROS<SAR<AT>, REL, SAW<AT>> &
@@ -123,7 +120,7 @@ export type StateArrayROS<
     readonly read_write?: StateROSWS<SAR<AT>, SAW<AT>, REL>;
   };
 
-export type StateArrayROSWS<
+export type StateArraySyncROSWS<
   AT,
   REL extends Option<RELATED> = OptionNone
 > = StateROSWS<SAR<AT>, SAW<AT>, REL> &
@@ -132,7 +129,7 @@ export type StateArrayROSWS<
     readonly read_write: StateROSWS<SAR<AT>, SAW<AT>, REL>;
   };
 
-export type StateArrayRES<
+export type StateArraySyncRES<
   AT,
   REL extends Option<RELATED> = OptionNone
 > = StateRES<SAR<AT>, REL, SAW<AT>> &
@@ -142,7 +139,7 @@ export type StateArrayRES<
     readonly read_write?: StateRESWS<SAR<AT>, SAW<AT>, REL>;
   };
 
-export type StateArrayRESWS<
+export type StateArraySyncRESWS<
   AT,
   REL extends Option<RELATED> = OptionNone
 > = StateRESWS<SAR<AT>, SAW<AT>, REL> &
@@ -241,14 +238,14 @@ class RXS<
   get setter(): ArraySetter<AT, RRT, REL> | undefined {
     return this.#setter;
   }
-  get state(): State<SAR<AT>, SAW<AT>, REL> {
-    return this as State<SAR<AT>, SAW<AT>, REL>;
+  get state(): StateArray<AT, REL> {
+    return this as StateArray<AT, REL>;
   }
-  get read_only(): State<SAR<AT>, SAW<AT>, REL> {
-    return this as State<SAR<AT>, SAW<AT>, REL>;
+  get read_only(): StateArrayROS<AT, REL> {
+    return this as StateArrayROS<AT, REL>;
   }
-  get read_write(): State<SAR<AT>, SAW<AT>, REL> | undefined {
-    return this.#setter ? (this as State<SAR<AT>, SAW<AT>, REL>) : undefined;
+  get read_write(): StateArrayROSWS<AT, REL> | undefined {
+    return this.#setter ? (this as StateArrayROSWS<AT, REL>) : undefined;
   }
 
   //#Reader Context
@@ -440,7 +437,7 @@ const ROS = {
     return new RXS<AT, ResultOk<SAR<AT>>, REL>(
       ok(init),
       helper
-    ) as StateArrayROS<AT, REL>;
+    ) as StateArraySyncROS<AT, REL>;
   },
 };
 const ROS_WS = {
@@ -459,7 +456,7 @@ const ROS_WS = {
       ok(init),
       helper,
       setter
-    ) as StateArrayROSWS<AT, REL>;
+    ) as StateArraySyncROSWS<AT, REL>;
   },
 };
 const RES = {
@@ -473,7 +470,7 @@ const RES = {
     return new RXS<AT, Result<SAR<AT>, string>, REL>(
       ok(init),
       helper
-    ) as StateArrayRES<AT, REL>;
+    ) as StateArraySyncRES<AT, REL>;
   },
   /**Creates a state representing an array
    * @param init initial error
@@ -485,7 +482,7 @@ const RES = {
     return new RXS<AT, Result<SAR<AT>, string>, REL>(
       err(error),
       helper
-    ) as StateArrayRES<AT, REL>;
+    ) as StateArraySyncRES<AT, REL>;
   },
 };
 const RES_WS = {
@@ -508,7 +505,7 @@ const RES_WS = {
       ok(init),
       helper,
       setter
-    ) as StateArrayRESWS<AT, REL>;
+    ) as StateArraySyncRESWS<AT, REL>;
   },
   /**Creates a state representing an array
    * @param err initial error
@@ -529,7 +526,7 @@ const RES_WS = {
       err(error),
       helper,
       setter
-    ) as StateArrayRESWS<AT, REL>;
+    ) as StateArraySyncRESWS<AT, REL>;
   },
 };
 

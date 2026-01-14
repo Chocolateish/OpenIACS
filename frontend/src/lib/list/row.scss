@@ -10,8 +10,11 @@ list-row {
   }
   --c: var(--list-colors-border-column);
 
-  > div > * {
-    background-color: var(--b);
+  &:nth-child(even) > div > * {
+    background-color: var(--list-colors-background-row_even);
+  }
+  &:nth-child(odd) > div > * {
+    background-color: var(--list-colors-background-row_odd);
   }
 
   &:last-child {
