@@ -47,6 +47,10 @@ export default defineConfig(
           format: null,
         },
         {
+          selector: "accessor",
+          format: ["snake_case"],
+        },
+        {
           selector: "classProperty",
           format: ["snake_case"],
           leadingUnderscore: "allow",

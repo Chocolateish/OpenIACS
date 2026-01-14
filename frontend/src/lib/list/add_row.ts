@@ -57,17 +57,17 @@ export class ListAddRow<A extends ListType<any>>
     else this.#button.removeAttribute("disabled");
   }
 
-  set open(value: boolean) {}
+  set open(_value: boolean) {}
   get open(): boolean {
     return false;
   }
 
-  set global_index(value: number) {}
+  set global_index(_value: number) {}
   get global_index(): number {
     return 0;
   }
 
-  set state(value: A) {}
+  set state(_value: A) {}
   get state(): A {
     throw new Error("Method not implemented.");
   }
