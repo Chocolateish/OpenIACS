@@ -131,7 +131,7 @@ const test_list = list.container(
   },
   (item, row, stat) => {
     const sub_rows = state.a.ros_ws.ok(
-      array_from_length(3, (i) => i),
+      array_from_length(0, (i) => i),
       true
     );
     const add_row =
