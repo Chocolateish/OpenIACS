@@ -178,9 +178,6 @@ const test_list = list.container(
   }
 );
 FORM_CONT.appendChild(test_list);
-setInterval(() => {
-  console.error(test_list.row_amount, test_list.amount_rows(true));
-}, 1000);
 
 //      _____         _____ _______          ______  _____  _____
 //     |  __ \ /\    / ____/ ____\ \        / / __ \|  __ \|  __ \
