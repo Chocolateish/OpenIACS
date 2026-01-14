@@ -13,6 +13,8 @@ import type {
   StateRelated as RELATED,
   State,
   StateArray,
+  StateArrayRES,
+  StateArrayRESWS,
   StateArrayROS,
   StateArrayROSWS,
   StateRES,
@@ -116,8 +118,8 @@ export type StateArraySyncROS<
   REL extends Option<RELATED> = OptionNone
 > = StateROS<SAR<AT>, REL, SAW<AT>> &
   Owner<AT, ResultOk<SAR<AT>>, REL> & {
-    readonly read_only: StateROS<SAR<AT>, REL, SAW<AT>>;
-    readonly read_write?: StateROSWS<SAR<AT>, SAW<AT>, REL>;
+    readonly read_only: StateArrayROS<AT, REL>;
+    readonly read_write?: StateArrayROSWS<AT, REL>;
   };
 
 export type StateArraySyncROSWS<
@@ -125,8 +127,8 @@ export type StateArraySyncROSWS<
   REL extends Option<RELATED> = OptionNone
 > = StateROSWS<SAR<AT>, SAW<AT>, REL> &
   OwnerWS<AT, ResultOk<SAR<AT>>, REL> & {
-    readonly read_only: StateROS<SAR<AT>, REL, SAW<AT>>;
-    readonly read_write: StateROSWS<SAR<AT>, SAW<AT>, REL>;
+    readonly read_only: StateArrayROS<AT, REL>;
+    readonly read_write: StateArrayROSWS<AT, REL>;
   };
 
 export type StateArraySyncRES<
@@ -135,8 +137,8 @@ export type StateArraySyncRES<
 > = StateRES<SAR<AT>, REL, SAW<AT>> &
   Owner<AT, ResultOk<SAR<AT>>, REL> & {
     set_err(error: string): void;
-    readonly read_only: StateRES<SAR<AT>, REL, SAW<AT>>;
-    readonly read_write?: StateRESWS<SAR<AT>, SAW<AT>, REL>;
+    readonly read_only: StateArrayRES<AT, REL>;
+    readonly read_write?: StateArrayRESWS<AT, REL>;
   };
 
 export type StateArraySyncRESWS<
@@ -145,8 +147,8 @@ export type StateArraySyncRESWS<
 > = StateRESWS<SAR<AT>, SAW<AT>, REL> &
   OwnerWS<AT, ResultOk<SAR<AT>>, REL> & {
     set_err(error: string): void;
-    readonly read_only: StateRES<SAR<AT>, REL, SAW<AT>>;
-    readonly read_write: StateRESWS<SAR<AT>, SAW<AT>, REL>;
+    readonly read_only: StateArrayRES<AT, REL>;
+    readonly read_write: StateArrayRESWS<AT, REL>;
   };
 
 //##################################################################################################################################################
