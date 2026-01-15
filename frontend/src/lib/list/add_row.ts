@@ -53,8 +53,8 @@ export class ListAddRow<A extends ListType<any>>
   }
 
   set disabled(value: boolean) {
-    if (value) this.#button.setAttribute("disabled", "true");
-    else this.#button.removeAttribute("disabled");
+    if (value) this.inert = true;
+    else this.inert = false;
   }
 
   set open(_value: boolean) {}

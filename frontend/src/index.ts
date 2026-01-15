@@ -131,12 +131,15 @@ const test_list = list.container(
   },
   (item, row, stat) => {
     const sub_rows = state.a.ros_ws.ok(
-      array_from_length(0, (i) => i),
+      array_from_length(3, (i) => i),
       true
     );
     const add_row =
       Math.random() > 0.5
         ? {
+            disabled: state.p.ros(sub_rows.length_state, (len) =>
+              ok(len.value >= 3)
+            ),
             text: "Add New Row",
             on_add: () => sub_rows.write_sync(state.a.push(Math.random())),
           }

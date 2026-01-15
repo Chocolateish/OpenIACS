@@ -1,6 +1,11 @@
 list-addrow {
   display: contents;
 
+  &[inert] > span {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
   > span {
     color: var(--list-colors-text-add);
     grid-column: 2 / -1;

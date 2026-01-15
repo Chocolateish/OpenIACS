@@ -191,9 +191,11 @@ class Container<
   set add_row(options: ListAddRowOptions | undefined) {
     if (!options && this.#add_row) {
       this.#add_row.remove();
+      this.#box.classList.remove("addrow");
       this.#add_row = undefined;
     } else if (options) {
       if (!this.#add_row) {
+        this.#box.classList.add("addrow");
         this.#add_row = this.#box.appendChild(new ListAddRow(this.#parent));
       }
       this.#add_row.options = options;

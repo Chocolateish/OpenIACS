@@ -8,6 +8,7 @@ import {
   type Result,
 } from "@libResult";
 import { StateBase } from "../base";
+import { STATE_SYNC, type StateSyncROS } from "../sync/sync";
 import type {
   StateHelper as HELPER,
   StateRelated as RELATED,
@@ -90,6 +91,7 @@ interface Owner<
 
   get array(): readonly AT[];
   readonly length: number;
+  readonly length_state: StateROS<number>;
   at(index: number): AT | undefined;
   set_index(index: number, value: AT): void;
   push(...items: AT[]): number;
@@ -217,6 +219,7 @@ class RXS<
   #array: AT[] = [];
   #helper?: HELPER<SAW<AT>, REL>;
   #setter?: ArraySetter<AT, RRT, REL>;
+  #length?: StateSyncROS<number>;
 
   #mr(type: StateArrayReadType, index: number, items: AT[]): SAR<AT> {
     return { array: this.#array, type, index, items };
@@ -302,6 +305,10 @@ class RXS<
     return this.#array.length;
   }
 
+  get length_state(): StateROS<number> {
+    return (this.#length ??= STATE_SYNC.ros.ok(this.length));
+  }
+
   at(index: number): AT | undefined {
     return this.#array.at(index);
   }
@@ -315,30 +322,36 @@ class RXS<
     const index = this.#array.length;
     const new_len = this.#array.push(...items);
     this.update_subs(ok(this.#mr("added", index, items)) as RRT);
+    if (this.#length) this.#length.set_ok(new_len);
     return new_len;
   }
 
   pop(): AT | undefined {
     const l = this.#array.length;
     const p = this.#array.pop();
-    if (this.#array.length < l)
+    if (this.#array.length < l) {
       this.update_subs(
         ok(this.#mr("removed", this.#array.length, [p as AT])) as RRT
       );
+      if (this.#length) this.#length.set_ok(this.#array.length);
+    }
     return p;
   }
 
   shift(): AT | undefined {
     const l = this.#array.length;
     const s = this.#array.shift();
-    if (this.#array.length < l)
+    if (this.#array.length < l) {
       this.update_subs(ok(this.#mr("removed", 0, [s as AT])) as RRT);
+      if (this.#length) this.#length.set_ok(this.#array.length);
+    }
     return s;
   }
 
   unshift(...items: AT[]): number {
     const new_len = this.#array.unshift(...items);
     this.update_subs(ok(this.#mr("added", 0, items)) as RRT);
+    if (this.#length) this.#length.set_ok(new_len);
     return new_len;
   }
 
@@ -348,6 +361,7 @@ class RXS<
       this.update_subs(ok(this.#mr("removed", start, r)) as RRT);
     if (items.length > 0)
       this.update_subs(ok(this.#mr("added", start, items)) as RRT);
+    if (this.#length) this.#length.set_ok(this.#array.length);
     return r;
   }
 
@@ -357,6 +371,7 @@ class RXS<
         this.update_subs(ok(this.#mr("removed", i, [val])) as RRT);
         i--;
       }
+    if (this.#length) this.#length.set_ok(this.#array.length);
   }
 
   ///Helps apply the changes from one state array to another
