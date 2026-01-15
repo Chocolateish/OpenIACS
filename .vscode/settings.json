@@ -1,3 +1,13 @@
 {
-  "rust-analyzer.linkedProjects": ["backend/Cargo.toml"]
+  "rust-analyzer.linkedProjects": ["backend/Cargo.toml"],
+  "eslint.run": "onSave",
+  "eslint.validate": [
+    "javascript",
+    "typescript",
+    "javascriptreact",
+    "typescriptreact"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "never"
+  }
 }

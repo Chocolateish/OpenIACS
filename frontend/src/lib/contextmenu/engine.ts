@@ -4,12 +4,14 @@ import { Container } from "./container";
 import "./engine.scss";
 import { ContextMenu } from "./menu";
 
+const CONTEXT_MENY_SYMBOL = Symbol("context_menu");
+
 declare global {
   interface Document {
-    "@contextmenu": Container | undefined;
+    [CONTEXT_MENY_SYMBOL]: Container | undefined;
   }
   interface Element {
-    "@contextmenu": EventListenerOrEventListenerObject | undefined;
+    [CONTEXT_MENY_SYMBOL]: EventListenerOrEventListenerObject | undefined;
   }
 }
 
@@ -25,7 +27,7 @@ DOCUMENT_HANDLER.for_documents((doc) => {
 
 function apply_to_doc(doc: Document) {
   const container = new Container();
-  doc["@contextmenu"] = container;
+  doc[CONTEXT_MENY_SYMBOL] = container;
   doc.documentElement.appendChild(container);
   if (default_menu) context_menu_attach(doc.documentElement, default_menu);
 }
@@ -35,7 +37,7 @@ export function context_menu_attach(
   element: Element,
   lines: ContextMenu | (() => Option<ContextMenu>)
 ) {
-  if (element["@contextmenu"]) {
+  if (element[CONTEXT_MENY_SYMBOL]) {
     console.error("Context menu already attached to node", element);
     return;
   }
@@ -53,14 +55,14 @@ export function context_menu_attach(
     );
   };
   element.addEventListener("contextmenu", listener);
-  element["@contextmenu"] = listener;
+  element[CONTEXT_MENY_SYMBOL] = listener;
 }
 
 /**Dettaches the context menu from the given element */
 export function context_menu_dettach(element: Element) {
-  if (element["@contextmenu"]) {
-    element.removeEventListener("contextmenu", element["@contextmenu"]);
-    delete element["@contextmenu"];
+  if (element[CONTEXT_MENY_SYMBOL]) {
+    element.removeEventListener("contextmenu", element[CONTEXT_MENY_SYMBOL]);
+    delete element[CONTEXT_MENY_SYMBOL];
   } else console.error("No context menu registered with node", element);
 }
 
@@ -78,8 +80,8 @@ export function context_menu_summon(
   dont_cover?: boolean
 ) {
   const container = element
-    ? element.ownerDocument["@contextmenu"]
-    : DOCUMENT_HANDLER.main["@contextmenu"];
+    ? element.ownerDocument[CONTEXT_MENY_SYMBOL]
+    : DOCUMENT_HANDLER.main[CONTEXT_MENY_SYMBOL];
   if (container) {
     if (typeof x !== "number" || typeof y !== "number") {
       if (element) {
