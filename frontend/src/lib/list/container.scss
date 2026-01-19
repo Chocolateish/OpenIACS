@@ -48,6 +48,10 @@ list-container {
             padding-right: 0.1rem;
             border-right: 1px solid var(--list-colors-border-column);
             height: 100%;
+
+            &:only-child {
+              padding-right: $sizer_width + 0.1rem;
+            }
           }
 
           > div {

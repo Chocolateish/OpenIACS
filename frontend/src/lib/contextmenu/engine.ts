@@ -35,11 +35,15 @@ function apply_to_doc(doc: Document) {
 /**Attaches a context menu to the given element*/
 export function context_menu_attach(
   element: Element,
-  lines: ContextMenu | (() => Option<ContextMenu>)
+  lines: ContextMenu | (() => Option<ContextMenu>),
+  overwrite: boolean = false
 ) {
   if (element[CONTEXT_MENY_SYMBOL]) {
-    console.error("Context menu already attached to node", element);
-    return;
+    if (overwrite) context_menu_dettach(element);
+    else {
+      console.error("Context menu already attached to node", element);
+      return;
+    }
   }
   const listener = (e: Event) => {
     e.preventDefault();

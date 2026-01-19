@@ -1,4 +1,9 @@
-import { type Option, type Result, type ResultOk } from "@libResult";
+import {
+  OptionNone,
+  type Option,
+  type Result,
+  type ResultOk,
+} from "@libResult";
 import type { StateArrayRead, StateArrayWrite } from "./array/sync";
 
 /**Function used to subscribe to state changes
@@ -400,39 +405,41 @@ export type StateArrayROS<
 export type StateArrayREAWS<
   AT,
   REL extends Option<StateRelated> = Option<any>
-> = StateREA<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+> = StateREAWS<StateArrayRead<AT>, StateArrayWrite<AT>, REL>;
 
 export type StateArrayREAWA<
   AT,
   REL extends Option<StateRelated> = Option<any>
-> = StateREA<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+> = StateREAWA<StateArrayRead<AT>, StateArrayWrite<AT>, REL>;
 
 export type StateArrayROAWS<
   AT,
   REL extends Option<StateRelated> = Option<any>
-> = StateROA<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+> = StateROAWS<StateArrayRead<AT>, StateArrayWrite<AT>, REL>;
 
 export type StateArrayROAWA<
   AT,
   REL extends Option<StateRelated> = Option<any>
-> = StateROA<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+> = StateROAWA<StateArrayRead<AT>, StateArrayWrite<AT>, REL>;
 
 export type StateArrayRESWS<
   AT,
   REL extends Option<StateRelated> = Option<any>
-> = StateRES<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+> = StateRESWS<StateArrayRead<AT>, StateArrayWrite<AT>, REL>;
 
 export type StateArrayRESWA<
   AT,
   REL extends Option<StateRelated> = Option<any>
-> = StateRES<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+> = StateRESWA<StateArrayRead<AT>, StateArrayWrite<AT>, REL>;
 
 export type StateArrayROSWS<
   AT,
   REL extends Option<StateRelated> = Option<any>
-> = StateROS<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+> = StateROSWS<StateArrayRead<AT>, StateArrayWrite<AT>, REL>;
 
 export type StateArrayROSWA<
   AT,
   REL extends Option<StateRelated> = Option<any>
-> = StateROS<StateArrayRead<AT>, REL, StateArrayWrite<AT>>;
+> = StateROSWA<StateArrayRead<AT>, StateArrayWrite<AT>, REL>;
+
+export type StateOpt<REL> = REL extends OptionNone ? Option<any> : REL;

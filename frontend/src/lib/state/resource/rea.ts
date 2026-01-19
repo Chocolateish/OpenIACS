@@ -11,6 +11,7 @@ import {
   type StateRelated as RELATED,
   type State,
   type StateHelper,
+  type StateOpt,
   type StateREA,
   type StateREAWA,
 } from "../types";
@@ -41,8 +42,8 @@ export interface StateResourceOwnerREA<RT, WT, REL extends Option<RELATED>> {
   update_single(value: Result<RT, string>, update?: boolean): void;
   update_resource(value: Result<RT, string>): void;
   get buffer(): Result<RT, string> | undefined;
-  get state(): State<RT, WT, REL>;
-  get read_only(): StateREA<RT, REL, WT>;
+  get state(): State<RT, WT, StateOpt<REL>>;
+  get read_only(): StateREA<RT, StateOpt<REL>, WT>;
 }
 
 export abstract class StateResourceREA<
@@ -139,10 +140,10 @@ export abstract class StateResourceREA<
     return this.#buffer;
   }
 
-  get state(): State<RT, WT, any> {
+  get state(): State<RT, WT, StateOpt<REL>> {
     return this as State<RT, WT, any>;
   }
-  get read_only(): StateREA<RT, any, WT> {
+  get read_only(): StateREA<RT, StateOpt<REL>, WT> {
     return this as StateREA<RT, any, WT>;
   }
 

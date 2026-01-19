@@ -12,6 +12,7 @@ import {
   type StateHelper as Helper,
   type StateRelated as RELATED,
   type State,
+  type StateOpt,
   type StateRES,
   type StateRESWS,
   type StateROS,
@@ -46,7 +47,7 @@ interface Owner<
   set(value: RRT): void;
   set_ok(value: RT): void;
   setter?: LazySetter<RT, RRT, REL, WT>;
-  readonly state: State<RT, WT, REL>;
+  readonly state: State<RT, WT, StateOpt<REL>>;
 }
 interface OwnerWS<
   RT,
@@ -63,8 +64,8 @@ export type StateLazyROS<
   WT = any
 > = StateROS<RT, REL, WT> &
   Owner<RT, ResultOk<RT>, WT, REL> & {
-    readonly read_only: StateROS<RT, REL, WT>;
-    readonly read_write?: StateROSWS<RT, WT, REL>;
+    readonly read_only: StateROS<RT, StateOpt<REL>, WT>;
+    readonly read_write?: StateROSWS<RT, WT, StateOpt<REL>>;
   };
 
 export type StateLazyROSWS<
@@ -73,8 +74,8 @@ export type StateLazyROSWS<
   REL extends Option<RELATED> = OptionNone
 > = StateROSWS<RT, WT, REL> &
   OwnerWS<RT, ResultOk<RT>, WT, REL> & {
-    readonly read_only: StateROS<RT, REL, WT>;
-    readonly read_write: StateROSWS<RT, WT, REL>;
+    readonly read_only: StateROS<RT, StateOpt<REL>, WT>;
+    readonly read_write: StateROSWS<RT, WT, StateOpt<REL>>;
   };
 
 export type StateLazyRES<
@@ -84,8 +85,8 @@ export type StateLazyRES<
 > = StateRES<RT, REL, WT> &
   Owner<RT, Result<RT, string>, WT, REL> & {
     set_err(error: string): void;
-    readonly read_only: StateRES<RT, REL, WT>;
-    readonly read_write?: StateRESWS<RT, WT, REL>;
+    readonly read_only: StateRES<RT, StateOpt<REL>, WT>;
+    readonly read_write?: StateRESWS<RT, WT, StateOpt<REL>>;
   };
 
 export type StateLazyRESWS<
@@ -95,8 +96,8 @@ export type StateLazyRESWS<
 > = StateRESWS<RT, WT, REL> &
   OwnerWS<RT, Result<RT, string>, WT, REL> & {
     set_err(error: string): void;
-    readonly read_only: StateRES<RT, REL, WT>;
-    readonly read_write: StateRESWS<RT, WT, REL>;
+    readonly read_only: StateRES<RT, StateOpt<REL>, WT>;
+    readonly read_write: StateRESWS<RT, WT, StateOpt<REL>>;
   };
 
 //##################################################################################################################################################
@@ -165,14 +166,14 @@ class RXS<
   get setter(): LazySetter<RT, RRT, REL, WT> | undefined {
     return this.#setter;
   }
-  get state(): State<RT, WT, REL> {
-    return this as State<RT, WT, REL>;
+  get state(): State<RT, WT, StateOpt<REL>> {
+    return this as State<RT, WT, any>;
   }
-  get read_only(): State<RT, WT, REL> {
-    return this as State<RT, WT, REL>;
+  get read_only(): State<RT, WT, StateOpt<REL>> {
+    return this as State<RT, WT, any>;
   }
-  get read_write(): State<RT, WT, REL> | undefined {
-    return this.#setter ? (this as State<RT, WT, REL>) : undefined;
+  get read_write(): State<RT, WT, StateOpt<REL>> | undefined {
+    return this.#setter ? (this as State<RT, WT, any>) : undefined;
   }
 
   //#Reader Context
@@ -238,9 +239,9 @@ const ros = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     init: () => RT,
-    helper?: Helper<WT, REL>
+    helper?: Helper<WT, StateOpt<REL>>
   ) {
-    return new RXS<RT, ResultOk<RT>, REL, WT>(
+    return new RXS<RT, ResultOk<RT>, StateOpt<REL>, WT>(
       () => ok(init()),
       helper
     ) as StateLazyROS<RT, REL, WT>;
@@ -250,13 +251,12 @@ const ros = {
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     init: () => ResultOk<RT>,
-    helper?: Helper<WT, REL>
+    helper?: Helper<WT, StateOpt<REL>>
   ) {
-    return new RXS<RT, ResultOk<RT>, REL, WT>(init, helper) as StateLazyROS<
-      RT,
-      REL,
-      WT
-    >;
+    return new RXS<RT, ResultOk<RT>, StateOpt<REL>, WT>(
+      init,
+      helper
+    ) as StateLazyROS<RT, REL, WT>;
   },
 };
 
@@ -266,28 +266,28 @@ const ros_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: () => RT,
-    setter: LazySetter<RT, ResultOk<RT>, REL, WT> | true = true,
-    helper?: Helper<WT, REL>
+    setter: LazySetter<RT, ResultOk<RT>, StateOpt<REL>, WT> | true = true,
+    helper?: Helper<WT, StateOpt<REL>>
   ) {
-    return new RXS<RT, ResultOk<RT>, REL, WT>(
+    return new RXS<RT, ResultOk<RT>, StateOpt<REL>, WT>(
       () => ok(init()),
       helper,
       setter
-    ) as StateLazyROSWS<RT, WT, REL>;
+    ) as StateLazyROSWS<RT, WT, StateOpt<REL>>;
   },
   /**Creates a lazy ok state from an initial result, lazy meaning the value is only evaluated on first access.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: () => ResultOk<RT>,
-    setter: LazySetter<RT, ResultOk<RT>, REL, WT> | true = true,
-    helper?: Helper<WT, REL>
+    setter: LazySetter<RT, ResultOk<RT>, StateOpt<REL>, WT> | true = true,
+    helper?: Helper<WT, StateOpt<REL>>
   ) {
-    return new RXS<RT, ResultOk<RT>, REL, WT>(
+    return new RXS<RT, ResultOk<RT>, StateOpt<REL>, WT>(
       init,
       helper,
       setter
-    ) as StateLazyROSWS<RT, WT, REL>;
+    ) as StateLazyROSWS<RT, WT, StateOpt<REL>>;
   },
 };
 const res = {
@@ -296,36 +296,36 @@ const res = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     init: () => RT,
-    helper?: Helper<WT, REL>
+    helper?: Helper<WT, StateOpt<REL>>
   ) {
-    return new RXS<RT, Result<RT, string>, REL, WT>(
+    return new RXS<RT, Result<RT, string>, StateOpt<REL>, WT>(
       () => ok(init()),
       helper
-    ) as StateLazyRES<RT, REL, WT>;
+    ) as StateLazyRES<RT, StateOpt<REL>, WT>;
   },
   /**Creates a lazy state from an initial error, lazy meaning the value is only evaluated on first access.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     init: () => string,
-    helper?: Helper<WT, REL>
+    helper?: Helper<WT, StateOpt<REL>>
   ) {
-    return new RXS<RT, Result<RT, string>, REL, WT>(
+    return new RXS<RT, Result<RT, string>, StateOpt<REL>, WT>(
       () => err(init()),
       helper
-    ) as StateLazyRES<RT, REL, WT>;
+    ) as StateLazyRES<RT, StateOpt<REL>, WT>;
   },
   /**Creates a lazy state from an initial result, lazy meaning the value is only evaluated on first access.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
     init: () => Result<RT, string>,
-    helper?: Helper<WT, REL>
+    helper?: Helper<WT, StateOpt<REL>>
   ) {
-    return new RXS<RT, Result<RT, string>, REL, WT>(
+    return new RXS<RT, Result<RT, string>, StateOpt<REL>, WT>(
       init,
       helper
-    ) as StateLazyRES<RT, REL, WT>;
+    ) as StateLazyRES<RT, StateOpt<REL>, WT>;
   },
 };
 
@@ -335,42 +335,42 @@ const res_ws = {
    * @param helper functions to check and limit the value, and to return related states.*/
   ok<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: () => RT,
-    setter: LazySetter<RT, Result<RT, string>, REL, WT> | true = true,
-    helper?: Helper<WT, REL>
+    setter: LazySetter<RT, Result<RT, string>, StateOpt<REL>, WT> | true = true,
+    helper?: Helper<WT, StateOpt<REL>>
   ) {
-    return new RXS<RT, Result<RT, string>, REL, WT>(
+    return new RXS<RT, Result<RT, string>, StateOpt<REL>, WT>(
       () => ok(init()),
       helper,
       setter
-    ) as StateLazyRESWS<RT, WT, REL>;
+    ) as StateLazyRESWS<RT, WT, StateOpt<REL>>;
   },
   /**Creates a writable lazy state from an initial error, lazy meaning the value is only evaluated on first access.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   err<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: () => string,
-    setter: LazySetter<RT, Result<RT, string>, REL, WT> | true = true,
-    helper?: Helper<WT, REL>
+    setter: LazySetter<RT, Result<RT, string>, StateOpt<REL>, WT> | true = true,
+    helper?: Helper<WT, StateOpt<REL>>
   ) {
-    return new RXS<RT, Result<RT, string>, REL, WT>(
+    return new RXS<RT, Result<RT, string>, StateOpt<REL>, WT>(
       () => err(init()),
       helper,
       setter
-    ) as StateLazyRESWS<RT, WT, REL>;
+    ) as StateLazyRESWS<RT, WT, StateOpt<REL>>;
   },
   /**Creates a writable lazy state from an initial result, lazy meaning the value is only evaluated on first access.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
   result<RT, WT = RT, REL extends Option<RELATED> = OptionNone>(
     init: () => Result<RT, string>,
-    setter: LazySetter<RT, Result<RT, string>, REL, WT> | true = true,
-    helper?: Helper<WT, REL>
+    setter: LazySetter<RT, Result<RT, string>, StateOpt<REL>, WT> | true = true,
+    helper?: Helper<WT, StateOpt<REL>>
   ) {
-    return new RXS<RT, Result<RT, string>, REL, WT>(
+    return new RXS<RT, Result<RT, string>, StateOpt<REL>, WT>(
       init,
       helper,
       setter
-    ) as StateLazyRESWS<RT, WT, REL>;
+    ) as StateLazyRESWS<RT, WT, StateOpt<REL>>;
   },
 };
 

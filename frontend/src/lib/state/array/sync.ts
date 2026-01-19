@@ -12,12 +12,12 @@ import { STATE_SYNC, type StateSyncROS } from "../sync/sync";
 import type {
   StateHelper as HELPER,
   StateRelated as RELATED,
-  State,
   StateArray,
   StateArrayRES,
   StateArrayRESWS,
   StateArrayROS,
   StateArrayROSWS,
+  StateOpt,
   StateRES,
   StateRESWS,
   StateROS,
@@ -87,7 +87,6 @@ interface Owner<
   set(value: ResultOk<AT[]>): void;
   set_ok(value: AT[]): void;
   setter?: ArraySetter<AT, RRT, REL>;
-  get state(): State<SAR<AT>, SAW<AT>, REL>;
 
   get array(): readonly AT[];
   readonly length: number;
@@ -120,8 +119,9 @@ export type StateArraySyncROS<
   REL extends Option<RELATED> = OptionNone
 > = StateROS<SAR<AT>, REL, SAW<AT>> &
   Owner<AT, ResultOk<SAR<AT>>, REL> & {
-    readonly read_only: StateArrayROS<AT, REL>;
-    readonly read_write?: StateArrayROSWS<AT, REL>;
+    readonly state: StateArray<AT, StateOpt<REL>>;
+    readonly read_only: StateArrayROS<AT, StateOpt<REL>>;
+    readonly read_write?: StateArrayROSWS<AT, StateOpt<REL>>;
   };
 
 export type StateArraySyncROSWS<
@@ -129,8 +129,9 @@ export type StateArraySyncROSWS<
   REL extends Option<RELATED> = OptionNone
 > = StateROSWS<SAR<AT>, SAW<AT>, REL> &
   OwnerWS<AT, ResultOk<SAR<AT>>, REL> & {
-    readonly read_only: StateArrayROS<AT, REL>;
-    readonly read_write: StateArrayROSWS<AT, REL>;
+    readonly state: StateArray<AT, StateOpt<REL>>;
+    readonly read_only: StateArrayROS<AT, StateOpt<REL>>;
+    readonly read_write: StateArrayROSWS<AT, StateOpt<REL>>;
   };
 
 export type StateArraySyncRES<
@@ -139,8 +140,9 @@ export type StateArraySyncRES<
 > = StateRES<SAR<AT>, REL, SAW<AT>> &
   Owner<AT, ResultOk<SAR<AT>>, REL> & {
     set_err(error: string): void;
-    readonly read_only: StateArrayRES<AT, REL>;
-    readonly read_write?: StateArrayRESWS<AT, REL>;
+    readonly state: StateArray<AT, StateOpt<REL>>;
+    readonly read_only: StateArrayRES<AT, StateOpt<REL>>;
+    readonly read_write?: StateArrayRESWS<AT, StateOpt<REL>>;
   };
 
 export type StateArraySyncRESWS<
@@ -149,8 +151,9 @@ export type StateArraySyncRESWS<
 > = StateRESWS<SAR<AT>, SAW<AT>, REL> &
   OwnerWS<AT, ResultOk<SAR<AT>>, REL> & {
     set_err(error: string): void;
-    readonly read_only: StateArrayRES<AT, REL>;
-    readonly read_write: StateArrayRESWS<AT, REL>;
+    readonly state: StateArray<AT, StateOpt<REL>>;
+    readonly read_only: StateArrayRES<AT, StateOpt<REL>>;
+    readonly read_write: StateArrayRESWS<AT, StateOpt<REL>>;
   };
 
 //##################################################################################################################################################
@@ -449,9 +452,9 @@ const ROS = {
    * @param helper functions to make related*/
   ok<AT, REL extends Option<RELATED> = OptionNone>(
     init: AT[] = [],
-    helper?: HELPER<SAW<AT>, REL>
+    helper?: HELPER<SAW<AT>, StateOpt<REL>>
   ) {
-    return new RXS<AT, ResultOk<SAR<AT>>, REL>(
+    return new RXS<AT, ResultOk<SAR<AT>>, StateOpt<REL>>(
       ok(init),
       helper
     ) as StateArraySyncROS<AT, REL>;
@@ -465,15 +468,19 @@ const ROS_WS = {
   ok<AT, REL extends Option<RELATED> = OptionNone>(
     init: AT[] = [],
     setter:
-      | StateSetREXWS<SAR<AT>, OwnerWS<AT, ResultOk<SAR<AT>>, REL>, SAW<AT>>
+      | StateSetREXWS<
+          SAR<AT>,
+          OwnerWS<AT, ResultOk<SAR<AT>>, StateOpt<REL>>,
+          SAW<AT>
+        >
       | true,
-    helper?: HELPER<SAW<AT>, REL>
+    helper?: HELPER<SAW<AT>, StateOpt<REL>>
   ) {
-    return new RXS<AT, ResultOk<SAR<AT>>, REL>(
-      ok(init),
-      helper,
-      setter
-    ) as StateArraySyncROSWS<AT, REL>;
+    return new RXS<
+      AT,
+      ResultOk<SAR<AT>>,
+      REL extends OptionNone ? Option<any> : REL
+    >(ok(init), helper, setter) as StateArraySyncROSWS<AT, REL>;
   },
 };
 const RES = {
@@ -482,24 +489,26 @@ const RES = {
    * @param helper functions to make related*/
   ok<AT, REL extends Option<RELATED> = OptionNone>(
     init: AT[] = [],
-    helper?: HELPER<SAW<AT>, REL>
+    helper?: HELPER<SAW<AT>, StateOpt<REL>>
   ) {
-    return new RXS<AT, Result<SAR<AT>, string>, REL>(
-      ok(init),
-      helper
-    ) as StateArraySyncRES<AT, REL>;
+    return new RXS<
+      AT,
+      Result<SAR<AT>, string>,
+      REL extends OptionNone ? Option<any> : REL
+    >(ok(init), helper) as StateArraySyncRES<AT, REL>;
   },
   /**Creates a state representing an array
    * @param init initial error
    * @param helper functions to make related*/
   err<AT, REL extends Option<RELATED> = OptionNone>(
     error: string,
-    helper?: HELPER<SAW<AT>, REL>
+    helper?: HELPER<SAW<AT>, StateOpt<REL>>
   ) {
-    return new RXS<AT, Result<SAR<AT>, string>, REL>(
-      err(error),
-      helper
-    ) as StateArraySyncRES<AT, REL>;
+    return new RXS<
+      AT,
+      Result<SAR<AT>, string>,
+      REL extends OptionNone ? Option<any> : REL
+    >(err(error), helper) as StateArraySyncRES<AT, REL>;
   },
 };
 const RES_WS = {
@@ -512,17 +521,17 @@ const RES_WS = {
     setter:
       | StateSetREXWS<
           SAR<AT>,
-          OwnerWS<AT, Result<SAR<AT>, string>, REL>,
+          OwnerWS<AT, Result<SAR<AT>, string>, StateOpt<REL>>,
           SAW<AT>
         >
       | true,
-    helper?: HELPER<SAW<AT>, REL>
+    helper?: HELPER<SAW<AT>, StateOpt<REL>>
   ) {
-    return new RXS<AT, Result<SAR<AT>, string>, REL>(
-      ok(init),
-      helper,
-      setter
-    ) as StateArraySyncRESWS<AT, REL>;
+    return new RXS<
+      AT,
+      Result<SAR<AT>, string>,
+      REL extends OptionNone ? Option<any> : REL
+    >(ok(init), helper, setter) as StateArraySyncRESWS<AT, REL>;
   },
   /**Creates a state representing an array
    * @param err initial error
@@ -533,17 +542,17 @@ const RES_WS = {
     setter:
       | StateSetREXWS<
           SAR<AT>,
-          OwnerWS<AT, Result<SAR<AT>, string>, REL>,
+          OwnerWS<AT, Result<SAR<AT>, string>, StateOpt<REL>>,
           SAW<AT>
         >
       | true,
-    helper?: HELPER<SAW<AT>, REL>
+    helper?: HELPER<SAW<AT>, StateOpt<REL>>
   ) {
-    return new RXS<AT, Result<SAR<AT>, string>, REL>(
-      err(error),
-      helper,
-      setter
-    ) as StateArraySyncRESWS<AT, REL>;
+    return new RXS<
+      AT,
+      Result<SAR<AT>, string>,
+      REL extends OptionNone ? Option<any> : REL
+    >(err(error), helper, setter) as StateArraySyncRESWS<AT, REL>;
   },
 };
 
