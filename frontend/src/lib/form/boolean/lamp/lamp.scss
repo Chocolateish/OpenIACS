@@ -1,6 +1,8 @@
 @use "../../base";
 
 form-lamp {
+  @include base.base;
+
   border: 1px solid base.$color_border;
   min-height: base.$size_height;
   box-shadow: base.$shadow_out;

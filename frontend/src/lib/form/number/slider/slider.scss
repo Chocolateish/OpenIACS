@@ -2,6 +2,7 @@
 @use "../numberBase";
 
 form-slider {
+  @include base.base;
   $textPadding: 0.2rem;
   $thumbWidth: base.$unit_width + 0.4rem + $textPadding;
   $touchThumbWidth: base.$touch_unit_width + 0.4rem + $textPadding;

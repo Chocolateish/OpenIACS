@@ -2,6 +2,7 @@
 @use "../numberBase";
 
 form-progress {
+  @include base.base;
   height: base.$size_height;
   border-radius: base.$size_cornerRadius;
   background-color: base.$color_background;

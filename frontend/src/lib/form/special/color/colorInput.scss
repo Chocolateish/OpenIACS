@@ -1,6 +1,7 @@
 @use "../../base";
 
 form-colorinput {
+  @include base.base;
   height: base.$size_height;
   border: base.$border;
   border-radius: base.$size_cornerRadius;

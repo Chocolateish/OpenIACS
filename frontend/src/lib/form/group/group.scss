@@ -1,6 +1,7 @@
 @use "../base";
 
 form-group {
+  @include base.base;
   --max_height: none;
 
   display: flex;

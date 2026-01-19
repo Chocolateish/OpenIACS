@@ -2,6 +2,7 @@
 @use "../numberBase";
 
 form-numberinput {
+  @include base.base;
   border: base.$border;
   height: base.$size_height;
   box-shadow: base.$shadow_in;

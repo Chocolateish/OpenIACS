@@ -2,6 +2,7 @@
 @use "../numberBase";
 
 form-stepper {
+  @include base.base;
   height: base.$size_height;
   border: base.$border;
   box-shadow: base.$shadow_in;

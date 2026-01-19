@@ -1,6 +1,8 @@
 @use "../../base";
 
 form-switch {
+  @include base.base;
+
   position: relative;
   display: flex;
   align-items: center;

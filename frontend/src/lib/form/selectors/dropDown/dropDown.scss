@@ -1,6 +1,7 @@
 @use "../../base";
 
 form-dropdown {
+  @include base.base;
   background-color: base.$color_background;
   border: base.$border;
   border-radius: base.$size_cornerRadius;

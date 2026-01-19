@@ -1,6 +1,7 @@
 @use "../../base";
 
 form-textinput {
+  @include base.base;
   display: block;
   border: base.$border;
   box-shadow: base.$shadow_in;

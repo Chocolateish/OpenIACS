@@ -62,17 +62,9 @@ $animation: $animation_transitionType $animation_transitionDuration;
 
 //Mixins
 @mixin base {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-
-  &[inert] > * {
+  &[inert] {
     opacity: 0.6;
     pointer-events: none;
-  }
-
-  > span {
-    @include label;
   }
 }
 

@@ -1,6 +1,7 @@
 @use "../../base";
 
 form-togglebutton {
+  @include base.base;
   padding: base.$padding;
   padding-bottom: 0.1rem;
   overflow-x: auto;

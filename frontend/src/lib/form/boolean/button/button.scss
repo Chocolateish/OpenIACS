@@ -1,6 +1,8 @@
 @use "../../base";
 
 form-button {
+  @include base.base;
+
   border: base.$border;
   min-height: base.$size_height;
   box-shadow: base.$shadow_out;
