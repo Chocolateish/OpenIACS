@@ -1,3 +1,4 @@
+list-container > div:not(.addrow) > div > :last-child,
 list-row:not(.addrow) > span > :last-child {
   --c: transparent;
 }

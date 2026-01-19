@@ -140,7 +140,14 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
       this.openable = row_options.openable;
     }
 
-    if (row_options.opened) this.open = true;
+    if (row_options.opened) {
+      if (this.open) {
+        if (this.#sub_rows) this.rows = this.#sub_rows?.();
+      } else this.open = true;
+    } else if (this.open) {
+      if (this.#sub_rows) this.rows = this.#sub_rows?.();
+      else this.open = false;
+    }
   }
 
   set add_row(options: ListAddRowOptions | undefined) {
