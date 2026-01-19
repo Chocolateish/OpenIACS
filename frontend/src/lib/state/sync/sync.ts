@@ -192,7 +192,7 @@ class RXS<
 
   //#Writer Context
   get writable(): boolean {
-    return this.setter !== undefined;
+    return this.#setter !== undefined;
   }
   get wsync(): boolean {
     return this.writable;
@@ -201,8 +201,12 @@ class RXS<
     return this.write_sync(value);
   }
   write_sync(value: WT): Result<void, string> {
-    if (this.setter)
-      return this.setter(value, this as OwnerWS<RT, RRT, WT, REL>, this.#value);
+    if (this.#setter)
+      return this.#setter(
+        value,
+        this as OwnerWS<RT, RRT, WT, REL>,
+        this.#value
+      );
     return err("State not writable");
   }
   limit(value: WT): Result<WT, string> {
