@@ -15,6 +15,7 @@ import type { ListRoot, ListRowParent, ListType } from "./types";
 export type ListSubRows<R> = () => R[] | State<R[]> | StateArray<R>;
 
 export interface ListRowOptions<R, T extends {}> {
+  opened?: true;
   openable?: boolean | State<boolean>;
   key_field?: ListKeyFieldOptions;
   sub_rows?: ListSubRows<R>;
@@ -138,6 +139,8 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
       this.detach_state_from_prop("openable");
       this.openable = row_options.openable;
     }
+
+    if (row_options.opened) this.open = true;
   }
 
   set add_row(options: ListAddRowOptions | undefined) {
