@@ -15,7 +15,7 @@ import type { ListRoot, ListRowParent, ListType } from "./types";
 export type ListSubRows<R> = () => R[] | State<R[]> | StateArray<R>;
 
 export interface ListRowOptions<R, T extends {}> {
-  opened?: true;
+  opened?: boolean;
   openable?: boolean | State<boolean>;
   key_field?: ListKeyFieldOptions;
   sub_rows?: ListSubRows<R>;
@@ -79,7 +79,7 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
 
   select_adjacent(
     direction: "next" | "previous" | "p_next" | "p_previous" | "last",
-    field: Option<number>
+    field: Option<number>,
   ) {
     if (direction === "next" || direction === "p_next") {
       if (direction === "next" && this.open)
@@ -102,7 +102,7 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
       if (this.open) {
         (this.#child_box.lastElementChild as ListRow<R, T, A>).select_adjacent(
           "last",
-          field
+          field,
         );
       } else this.#key_field.focus();
     }
@@ -210,7 +210,7 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
     if (rec)
       for (let i = 0; i < this.#child_box.childElementCount; i++)
         count += (this.#child_box.children[i] as ListRow<R, T, A>).amount_rows(
-          true
+          true,
         );
     return count;
   }
@@ -227,7 +227,7 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
         });
       else
         this.#state_sub = this.attach_state(rows, (r) =>
-          this.#update_rows(r.ok ? r.value : [])
+          this.#update_rows(r.ok ? r.value : []),
         );
     else this.#update_rows(rows);
   }
@@ -242,7 +242,7 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
         this.#child_box.append(
           ...rows
             .slice(this.#child_box.childElementCount)
-            .map((row) => new ListRow<R, T, A>(this.#root, this, row))
+            .map((row) => new ListRow<R, T, A>(this.#root, this, row)),
         );
       else if (rows.length < this.#child_box.childElementCount) {
         for (
@@ -261,7 +261,7 @@ export class ListRow<R, T extends {}, A extends ListType<R>>
         | ListRow<R, T, A>
         | undefined;
       const rows = sar.items.map(
-        (row) => new ListRow<R, T, A>(this.#root, this, row)
+        (row) => new ListRow<R, T, A>(this.#root, this, row),
       );
       if (child) child.before(...rows);
       else this.#child_box.append(...rows);
