@@ -38,10 +38,10 @@ export interface StateResourceOwnerROA<RT, WT, REL extends Option<RELATED>> {
 }
 
 export abstract class StateResourceROA<
-    RT,
-    REL extends Option<RELATED> = Option<any>,
-    WT = any
-  >
+  RT,
+  REL extends Option<RELATED> = Option<{}>,
+  WT = any,
+>
   extends StateBase<RT, WT, REL, ResultOk<RT>>
   implements StateResourceOwnerROA<RT, WT, REL>
 {
@@ -97,17 +97,17 @@ export abstract class StateResourceROA<
 
   /**Called if the state is awaited, returns the value once*/
   protected abstract single_get(
-    state: StateResourceOwnerROA<RT, WT, REL>
+    state: StateResourceOwnerROA<RT, WT, REL>,
   ): void;
 
   /**Called when state is subscribed to to setup connection to remote resource*/
   protected abstract setup_connection(
-    state: StateResourceOwnerROA<RT, WT, REL>
+    state: StateResourceOwnerROA<RT, WT, REL>,
   ): void;
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
   protected abstract teardown_connection(
-    state: StateResourceOwnerROA<RT, WT, REL>
+    state: StateResourceOwnerROA<RT, WT, REL>,
   ): void;
 
   update_single(value: ResultOk<RT>, update: boolean = false) {
@@ -145,7 +145,7 @@ export abstract class StateResourceROA<
     return false;
   }
   async then<T = ResultOk<RT>>(
-    func: (value: ResultOk<RT>) => T | PromiseLike<T>
+    func: (value: ResultOk<RT>) => T | PromiseLike<T>,
   ): Promise<T> {
     if (this.#valid === true || this.#valid >= Date.now())
       return func(this.#buffer!);
@@ -155,7 +155,7 @@ export abstract class StateResourceROA<
         this.#fetching = true;
         this.#timeout_timout = setTimeout(
           () => (this.#fetching = false),
-          this.timeout
+          this.timeout,
         );
         if (this.debounce > 0)
           setTimeout(() => this.single_get(this), this.debounce);
@@ -175,19 +175,22 @@ export abstract class StateResourceROA<
 }
 
 //##################################################################################################################################################
-interface Owner<RT, WT, REL extends Option<RELATED>>
-  extends StateResourceOwnerROA<RT, WT, REL> {}
+interface Owner<
+  RT,
+  WT,
+  REL extends Option<RELATED>,
+> extends StateResourceOwnerROA<RT, WT, REL> {}
 export type StateResourceFuncROA<
   RT,
-  REL extends Option<RELATED> = Option<any>,
-  WT = any
+  REL extends Option<RELATED> = Option<{}>,
+  WT = any,
 > = StateROA<RT, REL, WT> & Owner<RT, WT, REL>;
 
 /**Alternative state resource which can be initialized with functions
  * @template RT - The type of the state’s value when read.
  * @template WT - The type which can be written to the state.
  * @template REL - The type of related states, defaults to an empty object.*/
-class FuncROA<RT, REL extends Option<RELATED> = Option<any>, WT = any>
+class FuncROA<RT, REL extends Option<RELATED> = Option<{}>, WT = any>
   extends StateResourceROA<RT, REL, WT>
   implements Owner<RT, WT, REL>
 {
@@ -199,7 +202,7 @@ class FuncROA<RT, REL extends Option<RELATED> = Option<any>, WT = any>
     debounce: number,
     validity: number | true,
     retention: number,
-    helper?: StateHelper<WT, REL>
+    helper?: StateHelper<WT, REL>,
   ) {
     super();
     this.single_get = once;
@@ -243,7 +246,7 @@ const roa = {
    * @param validity how long the last retrived value is considered valid, if true, value is valid until all unsubscribes
    * @param retention delay after last subscriber unsubscribes before teardown is called, to allow quick resubscribe without teardown
    * */
-  from<RT, REL extends Option<RELATED> = Option<any>, WT = any>(
+  from<RT, REL extends Option<RELATED> = Option<{}>, WT = any>(
     once: (state: Owner<RT, WT, REL>) => void,
     setup: (state: Owner<RT, WT, REL>) => void,
     teardown: (state: Owner<RT, WT, REL>) => void,
@@ -253,7 +256,7 @@ const roa = {
       validity?: number | true;
       retention?: number;
     },
-    helper?: StateHelper<WT, REL>
+    helper?: StateHelper<WT, REL>,
   ) {
     return new FuncROA<RT, REL, WT>(
       once,
@@ -263,7 +266,7 @@ const roa = {
       times?.debounce ?? 0,
       times?.validity ?? 0,
       times?.retention ?? 0,
-      helper
+      helper,
     ) as StateResourceFuncROA<RT, REL, WT>;
   },
   class: StateResourceROA,

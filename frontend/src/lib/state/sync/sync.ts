@@ -22,18 +22,18 @@ type SyncSetter<
   RT,
   RRT extends Result<RT, string>,
   REL extends Option<RELATED>,
-  WT = RT
+  WT = RT,
 > = (
   value: WT,
   state: OwnerWS<RT, RRT, WT, REL>,
-  old?: RRT
+  old?: RRT,
 ) => Result<void, string>;
 
 interface Owner<
   RT,
   RRT extends Result<RT, string>,
   WT,
-  REL extends Option<RELATED>
+  REL extends Option<RELATED>,
 > {
   set(value: RRT): void;
   set_ok(value: RT): void;
@@ -44,15 +44,15 @@ interface OwnerWS<
   RT,
   RRT extends Result<RT, string>,
   WT,
-  REL extends Option<RELATED>
+  REL extends Option<RELATED>,
 > extends Owner<RT, RRT, WT, REL> {
   setter: SyncSetter<RT, RRT, REL, WT>;
 }
 
 export type StateSyncROS<
   RT,
-  REL extends Option<RELATED> = Option<any>,
-  WT = any
+  REL extends Option<RELATED> = Option<{}>,
+  WT = any,
 > = StateROS<RT, REL, WT> &
   Owner<RT, ResultOk<RT>, WT, REL> & {
     readonly read_only: StateROS<RT, REL, WT>;
@@ -62,7 +62,7 @@ export type StateSyncROS<
 export type StateSyncROSWS<
   RT,
   WT = RT,
-  REL extends Option<RELATED> = Option<any>
+  REL extends Option<RELATED> = Option<{}>,
 > = StateROSWS<RT, WT, REL> &
   OwnerWS<RT, ResultOk<RT>, WT, REL> & {
     readonly read_only: StateROS<RT, REL, WT>;
@@ -71,8 +71,8 @@ export type StateSyncROSWS<
 
 export type StateSyncRES<
   RT,
-  REL extends Option<RELATED> = Option<any>,
-  WT = any
+  REL extends Option<RELATED> = Option<{}>,
+  WT = any,
 > = StateRES<RT, REL, WT> &
   Owner<RT, Result<RT, string>, WT, REL> & {
     set_err(error: string): void;
@@ -83,7 +83,7 @@ export type StateSyncRES<
 export type StateSyncRESWS<
   RT,
   WT = RT,
-  REL extends Option<RELATED> = Option<any>
+  REL extends Option<RELATED> = Option<{}>,
 > = StateRESWS<RT, WT, REL> &
   OwnerWS<RT, Result<RT, string>, WT, REL> & {
     set_err(error: string): void;
@@ -100,18 +100,18 @@ export type StateSyncRESWS<
 //      \_____|______/_/    \_\_____/_____/
 
 class RXS<
-    RT,
-    RRT extends Result<RT, string>,
-    REL extends Option<RELATED> = Option<any>,
-    WT = any
-  >
+  RT,
+  RRT extends Result<RT, string>,
+  REL extends Option<RELATED> = Option<{}>,
+  WT = any,
+>
   extends StateBase<RT, WT, REL, RRT>
   implements Owner<RT, RRT, WT, REL>
 {
   constructor(
     init: RRT,
     helper?: Helper<WT, REL>,
-    setter?: SyncSetter<RT, RRT, REL, WT> | true
+    setter?: SyncSetter<RT, RRT, REL, WT> | true,
   ) {
     super();
     if (setter === true)
@@ -167,7 +167,7 @@ class RXS<
     return true;
   }
   async then<TResult1 = RRT>(
-    func: (value: RRT) => TResult1 | PromiseLike<TResult1>
+    func: (value: RRT) => TResult1 | PromiseLike<TResult1>,
   ): Promise<TResult1> {
     return func(this.#value);
   }
@@ -196,7 +196,7 @@ class RXS<
       return this.#setter(
         value,
         this as OwnerWS<RT, RRT, WT, REL>,
-        this.#value
+        this.#value,
       );
     return err("State not writable");
   }
@@ -220,10 +220,10 @@ const ros = {
   /**Creates a sync ok state from an initial value.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, REL extends Option<RELATED> = Option<any>, WT = any>(
+  ok<RT, REL extends Option<RELATED> = Option<{}>, WT = any>(
     this: void,
     init: RT,
-    helper?: Helper<WT, REL>
+    helper?: Helper<WT, REL>,
   ) {
     return new RXS<RT, ResultOk<RT>, REL, WT>(ok(init), helper) as StateSyncROS<
       RT,
@@ -234,9 +234,9 @@ const ros = {
   /**Creates a sync ok state from an initial result.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, REL extends Option<RELATED> = Option<any>, WT = any>(
+  result<RT, REL extends Option<RELATED> = Option<{}>, WT = any>(
     init: ResultOk<RT>,
-    helper?: Helper<WT, REL>
+    helper?: Helper<WT, REL>,
   ) {
     return new RXS<RT, ResultOk<RT>, REL, WT>(init, helper) as StateSyncROS<
       RT,
@@ -250,30 +250,30 @@ const ros_ws = {
   /**Creates a sync ok state from an initial value.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, WT = RT, REL extends Option<RELATED> = Option<any>>(
+  ok<RT, WT = RT, REL extends Option<RELATED> = Option<{}>>(
     this: void,
     init: RT,
     setter: SyncSetter<RT, ResultOk<RT>, REL, WT> | true = true,
-    helper?: Helper<WT, REL>
+    helper?: Helper<WT, REL>,
   ) {
     return new RXS<RT, ResultOk<RT>, REL, WT>(
       ok(init),
       helper,
-      setter
+      setter,
     ) as StateSyncROSWS<RT, WT, REL>;
   },
   /**Creates a sync ok state from an initial result.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, WT = RT, REL extends Option<RELATED> = Option<any>>(
+  result<RT, WT = RT, REL extends Option<RELATED> = Option<{}>>(
     init: ResultOk<RT>,
     setter: SyncSetter<RT, ResultOk<RT>, REL, WT> | true = true,
-    helper?: Helper<WT, REL>
+    helper?: Helper<WT, REL>,
   ) {
     return new RXS<RT, ResultOk<RT>, REL, WT>(
       init,
       helper,
-      setter
+      setter,
     ) as StateSyncROSWS<RT, WT, REL>;
   },
 };
@@ -282,39 +282,39 @@ const res = {
   /**Creates a sync state from an initial value.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, REL extends Option<RELATED> = Option<any>, WT = any>(
+  ok<RT, REL extends Option<RELATED> = Option<{}>, WT = any>(
     this: void,
     init: RT,
-    helper?: Helper<WT, REL>
+    helper?: Helper<WT, REL>,
   ) {
     return new RXS<RT, Result<RT, string>, REL, WT>(
       ok(init),
-      helper
+      helper,
     ) as StateSyncRES<RT, REL, WT>;
   },
   /**Creates a sync state from an initial error.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  err<RT, REL extends Option<RELATED> = Option<any>, WT = any>(
+  err<RT, REL extends Option<RELATED> = Option<{}>, WT = any>(
     this: void,
     init: string,
-    helper?: Helper<WT, REL>
+    helper?: Helper<WT, REL>,
   ) {
     return new RXS<RT, Result<RT, string>, REL, WT>(
       err(init),
-      helper
+      helper,
     ) as StateSyncRES<RT, REL, WT>;
   },
   /**Creates a sync state from an initial result.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, REL extends Option<RELATED> = Option<any>, WT = any>(
+  result<RT, REL extends Option<RELATED> = Option<{}>, WT = any>(
     init: Result<RT, string>,
-    helper?: Helper<WT, REL>
+    helper?: Helper<WT, REL>,
   ) {
     return new RXS<RT, Result<RT, string>, REL, WT>(
       init,
-      helper
+      helper,
     ) as StateSyncRES<RT, REL, WT>;
   },
 };
@@ -322,45 +322,45 @@ const res_ws = {
   /**Creates a writable sync state from an initial value.
    * @param init initial value for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  ok<RT, WT = RT, REL extends Option<RELATED> = Option<any>>(
+  ok<RT, WT = RT, REL extends Option<RELATED> = Option<{}>>(
     this: void,
     init: RT,
     setter: SyncSetter<RT, Result<RT, string>, REL, WT> | true = true,
-    helper?: Helper<WT, REL>
+    helper?: Helper<WT, REL>,
   ) {
     return new RXS<RT, Result<RT, string>, REL, WT>(
       ok(init),
       helper,
-      setter
+      setter,
     ) as StateSyncRESWS<RT, WT, REL>;
   },
   /**Creates a writable sync state from an initial error.
    * @param init initial error for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  err<RT, WT = RT, REL extends Option<RELATED> = Option<any>>(
+  err<RT, WT = RT, REL extends Option<RELATED> = Option<{}>>(
     this: void,
     init: string,
     setter: SyncSetter<RT, Result<RT, string>, REL, WT> | true = true,
-    helper?: Helper<WT, REL>
+    helper?: Helper<WT, REL>,
   ) {
     return new RXS<RT, Result<RT, string>, REL, WT>(
       err(init),
       helper,
-      setter
+      setter,
     ) as StateSyncRESWS<RT, WT, REL>;
   },
   /**Creates a writable sync state from an initial result.
    * @param init initial result for state.
    * @param helper functions to check and limit the value, and to return related states.*/
-  result<RT, WT = RT, REL extends Option<RELATED> = Option<any>>(
+  result<RT, WT = RT, REL extends Option<RELATED> = Option<{}>>(
     init: Result<RT, string>,
     setter: SyncSetter<RT, Result<RT, string>, REL, WT> | true = true,
-    helper?: Helper<WT, REL>
+    helper?: Helper<WT, REL>,
   ) {
     return new RXS<RT, Result<RT, string>, REL, WT>(
       init,
       helper,
-      setter
+      setter,
     ) as StateSyncRESWS<RT, WT, REL>;
   },
 };

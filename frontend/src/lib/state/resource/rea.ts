@@ -39,10 +39,10 @@ export interface StateResourceOwnerREA<RT, WT, REL extends Option<RELATED>> {
 }
 
 export abstract class StateResourceREA<
-    RT,
-    REL extends Option<RELATED> = Option<any>,
-    WT = any
-  >
+  RT,
+  REL extends Option<RELATED> = Option<{}>,
+  WT = any,
+>
   extends StateBase<RT, WT, REL, Result<RT, string>>
   implements StateResourceOwnerREA<RT, WT, REL>
 {
@@ -98,17 +98,17 @@ export abstract class StateResourceREA<
 
   /**Called if the state is awaited, returns the value once*/
   protected abstract single_get(
-    state: StateResourceOwnerREA<RT, WT, REL>
+    state: StateResourceOwnerREA<RT, WT, REL>,
   ): void;
 
   /**Called when state is subscribed to to setup connection to remote resource*/
   protected abstract setup_connection(
-    state: StateResourceOwnerREA<RT, WT, REL>
+    state: StateResourceOwnerREA<RT, WT, REL>,
   ): void;
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
   protected abstract teardown_connection(
-    state: StateResourceOwnerREA<RT, WT, REL>
+    state: StateResourceOwnerREA<RT, WT, REL>,
   ): void;
 
   update_single(value: Result<RT, string>, update: boolean = false) {
@@ -147,7 +147,7 @@ export abstract class StateResourceREA<
     return false;
   }
   async then<T = Result<RT, string>>(
-    func: (value: Result<RT, string>) => T | PromiseLike<T>
+    func: (value: Result<RT, string>) => T | PromiseLike<T>,
   ): Promise<T> {
     if (this.#valid === true || this.#valid >= Date.now())
       return func(this.#buffer!);
@@ -157,7 +157,7 @@ export abstract class StateResourceREA<
         this.#fetching = true;
         this.#timeout_timout = setTimeout(
           () => (this.#fetching = false),
-          this.timeout
+          this.timeout,
         );
         if (this.debounce > 0)
           setTimeout(() => this.single_get(this), this.debounce);
@@ -177,12 +177,15 @@ export abstract class StateResourceREA<
 }
 
 //##################################################################################################################################################
-interface OWNER<RT, WT, REL extends Option<RELATED>>
-  extends StateResourceOwnerREA<RT, WT, REL> {}
+interface OWNER<
+  RT,
+  WT,
+  REL extends Option<RELATED>,
+> extends StateResourceOwnerREA<RT, WT, REL> {}
 export type StateResourceFuncREA<
   RT,
-  REL extends Option<RELATED> = Option<any>,
-  WT = any
+  REL extends Option<RELATED> = Option<{}>,
+  WT = any,
 > = StateREA<RT, REL, WT> & OWNER<RT, WT, REL>;
 
 /**Alternative state resource which can be initialized with functions
@@ -191,8 +194,8 @@ export type StateResourceFuncREA<
  * @template REL - The type of related states, defaults to an empty object.*/
 class FuncREA<
   RT,
-  REL extends Option<RELATED> = Option<any>,
-  WT = any
+  REL extends Option<RELATED> = Option<{}>,
+  WT = any,
 > extends StateResourceREA<RT, REL, WT> {
   constructor(
     once: (state: OWNER<RT, WT, REL>) => void,
@@ -202,7 +205,7 @@ class FuncREA<
     debounce: number,
     validity: number | true,
     retention: number,
-    helper?: StateHelper<WT, REL>
+    helper?: StateHelper<WT, REL>,
   ) {
     super();
     this.single_get = once;
@@ -246,7 +249,7 @@ const rea = {
    * @param validity how long the last retrived value is considered valid
    * @param retention delay after last subscriber unsubscribes before teardown is called, to allow quick resubscribe without teardown
    * */
-  from<RT, REL extends Option<RELATED> = Option<any>, WT = any>(
+  from<RT, REL extends Option<RELATED> = Option<{}>, WT = any>(
     once: (state: OWNER<RT, WT, REL>) => void,
     setup: (state: OWNER<RT, WT, REL>) => void,
     teardown: (state: OWNER<RT, WT, REL>) => void,
@@ -256,7 +259,7 @@ const rea = {
       validity?: number | true;
       retention?: number;
     },
-    helper?: StateHelper<WT, REL>
+    helper?: StateHelper<WT, REL>,
   ) {
     return new FuncREA<RT, REL, WT>(
       once,
@@ -266,7 +269,7 @@ const rea = {
       times?.debounce ?? 0,
       times?.validity ?? 0,
       times?.retention ?? 0,
-      helper
+      helper,
     ) as StateResourceFuncREA<RT, REL, WT>;
   },
   class: StateResourceREA,
@@ -306,10 +309,10 @@ export interface StateResourceOwnerREAWA<RT, WT, REL extends Option<RELATED>> {
 }
 
 export abstract class StateResourceREAWA<
-    RT,
-    WT = RT,
-    REL extends Option<RELATED> = Option<any>
-  >
+  RT,
+  WT = RT,
+  REL extends Option<RELATED> = Option<{}>,
+>
   extends StateBase<RT, WT, REL, Result<RT, string>>
   implements StateResourceOwnerREAWA<RT, WT, REL>
 {
@@ -371,23 +374,23 @@ export abstract class StateResourceREAWA<
 
   /**Called if the state is awaited, returns the value once*/
   protected abstract single_get(
-    state: StateResourceOwnerREAWA<RT, WT, REL>
+    state: StateResourceOwnerREAWA<RT, WT, REL>,
   ): void;
 
   /**Called when state is subscribed to to setup connection to remote resource*/
   protected abstract setup_connection(
-    state: StateResourceOwnerREAWA<RT, WT, REL>
+    state: StateResourceOwnerREAWA<RT, WT, REL>,
   ): void;
 
   /**Called when state is no longer subscribed to to cleanup connection to remote resource*/
   protected abstract teardown_connection(
-    state: StateResourceOwnerREAWA<RT, WT, REL>
+    state: StateResourceOwnerREAWA<RT, WT, REL>,
   ): void;
 
   /**Called after write debounce finished with the last written value*/
   protected abstract write_action(
     value: WT,
-    state: StateResourceOwnerREAWA<RT, WT, REL>
+    state: StateResourceOwnerREAWA<RT, WT, REL>,
   ): Promise<Result<void, string>>;
 
   update_single(value: Result<RT, string>, update: boolean = false) {
@@ -428,7 +431,7 @@ export abstract class StateResourceREAWA<
     return false;
   }
   async then<T = Result<RT, string>>(
-    func: (value: Result<RT, string>) => T | PromiseLike<T>
+    func: (value: Result<RT, string>) => T | PromiseLike<T>,
   ): Promise<T> {
     if (this.#valid === true || this.#valid >= Date.now())
       return func(this.#buffer!);
@@ -438,7 +441,7 @@ export abstract class StateResourceREAWA<
         this.#fetching = true;
         this.#timeout_timout = setTimeout(
           () => (this.#fetching = false),
-          this.timeout
+          this.timeout,
         );
         if (this.debounce > 0)
           setTimeout(() => this.single_get(this), this.debounce);
@@ -479,20 +482,23 @@ export abstract class StateResourceREAWA<
 }
 
 //##################################################################################################################################################
-interface OwnerWA<RT, WT, REL extends Option<RELATED>>
-  extends StateResourceOwnerREAWA<RT, WT, REL> {}
+interface OwnerWA<
+  RT,
+  WT,
+  REL extends Option<RELATED>,
+> extends StateResourceOwnerREAWA<RT, WT, REL> {}
 
 export type StateResourceFuncREAWA<
   RT,
-  REL extends Option<RELATED> = Option<any>,
-  WT = any
+  REL extends Option<RELATED> = Option<{}>,
+  WT = any,
 > = StateREAWA<RT, WT, REL> & OwnerWA<RT, WT, REL>;
 /**Alternative state resource which can be initialized with functions
  * @template RT - The type of the state’s value when read.
  * @template WT - The type which can be written to the state.
  * @template REL - The type of related states, defaults to an empty object.*/
 
-class FuncREAWA<RT, WT = RT, REL extends Option<RELATED> = Option<any>>
+class FuncREAWA<RT, WT = RT, REL extends Option<RELATED> = Option<{}>>
   extends StateResourceREAWA<RT, WT, REL>
   implements OwnerWA<RT, WT, REL>
 {
@@ -507,9 +513,9 @@ class FuncREAWA<RT, WT = RT, REL extends Option<RELATED> = Option<any>>
     write_debounce?: number,
     write_action?: (
       value: WT,
-      state: OwnerWA<RT, WT, REL>
+      state: OwnerWA<RT, WT, REL>,
     ) => Promise<Result<void, string>>,
-    helper?: StateHelper<WT, REL>
+    helper?: StateHelper<WT, REL>,
   ) {
     super();
     this.single_get = once;
@@ -543,7 +549,7 @@ class FuncREAWA<RT, WT = RT, REL extends Option<RELATED> = Option<any>>
   /**Called after write debounce finished with the last written value*/
   protected async write_action(
     _value: WT,
-    _state: OwnerWA<RT, WT, REL>
+    _state: OwnerWA<RT, WT, REL>,
   ): Promise<Result<void, string>> {
     return err("State not writable");
   }
@@ -575,13 +581,13 @@ const rea_wa = {
    * @param retention delay after last subscriber unsubscribes before teardown is called, to allow quick resubscribe without teardown
    * @param write_debounce debounce delay for write calls, only the last write within the delay is used
    * */
-  from<RT, REL extends Option<RELATED> = Option<any>, WT = RT>(
+  from<RT, REL extends Option<RELATED> = Option<{}>, WT = RT>(
     once: (state: OwnerWA<RT, WT, REL>) => void,
     setup: (state: OwnerWA<RT, WT, REL>) => void,
     teardown: () => void,
     write_action?: (
       value: WT,
-      state: OwnerWA<RT, WT, REL>
+      state: OwnerWA<RT, WT, REL>,
     ) => Promise<Result<void, string>>,
     times?: {
       timeout?: number;
@@ -590,7 +596,7 @@ const rea_wa = {
       retention?: number;
       write_debounce?: number;
     },
-    helper?: StateHelper<WT, REL>
+    helper?: StateHelper<WT, REL>,
   ) {
     return new FuncREAWA<RT, WT, REL>(
       once,
@@ -602,7 +608,7 @@ const rea_wa = {
       times?.retention ?? 0,
       times?.write_debounce ?? 0,
       write_action,
-      helper
+      helper,
     ) as StateResourceFuncREAWA<RT, REL, WT>;
   },
   class: StateResourceREAWA,

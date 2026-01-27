@@ -71,17 +71,17 @@ type SAW<AT> = StateArrayWrite<AT>;
 type ArraySetter<
   AT,
   RRT extends Result<SAR<AT>, string>,
-  REL extends Option<RELATED>
+  REL extends Option<RELATED>,
 > = (
   value: SAW<AT>,
   state: OwnerWS<AT, RRT, REL>,
-  old?: RRT
+  old?: RRT,
 ) => Result<void, string>;
 
 interface Owner<
   AT,
   RRT extends Result<SAR<AT>, string>,
-  REL extends Option<RELATED>
+  REL extends Option<RELATED>,
 > {
   set(value: ResultOk<AT[]>): void;
   set_ok(value: AT[]): void;
@@ -101,21 +101,21 @@ interface Owner<
 
   apply_read<B>(
     result: ResultOk<SAR<B>>,
-    transform: (val: readonly B[], type: StateArrayReadType) => AT[]
+    transform: (val: readonly B[], type: StateArrayReadType) => AT[],
   ): void;
 }
 
 interface OwnerWS<
   AT,
   RRT extends Result<SAR<AT>, string>,
-  REL extends Option<RELATED>
+  REL extends Option<RELATED>,
 > extends Owner<AT, RRT, REL> {
   setter: ArraySetter<AT, RRT, REL>;
 }
 
 export type StateArraySyncROS<
   AT,
-  REL extends Option<RELATED> = Option<any>
+  REL extends Option<RELATED> = Option<{}>,
 > = StateROS<SAR<AT>, REL, SAW<AT>> &
   Owner<AT, ResultOk<SAR<AT>>, REL> & {
     readonly state: StateArray<AT, REL>;
@@ -125,7 +125,7 @@ export type StateArraySyncROS<
 
 export type StateArraySyncROSWS<
   AT,
-  REL extends Option<RELATED> = Option<any>
+  REL extends Option<RELATED> = Option<{}>,
 > = StateROSWS<SAR<AT>, SAW<AT>, REL> &
   OwnerWS<AT, ResultOk<SAR<AT>>, REL> & {
     readonly state: StateArray<AT, REL>;
@@ -135,7 +135,7 @@ export type StateArraySyncROSWS<
 
 export type StateArraySyncRES<
   AT,
-  REL extends Option<RELATED> = Option<any>
+  REL extends Option<RELATED> = Option<{}>,
 > = StateRES<SAR<AT>, REL, SAW<AT>> &
   Owner<AT, ResultOk<SAR<AT>>, REL> & {
     set_err(error: string): void;
@@ -146,7 +146,7 @@ export type StateArraySyncRES<
 
 export type StateArraySyncRESWS<
   AT,
-  REL extends Option<RELATED> = Option<any>
+  REL extends Option<RELATED> = Option<{}>,
 > = StateRESWS<SAR<AT>, SAW<AT>, REL> &
   OwnerWS<AT, ResultOk<SAR<AT>>, REL> & {
     set_err(error: string): void;
@@ -167,12 +167,12 @@ export function apply_read<AT>(array: AT[], read: StateArrayRead<AT>): AT[];
 export function apply_read<AT, TAT = AT>(
   array: AT[],
   read: StateArrayRead<TAT>,
-  transform: (value: TAT, index: number, array: readonly TAT[]) => AT
+  transform: (value: TAT, index: number, array: readonly TAT[]) => AT,
 ): AT[];
 export function apply_read<AT, TAT = AT>(
   array: AT[],
   read: StateArrayRead<TAT & AT>,
-  transform?: (value: TAT, index: number, array: readonly TAT[]) => AT
+  transform?: (value: TAT, index: number, array: readonly TAT[]) => AT,
 ): AT[] {
   const a = array;
   const t = transform;
@@ -194,10 +194,10 @@ export function apply_read<AT, TAT = AT>(
 //      \_____|______/_/    \_\_____/_____/
 
 class RXS<
-    AT,
-    RRT extends Result<SAR<AT>, string>,
-    REL extends Option<RELATED> = OptionNone
-  >
+  AT,
+  RRT extends Result<SAR<AT>, string>,
+  REL extends Option<RELATED> = OptionNone,
+>
   extends StateBase<SAR<AT>, SAW<AT>, REL, RRT>
   implements Owner<AT, RRT, REL>
 {
@@ -208,7 +208,7 @@ class RXS<
   constructor(
     init: Result<AT[], string>,
     helper?: HELPER<SAW<AT>, REL>,
-    setter?: ArraySetter<AT, RRT, REL> | true
+    setter?: ArraySetter<AT, RRT, REL> | true,
   ) {
     super();
     if (setter === true) this.#setter = (val) => ok(this.apply_write(ok(val)));
@@ -333,7 +333,7 @@ class RXS<
     const p = this.#array.pop();
     if (this.#array.length < l) {
       this.update_subs(
-        ok(this.#mr("removed", this.#array.length, [p as AT])) as RRT
+        ok(this.#mr("removed", this.#array.length, [p as AT])) as RRT,
       );
       if (this.#length) this.#length.set_ok(this.#array.length);
     }
@@ -379,7 +379,7 @@ class RXS<
   ///Helps apply the changes from one state array to another
   apply_read<B>(
     result: ResultOk<SAR<B>>,
-    transform: (val: readonly B[], type: StateArrayReadType) => AT[]
+    transform: (val: readonly B[], type: StateArrayReadType) => AT[],
   ) {
     const { index, items: its, type } = result.value;
     const items = transform(its, type);
@@ -404,7 +404,7 @@ class RXS<
       this.splice(
         result.value.index,
         result.value.delete_count,
-        ...(result.value.items ? result.value.items : [])
+        ...(result.value.items ? result.value.items : []),
       );
     else if (type === "change")
       this.set_index(result.value.index, result.value.item);
@@ -412,7 +412,7 @@ class RXS<
 
   apply_write_transform<B>(
     result: Result<SAW<B>, string>,
-    transform: (val: B) => AT
+    transform: (val: B) => AT,
   ) {
     if (!result.ok) return;
     const type = result.value.type;
@@ -431,7 +431,7 @@ class RXS<
         result.value.delete_count,
         ...(result.value.items
           ? result.value.items.map((item) => transform(item))
-          : [])
+          : []),
       );
     else if (type === "change")
       this.set_index(result.value.index, transform(result.value.item));
@@ -449,13 +449,13 @@ const ROS = {
   /**Creates a state representing an array
    * @param init initial array, leave empty for empty array
    * @param helper functions to make related*/
-  ok<AT, REL extends Option<RELATED> = Option<any>>(
+  ok<AT, REL extends Option<RELATED> = Option<{}>>(
     init: AT[] = [],
-    helper?: HELPER<SAW<AT>, REL>
+    helper?: HELPER<SAW<AT>, REL>,
   ) {
     return new RXS<AT, ResultOk<SAR<AT>>, REL>(
       ok(init),
-      helper
+      helper,
     ) as StateArraySyncROS<AT, REL>;
   },
 };
@@ -464,17 +464,17 @@ const ROS_WS = {
    * @param init initial array, leave empty for empty array
    * @param setter function called when state value is set via setter, set true let write set it's value
    * @param helper functions to check and limit*/
-  ok<AT, REL extends Option<RELATED> = Option<any>>(
+  ok<AT, REL extends Option<RELATED> = Option<{}>>(
     init: AT[] = [],
     setter:
       | StateSetREXWS<SAR<AT>, OwnerWS<AT, ResultOk<SAR<AT>>, REL>, SAW<AT>>
       | true,
-    helper?: HELPER<SAW<AT>, REL>
+    helper?: HELPER<SAW<AT>, REL>,
   ) {
     return new RXS<AT, ResultOk<SAR<AT>>, REL>(
       ok(init),
       helper,
-      setter
+      setter,
     ) as StateArraySyncROSWS<AT, REL>;
   },
 };
@@ -482,25 +482,25 @@ const RES = {
   /**Creates a state representing an array
    * @param init initial array, leave empty for empty array
    * @param helper functions to make related*/
-  ok<AT, REL extends Option<RELATED> = Option<any>>(
+  ok<AT, REL extends Option<RELATED> = Option<{}>>(
     init: AT[] = [],
-    helper?: HELPER<SAW<AT>, REL>
+    helper?: HELPER<SAW<AT>, REL>,
   ) {
     return new RXS<AT, Result<SAR<AT>, string>, REL>(
       ok(init),
-      helper
+      helper,
     ) as StateArraySyncRES<AT, REL>;
   },
   /**Creates a state representing an array
    * @param init initial error
    * @param helper functions to make related*/
-  err<AT, REL extends Option<RELATED> = Option<any>>(
+  err<AT, REL extends Option<RELATED> = Option<{}>>(
     error: string,
-    helper?: HELPER<SAW<AT>, REL>
+    helper?: HELPER<SAW<AT>, REL>,
   ) {
     return new RXS<AT, Result<SAR<AT>, string>, REL>(
       err(error),
-      helper
+      helper,
     ) as StateArraySyncRES<AT, REL>;
   },
 };
@@ -509,7 +509,7 @@ const RES_WS = {
    * @param init initial array, leave empty for empty array
    * @param setter function called when state value is set via setter, set true let write set it's value
    * @param helper functions to check and limit*/
-  ok<AT, REL extends Option<RELATED> = Option<any>>(
+  ok<AT, REL extends Option<RELATED> = Option<{}>>(
     init: AT[] = [],
     setter:
       | StateSetREXWS<
@@ -518,19 +518,19 @@ const RES_WS = {
           SAW<AT>
         >
       | true,
-    helper?: HELPER<SAW<AT>, REL>
+    helper?: HELPER<SAW<AT>, REL>,
   ) {
     return new RXS<AT, Result<SAR<AT>, string>, REL>(
       ok(init),
       helper,
-      setter
+      setter,
     ) as StateArraySyncRESWS<AT, REL>;
   },
   /**Creates a state representing an array
    * @param err initial error
    * @param setter function called when state value is set via setter, set true let write set it's value
    * @param helper functions to check and limit*/
-  err<AT, REL extends Option<RELATED> = Option<any>>(
+  err<AT, REL extends Option<RELATED> = Option<{}>>(
     error: string,
     setter:
       | StateSetREXWS<
@@ -539,12 +539,12 @@ const RES_WS = {
           SAW<AT>
         >
       | true,
-    helper?: HELPER<SAW<AT>, REL>
+    helper?: HELPER<SAW<AT>, REL>,
   ) {
     return new RXS<AT, Result<SAR<AT>, string>, REL>(
       err(error),
       helper,
-      setter
+      setter,
     ) as StateArraySyncRESWS<AT, REL>;
   },
 };
