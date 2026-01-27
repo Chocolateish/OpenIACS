@@ -1,17 +1,9 @@
-import {
-  err,
-  none,
-  ok,
-  OptionNone,
-  type Option,
-  type Result,
-} from "@libResult";
+import { err, none, ok, type Option, type Result } from "@libResult";
 import { StateBase } from "../base";
 import {
   type StateRelated as RELATED,
   type State,
   type StateHelper,
-  type StateOpt,
   type StateREA,
   type StateREAWA,
 } from "../types";
@@ -42,13 +34,13 @@ export interface StateResourceOwnerREA<RT, WT, REL extends Option<RELATED>> {
   update_single(value: Result<RT, string>, update?: boolean): void;
   update_resource(value: Result<RT, string>): void;
   get buffer(): Result<RT, string> | undefined;
-  get state(): State<RT, WT, StateOpt<REL>>;
-  get read_only(): StateREA<RT, StateOpt<REL>, WT>;
+  get state(): State<RT, WT, REL>;
+  get read_only(): StateREA<RT, REL, WT>;
 }
 
 export abstract class StateResourceREA<
     RT,
-    REL extends Option<RELATED> = OptionNone,
+    REL extends Option<RELATED> = Option<any>,
     WT = any
   >
   extends StateBase<RT, WT, REL, Result<RT, string>>
@@ -140,10 +132,10 @@ export abstract class StateResourceREA<
     return this.#buffer;
   }
 
-  get state(): State<RT, WT, StateOpt<REL>> {
+  get state(): State<RT, WT, REL> {
     return this as State<RT, WT, any>;
   }
-  get read_only(): StateREA<RT, StateOpt<REL>, WT> {
+  get read_only(): StateREA<RT, REL, WT> {
     return this as StateREA<RT, any, WT>;
   }
 
@@ -189,7 +181,7 @@ interface OWNER<RT, WT, REL extends Option<RELATED>>
   extends StateResourceOwnerREA<RT, WT, REL> {}
 export type StateResourceFuncREA<
   RT,
-  REL extends Option<RELATED> = OptionNone,
+  REL extends Option<RELATED> = Option<any>,
   WT = any
 > = StateREA<RT, REL, WT> & OWNER<RT, WT, REL>;
 
@@ -199,7 +191,7 @@ export type StateResourceFuncREA<
  * @template REL - The type of related states, defaults to an empty object.*/
 class FuncREA<
   RT,
-  REL extends Option<RELATED> = OptionNone,
+  REL extends Option<RELATED> = Option<any>,
   WT = any
 > extends StateResourceREA<RT, REL, WT> {
   constructor(
@@ -254,7 +246,7 @@ const rea = {
    * @param validity how long the last retrived value is considered valid
    * @param retention delay after last subscriber unsubscribes before teardown is called, to allow quick resubscribe without teardown
    * */
-  from<RT, REL extends Option<RELATED> = OptionNone, WT = any>(
+  from<RT, REL extends Option<RELATED> = Option<any>, WT = any>(
     once: (state: OWNER<RT, WT, REL>) => void,
     setup: (state: OWNER<RT, WT, REL>) => void,
     teardown: (state: OWNER<RT, WT, REL>) => void,
@@ -316,7 +308,7 @@ export interface StateResourceOwnerREAWA<RT, WT, REL extends Option<RELATED>> {
 export abstract class StateResourceREAWA<
     RT,
     WT = RT,
-    REL extends Option<RELATED> = OptionNone
+    REL extends Option<RELATED> = Option<any>
   >
   extends StateBase<RT, WT, REL, Result<RT, string>>
   implements StateResourceOwnerREAWA<RT, WT, REL>
@@ -492,7 +484,7 @@ interface OwnerWA<RT, WT, REL extends Option<RELATED>>
 
 export type StateResourceFuncREAWA<
   RT,
-  REL extends Option<RELATED> = OptionNone,
+  REL extends Option<RELATED> = Option<any>,
   WT = any
 > = StateREAWA<RT, WT, REL> & OwnerWA<RT, WT, REL>;
 /**Alternative state resource which can be initialized with functions
@@ -500,7 +492,7 @@ export type StateResourceFuncREAWA<
  * @template WT - The type which can be written to the state.
  * @template REL - The type of related states, defaults to an empty object.*/
 
-class FuncREAWA<RT, WT = RT, REL extends Option<RELATED> = OptionNone>
+class FuncREAWA<RT, WT = RT, REL extends Option<RELATED> = Option<any>>
   extends StateResourceREAWA<RT, WT, REL>
   implements OwnerWA<RT, WT, REL>
 {
@@ -583,7 +575,7 @@ const rea_wa = {
    * @param retention delay after last subscriber unsubscribes before teardown is called, to allow quick resubscribe without teardown
    * @param write_debounce debounce delay for write calls, only the last write within the delay is used
    * */
-  from<RT, REL extends Option<RELATED> = OptionNone, WT = RT>(
+  from<RT, REL extends Option<RELATED> = Option<any>, WT = RT>(
     once: (state: OwnerWA<RT, WT, REL>) => void,
     setup: (state: OwnerWA<RT, WT, REL>) => void,
     teardown: () => void,

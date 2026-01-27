@@ -1,9 +1,4 @@
-import {
-  OptionNone,
-  type Option,
-  type Result,
-  type ResultOk,
-} from "@libResult";
+import { type Option, type Result, type ResultOk } from "@libResult";
 import type { StateArrayRead, StateArrayWrite } from "./array/sync";
 
 /**Function used to subscribe to state changes
@@ -441,5 +436,3 @@ export type StateArrayROSWA<
   AT,
   REL extends Option<StateRelated> = Option<any>
 > = StateROSWA<StateArrayRead<AT>, StateArrayWrite<AT>, REL>;
-
-export type StateOpt<REL> = REL extends OptionNone ? Option<any> : REL;
