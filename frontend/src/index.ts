@@ -20,6 +20,24 @@ import { form } from "./lib/form";
 import { FormColors } from "./lib/form/base";
 import { FormDateTimeType } from "./lib/form/special/dateTime/dateTimeInput";
 
+class Fact {
+  readonly uuid: string;
+  #description;
+  readonly description;
+
+  constructor(uuid: string = crypto.randomUUID(), name: string) {
+    this.uuid = uuid;
+    this.#description = st.s.ros_ws.ok(name);
+    this.description = this.#description.read_write;
+  }
+}
+
+class FactsStore {
+  #facts = state.a.ros_ws.ok<Fact>([], true);
+}
+
+class Entity {}
+
 interface CharacterData {
   uuid: string;
   name: string;
@@ -96,12 +114,12 @@ FORM_CONT.appendChild(
       form.text({ text: "UI Scale" }),
       form.stepper({ value_by_state: SCALE }),
     ],
-  })
+  }),
 );
 
 const st_rows = state.a.ros_ws.ok(
   array_from_length(10, (i) => i),
-  true
+  true,
 );
 
 const test_list = list.container(
@@ -132,13 +150,13 @@ const test_list = list.container(
   (item, row, stat) => {
     const sub_rows = state.a.ros_ws.ok(
       array_from_length(3, (i) => i),
-      true
+      true,
     );
     const add_row =
       Math.random() > 0.5
         ? {
             disabled: state.p.ros(sub_rows.length_state, (len) =>
-              ok(len.value >= 3)
+              ok(len.value >= 3),
             ),
             text: "Add New Row",
             on_add: () => sub_rows.write_sync(state.a.push(Math.random())),
@@ -149,10 +167,10 @@ const test_list = list.container(
       ctm.menu([
         ctm.line("Remove", () => stat.write_sync(state.a.pluck(row.index))),
         ctm.line("Add New Row", () =>
-          stat.write_sync(state.a.insert(row.index, Math.random()))
+          stat.write_sync(state.a.insert(row.index, Math.random())),
         ),
         ctm.line("Empty", () => stat.write_sync(state.a.write([]))),
-      ])
+      ]),
     );
     return {
       openable: Math.random() > 0.5,
@@ -178,7 +196,7 @@ const test_list = list.container(
         st_rows.push(st_rows.length);
       },
     },
-  }
+  },
 );
 FORM_CONT.appendChild(test_list);
 
@@ -195,7 +213,7 @@ FORM_CONT.appendChild(
   form.password_input({
     value_by_state: PASSWORD_STATE,
     filter: /[0-9]/,
-  })
+  }),
 );
 
 //      _____ _____    _____ _   _ _____  _    _ _______
@@ -210,13 +228,13 @@ FORM_CONT.appendChild(
   form.ip_input({
     type: IPVersion.V4,
     value_by_state: IP_STATE,
-  })
+  }),
 );
 FORM_CONT.appendChild(form.text({ text: "IP Input" }));
 FORM_CONT.appendChild(
   form.ip_input({
     type: IPVersion.V6,
-  })
+  }),
 );
 
 //       _____ ____  _      ____  _____    _____ _   _ _____  _    _ _______
@@ -230,14 +248,14 @@ FORM_CONT.appendChild(form.text({ text: "Color Input" }));
 FORM_CONT.appendChild(
   form.color_input({
     value_by_state: COLOR_STATE,
-  })
+  }),
 );
 FORM_CONT.appendChild(form.text({ text: "Color Input 2" }));
 FORM_CONT.appendChild(
   form.color_input({
     live: true,
     value_by_state: COLOR_STATE,
-  })
+  }),
 );
 
 //      _____       _______ ______ _______ _____ __  __ ______
@@ -252,19 +270,19 @@ FORM_CONT.appendChild(
   form.date_time_input({
     type: FormDateTimeType.TIME,
     value_by_state: DATE_TIME_STATE,
-  })
+  }),
 );
 FORM_CONT.appendChild(form.text({ text: "Date Time Input" }));
 FORM_CONT.appendChild(
   form.date_time_input({
     value_by_state: DATE_TIME_STATE,
-  })
+  }),
 );
 FORM_CONT.appendChild(form.text({ text: "Date Time Input" }));
 FORM_CONT.appendChild(
   form.date_time_input({
     value: 5000 as number,
-  })
+  }),
 );
 
 //      _______ ________   _________   _____ _   _ _____  _    _ _______
@@ -282,7 +300,7 @@ FORM_CONT.appendChild(
     max_bytes: 20,
     value_by_state: TEXT_STATE,
     filter: /[a-zA-Z ]/,
-  })
+  }),
 );
 FORM_CONT.appendChild(form.text({ text: "Text Input 2" }));
 FORM_CONT.appendChild(
@@ -291,7 +309,7 @@ FORM_CONT.appendChild(
     max_length: 20,
     max_bytes: 20,
     value_by_state: TEXT_STATE,
-  })
+  }),
 );
 
 const MULTI_LINE_TEXT_STATE = state.s.ros_ws.ok("");
@@ -302,7 +320,7 @@ FORM_CONT.appendChild(
     max_length: 20,
     max_bytes: 20,
     value_by_state: MULTI_LINE_TEXT_STATE,
-  })
+  }),
 );
 
 FORM_CONT.appendChild(form.text({ text: "Multiline Text Input2" }));
@@ -312,7 +330,7 @@ FORM_CONT.appendChild(
     max_length: 20,
     max_bytes: 20,
     value_by_state: MULTI_LINE_TEXT_STATE,
-  })
+  }),
 );
 
 //      _   _ _    _ __  __ ____  ______ _____    _____ _   _ _____  _    _ _______
@@ -330,7 +348,7 @@ FORM_CONT.appendChild(
     step: 0.5,
     start: 0.1,
     decimals: 1,
-  })
+  }),
 );
 
 //       _____ _____   ____  _    _ _____
@@ -367,7 +385,7 @@ const grouptest = FORM_CONT.appendChild(
         max: 100,
       }),
     ],
-  })
+  }),
 );
 
 grouptest.value = {
@@ -387,7 +405,7 @@ FORM_CONT.appendChild(
       form.text({ text: "Button in Group" }),
       form.button({ text: "Click Me" }).opts({ access: "r" }),
     ],
-  })
+  }),
 );
 
 FORM_CONT.appendChild(form.text({ text: "Group Box" }));
@@ -403,14 +421,14 @@ FORM_CONT.appendChild(
       form.text({ text: "Button in Group" }),
       form.button({ text: "Click Me" }).opts({ access: "r" }),
     ],
-  })
+  }),
 );
 
 FORM_CONT.appendChild(
   form.text({
     text: "Hello World!",
     size: 2,
-  })
+  }),
 );
 
 const bool = state.s.ros_ws.ok(false);
@@ -425,7 +443,7 @@ FORM_CONT.appendChild(
     })
     .opts({
       access: "w",
-    })
+    }),
 ).value_by_state = bool;
 
 FORM_CONT.appendChild(form.text({ text: "Toggle Me" }));
@@ -436,7 +454,7 @@ FORM_CONT.appendChild(
     text: "Status Lamp",
     colors: [FormColors.Red, FormColors.Green],
     icon: material_av_add_to_queue_rounded,
-  })
+  }),
 ).value_by_state = bool;
 
 //      _____  _____   ____  _____  _____   ______          ___   _
@@ -466,7 +484,7 @@ FORM_CONT.appendChild(
         icon: material_av_remove_from_queue_rounded,
       },
     ],
-  })
+  }),
 ).value_by_state = num;
 
 FORM_CONT.appendChild(form.text({ text: "Dropdown" }));
@@ -482,7 +500,7 @@ FORM_CONT.appendChild(
         icon: material_av_remove_from_queue_rounded,
       };
     }),
-  })
+  }),
 ).value_by_state = num;
 
 FORM_CONT.appendChild(form.text({ text: "Dropdown" }));
@@ -497,7 +515,7 @@ FORM_CONT.appendChild(
         text: `Option ${i + 1}`,
       };
     }),
-  })
+  }),
 ).value_by_state = num;
 
 //      _______ ____   _____  _____ _      ______   ____  _    _ _______ _______ ____  _   _  _____
@@ -526,7 +544,7 @@ FORM_CONT.appendChild(
         icon: material_av_remove_from_queue_rounded,
       },
     ],
-  })
+  }),
 ).value_by_state = num;
 
 FORM_CONT.appendChild(form.text({ text: "Toggle Buttons" }));
@@ -539,7 +557,7 @@ FORM_CONT.appendChild(
         icon: material_av_remove_from_queue_rounded,
       };
     }),
-  })
+  }),
 ).value_by_state = num;
 
 FORM_CONT.appendChild(form.text({ text: "Toggle Buttons" }));
@@ -551,7 +569,7 @@ FORM_CONT.appendChild(
         text: `Option ${i + 1}`,
       };
     }),
-  })
+  }),
 ).value_by_state = num;
 
 //       _____ _      _____ _____  ______ _____
@@ -569,7 +587,7 @@ FORM_CONT.appendChild(
     step: 0.5,
     start: 0.1,
     decimals: 1,
-  })
+  }),
 ).value_by_state = SLIDER_NUM;
 FORM_CONT.appendChild(form.text({ text: "Slider" }));
 FORM_CONT.appendChild(
@@ -580,7 +598,7 @@ FORM_CONT.appendChild(
     step: 0.5,
     start: 0.1,
     decimals: 1,
-  })
+  }),
 ).value_by_state = SLIDER_NUM;
 FORM_CONT.appendChild(form.text({ text: "Slider" }));
 FORM_CONT.appendChild(
@@ -591,7 +609,7 @@ FORM_CONT.appendChild(
     step: 0.5,
     start: 0.1,
     decimals: 1,
-  })
+  }),
 ).value_by_state = SLIDER_NUM;
 FORM_CONT.appendChild(form.text({ text: "Slider" }));
 FORM_CONT.appendChild(
@@ -603,7 +621,7 @@ FORM_CONT.appendChild(
     start: 0.1,
     decimals: 1,
     live: true,
-  })
+  }),
 ).value_by_state = SLIDER_NUM;
 
 FORM_CONT.appendChild(form.text({ text: "Slider" }));
@@ -616,7 +634,7 @@ FORM_CONT.appendChild(
     start: 0.1,
     decimals: 1,
     live: true,
-  })
+  }),
 );
 
 //       _____ _______ ______ _____  _____  ______ _____
@@ -633,7 +651,7 @@ FORM_CONT.appendChild(
     step: 0.5,
     start: 0.1,
     decimals: 1,
-  })
+  }),
 ).value_by_state = STEPPER_NUM;
 FORM_CONT.appendChild(form.text({ text: "Stepper" }));
 FORM_CONT.appendChild(
@@ -644,7 +662,7 @@ FORM_CONT.appendChild(
     step: 0.5,
     start: 0.1,
     decimals: 1,
-  })
+  }),
 ).value_by_state = STEPPER_NUM;
 FORM_CONT.appendChild(form.text({ text: "Stepper" }));
 FORM_CONT.appendChild(
@@ -655,7 +673,7 @@ FORM_CONT.appendChild(
     step: 0.5,
     start: 0.1,
     decimals: 1,
-  })
+  }),
 ).value_by_state = STEPPER_NUM;
 FORM_CONT.appendChild(form.text({ text: "Stepper" }));
 FORM_CONT.appendChild(
@@ -666,7 +684,7 @@ FORM_CONT.appendChild(
     step: 0.5,
     start: 0.1,
     decimals: 1,
-  })
+  }),
 );
 
 //      _____  _____   ____   _____ _____  ______  _____ _____
@@ -687,7 +705,7 @@ ctm.default(
       ctm.menu([
         ctm.line("Sub Option", () => console.warn("Sub Clicked")),
         ctm.line("Sub Option", () => console.warn("Sub Clicked")),
-      ])
+      ]),
     ),
     ctm.line("Default Option", () => console.warn("Clicked")),
     ctm.line("Default Option", () => console.warn("Clicked")),
@@ -700,7 +718,7 @@ ctm.default(
       ctm.menu([
         ctm.line("Sub Option", () => console.warn("Sub Clicked")),
         ctm.line("Sub Option", () => console.warn("Sub Clicked")),
-      ])
+      ]),
     ),
-  ])
+  ]),
 );
