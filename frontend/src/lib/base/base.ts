@@ -138,7 +138,7 @@ export abstract class Base extends HTMLElement {
       root: this,
       threshold: 0,
       deffered_hidden: 1000,
-    }
+    },
   ): BaseObserver {
     return (this.#observer ??= new BaseObserver(options));
   }
@@ -164,7 +164,7 @@ export abstract class Base extends HTMLElement {
   attach_state<S extends State<any>>(
     state: S,
     func: StateInferSub<S>,
-    visible?: boolean
+    visible?: boolean,
   ): typeof func {
     if (this.#states.has(func))
       console.error("Function already registered with element", func, this);
@@ -189,39 +189,16 @@ export abstract class Base extends HTMLElement {
   /**Attaches a state to a property, so that the property is updated when the state changes
    * @param prop the property to attach the state to
    * @param state the state to attach to the property
-   * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element
-   * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
+   * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element*/
   // eslint-disable-next-line @typescript-eslint/naming-convention
   attach_state_ROA_to_prop<K extends keyof this>(
     prop: K,
     state: StateROA<this[K]>,
-    ok?: (val: this[K]) => Option<this[K]>,
-    visible?: boolean
-  ): this;
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  attach_state_ROA_to_prop<K extends keyof this, T = this[K]>(
-    prop: K,
-    state: StateROA<T>,
-    ok: (val: T) => Option<this[K]>,
-    visible?: boolean
-  ): this;
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  attach_state_ROA_to_prop<K extends keyof this, T = this[K]>(
-    prop: K,
-    state: StateROA<T>,
-    ok?: (val: T) => Option<this[K]>,
-    visible?: boolean
+    visible?: boolean,
   ): this {
     this.detach_state_from_prop(prop).#props.set(
       prop,
-      this.attach_state(
-        state,
-        (val) => {
-          const o = ok ? ok(val.value) : some(val.value as this[K]);
-          if (o.some) this[prop] = o.value;
-        },
-        visible
-      )
+      this.attach_state(state, (val) => (this[prop] = val.value), visible),
     );
     return this;
   }
@@ -229,43 +206,76 @@ export abstract class Base extends HTMLElement {
   /**Attaches a state to a property, so that the property is updated when the state changes
    * @param prop the property to attach the state to
    * @param state the state to attach to the property
-   * @param error function called when state gives a ResultErr,
+   * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element
+   * @param fallback the fallback value for the property when the state is not ok, if undefined the property is not updated when the state is not ok*/
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  attach_state_ROA_to_prop_map<K extends keyof this, T = this[K]>(
+    prop: K,
+    state: StateROA<T>,
+    map: (val: T) => Option<this[K]>,
+    visible?: boolean,
+  ): this {
+    this.detach_state_from_prop(prop).#props.set(
+      prop,
+      this.attach_state(
+        state,
+        (val) => {
+          const o = map(val.value);
+          if (o.some) this[prop] = o.value;
+        },
+        visible,
+      ),
+    );
+    return this;
+  }
+
+  /**Attaches a state to a property, so that the property is updated when the state changes
+   * @param prop the property to attach the state to
+   * @param state the state to attach to the property
+   * @param map_err function called when state gives a ResultErr,
    * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element*/
   attach_state_to_prop<K extends keyof this>(
     prop: K,
     state: StateREA<this[K]>,
-    error: (error: string) => Option<this[K]>,
-    ok?: (val: this[K]) => Option<this[K]>,
-    visible?: boolean
-  ): this;
-  attach_state_to_prop<K extends keyof this, T = this[K]>(
-    prop: K,
-    state: StateREA<T>,
-    error: (error: string) => Option<this[K]>,
-    ok: (val: T) => Option<this[K]>,
-    visible?: boolean
-  ): this;
-  attach_state_to_prop<K extends keyof this, T = this[K]>(
-    prop: K,
-    state: StateREA<T>,
-    error: (error: string) => Option<this[K]>,
-    ok?: (val: T) => Option<this[K]>,
-    visible?: boolean
+    map_err: (error: string) => Option<this[K]>,
+    visible?: boolean,
   ): this {
     this.detach_state_from_prop(prop).#props.set(
       prop,
       this.attach_state(
         state,
         (v) => {
-          const o = v.ok
-            ? ok
-              ? ok(v.value)
-              : some(v.value as this[K])
-            : error(v.error);
+          const o = v.ok ? some(v.value) : map_err(v.error);
           if (o.some) this[prop] = o.value;
         },
-        visible
-      )
+        visible,
+      ),
+    );
+    return this;
+  }
+  /**Attaches a state to a property, so that the property is updated when the state changes
+   * @param prop the property to attach the state to
+   * @param state the state to attach to the property
+   * @param map_err function called when state gives a ResultErr,
+   * @param map function called when state gives a ResultOk,
+   * @param visible when set true the property is only updated when the element is visible, this requires an observer to be attached to the element*/
+  attach_state_to_prop_map<K extends keyof this, T = this[K]>(
+    prop: K,
+    state: StateREA<T>,
+    map_err: (error: string) => Option<this[K]>,
+    map: (val: T) => Option<this[K]>,
+    visible?: boolean,
+  ): this {
+    this.detach_state_from_prop(prop).#props.set(
+      prop,
+      this.attach_state(
+        state,
+        (v) => {
+          const o = v.ok ? map(v.value) : map_err(v.error);
+          if (o.some) this[prop] = o.value;
+        },
+        visible,
+      ),
     );
     return this;
   }
@@ -284,33 +294,36 @@ export abstract class Base extends HTMLElement {
   attach_state_ROA_to_attribute(
     qualified_name: string,
     state: StateROA<string>,
-    ok?: (val: string) => Option<string>,
-    visible?: boolean
-  ): this;
+    visible?: boolean,
+  ): this {
+    this.detach_state_from_attribute(qualified_name).#attr.set(
+      qualified_name,
+      this.attach_state(
+        state,
+        (val) => this.setAttribute(qualified_name, val.value),
+        visible,
+      ),
+    );
+    return this;
+  }
+
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  attach_state_ROA_to_attribute<U>(
+  attach_state_ROA_to_attribute_map<U>(
     qualified_name: string,
     state: StateROA<U>,
-    ok: (val: U) => Option<string>,
-    visible?: boolean
-  ): this;
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  attach_state_ROA_to_attribute<U>(
-    qualified_name: string,
-    state: StateROA<U>,
-    ok?: (val: U) => Option<string>,
-    visible?: boolean
+    map: (val: U) => Option<string>,
+    visible?: boolean,
   ): this {
     this.detach_state_from_attribute(qualified_name).#attr.set(
       qualified_name,
       this.attach_state(
         state,
         (val) => {
-          const o = ok ? ok(val.value) : some(val.value as string);
+          const o = map(val.value);
           if (o.some) this.setAttribute(qualified_name, o.value);
         },
-        visible
-      )
+        visible,
+      ),
     );
     return this;
   }
@@ -318,38 +331,40 @@ export abstract class Base extends HTMLElement {
   attach_state_to_attribute(
     qualified_name: string,
     state: StateREA<string>,
-    error: (error: string) => Option<string>,
-    ok?: (val: string) => Option<string>,
-    visible?: boolean
-  ): this;
-  attach_state_to_attribute<U>(
-    qualified_name: string,
-    state: StateREA<U>,
-    error: (error: string) => Option<string>,
-    ok: (val: U) => Option<string>,
-    visible?: boolean
-  ): this;
-  attach_state_to_attribute<U>(
-    qualified_name: string,
-    state: StateREA<U>,
-    error: (error: string) => Option<string>,
-    ok?: (val: U) => Option<string>,
-    visible?: boolean
+    map_err: (error: string) => Option<string>,
+    visible?: boolean,
   ): this {
     this.detach_state_from_attribute(qualified_name).#attr.set(
       qualified_name,
       this.attach_state(
         state,
         (v) => {
-          const o = v.ok
-            ? ok
-              ? ok(v.value)
-              : some(v.value as string)
-            : error(v.error);
+          const o = v.ok ? some(v.value) : map_err(v.error);
           if (o.some) this.setAttribute(qualified_name, o.value);
         },
-        visible
-      )
+        visible,
+      ),
+    );
+    return this;
+  }
+
+  attach_state_to_attribute_map<U>(
+    qualified_name: string,
+    state: StateREA<U>,
+    map_err: (error: string) => Option<string>,
+    map: (val: U) => Option<string>,
+    visible?: boolean,
+  ): this {
+    this.detach_state_from_attribute(qualified_name).#attr.set(
+      qualified_name,
+      this.attach_state(
+        state,
+        (v) => {
+          const o = v.ok ? map(v.value) : map_err(v.error);
+          if (o.some) this.setAttribute(qualified_name, o.value);
+        },
+        visible,
+      ),
     );
     return this;
   }
