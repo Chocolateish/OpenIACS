@@ -316,8 +316,11 @@ class RXS<
   }
 
   set_index(index: number, value: AT): void {
+    const l = this.#array.length;
     this.#array[index] = value;
     this.update_subs(ok(this.#mr("changed", index, [value])) as RRT);
+    if (this.#array.length !== l && this.#length)
+      this.#length.set_ok(this.#array.length);
   }
 
   push(...items: AT[]): number {
