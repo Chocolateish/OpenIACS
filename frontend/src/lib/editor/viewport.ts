@@ -10,23 +10,39 @@ export class Viewport extends Base {
     return "editor";
   }
 
-  #px_with: number = 0;
-  #px_height: number = 0;
+  #viewport_width: number = 0;
+  #viewport_height: number = 0;
   #resize_observer = new ResizeObserver((a) => {
-    this.#px_with = a[0].contentRect.width;
-    this.#px_height = a[0].contentRect.height;
+    this.#viewport_width = a[0].contentRect.width;
+    this.#viewport_height = a[0].contentRect.height;
     this.#root.setAttribute(
       "viewBox",
-      `0 0 ${this.#px_with} ${this.#px_height}`,
+      `0 0 ${this.#viewport_width} ${this.#viewport_height}`,
     );
   });
   #root = this.appendChild(svg.create("svg").elem);
-  #canvas = this.#root.appendChild(svg.svg(100, 100, "0 0 100 100").elem);
-  #canvas_x = 0;
-  #canvas_y = 0;
+  #mover = this.#root.appendChild(
+    svg
+      .create("svg")
+      .a("x", "50%")
+      .a("y", "50%")
+      .a("width", "100")
+      .a("height", "100").elem,
+  );
+  #mover_x = 0;
+  #mover_y = 0;
+  #zoomer = this.#mover.appendChild(
+    svg
+      .create("svg")
+      .a("x", "-50%")
+      .a("y", "-50%")
+      .a("width", "100")
+      .a("height", "100").elem,
+  );
+  #zoomer_scale = 1;
+  #canvas = this.#zoomer.appendChild(svg.svg(100, 100, "0 0 100 100").elem);
   #canvas_width = 100;
   #canvas_height = 100;
-  #canvas_scale = 1;
   #background = this.#canvas.appendChild(
     svg
       .create("rect")
@@ -51,11 +67,11 @@ export class Viewport extends Base {
         e.preventDefault();
         e.stopPropagation();
         this.setPointerCapture(e.pointerId);
-        const x = this.#canvas_x;
-        const y = this.#canvas_y;
+        const x = this.#mover_x;
+        const y = this.#mover_y;
         this.onpointermove = (ev) => {
-          this.canvas_x = x + (ev.offsetX - e.offsetX) / this.#canvas_scale;
-          this.canvas_y = y + (ev.offsetY - e.offsetY) / this.#canvas_scale;
+          this.canvas_x = x + (ev.offsetX - e.offsetX);
+          this.canvas_y = y + (ev.offsetY - e.offsetY);
         };
         this.onpointerup = (ev) => {
           this.onpointermove = null;
@@ -71,7 +87,7 @@ export class Viewport extends Base {
       (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const scale = this.#canvas_scale * (1 - e.deltaY * 0.001);
+        const scale = this.#zoomer_scale * (1 - e.deltaY * 0.001);
         this.canvas_scale = Math.max(0.1, Math.min(10, scale));
       },
       { capture: true },
@@ -81,22 +97,23 @@ export class Viewport extends Base {
   set canvas_width(value: number) {
     this.#canvas.setAttribute("width", value.toString());
     this.#canvas.setAttribute("viewBox", `0 0 ${value} ${this.#canvas_height}`);
+    this.#zoomer.setAttribute("width", value.toString());
   }
   set canvas_height(value: number) {
     this.#canvas.setAttribute("height", value.toString());
     this.#canvas.setAttribute("viewBox", `0 0 ${this.#canvas_width} ${value}`);
   }
   set canvas_x(value: number) {
-    this.#canvas.setAttribute("x", value.toFixed(2));
-    this.#canvas_x = value;
+    this.#mover.setAttribute("x", value.toFixed(2));
+    this.#mover_x = value;
   }
   set canvas_y(value: number) {
-    this.#canvas.setAttribute("y", value.toFixed(2));
-    this.#canvas_y = value;
+    this.#mover.setAttribute("y", value.toFixed(2));
+    this.#mover_y = value;
   }
   set canvas_scale(value: number) {
-    this.#canvas.style.scale = value.toString();
-    this.#canvas_scale = value;
+    this.#zoomer.style.scale = value.toString();
+    this.#zoomer_scale = value;
   }
 }
 define_element(Viewport);
