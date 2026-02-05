@@ -1,3 +1,4 @@
+import { SVGAttributes } from "../attributes";
 import { create_svg_element } from "./shared";
 
 /**This creates a rectangle with teh center as origin
@@ -11,15 +12,15 @@ export function rectangle_from_center(
   center_y: number,
   width: number,
   height: number,
-  corner_radius: number
-): SVGRectElement {
+  corner_radius: number,
+): SVGAttributes<SVGRectElement> {
   const circle = create_svg_element("rect");
   circle.setAttribute("x", String(center_x - width / 2));
   circle.setAttribute("y", String(center_y - height / 2));
   circle.setAttribute("width", String(width));
   circle.setAttribute("height", String(height));
   circle.setAttribute("rx", String(corner_radius));
-  return circle;
+  return new SVGAttributes(circle);
 }
 
 /**This creates a rectangle with teh center as origin
@@ -33,13 +34,13 @@ export function rectangle_from_corner(
   start_y: number,
   width: number,
   height: number,
-  corner_radius: number
-): SVGRectElement {
+  corner_radius: number,
+): SVGAttributes<SVGRectElement> {
   const circle = create_svg_element("rect");
   circle.setAttribute("x", String(start_x));
   circle.setAttribute("y", String(start_y));
   circle.setAttribute("width", String(width));
   circle.setAttribute("height", String(height));
   circle.setAttribute("rx", String(corner_radius));
-  return circle;
+  return new SVGAttributes(circle);
 }

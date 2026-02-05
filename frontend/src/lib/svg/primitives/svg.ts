@@ -1,3 +1,4 @@
+import { SVGAttributes } from "../attributes";
 import { create_svg_element } from "./shared";
 
 /** This returns an empty svg element
@@ -7,11 +8,11 @@ import { create_svg_element } from "./shared";
 export function svg(
   width: number,
   height: number,
-  viewbox: string = `0 0 ${width} ${height}`
-): SVGSVGElement {
+  viewbox: string = `0 0 ${width} ${height}`,
+): SVGAttributes<SVGSVGElement> {
   const svg = create_svg_element("svg");
   svg.setAttribute("width", String(width));
   svg.setAttribute("height", String(height));
   svg.setAttribute("viewBox", String(viewbox));
-  return svg;
+  return new SVGAttributes(svg);
 }

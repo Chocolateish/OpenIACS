@@ -1,3 +1,4 @@
+import { SVGAttributes } from "../attributes";
 import { create_svg_element } from "./shared";
 
 /**This draws a triangle
@@ -9,8 +10,8 @@ export function isosceles_triangle(
   center_x: number,
   center_y: number,
   width: number,
-  height: number
-): SVGPathElement {
+  height: number,
+): SVGAttributes<SVGPathElement> {
   const trig = create_svg_element("path");
   const half_w = width / 2;
   const half_h = height / 2;
@@ -28,7 +29,7 @@ export function isosceles_triangle(
       center_x +
       "," +
       (center_y - half_h) +
-      "Z"
+      "Z",
   );
-  return trig;
+  return new SVGAttributes(trig);
 }

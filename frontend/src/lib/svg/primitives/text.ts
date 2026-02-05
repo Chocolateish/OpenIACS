@@ -1,3 +1,4 @@
+import { SVGAttributes } from "../attributes";
 import { SVGAnchorPoint } from "../util/anchorPoint";
 import { create_svg_element } from "./shared";
 
@@ -12,8 +13,8 @@ export function text(
   y: number,
   text: string,
   size: number,
-  anchor: SVGAnchorPoint
-): SVGTextElement {
+  anchor: SVGAnchorPoint,
+): SVGAttributes<SVGTextElement> {
   const text_elem = create_svg_element("text");
   text_elem.setAttribute("x", String(x));
   text_elem.setAttribute("y", String(y));
@@ -59,7 +60,7 @@ export function text(
       break;
     }
   }
-  return text_elem;
+  return new SVGAttributes(text_elem);
 }
 
 /**Creates a text nodes for an svg
@@ -77,8 +78,8 @@ export function multi_line_text(
   height: number,
   text: string,
   size: number,
-  anchor: SVGAnchorPoint
-): SVGForeignObjectElement {
+  anchor: SVGAnchorPoint,
+): SVGAttributes<SVGForeignObjectElement> {
   const text_element = create_svg_element("foreignObject");
   const text_div = text_element.appendChild(document.createElement("div"));
   text_element.setAttribute("width", String(width));
@@ -133,5 +134,5 @@ export function multi_line_text(
       break;
     }
   }
-  return text_element;
+  return new SVGAttributes(text_element);
 }

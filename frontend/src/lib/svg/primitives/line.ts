@@ -1,3 +1,4 @@
+import { SVGAttributes } from "../attributes";
 import { create_svg_element } from "./shared";
 
 /**This creates a line element
@@ -9,12 +10,12 @@ export function line(
   start_x: number,
   start_y: number,
   end_x: number,
-  end_y: number
-): SVGLineElement {
+  end_y: number,
+): SVGAttributes<SVGLineElement> {
   const line = create_svg_element("line");
   line.setAttribute("x1", String(start_x));
   line.setAttribute("y1", String(start_y));
   line.setAttribute("x2", String(end_x));
   line.setAttribute("y2", String(end_y));
-  return line;
+  return new SVGAttributes(line);
 }

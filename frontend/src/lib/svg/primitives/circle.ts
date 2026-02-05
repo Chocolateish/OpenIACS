@@ -1,3 +1,4 @@
+import { SVGAttributes } from "../attributes";
 import { ellipse_arc } from "./ellipse";
 import { create_svg_element } from "./shared";
 
@@ -8,13 +9,13 @@ import { create_svg_element } from "./shared";
 export function circle(
   center_x: number,
   center_y: number,
-  radius: number
-): SVGCircleElement {
+  radius: number,
+): SVGAttributes<SVGCircleElement> {
   const circle = create_svg_element("circle");
   circle.setAttribute("cx", String(center_x));
   circle.setAttribute("cy", String(center_y));
   circle.setAttribute("r", String(radius));
-  return circle;
+  return new SVGAttributes(circle);
 }
 
 /**This draws parts of a circle/ellipse, the circle direction is reversed
@@ -28,14 +29,14 @@ export function circle_arc(
   center_y: number,
   radius: number,
   start_angle: number,
-  end_angle: number
-): SVGPathElement {
+  end_angle: number,
+): SVGAttributes<SVGPathElement> {
   return ellipse_arc(
     center_x,
     center_y,
     radius,
     radius,
     start_angle,
-    end_angle
+    end_angle,
   );
 }

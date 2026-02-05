@@ -1,10 +1,11 @@
+import { SVGAttributes } from "../attributes";
 import { create_svg_element } from "./shared";
 
 /**This creates a path element*/
-export function path(path: string): SVGPathElement {
+export function path(path: string): SVGAttributes<SVGPathElement> {
   const node = create_svg_element("path");
   node.setAttribute("d", path);
-  return node;
+  return new SVGAttributes(node);
 }
 
 /**This creates a line with a path element
@@ -16,9 +17,9 @@ export function path_line(
   start_x: number,
   start_y: number,
   end_x: number,
-  end_y: number
-): SVGPathElement {
+  end_y: number,
+): SVGAttributes<SVGPathElement> {
   const line = create_svg_element("path");
   line.setAttribute("d", `M ${start_x} ${start_y} L ${end_x} ${end_y}`);
-  return line;
+  return new SVGAttributes(line);
 }

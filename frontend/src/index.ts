@@ -1,3 +1,4 @@
+import { Viewport } from "@libEditor";
 import { err, ok, type Result } from "@libResult";
 import type { StateSyncROSWS } from "@libState";
 import { default as st, default as state } from "@libState";
@@ -85,3 +86,5 @@ yo.ok();
 console.warn(Character.deserialize({ uuid: "1234", name: "Hero" }));
 
 // document.getElementById("app")?.replaceChildren(example_page());
+
+document.getElementById("app")?.replaceChildren(new Viewport());
