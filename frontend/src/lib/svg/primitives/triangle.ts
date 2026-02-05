@@ -12,10 +12,9 @@ export function isosceles_triangle(
   width: number,
   height: number,
 ): SVGAttributes<SVGPathElement> {
-  const trig = create_svg_element("path");
   const half_w = width / 2;
   const half_h = height / 2;
-  trig.setAttribute(
+  return create_svg_element("path").a(
     "d",
     "M" +
       (center_x - half_w) +
@@ -31,5 +30,4 @@ export function isosceles_triangle(
       (center_y - half_h) +
       "Z",
   );
-  return new SVGAttributes(trig);
 }

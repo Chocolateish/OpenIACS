@@ -12,10 +12,10 @@ export function circle(
   radius: number,
 ): SVGAttributes<SVGCircleElement> {
   const circle = create_svg_element("circle");
-  circle.setAttribute("cx", String(center_x));
-  circle.setAttribute("cy", String(center_y));
-  circle.setAttribute("r", String(radius));
-  return new SVGAttributes(circle);
+  circle.a("cx", String(center_x));
+  circle.a("cy", String(center_y));
+  circle.a("r", String(radius));
+  return circle;
 }
 
 /**This draws parts of a circle/ellipse, the circle direction is reversed

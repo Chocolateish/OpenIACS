@@ -3,5 +3,5 @@ import { create_svg_element } from "./shared";
 
 /**This draws a triangle*/
 export function group(): SVGAttributes<SVGGElement> {
-  return new SVGAttributes(create_svg_element("g"));
+  return create_svg_element("g");
 }

@@ -13,12 +13,11 @@ export function ellipse(
   radius_x: number,
   radius_y: number,
 ): SVGAttributes<SVGEllipseElement> {
-  const ellipse = create_svg_element("ellipse");
-  ellipse.setAttribute("cx", String(center_x));
-  ellipse.setAttribute("cy", String(center_y));
-  ellipse.setAttribute("rx", String(radius_x));
-  ellipse.setAttribute("ry", String(radius_y));
-  return new SVGAttributes(ellipse);
+  return create_svg_element("ellipse")
+    .a("cx", String(center_x))
+    .a("cy", String(center_y))
+    .a("rx", String(radius_x))
+    .a("ry", String(radius_y));
 }
 
 /**This draws parts of a circle/ellipse, the circle direction is reversed
@@ -36,7 +35,6 @@ export function ellipse_arc(
   start_angle: number,
   end_angle: number,
 ): SVGAttributes<SVGPathElement> {
-  const circ_arc = create_svg_element("path");
   const start_radian = degrees_to_radians(start_angle);
   end_angle = degrees_to_radians(end_angle - start_angle);
   const s_x = radius_x * Math.cos(start_radian) + center_x;
@@ -45,9 +43,8 @@ export function ellipse_arc(
   const e_y = radius_y * Math.sin(start_radian + end_angle) + center_y;
   const f_a = end_angle > Math.PI ? 1 : 0;
   const f_s = end_angle > 0 ? 1 : 0;
-  circ_arc.setAttribute(
+  return create_svg_element("path").a(
     "d",
     `M ${s_x} ${s_y} A ${radius_x} ${radius_y} 0 ${f_a} ${f_s} ${e_x} ${e_y}`,
   );
-  return new SVGAttributes(circ_arc);
 }

@@ -10,9 +10,8 @@ export function svg(
   height: number,
   viewbox: string = `0 0 ${width} ${height}`,
 ): SVGAttributes<SVGSVGElement> {
-  const svg = create_svg_element("svg");
-  svg.setAttribute("width", String(width));
-  svg.setAttribute("height", String(height));
-  svg.setAttribute("viewBox", String(viewbox));
-  return new SVGAttributes(svg);
+  return create_svg_element("svg")
+    .a("width", String(width))
+    .a("height", String(height))
+    .a("viewBox", String(viewbox));
 }

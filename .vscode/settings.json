@@ -9,5 +9,6 @@
   ],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "never"
-  }
+  },
+  "typescript.preferences.importModuleSpecifier": "non-relative"
 }

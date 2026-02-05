@@ -15,28 +15,28 @@ export function text(
   size: number,
   anchor: SVGAnchorPoint,
 ): SVGAttributes<SVGTextElement> {
-  const text_elem = create_svg_element("text");
-  text_elem.setAttribute("x", String(x));
-  text_elem.setAttribute("y", String(y));
-  text_elem.setAttribute("font-size", String(size));
-  text_elem.innerHTML = text;
+  const text_elem = create_svg_element("text")
+    .a("x", String(x))
+    .a("y", String(y))
+    .a("font-size", String(size));
+  text_elem.elem.innerHTML = text;
   switch (anchor) {
     case SVGAnchorPoint.bottomLeft:
     case SVGAnchorPoint.middleLeft:
     case SVGAnchorPoint.topLeft: {
-      text_elem.setAttribute("text-anchor", "start");
+      text_elem.a("text-anchor", "start");
       break;
     }
     case SVGAnchorPoint.topCenter:
     case SVGAnchorPoint.bottomCenter:
     case SVGAnchorPoint.middleCenter: {
-      text_elem.setAttribute("text-anchor", "middle");
+      text_elem.a("text-anchor", "middle");
       break;
     }
     case SVGAnchorPoint.topRight:
     case SVGAnchorPoint.middleRight:
     case SVGAnchorPoint.bottomRight: {
-      text_elem.setAttribute("text-anchor", "end");
+      text_elem.a("text-anchor", "end");
       break;
     }
   }
@@ -44,23 +44,23 @@ export function text(
     case SVGAnchorPoint.bottomLeft:
     case SVGAnchorPoint.bottomRight:
     case SVGAnchorPoint.bottomCenter: {
-      text_elem.setAttribute("dominant-baseline", "auto");
+      text_elem.a("dominant-baseline", "auto");
       break;
     }
     case SVGAnchorPoint.middleLeft:
     case SVGAnchorPoint.middleRight:
     case SVGAnchorPoint.middleCenter: {
-      text_elem.setAttribute("dominant-baseline", "central");
+      text_elem.a("dominant-baseline", "central");
       break;
     }
     case SVGAnchorPoint.topLeft:
     case SVGAnchorPoint.topCenter:
     case SVGAnchorPoint.topRight: {
-      text_elem.setAttribute("dominant-baseline", "hanging");
+      text_elem.a("dominant-baseline", "hanging");
       break;
     }
   }
-  return new SVGAttributes(text_elem);
+  return text_elem;
 }
 
 /**Creates a text nodes for an svg
@@ -81,11 +81,11 @@ export function multi_line_text(
   anchor: SVGAnchorPoint,
 ): SVGAttributes<SVGForeignObjectElement> {
   const text_element = create_svg_element("foreignObject");
-  const text_div = text_element.appendChild(document.createElement("div"));
-  text_element.setAttribute("width", String(width));
-  text_element.setAttribute("height", String(height));
-  text_element.setAttribute("x", String(x));
-  text_element.setAttribute("y", String(y));
+  const text_div = text_element.elem.appendChild(document.createElement("div"));
+  text_element.a("width", String(width));
+  text_element.a("height", String(height));
+  text_element.a("x", String(x));
+  text_element.a("y", String(y));
   text_div.style.fontSize = size + "px";
   text_div.style.width = "100%";
   text_div.style.height = "100%";
@@ -134,5 +134,5 @@ export function multi_line_text(
       break;
     }
   }
-  return new SVGAttributes(text_element);
+  return text_element;
 }

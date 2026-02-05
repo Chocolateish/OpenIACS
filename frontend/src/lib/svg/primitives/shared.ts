@@ -1,3 +1,4 @@
+import { SVGAttributes } from "../attributes";
 import { NAME_SPACE } from "../shared";
 
 type SVGElements = {
@@ -13,7 +14,9 @@ type SVGElements = {
 };
 
 export function create_svg_element<K extends keyof SVGElements>(
-  name: K
-): SVGElements[K] {
-  return document.createElementNS(NAME_SPACE, name) as SVGElements[K];
+  name: K,
+): SVGAttributes<SVGElements[K]> {
+  return new SVGAttributes(
+    document.createElementNS(NAME_SPACE, name) as SVGElements[K],
+  );
 }

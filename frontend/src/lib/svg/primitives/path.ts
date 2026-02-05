@@ -3,9 +3,7 @@ import { create_svg_element } from "./shared";
 
 /**This creates a path element*/
 export function path(path: string): SVGAttributes<SVGPathElement> {
-  const node = create_svg_element("path");
-  node.setAttribute("d", path);
-  return new SVGAttributes(node);
+  return create_svg_element("path").a("d", path);
 }
 
 /**This creates a line with a path element
@@ -19,7 +17,8 @@ export function path_line(
   end_x: number,
   end_y: number,
 ): SVGAttributes<SVGPathElement> {
-  const line = create_svg_element("path");
-  line.setAttribute("d", `M ${start_x} ${start_y} L ${end_x} ${end_y}`);
-  return new SVGAttributes(line);
+  return create_svg_element("path").a(
+    "d",
+    `M ${start_x} ${start_y} L ${end_x} ${end_y}`,
+  );
 }

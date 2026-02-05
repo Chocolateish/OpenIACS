@@ -14,13 +14,12 @@ export function rectangle_from_center(
   height: number,
   corner_radius: number,
 ): SVGAttributes<SVGRectElement> {
-  const circle = create_svg_element("rect");
-  circle.setAttribute("x", String(center_x - width / 2));
-  circle.setAttribute("y", String(center_y - height / 2));
-  circle.setAttribute("width", String(width));
-  circle.setAttribute("height", String(height));
-  circle.setAttribute("rx", String(corner_radius));
-  return new SVGAttributes(circle);
+  return create_svg_element("rect")
+    .a("x", String(center_x - width / 2))
+    .a("y", String(center_y - height / 2))
+    .a("width", String(width))
+    .a("height", String(height))
+    .a("rx", String(corner_radius));
 }
 
 /**This creates a rectangle with teh center as origin
@@ -36,11 +35,10 @@ export function rectangle_from_corner(
   height: number,
   corner_radius: number,
 ): SVGAttributes<SVGRectElement> {
-  const circle = create_svg_element("rect");
-  circle.setAttribute("x", String(start_x));
-  circle.setAttribute("y", String(start_y));
-  circle.setAttribute("width", String(width));
-  circle.setAttribute("height", String(height));
-  circle.setAttribute("rx", String(corner_radius));
-  return new SVGAttributes(circle);
+  return create_svg_element("rect")
+    .a("x", String(start_x))
+    .a("y", String(start_y))
+    .a("width", String(width))
+    .a("height", String(height))
+    .a("rx", String(corner_radius));
 }

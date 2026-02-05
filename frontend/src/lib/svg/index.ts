@@ -34,4 +34,4 @@ export const svg = {
 };
 
 export type SVGFunc = () => SVGSVGElement;
-export type { SVGAnchorPoint } from "./util/anchorPoint";
+export { SVGAnchorPoint } from "./util/anchorPoint";

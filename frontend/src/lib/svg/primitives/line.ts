@@ -12,10 +12,9 @@ export function line(
   end_x: number,
   end_y: number,
 ): SVGAttributes<SVGLineElement> {
-  const line = create_svg_element("line");
-  line.setAttribute("x1", String(start_x));
-  line.setAttribute("y1", String(start_y));
-  line.setAttribute("x2", String(end_x));
-  line.setAttribute("y2", String(end_y));
-  return new SVGAttributes(line);
+  return create_svg_element("line")
+    .a("x1", String(start_x))
+    .a("y1", String(start_y))
+    .a("x2", String(end_x))
+    .a("y2", String(end_y));
 }

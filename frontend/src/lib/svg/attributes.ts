@@ -38,13 +38,24 @@ export class SVGAttributes<T extends SVGElement> {
   }
 
   /** Adds one or more class names to the SVG element */
-  class_name(...class_name: string[]): this {
+  class_list(...class_name: string[]): this {
     this.elem.classList.add(...class_name);
     return this;
   }
   /** Adds one or more class names to the SVG element */
-  cn(...class_name: string[]): this {
+  cl(...class_name: string[]): this {
     this.elem.classList.add(...class_name);
+    return this;
+  }
+
+  /** Sets an arbitrary attribute on the SVG element */
+  attribute(name: string, value: string): this {
+    this.elem.setAttribute(name, value);
+    return this;
+  }
+  /** Sets an arbitrary attribute on the SVG element */
+  a(name: string, value: string): this {
+    this.elem.setAttribute(name, value);
     return this;
   }
 }
