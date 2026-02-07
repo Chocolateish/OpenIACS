@@ -1,5 +1,5 @@
-import { EventHandler } from "@chocolateish/lib-event";
-import { some, type Option } from "@chocolateish/lib-result";
+import { EventHandler } from "@chocbite/ts-lib-event";
+import { some, type Option } from "@chocbite/ts-lib-result";
 import state, {
   type State,
   type StateInferSub,

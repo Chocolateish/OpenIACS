@@ -1,4 +1,4 @@
-import { err, type Result } from "@chocolateish/lib-result";
+import { err, type Result } from "@chocbite/ts-lib-result";
 import { define_element } from "@libBase";
 import { sleep } from "@libCommon";
 import {

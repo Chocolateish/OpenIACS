@@ -1,4 +1,4 @@
-import { svg } from "@chocolateish/lib-svg";
+import { svg } from "@chocbite/ts-lib-svg";
 import { Base, define_element } from "@libBase";
 import { array_from_range_inclusive } from "@libCommon";
 import "./viewport.scss";

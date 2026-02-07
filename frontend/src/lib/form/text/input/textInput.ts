@@ -1,4 +1,4 @@
-import { err, type Result } from "@chocolateish/lib-result";
+import { err, type Result } from "@chocbite/ts-lib-result";
 import { define_element } from "@libBase";
 import { string_byte_length, string_byte_limit } from "@libString";
 import { set_cursor_end } from "../../../common/selection";

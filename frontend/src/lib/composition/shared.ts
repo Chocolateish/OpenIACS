@@ -1,10 +1,10 @@
-import { GREY, ORANGE } from "@libColors";
+import { GREY, ORANGE } from "@chocbite/ts-lib-colors";
 import { theme_init_variable_root } from "@libTheme";
 
 const theme_root = theme_init_variable_root(
   "ui",
   "UI Elements",
-  "Theme variables for UI Elements"
+  "Theme variables for UI Elements",
 );
 
 //       _____ ____  _      ____  _____   _____
@@ -16,7 +16,7 @@ const theme_root = theme_init_variable_root(
 const colors = theme_root.make_sub_group(
   "colors",
   "Colors",
-  "Colors used in all form elements"
+  "Colors used in all form elements",
 );
 
 colors.make_variable(
@@ -26,7 +26,7 @@ colors.make_variable(
   GREY[500],
   GREY[700],
   "Color",
-  undefined
+  undefined,
 );
 
 colors.make_variable(
@@ -36,7 +36,7 @@ colors.make_variable(
   GREY[100],
   "#000000",
   "Color",
-  undefined
+  undefined,
 );
 
 colors.make_variable(
@@ -46,7 +46,7 @@ colors.make_variable(
   GREY[900],
   GREY[100],
   "Color",
-  undefined
+  undefined,
 );
 
 colors.make_variable(
@@ -56,7 +56,7 @@ colors.make_variable(
   GREY[300],
   GREY[900],
   "Color",
-  undefined
+  undefined,
 );
 
 colors.make_variable(
@@ -66,7 +66,7 @@ colors.make_variable(
   "#000000",
   GREY[50],
   "Color",
-  undefined
+  undefined,
 );
 
 colors.make_variable(
@@ -76,5 +76,5 @@ colors.make_variable(
   ORANGE[500],
   ORANGE[500],
   "Color",
-  undefined
+  undefined,
 );

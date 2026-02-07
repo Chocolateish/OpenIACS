@@ -1,4 +1,4 @@
-import { ok } from "@chocolateish/lib-result";
+import { ok } from "@chocbite/ts-lib-result";
 import {
   array_from_length,
   array_from_range,

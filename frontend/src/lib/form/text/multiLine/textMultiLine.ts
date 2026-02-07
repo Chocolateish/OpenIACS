@@ -1,4 +1,4 @@
-import { err, type Result } from "@chocolateish/lib-result";
+import { err, type Result } from "@chocbite/ts-lib-result";
 import { define_element } from "@libBase";
 import { material_editor_drag_handle_rounded } from "@libIcons";
 import { string_byte_length, string_byte_limit } from "@libString";

@@ -1,4 +1,4 @@
-import { type Option } from "@chocolateish/lib-result";
+import { type Option } from "@chocbite/ts-lib-result";
 import type { BaseObserver } from "@libBase";
 import type { State, StateArray } from "@libState";
 import type { ListField } from "./field";

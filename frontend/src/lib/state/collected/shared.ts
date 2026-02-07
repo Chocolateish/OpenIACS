@@ -1,4 +1,4 @@
-import type { Result, ResultOk } from "@chocolateish/lib-result";
+import type { Result, ResultOk } from "@chocbite/ts-lib-result";
 import type {
   State,
   StateInferResult,

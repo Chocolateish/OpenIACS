@@ -1,4 +1,4 @@
-import { some } from "@chocolateish/lib-result";
+import { some } from "@chocbite/ts-lib-result";
 import { Base, define_element } from "@libBase";
 import state, { type State } from "@libState";
 import type { SVGFunc } from "@libSVG";

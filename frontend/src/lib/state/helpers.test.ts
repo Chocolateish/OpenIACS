@@ -1,4 +1,4 @@
-import { err } from "@chocolateish/lib-result";
+import { err } from "@chocbite/ts-lib-result";
 import st from "@libState";
 import { describe, expect, it } from "vitest";
 

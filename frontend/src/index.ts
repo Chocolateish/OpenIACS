@@ -1,4 +1,4 @@
-import { err, ok, type Result } from "@chocolateish/lib-result";
+import { err, ok, type Result } from "@chocbite/ts-lib-result";
 import { Viewport } from "@libEditor";
 import type { StateSyncROSWS } from "@libState";
 import { default as st, default as state } from "@libState";

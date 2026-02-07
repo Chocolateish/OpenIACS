@@ -1,4 +1,4 @@
-import { GREY } from "@libColors";
+import { GREY } from "@chocbite/ts-lib-colors";
 import "./theme.scss";
 import { theme_init_variable_root } from "./variables";
 
@@ -7,18 +7,18 @@ export const BUILT_IN = 0;
 const root = theme_init_variable_root(
   "common",
   "Shared Variables",
-  "Shared variables across features"
+  "Shared variables across features",
 );
 
 const scroll_bar = root.make_sub_group(
   "scrollbar",
   "Scrollbar",
-  "Scrollbar variables"
+  "Scrollbar variables",
 );
 const scroll_bar_thumb = scroll_bar.make_sub_group(
   "thumb",
   "Thumb",
-  "Scrollbar Thumb variables"
+  "Scrollbar Thumb variables",
 );
 scroll_bar_thumb.make_variable(
   "color",
@@ -27,7 +27,7 @@ scroll_bar_thumb.make_variable(
   GREY["400"],
   GREY["800"],
   "Font",
-  undefined
+  undefined,
 );
 scroll_bar_thumb.make_variable(
   "hoverColor",
@@ -36,7 +36,7 @@ scroll_bar_thumb.make_variable(
   GREY["600"],
   GREY["600"],
   "Font",
-  undefined
+  undefined,
 );
 scroll_bar_thumb.make_variable(
   "activeColor",
@@ -45,7 +45,7 @@ scroll_bar_thumb.make_variable(
   GREY["500"],
   GREY["700"],
   "Font",
-  undefined
+  undefined,
 );
 
 const fonts = root.make_sub_group("fonts", "Fonts", "Font variables");
@@ -56,7 +56,7 @@ fonts.make_variable(
   '"Roboto", Arial, Helvetica, sans-serif',
   '"Roboto", Arial, Helvetica, sans-serif',
   "Font",
-  undefined
+  undefined,
 );
 
 //       _____ ____  _      ____  _____   _____
@@ -74,5 +74,5 @@ colors.make_variable(
   GREY[50],
   "#111111",
   "Color",
-  undefined
+  undefined,
 );

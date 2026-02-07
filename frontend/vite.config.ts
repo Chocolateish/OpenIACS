@@ -27,7 +27,6 @@ export default defineConfig({
 
       //Lib
       "@libBase": path.resolve(__dirname, "src/lib/base/index"),
-      "@libColors": path.resolve(__dirname, "./src/lib/colors/index"),
       "@libCommon": path.resolve(__dirname, "./src/lib/common/index"),
       "@libComposition": path.resolve(__dirname, "./src/lib/composition/index"),
       "@libContextmenu": path.resolve(__dirname, "./src/lib/contextmenu/index"),

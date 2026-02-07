@@ -1,9 +1,9 @@
-import { none, some } from "@chocolateish/lib-result";
+import { none, some } from "@chocbite/ts-lib-result";
+import type { SVGFunc } from "@chocolateish/lib-svg";
 import { Base, define_element } from "@libBase";
 import { array_from_length } from "@libCommon";
 import type { State } from "@libState";
 import state from "@libState";
-import type { SVGFunc } from "@libSVG";
 import "./key_field.scss";
 import type { ListRowParent, ListType } from "./types";
 

@@ -1,4 +1,4 @@
-import { ok, ResultOk, type Result } from "@chocolateish/lib-result";
+import { ok, ResultOk, type Result } from "@chocbite/ts-lib-result";
 import st, { type StateROS } from "@libState";
 import { assertType, describe, it } from "vitest";
 import {

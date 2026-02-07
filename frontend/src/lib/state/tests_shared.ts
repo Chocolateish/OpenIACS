@@ -1,4 +1,4 @@
-import { err, ok, ResultOk, type Result } from "@chocolateish/lib-result";
+import { err, ok, ResultOk, type Result } from "@chocbite/ts-lib-result";
 import { sleep } from "@libCommon";
 import { expect, it } from "vitest";
 import type {

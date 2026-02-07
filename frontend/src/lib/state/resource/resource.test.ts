@@ -1,4 +1,4 @@
-import { ok, ResultOk, type Result } from "@chocolateish/lib-result";
+import { ok, ResultOk, type Result } from "@chocbite/ts-lib-result";
 import st, {
   type StateREA,
   type StateResourceFuncREA,
@@ -128,7 +128,7 @@ describe("Resource states", function () {
   });
 });
 
-// import { Err, Ok } from "@chocolateish/lib-result";
+// import { Err, Ok } from "@chocbite/ts-lib-result";
 // import { describe, expect, it } from "vitest";
 // import { state_resource } from "../resource";
 

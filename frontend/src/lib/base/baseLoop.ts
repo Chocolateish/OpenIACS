@@ -1,4 +1,4 @@
-import type { Result } from "@chocolateish/lib-result";
+import type { Result } from "@chocbite/ts-lib-result";
 import {
   default as st,
   type StateArray,

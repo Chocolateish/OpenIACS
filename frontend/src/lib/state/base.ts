@@ -1,4 +1,4 @@
-import { type Option, type Result } from "@chocolateish/lib-result";
+import { type Option, type Result } from "@chocbite/ts-lib-result";
 import {
   STATE_KEY,
   type StateBase as Base,

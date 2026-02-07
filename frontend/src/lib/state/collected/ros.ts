@@ -1,4 +1,4 @@
-import { none, OptionNone, type ResultOk } from "@chocolateish/lib-result";
+import { none, OptionNone, type ResultOk } from "@chocbite/ts-lib-result";
 import { StateBase } from "../base";
 import { type State, type StateRES, type StateROS } from "../types";
 import type {

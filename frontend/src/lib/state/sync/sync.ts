@@ -5,7 +5,7 @@ import {
   ResultOk,
   type Option,
   type Result,
-} from "@chocolateish/lib-result";
+} from "@chocbite/ts-lib-result";
 import { StateBase } from "../base";
 import {
   type StateHelper as Helper,

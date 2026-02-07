@@ -1,4 +1,4 @@
-import { err, ok, type Result } from "@chocolateish/lib-result";
+import { err, ok, type Result } from "@chocbite/ts-lib-result";
 import { AccessTypes, define_element } from "@libBase";
 import type { Prettify } from "@libCommon";
 import {

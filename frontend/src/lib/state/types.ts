@@ -3,7 +3,7 @@ import {
   type Option,
   type Result,
   type ResultOk,
-} from "@chocolateish/lib-result";
+} from "@chocbite/ts-lib-result";
 import type { StateArrayRead, StateArrayWrite } from "./array/sync";
 
 /**Function used to subscribe to state changes

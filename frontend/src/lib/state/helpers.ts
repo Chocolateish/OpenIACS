@@ -1,12 +1,12 @@
-import { number_step_start_decimal } from "@chocolateish/lib-math";
+import { number_step_start_decimal } from "@chocbite/ts-lib-math";
 import {
   err,
   ok,
   OptionSome,
   some,
   type Result,
-} from "@chocolateish/lib-result";
-import type { SVGFunc } from "@chocolateish/lib-svg";
+} from "@chocbite/ts-lib-result";
+import type { SVGFunc } from "@chocbite/ts-lib-svg";
 import { StateBase } from "./base";
 import {
   type State,

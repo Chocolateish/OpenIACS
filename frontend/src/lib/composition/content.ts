@@ -1,4 +1,4 @@
-import { none, type Option } from "@chocolateish/lib-result";
+import { none, type Option } from "@chocbite/ts-lib-result";
 import { Base, define_element } from "@libBase";
 import state, { type StateROS } from "@libState";
 import type { SVGFunc } from "@libSVG";

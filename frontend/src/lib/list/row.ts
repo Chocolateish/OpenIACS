@@ -1,4 +1,4 @@
-import { some, type Option } from "@chocolateish/lib-result";
+import { some, type Option } from "@chocbite/ts-lib-result";
 import { Base, define_element } from "@libBase";
 import state, {
   type State,

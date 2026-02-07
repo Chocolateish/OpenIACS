@@ -1,4 +1,4 @@
-import type { Option, ResultOk } from "@chocolateish/lib-result";
+import type { Option, ResultOk } from "@chocbite/ts-lib-result";
 import type { StateROAWA } from "@libState";
 
 let name_transformer: ((name: string) => string) | undefined;

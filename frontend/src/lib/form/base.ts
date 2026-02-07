@@ -1,4 +1,4 @@
-import { err, ok, type Result } from "@chocolateish/lib-result";
+import { err, ok, type Result } from "@chocbite/ts-lib-result";
 import { Base } from "@libBase";
 import type { State, StateSub } from "@libState";
 import "./shared";

@@ -11,10 +11,11 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@chocolateish/lib-event": "1.0.1",
-    "@chocolateish/lib-result": "1.0.0",
-    "@chocolateish/lib-svg": "1.0.0",
-    "@chocolateish/lib-math": "1.0.0"
+    "@chocbite/ts-lib-event": "1.0.0",
+    "@chocbite/ts-lib-result": "1.0.0",
+    "@chocbite/ts-lib-svg": "1.0.1",
+    "@chocbite/ts-lib-math": "1.0.0",
+    "@chocbite/ts-lib-colors": "1.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

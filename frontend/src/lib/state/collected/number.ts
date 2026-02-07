@@ -1,4 +1,4 @@
-import { ok, ResultOk, type Result } from "@chocolateish/lib-result";
+import { ok, ResultOk, type Result } from "@chocbite/ts-lib-result";
 import type { State, StateRES, StateROA, StateROS } from "../types";
 import { STATE_COLLECTED_REA, type StateCollectedREA } from "./rea";
 import { STATE_COLLECTED_RES, type StateCollectedRES } from "./res";

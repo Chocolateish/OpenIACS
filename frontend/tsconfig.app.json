@@ -14,7 +14,6 @@
 
       //Lib
       "@libBase": ["./src/lib/base/index"],
-      "@libColors": ["./src/lib/colors/index"],
       "@libCommon": ["./src/lib/common/index"],
       "@libComposition": ["./src/lib/composition/index"],
       "@libContextmenu": ["./src/lib/contextmenu/index"],

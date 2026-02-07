@@ -1,4 +1,4 @@
-import type { Option } from "@chocolateish/lib-result";
+import type { Option } from "@chocbite/ts-lib-result";
 import { DOCUMENT_HANDLER } from "@libDocument";
 import { Container } from "./container";
 import "./engine.scss";
