@@ -1,6 +1,6 @@
+import { none, some } from "@chocolateish/lib-result";
 import { Base, define_element } from "@libBase";
 import { array_from_length } from "@libCommon";
-import { none, some } from "@libResult";
 import type { State } from "@libState";
 import state from "@libState";
 import type { SVGFunc } from "@libSVG";
@@ -44,7 +44,7 @@ export class ListKeyField<A extends ListType<any>> extends Base {
         div.style.borderColor = "var(--i-" + i + ")";
         return div;
       }),
-      opener_box
+      opener_box,
     );
 
     this.#opener.addEventListener("click", (e) => {

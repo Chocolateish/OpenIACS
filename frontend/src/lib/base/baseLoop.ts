@@ -1,4 +1,4 @@
-import type { Result } from "@libResult";
+import type { Result } from "@chocolateish/lib-result";
 import {
   default as st,
   type StateArray,
@@ -58,7 +58,7 @@ export class Loop<T, E extends Node> extends Base {
         this.#children = st.a.apply_read(
           this.#children,
           value,
-          this.#generator
+          this.#generator,
         );
         if (value.type === "fresh") this.replaceChildren(...this.#children);
         else if (value.type === "added") {
@@ -69,7 +69,7 @@ export class Loop<T, E extends Node> extends Base {
             for (let i = value.items.length; i > 0; i--) {
               this.insertBefore(
                 this.childNodes[value.index],
-                this.#generator(value.items[i - 1])
+                this.#generator(value.items[i - 1]),
               );
             }
           }
@@ -78,7 +78,7 @@ export class Loop<T, E extends Node> extends Base {
             if (this.#destructor)
               this.#destructor(
                 this.#values[value.index],
-                this.#children[value.index]
+                this.#children[value.index],
               );
             this.childNodes[value.index].remove();
           }

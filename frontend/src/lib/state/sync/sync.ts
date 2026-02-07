@@ -1,4 +1,11 @@
-import { err, none, ok, ResultOk, type Option, type Result } from "@libResult";
+import {
+  err,
+  none,
+  ok,
+  ResultOk,
+  type Option,
+  type Result,
+} from "@chocolateish/lib-result";
 import { StateBase } from "../base";
 import {
   type StateHelper as Helper,

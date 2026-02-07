@@ -1,4 +1,4 @@
-import { type Option, type Result } from "@libResult";
+import { type Option, type Result } from "@chocolateish/lib-result";
 import {
   STATE_KEY,
   type StateBase as Base,
@@ -10,9 +10,8 @@ export abstract class StateBase<
   RT,
   WT,
   REL extends Option<StateRelated>,
-  RRT extends Result<RT, string>
-> implements Base<RT, WT, REL, RRT>
-{
+  RRT extends Result<RT, string>,
+> implements Base<RT, WT, REL, RRT> {
   get [STATE_KEY](): true {
     return true;
   }
@@ -24,7 +23,7 @@ export abstract class StateBase<
   abstract readonly rsync: boolean;
   abstract readonly rok: boolean;
   abstract then<T = RRT>(
-    func: (value: RRT) => T | PromiseLike<T>
+    func: (value: RRT) => T | PromiseLike<T>,
   ): PromiseLike<T>;
   get?(): RRT;
   ok?(): RT;
@@ -85,14 +84,14 @@ export abstract class StateBase<
   /**Creates a promise which can be fulfilled later with fulRProm */
   protected async append_r_prom<
     T = Result<RT, string>,
-    TResult1 = Result<RT, string>
+    TResult1 = Result<RT, string>,
   >(func: (value: T) => TResult1 | PromiseLike<TResult1>): Promise<TResult1> {
     return func(
       await new Promise<T>((a) => {
         (this.#read_promises ??= []).push(
-          a as (val: Result<RT, string>) => void
+          a as (val: Result<RT, string>) => void,
         );
-      })
+      }),
     );
   }
   /**Fulfills all read promises with given value */

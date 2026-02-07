@@ -1,5 +1,5 @@
+import { err, type Result } from "@chocolateish/lib-result";
 import { define_element } from "@libBase";
-import { err, type Result } from "@libResult";
 import { string_byte_length, string_byte_limit } from "@libString";
 import { set_cursor_end } from "../../../common/selection";
 import { FormValueWrite, type FormValueOptions } from "../../base";
@@ -7,7 +7,7 @@ import "./textInput.scss";
 
 export interface FormTextInputOptions<
   ID extends string | undefined,
-  RT = string
+  RT = string,
 > extends FormValueOptions<RT, ID> {
   /**Placeholder text when input is empty */
   placeholder?: string;
@@ -142,7 +142,7 @@ define_element(FormTextInput);
 
 /**Creates a single line text input form element */
 export function form_text_input<ID extends string | undefined>(
-  options?: FormTextInputOptions<ID>
+  options?: FormTextInputOptions<ID>,
 ): FormTextInput<ID> {
   const input = new FormTextInput<ID>(options?.id);
   if (options) {

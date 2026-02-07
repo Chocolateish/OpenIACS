@@ -1,4 +1,10 @@
-import { err, none, ok, type Option, type Result } from "@libResult";
+import {
+  err,
+  none,
+  ok,
+  type Option,
+  type Result,
+} from "@chocolateish/lib-result";
 import { StateBase } from "../base";
 import {
   type StateRelated as RELATED,
@@ -118,14 +124,16 @@ export abstract class StateResourceREA<
     if (update) {
       if (!this.#buffer?.compare(value)) this.update_subs(value);
       this.#buffer = value;
-      this.#valid = this.validity === true ? true : Date.now() + this.validity;
+      this.#valid =
+        this.validity === true ? true : performance.now() + this.validity;
     }
   }
 
   update_resource(value: Result<RT, string>) {
     if (!this.#buffer?.compare(value)) this.update_subs(value);
     this.#buffer = value;
-    this.#valid = this.validity === true ? true : Date.now() + this.validity;
+    this.#valid =
+      this.validity === true ? true : performance.now() + this.validity;
   }
 
   get buffer(): Result<RT, string> | undefined {
@@ -149,7 +157,7 @@ export abstract class StateResourceREA<
   async then<T = Result<RT, string>>(
     func: (value: Result<RT, string>) => T | PromiseLike<T>,
   ): Promise<T> {
-    if (this.#valid === true || this.#valid >= Date.now())
+    if (this.#valid === true || this.#valid >= performance.now())
       return func(this.#buffer!);
     else {
       const prom = this.append_r_prom(func);
@@ -400,14 +408,16 @@ export abstract class StateResourceREAWA<
     if (update) {
       if (!this.#buffer?.compare(value)) this.update_subs(value);
       this.#buffer = value;
-      this.#valid = this.validity === true ? true : Date.now() + this.validity;
+      this.#valid =
+        this.validity === true ? true : performance.now() + this.validity;
     }
   }
 
   update_resource(value: Result<RT, string>) {
     if (!this.#buffer?.compare(value)) this.update_subs(value);
     this.#buffer = value;
-    this.#valid = this.validity === true ? true : Date.now() + this.validity;
+    this.#valid =
+      this.validity === true ? true : performance.now() + this.validity;
   }
 
   get buffer(): Result<RT, string> | undefined {
@@ -433,7 +443,7 @@ export abstract class StateResourceREAWA<
   async then<T = Result<RT, string>>(
     func: (value: Result<RT, string>) => T | PromiseLike<T>,
   ): Promise<T> {
-    if (this.#valid === true || this.#valid >= Date.now())
+    if (this.#valid === true || this.#valid >= performance.now())
       return func(this.#buffer!);
     else {
       const prom = this.append_r_prom(func);

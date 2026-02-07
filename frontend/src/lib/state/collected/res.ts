@@ -1,4 +1,4 @@
-import { err, none, OptionNone, type Result } from "@libResult";
+import { err, none, OptionNone, type Result } from "@chocolateish/lib-result";
 import { StateBase } from "../base";
 import { type State, type StateRES } from "../types";
 import type {
@@ -23,7 +23,7 @@ interface Owner<RT, IN extends StateRES<any>[], WT> {
    * This function is used to compute the derived state based on the current states.
    * @param getter - The new getter function. This function should accept an array of states and return the derived state.*/
   set_getter(
-    getter: (values: StateCollectedTransVal<IN>) => Result<RT, string>
+    getter: (values: StateCollectedTransVal<IN>) => Result<RT, string>,
   ): void;
   get state(): State<RT, WT, any>;
   get read_only(): StateRES<RT, any, WT>;
@@ -31,7 +31,7 @@ interface Owner<RT, IN extends StateRES<any>[], WT> {
 export type StateCollectedRES<
   RT,
   IN extends StateRES<any>[],
-  WT = any
+  WT = any,
 > = StateRES<RT, OptionNone, WT> & Owner<RT, IN, WT>;
 
 export class RES<RT, IN extends StateRES<any>[], WT>
@@ -76,7 +76,7 @@ export class RES<RT, IN extends StateRES<any>[], WT>
           calc = true;
           Promise.resolve().then(() => {
             this.#buffer = this.getter(
-              this.#state_buffers as StateCollectedTransVal<IN>
+              this.#state_buffers as StateCollectedTransVal<IN>,
             );
             this.update_subs(this.#buffer);
             calc = false;
@@ -85,7 +85,7 @@ export class RES<RT, IN extends StateRES<any>[], WT>
       });
     }
     this.#buffer = this.getter(
-      this.#state_buffers as StateCollectedTransVal<IN>
+      this.#state_buffers as StateCollectedTransVal<IN>,
     );
     this.update_subs(this.#buffer);
   }
@@ -108,7 +108,7 @@ export class RES<RT, IN extends StateRES<any>[], WT>
     } else this.#states = [...states] as unknown as IN;
   }
   set_getter(
-    getter: (values: StateCollectedTransVal<IN>) => Result<RT, string>
+    getter: (values: StateCollectedTransVal<IN>) => Result<RT, string>,
   ) {
     if (this.in_use()) {
       this.on_unsubscribe();
@@ -131,7 +131,7 @@ export class RES<RT, IN extends StateRES<any>[], WT>
     return true;
   }
   async then<T = Result<RT, string>>(
-    func: (value: Result<RT, string>) => T | PromiseLike<T>
+    func: (value: Result<RT, string>) => T | PromiseLike<T>,
   ): Promise<T> {
     return func(this.get());
   }
@@ -139,7 +139,7 @@ export class RES<RT, IN extends StateRES<any>[], WT>
     if (this.#buffer) return this.#buffer;
     return this.#states.length
       ? this.getter(
-          this.#states.map((s) => s.get()) as StateCollectedTransVal<IN>
+          this.#states.map((s) => s.get()) as StateCollectedTransVal<IN>,
         )
       : err("No states registered");
   }

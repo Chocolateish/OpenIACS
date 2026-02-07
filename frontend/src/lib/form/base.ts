@@ -1,5 +1,5 @@
+import { err, ok, type Result } from "@chocolateish/lib-result";
 import { Base } from "@libBase";
-import { err, ok, type Result } from "@libResult";
 import type { State, StateSub } from "@libState";
 import "./shared";
 
@@ -47,7 +47,7 @@ export interface FormValueOptions<RT, ID extends string | undefined> {
 /**Shared class for all components with values*/
 export abstract class FormValue<
   RT,
-  ID extends string | undefined
+  ID extends string | undefined,
 > extends FormElement {
   static element_name() {
     return "@abstract@";
@@ -61,7 +61,7 @@ export abstract class FormValue<
 
   static apply_options<RT, ID extends string | undefined>(
     element: FormValue<RT, ID>,
-    options: FormValueOptions<RT, ID>
+    options: FormValueOptions<RT, ID>,
   ) {
     if (options.description) element.description = options.description;
     if (options.value_by_state) element.value_by_state = options.value_by_state;
@@ -107,8 +107,8 @@ export abstract class FormValue<
     return this._state
       ? err("State based component")
       : typeof this._buffer === "undefined"
-      ? err("No value yet")
-      : ok(this._buffer);
+        ? err("No value yet")
+        : ok(this._buffer);
   }
 
   set error(err: string) {
@@ -142,7 +142,7 @@ export abstract class FormValue<
 /**Shared class for all components with values*/
 export abstract class FormValueWrite<
   RT,
-  ID extends string | undefined
+  ID extends string | undefined,
 > extends FormValue<RT, ID> {
   static element_name() {
     return "@abstract@";

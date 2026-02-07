@@ -1,3 +1,4 @@
+import { err, type Result } from "@chocolateish/lib-result";
 import { define_element } from "@libBase";
 import { sleep } from "@libCommon";
 import {
@@ -5,7 +6,6 @@ import {
   material_content_remove_rounded,
 } from "@libIcons";
 import { number_step_start_decimal } from "@libMath";
-import { err, type Result } from "@libResult";
 import type { SVGFunc } from "@libSVG";
 import { FormNumberWrite, type FormStepperBaseOptions } from "../numberBase";
 import "./stepper.scss";
@@ -31,12 +31,12 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
   #live: boolean = false;
   #icon_dec = this.#stepper_func(
     this.appendChild(material_content_remove_rounded()),
-    false
+    false,
   );
   #text = this.appendChild(document.createElement("span"));
   #icon_inc = this.#stepper_func(
     this.appendChild(material_content_add_rounded()),
-    true
+    true,
   );
   #value_box = this.#text.appendChild(document.createElement("span"));
   #unit_box = this.#text.appendChild(document.createElement("span"));
@@ -59,7 +59,7 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
       drag_blocker = false;
       await sleep(0);
       this.set_value_check(
-        parseFloat(this.#value_box.textContent?.replace(",", ".") || "") || 0
+        parseFloat(this.#value_box.textContent?.replace(",", ".") || "") || 0,
       );
     };
     let reset = () => {};
@@ -205,15 +205,15 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
       this.#icon_dec,
       this.#stepper_func(
         icon ? icon() : material_content_remove_rounded(),
-        false
-      )
+        false,
+      ),
     );
   }
 
   set icon_increase(icon: SVGFunc | undefined) {
     this.replaceChild(
       this.#icon_inc,
-      this.#stepper_func(icon ? icon() : material_content_add_rounded(), true)
+      this.#stepper_func(icon ? icon() : material_content_add_rounded(), true),
     );
   }
 
@@ -234,7 +234,7 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
       Math.min(Math.max(val, this.#min), this.#max),
       this.#step,
       this.#start,
-      this.#decimals
+      this.#decimals,
     );
     if (lim < this.#min) lim += this.#step;
     if (lim > this.#max) lim -= this.#step;
@@ -244,17 +244,17 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
   protected check_value(val: number): Result<number, string> {
     if (val < this.#min)
       return err(
-        "Minimum value " + this.#min.toFixed(this.#decimals) + this.#unit
+        "Minimum value " + this.#min.toFixed(this.#decimals) + this.#unit,
       );
     if (val > this.#max)
       return err(
-        "Maximum value " + this.#max.toFixed(this.#decimals) + this.#unit
+        "Maximum value " + this.#max.toFixed(this.#decimals) + this.#unit,
       );
     let lim = number_step_start_decimal(
       val,
       this.#step,
       this.#start,
-      this.#decimals
+      this.#decimals,
     );
     if (lim < this.#min) lim += this.#step;
     if (lim > this.#max) lim -= this.#step;
@@ -319,7 +319,7 @@ export class FormStepper<ID extends string | undefined> extends FormNumberWrite<
       this.#step ||
       Math.max(
         this.#decimals ? 1 / this.#decimals : 1,
-        Math.floor(Math.abs(this.buffer || 0) / 150)
+        Math.floor(Math.abs(this.buffer || 0) / 150),
       );
     return this.set_value_check((this.buffer || 0) + (dir ? step : -step));
   }
@@ -328,7 +328,7 @@ define_element(FormStepper);
 
 /**Creates a dropdown form element */
 export function form_stepper<ID extends string | undefined>(
-  options?: FormStepperBaseOptions<ID>
+  options?: FormStepperBaseOptions<ID>,
 ): FormStepper<ID> {
   const slide = new FormStepper<ID>(options?.id);
   if (options) {

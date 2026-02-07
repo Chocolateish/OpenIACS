@@ -1,9 +1,9 @@
-import type { Option, ResultOk } from "@libResult";
+import type { Option, ResultOk } from "@chocolateish/lib-result";
 import type { StateROAWA } from "@libState";
 
 let name_transformer: ((name: string) => string) | undefined;
 export const settings_set_name_transform = (
-  transform: (name: string) => string
+  transform: (name: string) => string,
 ) => {
   name_transformer = transform;
 };
@@ -28,7 +28,7 @@ export const settings_init = (
   package_name: string,
   package_version: string,
   name: string,
-  description: string
+  description: string,
 ) => {
   if (name_transformer) package_name = name_transformer(package_name);
   let changed: string | undefined;
@@ -46,7 +46,7 @@ export const settings_init = (
     package_name,
     name,
     description,
-    changed ? changed : undefined
+    changed ? changed : undefined,
   ));
 };
 
@@ -74,7 +74,7 @@ export class SettingsGroup {
     path: string,
     name: string,
     description: string,
-    version_changed?: string
+    version_changed?: string,
   ) {
     this.version_changed = version_changed;
     this.path_id = path;
@@ -93,7 +93,7 @@ export class SettingsGroup {
       this.path_id + "/" + id,
       name,
       description,
-      this.version_changed
+      this.version_changed,
     ));
   }
 
@@ -106,7 +106,7 @@ export class SettingsGroup {
     id: string,
     fallback: TYPE,
     check?: (parsed: unknown) => Option<TYPE>,
-    version_changed?: (existing: string, oldVersion: string) => TYPE
+    version_changed?: (existing: string, oldVersion: string) => TYPE,
   ): TYPE {
     const saved = localStorage.getItem(this.path_id + "/" + id);
     if (saved === null) return fallback;
@@ -115,7 +115,7 @@ export class SettingsGroup {
         const changed_value = version_changed(saved, this.version_changed);
         localStorage.setItem(
           this.path_id + "/" + id,
-          JSON.stringify(changed_value)
+          JSON.stringify(changed_value),
         );
         return changed_value;
       }
@@ -145,7 +145,7 @@ export class SettingsGroup {
     id: string,
     name: string,
     description: string,
-    state: StateROAWA<READ>
+    state: StateROAWA<READ>,
   ) {
     if (id in this.settings)
       throw new Error("Settings already registered " + this.path_id + "/" + id);
@@ -166,7 +166,7 @@ export class SettingsGroup {
     name: string,
     description: string,
     state: StateROAWA<READ>,
-    transform: (state: ResultOk<READ>) => TYPE
+    transform: (state: ResultOk<READ>) => TYPE,
   ) {
     if (id in this.settings)
       throw new Error("Settings already registered " + this.path_id + "/" + id);

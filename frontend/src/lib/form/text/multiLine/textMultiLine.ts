@@ -1,6 +1,6 @@
+import { err, type Result } from "@chocolateish/lib-result";
 import { define_element } from "@libBase";
 import { material_editor_drag_handle_rounded } from "@libIcons";
-import { err, type Result } from "@libResult";
 import { string_byte_length, string_byte_limit } from "@libString";
 import { set_cursor_end } from "../../../common/selection";
 import { FormValueWrite, type FormValueOptions } from "../../base";
@@ -8,7 +8,7 @@ import "./textMultiLine.scss";
 
 export interface FormTextInputOptions<
   ID extends string | undefined,
-  RT = string
+  RT = string,
 > extends FormValueOptions<RT, ID> {
   /**Placeholder text when input is empty */
   placeholder?: string;
@@ -35,7 +35,7 @@ class FormTextMultiline<ID extends string | undefined> extends FormValueWrite<
   #max_length?: number;
   #max_bytes?: number;
   #value_box: HTMLTextAreaElement = this.appendChild(
-    document.createElement("textarea")
+    document.createElement("textarea"),
   );
   #resizer: HTMLDivElement = this.appendChild(document.createElement("div"));
 
@@ -170,7 +170,7 @@ define_element(FormTextMultiline);
 
 /**Creates a multi line text input form element */
 export function form_text_multiline<ID extends string | undefined>(
-  options?: FormTextInputOptions<ID>
+  options?: FormTextInputOptions<ID>,
 ): FormTextMultiline<ID> {
   const input = new FormTextMultiline<ID>(options?.id);
   if (options) {

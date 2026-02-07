@@ -1,5 +1,5 @@
+import { some, type Option } from "@chocolateish/lib-result";
 import { Base, define_element } from "@libBase";
-import { some, type Option } from "@libResult";
 import state, {
   type State,
   type StateArray,

@@ -1,4 +1,4 @@
-import { EventHandler } from "@libEvent";
+import { EventHandler } from "@chocolateish/lib-event";
 
 interface DocumentHandlerEvents {
   /**Fired when document is added*/

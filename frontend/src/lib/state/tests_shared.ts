@@ -1,5 +1,5 @@
+import { err, ok, ResultOk, type Result } from "@chocolateish/lib-result";
 import { sleep } from "@libCommon";
-import { err, ok, ResultOk, type Result } from "@libResult";
 import { expect, it } from "vitest";
 import type {
   StateREA,
@@ -33,7 +33,7 @@ type RERR = Result<number, string>;
 type ROK = ResultOk<number>;
 
 export type TestStateAll = (
-  setter?: (w: number) => void
+  setter?: (w: number) => void,
 ) =>
   | StateType<true, true, false, false, StateROS<number>, ROK>
   | StateType<true, true, true, true, StateROSWS<number>, ROK>
@@ -96,7 +96,7 @@ export type TestStateWriteSync = () =>
  */
 export async function test_state_sub(
   state_maker: TestStateAll,
-  wait: number
+  wait: number,
 ): Promise<void> {
   const made = state_maker();
   const { state, set } = made;
@@ -188,7 +188,7 @@ export async function test_state_sub(
  */
 export async function test_state_then(
   state_maker: TestStateAll,
-  wait: number
+  wait: number,
 ): Promise<void> {
   it("awaiting then setting trice", async function () {
     const { state, set } = state_maker();
@@ -231,7 +231,7 @@ export async function test_state_then(
             expect(val).equal(8);
             a(12);
           });
-      })
+      }),
     ).equal(12);
   });
   it("using then", async function () {
@@ -249,9 +249,9 @@ export async function test_state_then(
             (val) => {
               expect(val).toEqual(new Error("8"));
               a(12);
-            }
+            },
           );
-      })
+      }),
     ).equal(12);
   });
   it("setting then awaiting", async function () {
@@ -279,7 +279,7 @@ export async function test_state_then(
  * Expects initial value to be number 1
  */
 export async function test_state_get(
-  state_maker: TestStateSync
+  state_maker: TestStateSync,
 ): Promise<void> {
   const made = state_maker();
   expect(made.state.get()).toEqual(ok(1));
@@ -301,7 +301,7 @@ export async function test_state_get(
  * Expects initial value to be number 1
  */
 export async function test_state_get_ok(
-  state_maker: TestStateOkSync
+  state_maker: TestStateOkSync,
 ): Promise<void> {
   const { state } = state_maker();
   expect(state.ok()).toEqual(1);
@@ -317,7 +317,7 @@ export async function test_state_get_ok(
  * Expects initial value to be number 1
  */
 export async function test_state_write(
-  state_maker: TestStateWrite
+  state_maker: TestStateWrite,
 ): Promise<void> {
   const { state } = state_maker();
   expect(await state.write(15)).toEqual(ok(undefined));
@@ -335,7 +335,7 @@ export async function test_state_write(
  * Expects initial value to be number 1
  */
 export async function test_state_write_sync(
-  state_maker: TestStateWriteSync
+  state_maker: TestStateWriteSync,
 ): Promise<void> {
   const { state } = state_maker();
   expect(state.write_sync(10)).toEqual(ok(undefined));

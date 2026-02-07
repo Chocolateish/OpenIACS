@@ -1,4 +1,4 @@
-import { err, none, OptionNone, type Result } from "@libResult";
+import { err, none, OptionNone, type Result } from "@chocolateish/lib-result";
 import { StateBase } from "../base";
 import { type State, type StateREA } from "../types";
 import type {
@@ -23,7 +23,7 @@ interface Owner<RT, IN extends State<any>[], WT> {
    * This function is used to compute the derived state based on the current states.
    * @param getter - The new getter function. This function should accept an array of states and return the derived state.*/
   set_getter(
-    getter: (values: StateCollectedTransVal<IN>) => Result<RT, string>
+    getter: (values: StateCollectedTransVal<IN>) => Result<RT, string>,
   ): void;
   get state(): State<RT, WT, any>;
   get read_only(): StateREA<RT, any, WT>;
@@ -75,7 +75,7 @@ export class REA<RT, IN extends State<any>[], WT>
         for (let i = 0; i < this.#state_buffers.length; i++)
           this.#state_buffers[i] = this.#state_buffers[i] ?? vals[i];
         this.#buffer = this.getter(
-          this.#state_buffers as StateCollectedTransVal<IN>
+          this.#state_buffers as StateCollectedTransVal<IN>,
         );
         this.ful_r_prom(this.#buffer);
         count = amount;
@@ -93,7 +93,7 @@ export class REA<RT, IN extends State<any>[], WT>
             calc = true;
             Promise.resolve().then(() => {
               this.#buffer = this.getter(
-                this.#state_buffers as StateCollectedTransVal<IN>
+                this.#state_buffers as StateCollectedTransVal<IN>,
               );
               this.update_subs(this.#buffer);
               calc = false;
@@ -122,7 +122,7 @@ export class REA<RT, IN extends State<any>[], WT>
     } else this.#states = [...states] as unknown as IN;
   }
   set_getter(
-    getter: (values: StateCollectedTransVal<IN>) => Result<RT, string>
+    getter: (values: StateCollectedTransVal<IN>) => Result<RT, string>,
   ) {
     if (this.in_use()) {
       this.on_unsubscribe();
@@ -145,14 +145,14 @@ export class REA<RT, IN extends State<any>[], WT>
     return false;
   }
   async then<T = Result<RT, string>>(
-    func: (value: Result<RT, string>) => T | PromiseLike<T>
+    func: (value: Result<RT, string>) => T | PromiseLike<T>,
   ): Promise<T> {
     if (this.#buffer) return func(this.#buffer);
     if (!this.#state_buffers.length)
       return func(
         this.getter(
-          (await Promise.all(this.#states)) as StateCollectedTransVal<IN>
-        )
+          (await Promise.all(this.#states)) as StateCollectedTransVal<IN>,
+        ),
       );
     return this.append_r_prom(func);
   }

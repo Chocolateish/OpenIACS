@@ -1,4 +1,4 @@
-import type { Result, ResultOk } from "@libResult";
+import type { Result, ResultOk } from "@chocolateish/lib-result";
 import type {
   State,
   StateInferResult,
@@ -15,8 +15,8 @@ export type StateCollectedTransValUnk<IN extends State<any>[]> = {
   [I in keyof IN]: IN[I] extends StateROA<infer RT>
     ? ResultOk<RT>
     : IN[I] extends StateREA<infer RT>
-    ? Result<RT, string>
-    : unknown;
+      ? Result<RT, string>
+      : unknown;
 };
 
 export type StateCollectedSubs<IN extends State<any>[]> = {
@@ -27,6 +27,6 @@ export type StateCollectedStates<IN extends State<any>[]> = {
   [I in keyof IN]: IN[I] extends StateROA<infer RT>
     ? StateROA<RT>
     : IN[I] extends StateREA<infer RT>
-    ? StateREA<RT>
-    : never;
+      ? StateREA<RT>
+      : never;
 };

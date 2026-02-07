@@ -1,4 +1,4 @@
-import { ok, ResultOk, type Result } from "@libResult";
+import { ok, ResultOk, type Result } from "@chocolateish/lib-result";
 import st, {
   type StateREA,
   type StateResourceFuncREA,
@@ -27,7 +27,7 @@ describe("Resource states", function () {
       const init = st.r.roa.from<number>(
         () => {},
         () => {},
-        () => {}
+        () => {},
       );
       assertType<StateROA<number>>(init);
       assertType<StateResourceFuncROA<number>>(init);
@@ -37,7 +37,7 @@ describe("Resource states", function () {
       const state = st.r.roa.from<number>(
         async (state) => state.update_single(val),
         () => {},
-        () => {}
+        () => {},
       );
       const set = (v: ResultOk<number>) => {
         val = v;
@@ -64,7 +64,7 @@ describe("Resource states", function () {
       const init = st.r.rea.from<number>(
         () => {},
         () => {},
-        () => {}
+        () => {},
       );
       assertType<StateREA<number>>(init);
       assertType<StateResourceFuncREA<number>>(init);
@@ -74,7 +74,7 @@ describe("Resource states", function () {
       const state = st.r.rea.from<number>(
         async (state) => state.update_single(val),
         () => {},
-        () => {}
+        () => {},
       );
       const set = (v: Result<number, string>) => {
         val = v;
@@ -101,7 +101,7 @@ describe("Resource states", function () {
       const init = st.r.rea_wa.from<number>(
         () => {},
         () => {},
-        () => {}
+        () => {},
       );
       assertType<StateREA<number>>(init);
       assertType<StateResourceFuncREA<number>>(init);
@@ -111,7 +111,7 @@ describe("Resource states", function () {
       const state = st.r.rea_wa.from<number>(
         async (state) => state.update_single(val),
         () => {},
-        () => {}
+        () => {},
       );
       const set = (v: Result<number, string>) => {
         val = v;
@@ -128,7 +128,7 @@ describe("Resource states", function () {
   });
 });
 
-// import { Err, Ok } from "@libResult";
+// import { Err, Ok } from "@chocolateish/lib-result";
 // import { describe, expect, it } from "vitest";
 // import { state_resource } from "../resource";
 

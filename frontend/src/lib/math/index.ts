@@ -6,7 +6,7 @@ export function number_step_start_decimal(
   value: number,
   step: number = 0,
   start: number = 0,
-  decimals: number = -1
+  decimals: number = -1,
 ): number {
   if (step === 0) return value;
   const val = start

@@ -1,4 +1,4 @@
-import { none, ResultOk, type Option } from "@libResult";
+import { none, ResultOk, type Option } from "@chocolateish/lib-result";
 import { StateBase } from "../base";
 import {
   type StateRelated as RELATED,
@@ -117,14 +117,16 @@ export abstract class StateResourceROA<
     if (update) {
       if (!this.#buffer?.compare(value)) this.update_subs(value);
       this.#buffer = value;
-      this.#valid = this.validity === true ? true : Date.now() + this.validity;
+      this.#valid =
+        this.validity === true ? true : performance.now() + this.validity;
     }
   }
 
   update_resource(value: ResultOk<RT>) {
     if (!this.#buffer?.compare(value)) this.update_subs(value);
     this.#buffer = value;
-    this.#valid = this.validity === true ? true : Date.now() + this.validity;
+    this.#valid =
+      this.validity === true ? true : performance.now() + this.validity;
   }
 
   get buffer(): ResultOk<RT> | undefined {
@@ -147,7 +149,7 @@ export abstract class StateResourceROA<
   async then<T = ResultOk<RT>>(
     func: (value: ResultOk<RT>) => T | PromiseLike<T>,
   ): Promise<T> {
-    if (this.#valid === true || this.#valid >= Date.now())
+    if (this.#valid === true || this.#valid >= performance.now())
       return func(this.#buffer!);
     else {
       const prom = this.append_r_prom(func);

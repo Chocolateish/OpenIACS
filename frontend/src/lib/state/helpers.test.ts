@@ -1,4 +1,4 @@
-import { err } from "@libResult";
+import { err } from "@chocolateish/lib-result";
 import st from "@libState";
 import { describe, expect, it } from "vitest";
 
@@ -24,10 +24,10 @@ describe("State Number Min Max", async () => {
     const state_inst = st.s.ros_ws.ok(5, true, st.h.nums.helper(0, 10));
     expect((await state_inst).unwrap).to.equal(5);
     expect(state_inst.check(11)).toEqual(
-      err("11 is bigger than the limit of 10")
+      err("11 is bigger than the limit of 10"),
     );
     expect(state_inst.check(-11)).toEqual(
-      err("-11 is smaller than the limit of 0")
+      err("-11 is smaller than the limit of 0"),
     );
   });
   it("Checking related min max", async () => {
@@ -42,7 +42,7 @@ describe("State Number Unit", async () => {
     const state_inst = st.s.ros_ws.ok(
       5,
       true,
-      st.h.nums.helper(undefined, undefined, "test")
+      st.h.nums.helper(undefined, undefined, "test"),
     );
     const related = state_inst.related().unwrap;
     expect(related.unit).to.equal("test");
@@ -53,7 +53,7 @@ describe("State Number decimals", async () => {
     const state_inst = st.s.ros_ws.ok(
       5,
       true,
-      st.h.nums.helper(undefined, undefined, undefined, 2)
+      st.h.nums.helper(undefined, undefined, undefined, 2),
     );
     const related = state_inst.related().unwrap;
     expect(related.decimals).to.equal(2);
@@ -62,7 +62,7 @@ describe("State Number decimals", async () => {
     const state_inst = st.s.ros_ws.ok(
       5,
       true,
-      st.h.nums.helper(undefined, undefined, undefined, 1, 0.13)
+      st.h.nums.helper(undefined, undefined, undefined, 1, 0.13),
     );
     expect((await state_inst).unwrap).to.equal(5);
     expect(state_inst.limit(11).unwrap).to.equal(11.1);
@@ -76,7 +76,7 @@ describe("State Number decimals", async () => {
     const state_inst = st.s.ros_ws.ok(
       5,
       true,
-      st.h.nums.helper(undefined, undefined, undefined, 3, 0.003, 0.07)
+      st.h.nums.helper(undefined, undefined, undefined, 3, 0.003, 0.07),
     );
     expect((await state_inst).unwrap).to.equal(5);
     expect(state_inst.limit(11).unwrap).to.equal(10.999);
@@ -92,7 +92,7 @@ describe("State Number step start", async () => {
     const state_inst = st.s.ros_ws.ok(
       5,
       true,
-      st.h.nums.helper(undefined, undefined, undefined, undefined, 0.13)
+      st.h.nums.helper(undefined, undefined, undefined, undefined, 0.13),
     );
     expect((await state_inst).unwrap).to.equal(5);
     expect(state_inst.limit(11).unwrap).to.equal(11.05);
@@ -106,7 +106,7 @@ describe("State Number step start", async () => {
     const state_inst = st.s.ros_ws.ok(
       5,
       true,
-      st.h.nums.helper(undefined, undefined, undefined, undefined, 0.13, 0.02)
+      st.h.nums.helper(undefined, undefined, undefined, undefined, 0.13, 0.02),
     );
     expect((await state_inst).unwrap).to.equal(5);
     expect(state_inst.limit(11).unwrap).to.equal(10.94);
@@ -136,7 +136,7 @@ describe("State String Max Len", async () => {
     const state_inst = st.s.ros_ws.ok("5", true, st.h.strings.helper(10));
     expect((await state_inst).unwrap).to.equal("5");
     expect(state_inst.check("123456789012")).toEqual(
-      err("the text is longer than the limit of 10 characters")
+      err("the text is longer than the limit of 10 characters"),
     );
   });
   it("Checking related max len", async () => {
@@ -151,7 +151,7 @@ describe("State String Max Byte Len", async () => {
     const state_inst = st.s.ros_ws.ok(
       "5",
       true,
-      st.h.strings.helper(undefined, 10)
+      st.h.strings.helper(undefined, 10),
     );
     expect((await state_inst).unwrap).to.equal("5");
     expect(state_inst.limit("1æøåæ01").unwrap).to.equal("1æøåæ0");
@@ -162,18 +162,18 @@ describe("State String Max Byte Len", async () => {
     const state_inst = st.s.ros_ws.ok(
       "5",
       true,
-      st.h.strings.helper(undefined, 10)
+      st.h.strings.helper(undefined, 10),
     );
     expect((await state_inst).unwrap).to.equal("5");
     expect(state_inst.check("1æøåæ01")).toEqual(
-      err("the text is longer than the limit of 10 bytes")
+      err("the text is longer than the limit of 10 bytes"),
     );
   });
   it("Checking related max byte len", async () => {
     const state_inst = st.s.ros_ws.ok(
       "5",
       true,
-      st.h.strings.helper(undefined, 10)
+      st.h.strings.helper(undefined, 10),
     );
     const related = state_inst.related().unwrap;
     expect(related.max_length_bytes).to.equal(10);

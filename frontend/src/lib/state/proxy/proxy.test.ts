@@ -1,4 +1,4 @@
-import { ResultOk, type Result } from "@libResult";
+import { ResultOk, type Result } from "@chocolateish/lib-result";
 import st from "@libState";
 import { describe, it } from "vitest";
 import {

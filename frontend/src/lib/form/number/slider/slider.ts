@@ -1,10 +1,10 @@
+import { err, type Result } from "@chocolateish/lib-result";
 import { define_element } from "@libBase";
 import {
   material_content_add_rounded,
   material_content_remove_rounded,
 } from "@libIcons";
 import { number_step_start_decimal } from "@libMath";
-import { err, type Result } from "@libResult";
 import type { SVGFunc } from "@libSVG";
 import { FormNumberWrite, type FormStepperBaseOptions } from "../numberBase";
 import "./slider.scss";
@@ -31,7 +31,7 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
   #live: boolean = false;
   #icon_dec = this.#stepper_func(
     this.appendChild(material_content_remove_rounded()),
-    false
+    false,
   );
   #slide = this.appendChild(document.createElement("div"));
   #legend = this.appendChild(document.createElement("span"));
@@ -39,7 +39,7 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
   #right_legend = this.#legend.appendChild(document.createElement("span"));
   #icon_inc = this.#stepper_func(
     this.appendChild(material_content_add_rounded()),
-    true
+    true,
   );
   #slider = this.#slide.appendChild(document.createElement("div"));
   #value_box = this.#slider.appendChild(document.createElement("span"));
@@ -207,22 +207,22 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
       this.#icon_dec,
       this.#stepper_func(
         icon ? icon() : material_content_remove_rounded(),
-        false
-      )
+        false,
+      ),
     );
   }
 
   set icon_increase(icon: SVGFunc | undefined) {
     this.replaceChild(
       this.#icon_inc,
-      this.#stepper_func(icon ? icon() : material_content_add_rounded(), true)
+      this.#stepper_func(icon ? icon() : material_content_add_rounded(), true),
     );
   }
 
   protected new_value(value: number): void {
     this.#move_value(value);
     this.#move_slide(
-      Math.min(Math.max(((-this.#min + value) / this.#span) * 100, 0), 100)
+      Math.min(Math.max(((-this.#min + value) / this.#span) * 100, 0), 100),
     );
   }
 
@@ -240,7 +240,7 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
       Math.min(Math.max(val, this.#min), this.#max),
       this.#step,
       this.#start,
-      this.#decimals
+      this.#decimals,
     );
     if (lim < this.#min) lim += this.#step;
     if (lim > this.#max) lim -= this.#step;
@@ -250,17 +250,17 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
   protected check_value(val: number): Result<number, string> {
     if (val < this.#min)
       return err(
-        "Minimum value " + this.#min.toFixed(this.#decimals) + this.#unit
+        "Minimum value " + this.#min.toFixed(this.#decimals) + this.#unit,
       );
     if (val > this.#max)
       return err(
-        "Maximum value " + this.#max.toFixed(this.#decimals) + this.#unit
+        "Maximum value " + this.#max.toFixed(this.#decimals) + this.#unit,
       );
     let lim = number_step_start_decimal(
       val,
       this.#step,
       this.#start,
-      this.#decimals
+      this.#decimals,
     );
     if (lim < this.#min) lim += this.#step;
     if (lim > this.#max) lim -= this.#step;
@@ -333,7 +333,7 @@ export class FormSlider<ID extends string | undefined> extends FormNumberWrite<
       this.#step ||
       Math.max(
         this.#decimals ? 1 / this.#decimals : 1,
-        Math.floor(Math.abs(this.buffer || 0) / 150)
+        Math.floor(Math.abs(this.buffer || 0) / 150),
       );
     return this.set_value_check((this.buffer || 0) + (dir ? step : -step));
   }
@@ -349,7 +349,7 @@ define_element(FormSlider);
 
 /**Creates a dropdown form element */
 export function form_slider<ID extends string | undefined>(
-  options?: FormStepperBaseOptions<ID>
+  options?: FormStepperBaseOptions<ID>,
 ): FormSlider<ID> {
   const slide = new FormSlider<ID>(options?.id);
   if (options) {

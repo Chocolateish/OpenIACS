@@ -1,5 +1,5 @@
+import { some } from "@chocolateish/lib-result";
 import { Base, define_element } from "@libBase";
-import { some } from "@libResult";
 import state, { type State } from "@libState";
 import type { SVGFunc } from "@libSVG";
 import "./add_row.scss";
@@ -43,7 +43,7 @@ export class ListAddRow<A extends ListType<any>>
     else this.text = options.text;
     if (state.is(options.disabled))
       this.attach_state_to_prop("disabled", options.disabled, () =>
-        some(false)
+        some(false),
       );
     else if (options.disabled) this.disabled = options.disabled;
   }

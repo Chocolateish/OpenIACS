@@ -1,4 +1,4 @@
-import { none, OptionNone, type ResultOk } from "@libResult";
+import { none, OptionNone, type ResultOk } from "@chocolateish/lib-result";
 import { StateBase } from "../base";
 import { type State, type StateRES, type StateROS } from "../types";
 import type {
@@ -23,7 +23,7 @@ interface Owner<RT, IN extends [StateRES<any>, ...StateRES<any>[]], WT> {
    * This function is used to compute the derived state based on the current states.
    * @param getter - The new getter function. This function should accept an array of states and return the derived state.*/
   set_getter(
-    getter: (values: StateCollectedTransVal<IN>) => ResultOk<RT>
+    getter: (values: StateCollectedTransVal<IN>) => ResultOk<RT>,
   ): void;
   get state(): State<RT, WT, any>;
   get read_only(): StateROS<RT, any, WT>;
@@ -31,7 +31,7 @@ interface Owner<RT, IN extends [StateRES<any>, ...StateRES<any>[]], WT> {
 export type StateCollectedROS<
   RT,
   IN extends [StateRES<any>, ...StateRES<any>[]],
-  WT = any
+  WT = any,
 > = StateROS<RT, OptionNone, WT> & Owner<RT, IN, WT>;
 
 export class ROS<RT, IN extends [StateRES<any>, ...StateRES<any>[]], WT>
@@ -69,7 +69,7 @@ export class ROS<RT, IN extends [StateRES<any>, ...StateRES<any>[]], WT>
           calc = true;
           Promise.resolve().then(() => {
             this.#buffer = this.getter(
-              this.#state_buffers as StateCollectedTransVal<IN>
+              this.#state_buffers as StateCollectedTransVal<IN>,
             );
             this.update_subs(this.#buffer);
             calc = false;
@@ -78,7 +78,7 @@ export class ROS<RT, IN extends [StateRES<any>, ...StateRES<any>[]], WT>
       });
     }
     this.#buffer = this.getter(
-      this.#state_buffers as StateCollectedTransVal<IN>
+      this.#state_buffers as StateCollectedTransVal<IN>,
     );
     this.update_subs(this.#buffer);
   }
@@ -122,14 +122,14 @@ export class ROS<RT, IN extends [StateRES<any>, ...StateRES<any>[]], WT>
     return true;
   }
   async then<T = ResultOk<RT>>(
-    func: (value: ResultOk<RT>) => T | PromiseLike<T>
+    func: (value: ResultOk<RT>) => T | PromiseLike<T>,
   ): Promise<T> {
     return func(this.get());
   }
   get(): ResultOk<RT> {
     if (this.#buffer) return this.#buffer;
     return this.getter(
-      this.#states.map((s) => s.get()) as StateCollectedTransVal<IN>
+      this.#states.map((s) => s.get()) as StateCollectedTransVal<IN>,
     );
   }
   ok(): RT {

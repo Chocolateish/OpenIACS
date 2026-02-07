@@ -1,10 +1,10 @@
+import { err, ok, type Result } from "@chocolateish/lib-result";
 import { AccessTypes, define_element } from "@libBase";
 import type { Prettify } from "@libCommon";
 import {
   material_navigation_unfold_less_rounded,
   material_navigation_unfold_more_rounded,
 } from "@libIcons";
-import { err, ok, type Result } from "@libResult";
 import { FormElement, FormValue, type FormValueOptions } from "../base";
 import "./group.scss";
 
@@ -33,7 +33,7 @@ type ToKeyVal<Arr extends FormValue<any, any>[]> = {
 export interface FormGroupOptions<
   L extends FormElement[],
   ID extends string | undefined,
-  T
+  T,
 > extends FormValueOptions<T, ID> {
   /**Components to add to the group*/
   components?: [...L];
@@ -52,7 +52,7 @@ export interface FormGroupOptions<
 /**Component group class which allows to add components and controls the flow of the components*/
 export class FormGroup<
   RT extends object,
-  ID extends string | undefined
+  ID extends string | undefined,
 > extends FormValue<RT, ID> {
   static element_name() {
     return "group";
@@ -74,7 +74,7 @@ export class FormGroup<
           console.error(
             "Form element with form id " +
               comp.form_id +
-              " already exists in group"
+              " already exists in group",
           );
           continue;
         }
@@ -93,7 +93,7 @@ export class FormGroup<
   set border(border: FormGroupBorderStyle | undefined) {
     this.classList.remove(
       FormGroupBorderStyle.Inset,
-      FormGroupBorderStyle.Outset
+      FormGroupBorderStyle.Outset,
     );
     if (border && border !== FormGroupBorderStyle.None)
       this.classList.add(border);
@@ -109,7 +109,7 @@ export class FormGroup<
       this.appendChild(
         this.#collapse_button ||
           (this.collapse_text = "") ||
-          this.#collapse_button!
+          this.#collapse_button!,
       );
       this.collapsed = true;
     } else if (!collapsible && this.#collapsible) {
@@ -141,10 +141,10 @@ export class FormGroup<
       this.#collapse_button.tabIndex = 0;
       this.#collapse_button.appendChild(document.createElement("span"));
       this.#collapse_button.appendChild(
-        material_navigation_unfold_less_rounded()
+        material_navigation_unfold_less_rounded(),
       );
       this.#collapse_button.appendChild(
-        material_navigation_unfold_more_rounded()
+        material_navigation_unfold_more_rounded(),
       );
       this.#collapse_button.onclick = () => (this.collapsed = !this.collapsed);
       this.#collapse_button.onkeydown = (e) => {
@@ -214,7 +214,7 @@ define_element(FormGroup);
 export function form_group<
   L extends FormElement[],
   ID extends string | undefined,
-  T extends object = Prettify<Partial<ToKeyVal<ExtractB<L>>>>
+  T extends object = Prettify<Partial<ToKeyVal<ExtractB<L>>>>,
 >(options?: FormGroupOptions<L, ID, T>): FormGroup<T, ID> {
   const slide = new FormGroup<T, ID>(options?.id);
   if (options) {

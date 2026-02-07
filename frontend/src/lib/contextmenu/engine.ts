@@ -1,5 +1,5 @@
+import type { Option } from "@chocolateish/lib-result";
 import { DOCUMENT_HANDLER } from "@libDocument";
-import type { Option } from "@libResult";
 import { Container } from "./container";
 import "./engine.scss";
 import { ContextMenu } from "./menu";
@@ -36,7 +36,7 @@ function apply_to_doc(doc: Document) {
 export function context_menu_attach(
   element: Element,
   lines: ContextMenu | (() => Option<ContextMenu>),
-  overwrite: boolean = false
+  overwrite: boolean = false,
 ) {
   if (element[CONTEXT_MENY_SYMBOL]) {
     if (overwrite) context_menu_dettach(element);
@@ -55,7 +55,7 @@ export function context_menu_attach(
       lineses,
       element,
       (e as MouseEvent).clientX,
-      (e as MouseEvent).clientY
+      (e as MouseEvent).clientY,
     );
   };
   element.addEventListener("contextmenu", listener);
@@ -81,7 +81,7 @@ export function context_menu_summon(
   element?: Element,
   x?: number,
   y?: number,
-  dont_cover?: boolean
+  dont_cover?: boolean,
 ) {
   const container = element
     ? element.ownerDocument[CONTEXT_MENY_SYMBOL]
@@ -107,7 +107,7 @@ export function context_menu_summon(
  * If set to a boolean the operating system context menu is disabled and nothing will appear
  * If set undefined the operating systems context menu will be used*/
 export function context_menu_default(
-  lines: (ContextMenu | (() => Option<ContextMenu>)) | false
+  lines: (ContextMenu | (() => Option<ContextMenu>)) | false,
 ) {
   if (default_menu)
     DOCUMENT_HANDLER.for_documents((doc) => {

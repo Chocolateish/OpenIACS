@@ -1,4 +1,10 @@
-import { err, none, OptionNone, ResultOk, type Result } from "@libResult";
+import {
+  err,
+  none,
+  OptionNone,
+  ResultOk,
+  type Result,
+} from "@chocolateish/lib-result";
 import { StateBase } from "../base";
 import {
   type State,
@@ -22,7 +28,7 @@ interface Owner<S, RIN, ROUT, WIN, WOUT> {
   set_state(state: S): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_read(
-    transform: (val: Result<RIN, string>) => Result<ROUT, string>
+    transform: (val: Result<RIN, string>) => Result<ROUT, string>,
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
@@ -35,22 +41,22 @@ export type StateProxyREA<
   RIN = S extends State<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends State<any, infer WT> ? WT : any,
-  WOUT = WIN
+  WOUT = WIN,
 > = StateREA<ROUT, OptionNone, WOUT> & Owner<S, RIN, ROUT, WIN, WOUT>;
 
 class REA<
-    S extends State<RIN, WIN>,
-    RIN = S extends State<infer RT> ? RT : never,
-    ROUT = RIN,
-    WIN = S extends State<any, infer WT> ? WT : never,
-    WOUT = WIN
-  >
+  S extends State<RIN, WIN>,
+  RIN = S extends State<infer RT> ? RT : never,
+  ROUT = RIN,
+  WIN = S extends State<any, infer WT> ? WT : never,
+  WOUT = WIN,
+>
   extends StateBase<ROUT, WOUT, OptionNone, Result<ROUT, string>>
   implements Owner<S, RIN, ROUT, WIN, WOUT>
 {
   constructor(
     state: S,
-    transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>
+    transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>,
   ) {
     super();
     this.#state = state;
@@ -85,7 +91,7 @@ class REA<
     } else this.#state = state;
   }
   set_transform_read(
-    transform: (val: Result<RIN, string>) => Result<ROUT, string>
+    transform: (val: Result<RIN, string>) => Result<ROUT, string>,
   ) {
     if (this.in_use()) {
       this.on_unsubscribe();
@@ -111,7 +117,7 @@ class REA<
     return this.#state.rsync as false;
   }
   async then<T = Result<ROUT, string>>(
-    func: (value: Result<ROUT, string>) => T | PromiseLike<T>
+    func: (value: Result<ROUT, string>) => T | PromiseLike<T>,
   ): Promise<T> {
     if (this.#buffer) return func(this.#buffer);
     return func(this.transform_read(await this.#state));
@@ -153,32 +159,32 @@ function rea_from<
   RIN = S extends State<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends State<any, infer RT> ? RT : any,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: StateROA<RIN, any, WIN>,
-  transform?: (value: ResultOk<RIN>) => Result<ROUT, string>
+  transform?: (value: ResultOk<RIN>) => Result<ROUT, string>,
 ): StateProxyREA<S, RIN, ROUT, WIN, WOUT>;
 function rea_from<
   S extends StateREA<RIN, any, WIN>,
   RIN = S extends State<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends State<any, infer RT> ? RT : any,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: StateREA<RIN, any, WIN>,
-  transform?: (value: Result<RIN, string>) => Result<ROUT, string>
+  transform?: (value: Result<RIN, string>) => Result<ROUT, string>,
 ): StateProxyREA<S, RIN, ROUT, WIN, WOUT>;
 function rea_from<
   S extends StateREA<RIN, any, WIN>,
   RIN = S extends State<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends State<any, infer RT> ? RT : any,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: S,
   transform?:
     | ((value: ResultOk<RIN>) => Result<ROUT, string>)
-    | ((value: Result<RIN, string>) => Result<ROUT, string>)
+    | ((value: Result<RIN, string>) => Result<ROUT, string>),
 ): StateProxyREA<S, RIN, ROUT, WIN, WOUT> {
   return new REA<S, RIN, ROUT, WIN, WOUT>(state, transform) as StateProxyREA<
     S,
@@ -201,13 +207,13 @@ interface OwnerWS<
   RIN = S extends State<infer RT> ? RT : never,
   WIN = S extends State<any, infer WT> ? WT : never,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 > {
   /**Sets the state that is being proxied, and updates subscribers with new value*/
   set_state(state: S): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_read(
-    transform: (val: Result<RIN, string>) => Result<ROUT, string>
+    transform: (val: Result<RIN, string>) => Result<ROUT, string>,
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
@@ -221,23 +227,23 @@ export type StateProxyREAWS<
   RIN = S extends State<infer RT> ? RT : never,
   WIN = S extends State<any, infer WT> ? WT : never,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 > = StateREAWS<ROUT, WOUT, OptionNone> & OwnerWS<S, RIN, WIN, ROUT, WOUT>;
 
 class REAWS<
-    S extends StateREAWS<RIN, WIN>,
-    RIN = S extends State<infer RT> ? RT : never,
-    WIN = S extends State<any, infer WT> ? WT : never,
-    ROUT = RIN,
-    WOUT = WIN
-  >
+  S extends StateREAWS<RIN, WIN>,
+  RIN = S extends State<infer RT> ? RT : never,
+  WIN = S extends State<any, infer WT> ? WT : never,
+  ROUT = RIN,
+  WOUT = WIN,
+>
   extends StateBase<ROUT, WOUT, OptionNone, Result<ROUT, string>>
   implements OwnerWS<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
     state: S,
     transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>,
-    transform_write?: (value: WOUT) => WIN
+    transform_write?: (value: WOUT) => WIN,
   ) {
     super();
     this.#state = state;
@@ -275,7 +281,7 @@ class REAWS<
     } else this.#state = state;
   }
   set_transform_read(
-    transform: (val: Result<RIN, string>) => Result<ROUT, string>
+    transform: (val: Result<RIN, string>) => Result<ROUT, string>,
   ) {
     if (this.in_use()) {
       this.on_unsubscribe();
@@ -304,7 +310,7 @@ class REAWS<
     return this.#state.rsync as false;
   }
   async then<T = Result<ROUT, string>>(
-    func: (value: Result<ROUT, string>) => T | PromiseLike<T>
+    func: (value: Result<ROUT, string>) => T | PromiseLike<T>,
   ): Promise<T> {
     if (this.#buffer) return func(this.#buffer);
     return func(this.transform_read(await this.#state));
@@ -342,40 +348,40 @@ function rea_ws_from<
   RIN,
   WIN,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: StateROAWS<RIN, WIN>,
   transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>,
-  transform_write?: (value: WOUT) => WIN
+  transform_write?: (value: WOUT) => WIN,
 ): StateProxyREAWS<S, RIN, WIN, ROUT, WOUT>;
 function rea_ws_from<
   S extends StateREAWS<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: StateREAWS<RIN, WIN>,
   transform_read?: (value: Result<RIN, string>) => Result<ROUT, string>,
-  transform_write?: (value: WOUT) => WIN
+  transform_write?: (value: WOUT) => WIN,
 ): StateProxyREAWS<S, RIN, WIN, ROUT, WOUT>;
 function rea_ws_from<
   S extends StateREAWS<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: S,
   transform_read?:
     | ((value: ResultOk<RIN>) => Result<ROUT, string>)
     | ((value: Result<RIN, string>) => Result<ROUT, string>),
-  transform_write?: (value: WOUT) => WIN
+  transform_write?: (value: WOUT) => WIN,
 ): StateProxyREAWS<S, RIN, WIN, ROUT, WOUT> {
   return new REAWS<S, RIN, WIN, ROUT, WOUT>(
     state,
     transform_read,
-    transform_write
+    transform_write,
   ) as StateProxyREAWS<S, RIN, WIN, ROUT, WOUT>;
 }
 
@@ -391,13 +397,13 @@ interface OwnerWA<
   RIN = S extends State<infer RT> ? RT : never,
   WIN = S extends State<any, infer WT> ? WT : never,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 > {
   /**Sets the state that is being proxied, and updates subscribers with new value*/
   set_state(state: S): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_read(
-    transform: (val: Result<RIN, string>) => Result<ROUT, string>
+    transform: (val: Result<RIN, string>) => Result<ROUT, string>,
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
@@ -411,23 +417,23 @@ export type StateProxyREAWA<
   RIN = S extends State<infer RT> ? RT : never,
   WIN = S extends State<any, infer WT> ? WT : never,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 > = StateREAWA<ROUT, WOUT, OptionNone> & OwnerWA<S, RIN, WIN, ROUT, WOUT>;
 
 class REAWA<
-    S extends StateREAWA<RIN, WIN>,
-    RIN = S extends State<infer RT> ? RT : never,
-    WIN = S extends State<any, infer WT> ? WT : never,
-    ROUT = RIN,
-    WOUT = WIN
-  >
+  S extends StateREAWA<RIN, WIN>,
+  RIN = S extends State<infer RT> ? RT : never,
+  WIN = S extends State<any, infer WT> ? WT : never,
+  ROUT = RIN,
+  WOUT = WIN,
+>
   extends StateBase<ROUT, WOUT, OptionNone, Result<ROUT, string>>
   implements OwnerWA<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
     state: S,
     transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>,
-    transform_write?: (value: WOUT) => WIN
+    transform_write?: (value: WOUT) => WIN,
   ) {
     super();
     this.#state = state;
@@ -467,7 +473,7 @@ class REAWA<
     } else this.#state = state;
   }
   set_transform_read(
-    transform: (val: Result<RIN, string>) => Result<ROUT, string>
+    transform: (val: Result<RIN, string>) => Result<ROUT, string>,
   ) {
     if (this.in_use()) {
       this.on_unsubscribe();
@@ -496,7 +502,7 @@ class REAWA<
     return this.#state.rsync as false;
   }
   async then<T = Result<ROUT, string>>(
-    func: (value: Result<ROUT, string>) => T | PromiseLike<T>
+    func: (value: Result<ROUT, string>) => T | PromiseLike<T>,
   ): Promise<T> {
     if (this.#buffer) return func(this.#buffer);
     return func(this.transform_read(await this.#state));
@@ -531,40 +537,40 @@ function rea_wa_from<
   RIN,
   WIN,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: StateROAWA<RIN, WIN>,
   transform_read?: (value: ResultOk<RIN>) => Result<ROUT, string>,
-  transform_write?: (value: WOUT) => WIN
+  transform_write?: (value: WOUT) => WIN,
 ): StateProxyREAWA<S, RIN, WIN, ROUT, WOUT>;
 function rea_wa_from<
   S extends StateREAWA<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: StateREAWA<RIN, WIN>,
   transform_read?: (value: Result<RIN, string>) => Result<ROUT, string>,
-  transform_write?: (value: WOUT) => WIN
+  transform_write?: (value: WOUT) => WIN,
 ): StateProxyREAWA<S, RIN, WIN, ROUT, WOUT>;
 function rea_wa_from<
   S extends StateREAWA<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: S,
   transform_read?:
     | ((value: ResultOk<RIN>) => Result<ROUT, string>)
     | ((value: Result<RIN, string>) => Result<ROUT, string>),
-  transform_write?: (value: WOUT) => WIN
+  transform_write?: (value: WOUT) => WIN,
 ): StateProxyREAWA<S, RIN, WIN, ROUT, WOUT> {
   return new REAWA<S, RIN, WIN, ROUT, WOUT>(
     state,
     transform_read,
-    transform_write
+    transform_write,
   ) as StateProxyREAWA<S, RIN, WIN, ROUT, WOUT>;
 }
 

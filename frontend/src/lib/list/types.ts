@@ -1,5 +1,5 @@
+import { type Option } from "@chocolateish/lib-result";
 import type { BaseObserver } from "@libBase";
-import { type Option } from "@libResult";
 import type { State, StateArray } from "@libState";
 import type { ListField } from "./field";
 import type { ListRow, ListRowOptions } from "./row";
@@ -9,10 +9,10 @@ export type ListType<R> = R[] | State<R[]> | StateArray<R>;
 export type ListTypeExtract<A extends ListType<any>> = A extends (infer U)[]
   ? U
   : A extends State<(infer U)[]>
-  ? U
-  : A extends StateArray<infer V>
-  ? V
-  : never;
+    ? U
+    : A extends StateArray<infer V>
+      ? V
+      : never;
 
 export const ListDataType = {
   number: "number",
@@ -41,7 +41,7 @@ export interface ListColumnOptions<V, C extends ListField> {
 }
 
 export function column<V, C extends ListField>(
-  options: ListColumnOptions<V, C>
+  options: ListColumnOptions<V, C>,
 ): ListColumnOptions<V, C> {
   return options;
 }
@@ -50,7 +50,7 @@ export type ListRowTransformer<R, T extends {}, A extends ListType<any>> = (
   /**Test */
   data: R,
   row: ListRow<R, T, A>,
-  state: A
+  state: A,
 ) => ListRowOptions<R, T>;
 
 export interface ListRoot<R, T extends {}, A extends ListType<any>> {
@@ -74,7 +74,7 @@ export interface ListRowParent<A extends ListType<any>> {
   /**Selects the adjacent row in the given direction */
   select_adjacent(
     direction: "next" | "previous" | "p_next" | "p_previous" | "last",
-    field: Option<number>
+    field: Option<number>,
   ): void;
   /**State associated with the row parent, if state is used */
   state: A;

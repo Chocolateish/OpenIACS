@@ -6,7 +6,7 @@ import {
   ResultOk,
   type Option,
   type Result,
-} from "@libResult";
+} from "@chocolateish/lib-result";
 import { StateBase } from "../base";
 import { STATE_SYNC, type StateSyncROS } from "../sync/sync";
 import type {

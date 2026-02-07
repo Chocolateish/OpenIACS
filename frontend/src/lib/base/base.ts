@@ -1,5 +1,5 @@
-import { EventHandler } from "@libEvent";
-import { some, type Option } from "@libResult";
+import { EventHandler } from "@chocolateish/lib-event";
+import { some, type Option } from "@chocolateish/lib-result";
 import state, {
   type State,
   type StateInferSub,

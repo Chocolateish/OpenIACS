@@ -1,5 +1,5 @@
+import { ok, ResultOk, type Result } from "@chocolateish/lib-result";
 import { sleep } from "@libCommon";
-import { ok, ResultOk, type Result } from "@libResult";
 import st from "@libState";
 import { describe, expect, it } from "vitest";
 import {
@@ -56,7 +56,7 @@ describe("Collected states", function () {
         stat1,
         stat2,
         stat3,
-        stat4
+        stat4,
       );
       const set = (val: ResultOk<number>) => {
         stat1.set_ok(val.value / 4);
@@ -125,7 +125,7 @@ describe("Collected states", function () {
         stat1,
         stat2,
         stat3,
-        stat4
+        stat4,
       );
       const set = (val: Result<number, string>) => {
         stat1.set(val.map((v) => v / 4));
@@ -156,7 +156,7 @@ describe("Collected states", function () {
     it("ok", async function () {
       const init = st.c.roa.from(
         (val) => val[0],
-        st.d.roa.ok(() => sleep(1, 1))
+        st.d.roa.ok(() => sleep(1, 1)),
       );
       expect(init).instanceOf(st.c.roa.class);
     });
@@ -184,7 +184,7 @@ describe("Collected states", function () {
         stat1,
         stat2,
         stat3,
-        stat4
+        stat4,
       );
       const set = (val: ResultOk<number>) => {
         stat1.set_ok(val.value / 4);
@@ -212,7 +212,7 @@ describe("Collected states", function () {
     it("ok", async function () {
       const init = st.c.rea.from(
         (val) => val[0],
-        st.d.rea.ok(() => sleep(1, 1))
+        st.d.rea.ok(() => sleep(1, 1)),
       );
       expect(init).instanceOf(st.c.rea.class);
     });
@@ -247,7 +247,7 @@ describe("Collected states", function () {
         stat1,
         stat2,
         stat3,
-        stat4
+        stat4,
       );
       const set = (val: Result<number, string>) => {
         stat1.set(val.map((v) => v / 4));

@@ -1,5 +1,5 @@
+import { ok, ResultOk, type Result } from "@chocolateish/lib-result";
 import { sleep } from "@libCommon";
-import { ok, ResultOk, type Result } from "@libResult";
 import st, {
   type StateDelayedREA,
   type StateDelayedREAWA,

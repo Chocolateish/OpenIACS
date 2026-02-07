@@ -1,5 +1,5 @@
+import { none, type Option } from "@chocolateish/lib-result";
 import { Base, define_element } from "@libBase";
-import { none, type Option } from "@libResult";
 import state, { type StateROS } from "@libState";
 import type { SVGFunc } from "@libSVG";
 import "./content.scss";

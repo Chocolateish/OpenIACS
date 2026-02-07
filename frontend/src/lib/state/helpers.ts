@@ -1,5 +1,11 @@
+import {
+  err,
+  ok,
+  OptionSome,
+  some,
+  type Result,
+} from "@chocolateish/lib-result";
 import { number_step_start_decimal } from "@libMath";
-import { err, ok, OptionSome, some, type Result } from "@libResult";
 import type { SVGFunc } from "@libSVG";
 import { StateBase } from "./base";
 import {
@@ -53,7 +59,7 @@ export class StateNumberHelper
     unit?: string,
     decimals?: number,
     step?: number,
-    start?: number
+    start?: number,
   ) {
     if (min !== undefined) this.min = min;
     if (max !== undefined) this.max = max;
@@ -69,7 +75,7 @@ export class StateNumberHelper
         this.decimals = match
           ? Math.max(
               0,
-              (match[1] ? match[1].length : 0) - (match[2] ? +match[2] : 0)
+              (match[1] ? match[1].length : 0) - (match[2] ? +match[2] : 0),
             )
           : 0;
         if (start !== undefined) {
@@ -80,9 +86,9 @@ export class StateNumberHelper
             match
               ? Math.max(
                   0,
-                  (match[1] ? match[1].length : 0) - (match[2] ? +match[2] : 0)
+                  (match[1] ? match[1].length : 0) - (match[2] ? +match[2] : 0),
                 )
-              : 0
+              : 0,
           );
         }
       }
@@ -95,9 +101,14 @@ export class StateNumberHelper
         this.max ?? Infinity,
         Math.max(
           this.min ?? -Infinity,
-          number_step_start_decimal(value, this.step, this.start, this.decimals)
-        )
-      )
+          number_step_start_decimal(
+            value,
+            this.step,
+            this.start,
+            this.decimals,
+          ),
+        ),
+      ),
     );
   }
 
@@ -128,7 +139,7 @@ const nums = {
     unit?: string,
     decimals?: number,
     step?: number,
-    start?: number
+    start?: number,
   ) {
     return new StateNumberHelper(min, max, unit, decimals, step, start);
   },
@@ -163,7 +174,7 @@ export class StateStringHelper
       value = value.slice(0, this.max_length);
     if (this.max_length_bytes) {
       value = new TextDecoder().decode(
-        new TextEncoder().encode(value).slice(0, this.max_length_bytes)
+        new TextEncoder().encode(value).slice(0, this.max_length_bytes),
       );
       if (value.at(-1)?.charCodeAt(0) === 65533) value = value.slice(0, -1);
     }
@@ -174,7 +185,7 @@ export class StateStringHelper
       return err(
         "the text is longer than the limit of " +
           this.max_length +
-          " characters"
+          " characters",
       );
     if (
       this.max_length_bytes !== undefined &&
@@ -183,7 +194,7 @@ export class StateStringHelper
       return err(
         "the text is longer than the limit of " +
           this.max_length_bytes +
-          " bytes"
+          " bytes",
       );
     return ok(value);
   }
@@ -218,8 +229,9 @@ type StateEnumHelperList<K extends PropertyKey> = {
   [P in K]: EnumHelperEntry;
 };
 
-export interface StateEnumRelated<L extends StateEnumHelperList<any>>
-  extends StateRelated {
+export interface StateEnumRelated<
+  L extends StateEnumHelperList<any>,
+> extends StateRelated {
   list: L;
   map<K extends keyof L, R>(func: (key: K, val: EnumHelperEntry) => R): R[];
 }
@@ -227,8 +239,9 @@ export interface StateEnumRelated<L extends StateEnumHelperList<any>>
 export class StateEnumHelper<
   L extends StateEnumHelperList<any>,
   K extends PropertyKey = keyof L,
-  R extends StateRelated = StateEnumRelated<L>
-> implements StateHelper<K, OptionSome<R>>, StateEnumRelated<L>
+  R extends StateRelated = StateEnumRelated<L>,
+>
+  implements StateHelper<K, OptionSome<R>>, StateEnumRelated<L>
 {
   list: L;
 
@@ -238,7 +251,7 @@ export class StateEnumHelper<
 
   map<K extends keyof L, R>(func: (key: K, val: EnumHelperEntry) => R): R[] {
     return Object.keys(this.list).map((key) =>
-      func(key as K, this.list[key as K])
+      func(key as K, this.list[key as K]),
     );
   }
   limit(value: K): Result<K, string> {
@@ -258,7 +271,7 @@ const enums = {
   helper<
     L extends StateEnumHelperList<any>,
     K extends PropertyKey = keyof L,
-    R extends StateRelated = StateEnumRelated<L>
+    R extends StateRelated = StateEnumRelated<L>,
   >(list: L) {
     return new StateEnumHelper<L, K, R>(list);
   },
@@ -278,7 +291,7 @@ const enums = {
 async function await_value<T>(
   value: T,
   state: State<T>,
-  timeout: number = 500
+  timeout: number = 500,
 ): Promise<boolean> {
   let func: StateSub<Result<T, string>> = () => {};
   const res = await Promise.race([
@@ -301,7 +314,7 @@ async function await_value<T>(
  * @returns true if states are equal*/
 async function compare(
   state1: State<any>,
-  state2: State<any>
+  state2: State<any>,
 ): Promise<boolean> {
   const res1 = await state1;
   const res2 = await state2;

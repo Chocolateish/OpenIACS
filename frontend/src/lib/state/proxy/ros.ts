@@ -1,4 +1,10 @@
-import { err, none, OptionNone, ResultOk, type Result } from "@libResult";
+import {
+  err,
+  none,
+  OptionNone,
+  ResultOk,
+  type Result,
+} from "@chocolateish/lib-result";
 import { StateBase } from "../base";
 import {
   type State,
@@ -32,8 +38,8 @@ type ROSTransform<S extends State<any, any>, RIN, ROUT> = (
   value: S extends StateROS<any>
     ? ResultOk<RIN>
     : RIN extends StateRES<any>
-    ? Result<RIN, string>
-    : never
+      ? Result<RIN, string>
+      : never,
 ) => ResultOk<ROUT>;
 
 export type StateProxyROS<
@@ -41,22 +47,22 @@ export type StateProxyROS<
   RIN = S extends State<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends State<any, infer WT> ? WT : any,
-  WOUT = WIN
+  WOUT = WIN,
 > = StateROS<ROUT, OptionNone, WOUT> & Owner<S, RIN, ROUT, WIN, WOUT>;
 
 class ROS<
-    S extends StateRES<RIN, any, WIN>,
-    RIN = S extends State<infer RT> ? RT : never,
-    ROUT = RIN,
-    WIN = S extends State<any, infer WT> ? WT : never,
-    WOUT = WIN
-  >
+  S extends StateRES<RIN, any, WIN>,
+  RIN = S extends State<infer RT> ? RT : never,
+  ROUT = RIN,
+  WIN = S extends State<any, infer WT> ? WT : never,
+  WOUT = WIN,
+>
   extends StateBase<ROUT, WOUT, OptionNone, ResultOk<ROUT>>
   implements Owner<S, RIN, ROUT, WIN, WOUT>
 {
   constructor(
     state: S,
-    transform_read?: (value: ResultOk<RIN>) => ResultOk<ROUT>
+    transform_read?: (value: ResultOk<RIN>) => ResultOk<ROUT>,
   ) {
     super();
     this.#state = state;
@@ -115,7 +121,7 @@ class ROS<
     return true;
   }
   async then<T = ResultOk<ROUT>>(
-    func: (value: ResultOk<ROUT>) => T | PromiseLike<T>
+    func: (value: ResultOk<ROUT>) => T | PromiseLike<T>,
   ): Promise<T> {
     return func(this.get());
   }
@@ -163,32 +169,32 @@ function ros_from<
   RIN = S extends State<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends State<any, infer RT> ? RT : any,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: StateROS<RIN, any, WIN>,
-  transform?: (value: ResultOk<RIN>) => ResultOk<ROUT>
+  transform?: (value: ResultOk<RIN>) => ResultOk<ROUT>,
 ): StateProxyROS<S, RIN, ROUT, WIN, WOUT>;
 function ros_from<
   S extends StateRES<RIN, any, WIN>,
   RIN = S extends State<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends State<any, infer RT> ? RT : any,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: StateRES<RIN, any, WIN>,
-  transform: (value: Result<RIN, string>) => ResultOk<ROUT>
+  transform: (value: Result<RIN, string>) => ResultOk<ROUT>,
 ): StateProxyROS<S, RIN, ROUT, WIN, WOUT>;
 function ros_from<
   S extends StateRES<RIN, any, WIN>,
   RIN = S extends State<infer RT> ? RT : never,
   ROUT = RIN,
   WIN = S extends State<any, infer RT> ? RT : any,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: S,
   transform?:
     | ((value: ResultOk<RIN>) => ResultOk<ROUT>)
-    | ((value: Result<RIN, string>) => ResultOk<ROUT>)
+    | ((value: Result<RIN, string>) => ResultOk<ROUT>),
 ): StateProxyROS<S, RIN, ROUT, WIN, WOUT> {
   return new ROS<S, RIN, ROUT, WIN, WOUT>(state, transform) as StateProxyROS<
     S,
@@ -211,13 +217,13 @@ interface OwnerWS<
   RIN = S extends State<infer RT> ? RT : never,
   WIN = S extends State<any, infer WT> ? WT : never,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 > {
   /**Sets the state that is being proxied, and updates subscribers with new value*/
   set_state(state: S): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_read(
-    transform: (val: Result<RIN, string>) => Result<ROUT, string>
+    transform: (val: Result<RIN, string>) => Result<ROUT, string>,
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
@@ -231,23 +237,23 @@ export type StateProxyROSWS<
   RIN = S extends State<infer RT> ? RT : never,
   WIN = S extends State<any, infer WT> ? WT : never,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 > = StateROSWS<ROUT, WOUT, OptionNone> & OwnerWS<S, RIN, WIN, ROUT, WOUT>;
 
 class ROSWS<
-    S extends StateRESWS<RIN, WIN>,
-    RIN = S extends State<infer RT> ? RT : never,
-    WIN = S extends State<any, infer WT> ? WT : never,
-    ROUT = RIN,
-    WOUT = WIN
-  >
+  S extends StateRESWS<RIN, WIN>,
+  RIN = S extends State<infer RT> ? RT : never,
+  WIN = S extends State<any, infer WT> ? WT : never,
+  ROUT = RIN,
+  WOUT = WIN,
+>
   extends StateBase<ROUT, WOUT, OptionNone, ResultOk<ROUT>>
   implements OwnerWS<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
     state: S,
     transform_read?: (value: ResultOk<RIN>) => ResultOk<ROUT>,
-    transform_write?: (value: WOUT) => WIN
+    transform_write?: (value: WOUT) => WIN,
   ) {
     super();
     this.#state = state;
@@ -312,7 +318,7 @@ class ROSWS<
     return true;
   }
   async then<T = ResultOk<ROUT>>(
-    func: (value: ResultOk<ROUT>) => T | PromiseLike<T>
+    func: (value: ResultOk<ROUT>) => T | PromiseLike<T>,
   ): Promise<T> {
     if (this.#buffer) return func(this.#buffer);
     return func(this.transform_read(await this.#state));
@@ -357,40 +363,40 @@ function ros_ws_from<
   RIN,
   WIN,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: StateROSWS<RIN, WIN>,
   transform_read?: (value: ResultOk<RIN>) => ResultOk<ROUT>,
-  transform_write?: (value: WOUT) => WIN
+  transform_write?: (value: WOUT) => WIN,
 ): StateProxyROSWS<S, RIN, WIN, ROUT, WOUT>;
 function ros_ws_from<
   S extends StateRESWS<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: StateRESWS<RIN, WIN>,
   transform_read?: (value: Result<RIN, string>) => ResultOk<ROUT>,
-  transform_write?: (value: WOUT) => WIN
+  transform_write?: (value: WOUT) => WIN,
 ): StateProxyROSWS<S, RIN, WIN, ROUT, WOUT>;
 function ros_ws_from<
   S extends StateRESWS<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: S,
   transform_read?:
     | ((value: ResultOk<RIN>) => ResultOk<ROUT>)
     | ((value: Result<RIN, string>) => ResultOk<ROUT>),
-  transform_write?: (value: WOUT) => WIN
+  transform_write?: (value: WOUT) => WIN,
 ): StateProxyROSWS<S, RIN, WIN, ROUT, WOUT> {
   return new ROSWS<S, RIN, WIN, ROUT, WOUT>(
     state,
     transform_read,
-    transform_write
+    transform_write,
   ) as StateProxyROSWS<S, RIN, WIN, ROUT, WOUT>;
 }
 
@@ -406,13 +412,13 @@ interface OwnerWA<
   RIN = S extends State<infer RT> ? RT : never,
   WIN = S extends State<any, infer WT> ? WT : never,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 > {
   /**Sets the state that is being proxied, and updates subscribers with new value*/
   set_state(state: S): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_read(
-    transform: (val: Result<RIN, string>) => Result<ROUT, string>
+    transform: (val: Result<RIN, string>) => Result<ROUT, string>,
   ): void;
   /**Changes the transform function of the proxy, and updates subscribers with new value*/
   set_transform_write(transform: (val: WOUT) => WIN): void;
@@ -425,23 +431,23 @@ export type StateProxyROSWA<
   RIN = S extends State<infer RT> ? RT : never,
   WIN = S extends State<any, infer WT> ? WT : never,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 > = StateROSWA<ROUT, WOUT, OptionNone> & OwnerWA<S, RIN, WIN, ROUT, WOUT>;
 
 class ROSWA<
-    S extends StateRESWA<RIN, WIN>,
-    RIN = S extends State<infer RT> ? RT : never,
-    WIN = S extends State<any, infer WT> ? WT : never,
-    ROUT = RIN,
-    WOUT = WIN
-  >
+  S extends StateRESWA<RIN, WIN>,
+  RIN = S extends State<infer RT> ? RT : never,
+  WIN = S extends State<any, infer WT> ? WT : never,
+  ROUT = RIN,
+  WOUT = WIN,
+>
   extends StateBase<ROUT, WOUT, OptionNone, ResultOk<ROUT>>
   implements OwnerWA<S, RIN, WIN, ROUT, WOUT>
 {
   constructor(
     state: S,
     transform_read?: (value: ResultOk<RIN>) => ResultOk<ROUT>,
-    transform_write?: (value: WOUT) => WIN
+    transform_write?: (value: WOUT) => WIN,
   ) {
     super();
     this.#state = state;
@@ -506,7 +512,7 @@ class ROSWA<
     return true;
   }
   async then<T = ResultOk<ROUT>>(
-    func: (value: ResultOk<ROUT>) => T | PromiseLike<T>
+    func: (value: ResultOk<ROUT>) => T | PromiseLike<T>,
   ): Promise<T> {
     if (this.#buffer) return func(this.#buffer);
     return func(this.transform_read(await this.#state));
@@ -548,40 +554,40 @@ function ros_wa_from<
   RIN,
   WIN,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: StateROSWA<RIN, WIN>,
   transform_read?: (value: ResultOk<RIN>) => ResultOk<ROUT>,
-  transform_write?: (value: WOUT) => WIN
+  transform_write?: (value: WOUT) => WIN,
 ): StateProxyROSWA<S, RIN, WIN, ROUT, WOUT>;
 function ros_wa_from<
   S extends StateRESWA<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: StateRESWA<RIN, WIN>,
   transform_read?: (value: Result<RIN, string>) => ResultOk<ROUT>,
-  transform_write?: (value: WOUT) => WIN
+  transform_write?: (value: WOUT) => WIN,
 ): StateProxyROSWA<S, RIN, WIN, ROUT, WOUT>;
 function ros_wa_from<
   S extends StateRESWA<RIN, WIN>,
   RIN,
   WIN,
   ROUT = RIN,
-  WOUT = WIN
+  WOUT = WIN,
 >(
   state: S,
   transform_read?:
     | ((value: ResultOk<RIN>) => ResultOk<ROUT>)
     | ((value: Result<RIN, string>) => ResultOk<ROUT>),
-  transform_write?: (value: WOUT) => WIN
+  transform_write?: (value: WOUT) => WIN,
 ): StateProxyROSWA<S, RIN, WIN, ROUT, WOUT> {
   return new ROSWA<S, RIN, WIN, ROUT, WOUT>(
     state,
     transform_read,
-    transform_write
+    transform_write,
   ) as StateProxyROSWA<S, RIN, WIN, ROUT, WOUT>;
 }
 

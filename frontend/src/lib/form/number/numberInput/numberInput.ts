@@ -1,3 +1,4 @@
+import { err, type Result } from "@chocolateish/lib-result";
 import { define_element } from "@libBase";
 import {
   get_cursor_position,
@@ -6,7 +7,6 @@ import {
   set_selection_all,
 } from "@libCommon";
 import { number_step_start_decimal } from "@libMath";
-import { err, type Result } from "@libResult";
 import { FormNumberWrite, type FormNumberWriteOptions } from "../numberBase";
 import "./numberInput.scss";
 
@@ -82,7 +82,7 @@ class NumberInput<ID extends string | undefined> extends FormNumberWrite<ID> {
     const sel = get_cursor_position(this.#value_box);
     const buff = this.buffer;
     this.set_value_check(
-      parseFloat(this.#value_box.textContent?.replace(",", ".") || "") || 0
+      parseFloat(this.#value_box.textContent?.replace(",", ".") || "") || 0,
     )
       .map_err(() => {
         this.new_value(buff || Math.max(Math.min(0, this.#max), this.#min));
@@ -156,7 +156,7 @@ class NumberInput<ID extends string | undefined> extends FormNumberWrite<ID> {
       Math.min(Math.max(val, this.#min), this.#max),
       this.#step,
       this.#start,
-      this.#decimals
+      this.#decimals,
     );
     if (lim < this.#min) lim += this.#step;
     if (lim > this.#max) lim -= this.#step;
@@ -166,17 +166,17 @@ class NumberInput<ID extends string | undefined> extends FormNumberWrite<ID> {
   protected check_value(val: number): Result<number, string> {
     if (val < this.#min)
       return err(
-        "Minimum value " + this.#min.toFixed(this.#decimals) + this.#unit
+        "Minimum value " + this.#min.toFixed(this.#decimals) + this.#unit,
       );
     if (val > this.#max)
       return err(
-        "Maximum value " + this.#max.toFixed(this.#decimals) + this.#unit
+        "Maximum value " + this.#max.toFixed(this.#decimals) + this.#unit,
       );
     let lim = number_step_start_decimal(
       val,
       this.#step,
       this.#start,
-      this.#decimals
+      this.#decimals,
     );
     if (lim < this.#min) lim += this.#step;
     if (lim > this.#max) lim -= this.#step;
@@ -188,7 +188,7 @@ class NumberInput<ID extends string | undefined> extends FormNumberWrite<ID> {
       this.#step ||
       Math.max(
         this.#decimals ? 1 / this.#decimals : 1,
-        Math.floor(Math.abs(this.buffer || 0) / 150)
+        Math.floor(Math.abs(this.buffer || 0) / 150),
       );
     return this.set_value_check((this.buffer || 0) + (dir ? step : -step));
   }
@@ -197,7 +197,7 @@ define_element(NumberInput);
 
 /**Creates a dropdown form element */
 export function form_number_input<ID extends string | undefined>(
-  options?: FormNumberWriteOptions<ID>
+  options?: FormNumberWriteOptions<ID>,
 ): NumberInput<ID> {
   const input = new NumberInput<ID>(options?.id);
   if (options) {
