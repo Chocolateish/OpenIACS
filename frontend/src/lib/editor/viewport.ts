@@ -1,6 +1,6 @@
+import { svg } from "@chocolateish/lib-svg";
 import { Base, define_element } from "@libBase";
 import { array_from_range_inclusive } from "@libCommon";
-import { svg } from "@libSVG";
 import "./viewport.scss";
 
 export class Viewport extends Base {

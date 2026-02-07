@@ -24,13 +24,11 @@
       "@libIcons": ["./src/lib/icons/index"],
       "@libIconsFonts": ["./src/lib/icons/font.scss"],
       "@libList": ["./src/lib/list/index"],
-      "@libMath": ["./src/lib/math/index"],
       "@libRepository": ["./src/lib/repository/index"],
       "@libSettings": ["./src/lib/settings/index"],
       "@libSpinners": ["./src/lib/spinners/index"],
       "@libState": ["./src/lib/state/index"],
       "@libString": ["./src/lib/string/index"],
-      "@libSVG": ["./src/lib/svg/index"],
       "@libTheme": ["./src/lib/theme/index"],
       "@libThemeCommon": ["./src/lib/theme/builtIn"]
     },

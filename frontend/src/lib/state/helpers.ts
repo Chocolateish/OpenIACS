@@ -1,3 +1,4 @@
+import { number_step_start_decimal } from "@chocolateish/lib-math";
 import {
   err,
   ok,
@@ -5,8 +6,7 @@ import {
   some,
   type Result,
 } from "@chocolateish/lib-result";
-import { number_step_start_decimal } from "@libMath";
-import type { SVGFunc } from "@libSVG";
+import type { SVGFunc } from "@chocolateish/lib-svg";
 import { StateBase } from "./base";
 import {
   type State,
