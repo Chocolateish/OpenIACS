@@ -1,5 +1,5 @@
 import { err, ok, type Result } from "@chocbite/ts-lib-result";
-import { Viewport } from "@libEditor";
+import { viewport, ViewportElementTest } from "@libEditor";
 import type { StateSyncROSWS } from "@libState";
 import { default as st, default as state } from "@libState";
 import "./index.scss";
@@ -87,6 +87,6 @@ console.warn(Character.deserialize({ uuid: "1234", name: "Hero" }));
 
 // document.getElementById("app")?.replaceChildren(example_page());
 
-document
-  .getElementById("app")
-  ?.replaceChildren(new Viewport(1000, 1000, false));
+const vp = viewport.create_viewport(1000, 1000, false);
+document.getElementById("app")?.replaceChildren(vp);
+vp.elements = [new ViewportElementTest()];

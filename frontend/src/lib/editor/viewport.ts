@@ -1,7 +1,15 @@
 import { svg } from "@chocbite/ts-lib-svg";
 import { Base, define_element } from "@libBase";
-import { array_from_range_inclusive } from "@libCommon";
+import type { ViewportElement } from "@libEditor";
+import type {
+  State,
+  StateArray,
+  StateArrayRead,
+  StateInferSub,
+} from "@libState";
+import state from "@libState";
 import "./viewport.scss";
+import { ViewportMover } from "./viewport_mover";
 
 export class Viewport extends Base {
   static element_name(): string {
@@ -36,9 +44,6 @@ export class Viewport extends Base {
   #mover_y = 0;
   #zoomer;
   #zoomer_scale = 1;
-  #canvas;
-  #canvas_width;
-  #canvas_height;
 
   constructor(
     canvas_width: number,
@@ -83,22 +88,15 @@ export class Viewport extends Base {
         `0 0 ${canvas_width} ${canvas_height}`,
       ).elem,
     );
+    this.#canvas_elements = this.#canvas.appendChild(svg.create("g").elem);
 
-    this.#canvas.replaceChildren(
-      svg.rectangle_from_center(50, 50, 30, 30, 5).f("red").elem,
-      ...array_from_range_inclusive(0, 20, (i) => i).flatMap((i) => {
-        return array_from_range_inclusive(
-          0,
-          20,
-          (j) =>
-            svg
-              .rectangle_from_center(i * 50, j * 50, 50, 50, 0)
-              .s("blue")
-              .f("none")
-              .sw(1).elem,
-        );
-      }),
-    );
+    //      _____ _   _ _______ ______ _____            _____ _______ _____ ____  _   _
+    //     |_   _| \ | |__   __|  ____|  __ \     /\   / ____|__   __|_   _/ __ \| \ | |
+    //       | | |  \| |  | |  | |__  | |__) |   /  \ | |       | |    | || |  | |  \| |
+    //       | | | . ` |  | |  |  __| |  _  /   / /\ \| |       | |    | || |  | | . ` |
+    //      _| |_| |\  |  | |  | |____| | \ \  / ____ \ |____   | |   _| || |__| | |\  |
+    //     |_____|_| \_|  |_|  |______|_|  \_\/_/    \_\_____|  |_|  |_____\____/|_| \_|
+
     let count = 0;
     let mover_x = 0;
     let mover_y = 0;
@@ -137,7 +135,7 @@ export class Viewport extends Base {
       },
       { capture: true },
     );
-    //Touch
+    //Selection / Touch Move
     this.addEventListener("pointerdown", (e) => {
       if (e.pointerType !== "touch") return;
       e.preventDefault();
@@ -232,6 +230,17 @@ export class Viewport extends Base {
     this.#zoomer_scale = scale;
   }
 
+  //       _____          _   ___      __      _____
+  //      / ____|   /\   | \ | \ \    / /\    / ____|
+  //     | |       /  \  |  \| |\ \  / /  \  | (___
+  //     | |      / /\ \ | . ` | \ \/ / /\ \  \___ \
+  //     | |____ / ____ \| |\  |  \  / ____ \ ____) |
+  //      \_____/_/    \_\_| \_|   \/_/    \_\_____/
+  #canvas;
+  #canvas_width;
+  #canvas_height;
+  #canvas_elements;
+
   set canvas_width(value: number) {
     this.#canvas.setAttribute("width", value.toString());
     this.#canvas.setAttribute("viewBox", `0 0 ${value} ${this.#canvas_height}`);
@@ -272,5 +281,81 @@ export class Viewport extends Base {
   get canvas_scale(): number {
     return this.#zoomer_scale;
   }
+
+  //      ______ _      ______ __  __ ______ _   _ _______ _____
+  //     |  ____| |    |  ____|  \/  |  ____| \ | |__   __/ ____|
+  //     | |__  | |    | |__  | \  / | |__  |  \| |  | | | (___
+  //     |  __| | |    |  __| | |\/| |  __| | . ` |  | |  \___ \
+  //     | |____| |____| |____| |  | | |____| |\  |  | |  ____) |
+  //     |______|______|______|_|  |_|______|_| \_|  |_| |_____/
+  #state_sub?: StateInferSub<
+    State<ViewportElement[]> | StateArray<ViewportElement>
+  >;
+
+  set elements(
+    elements:
+      | ViewportElement[]
+      | State<ViewportElement[]>
+      | StateArray<ViewportElement>,
+  ) {
+    if (this.#state_sub) this.detach_state(this.#state_sub);
+    this.#state_sub = undefined;
+    if (state.is(elements)) {
+      if (state.a.is(elements))
+        this.#state_sub = this.attach_state(elements, (r) => {
+          if (r.ok) this.#update_rows_by_state_array_read(r.value);
+          else this.#update_rows([]);
+        });
+      else
+        this.#state_sub = this.attach_state(elements, (r) =>
+          this.#update_rows(r.ok ? r.value : []),
+        );
+    } else this.#update_rows(elements);
+  }
+
+  #update_rows(rows: readonly ViewportElement[]) {
+    this.#canvas_elements.replaceChildren(...rows.map((row) => row.canvas));
+  }
+
+  #update_rows_by_state_array_read(sar: StateArrayRead<ViewportElement>) {
+    if (sar.type === "added") {
+      const child = this.#canvas_elements.children[sar.index] as
+        | SVGSVGElement
+        | undefined;
+      const rows = sar.items.map((row) => row.canvas);
+      if (child) child.before(...rows);
+      else this.#canvas_elements.append(...rows);
+    } else if (sar.type === "removed") {
+      if (sar.array.length === 0) this.#update_rows([]);
+      else
+        for (let i = 0; i < sar.items.length; i++)
+          this.#canvas_elements.children[sar.index].remove();
+    } else if (sar.type === "changed")
+      for (let i = 0; i < sar.items.length; i++)
+        this.#canvas_elements.replaceChild(
+          sar.items[i].canvas,
+          this.#canvas_elements.children[sar.index + i],
+        );
+    else this.#update_rows(sar.array);
+  }
+  //      __  __  ______      ________ _____
+  //     |  \/  |/ __ \ \    / /  ____|  __ \
+  //     | \  / | |  | \ \  / /| |__  | |__) |
+  //     | |\/| | |  | |\ \/ / |  __| |  _  /
+  //     | |  | | |__| | \  /  | |____| | \ \
+  //     |_|  |_|\____/   \/   |______|_|  \_\
+  #element_mover?: ViewportMover;
+
+  #attach_mover(mover: ViewportElement) {
+    if (!this.#element_mover) this.#element_mover = new ViewportMover();
+  }
 }
 define_element(Viewport);
+
+export function create_viewport(
+  canvas_width: number,
+  canvas_height: number,
+  infinite_canvas: boolean = false,
+): Viewport {
+  return new Viewport(canvas_width, canvas_height, infinite_canvas);
+}
