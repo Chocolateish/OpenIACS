@@ -112,68 +112,48 @@ export class Viewport extends Base {
     this.addEventListener(
       "pointerdown",
       (e) => {
-        if (e.pointerType !== "mouse" || e.button !== 1) return;
-        const now = performance.now();
-        if (now - double_click < 300) {
-          this.canvas_x = 0;
-          this.canvas_y = 0;
-          this.canvas_scale = 1;
-          return;
+        if (e.pointerType === "mouse" || e.pointerType === "touch") {
+          e.preventDefault();
+          e.stopPropagation();
+          //Double Click Reset Position
+          const now = performance.now();
+          if (now - double_click < 300) {
+            this.canvas_x = 0;
+            this.canvas_y = 0;
+            this.canvas_scale = Math.min(
+              this.#viewport_height / this.#canvas_height,
+              this.#viewport_width / this.#canvas_width,
+            );
+            return;
+          }
+          double_click = now;
+          //Dragging
+          this.setPointerCapture(e.pointerId);
+          if (count === 0) {
+            mover_x = this.#mover_x;
+            mover_y = this.#mover_y;
+            initial_x = e.offsetX;
+            initial_y = e.offsetY;
+            initial_id = e.pointerId;
+          } else if (count === 1) {
+            second_initial_x = e.offsetX;
+            second_initial_y = e.offsetY;
+            second_initial_id = e.pointerId;
+          }
+          count++;
         }
-        double_click = now;
-        e.preventDefault();
-        e.stopPropagation();
-        this.setPointerCapture(e.pointerId);
-        if (count === 0) {
-          mover_x = this.#mover_x;
-          mover_y = this.#mover_y;
-          initial_x = e.offsetX;
-          initial_y = e.offsetY;
-          initial_id = e.pointerId;
-        }
-        count++;
       },
       { capture: true },
     );
-    //Selection / Touch Move
-    this.addEventListener("pointerdown", (e) => {
-      if (e.pointerType !== "touch") return;
-      e.preventDefault();
-      e.stopPropagation();
-      // if (count_touch === 3) {
-      //   this.canvas_x = 0;
-      //   this.canvas_y = 0;
-      //   this.canvas_scale = 1;
-      //   return;
-      // }
-      this.setPointerCapture(e.pointerId);
-      if (count === 0) {
-        mover_x = this.#mover_x;
-        mover_y = this.#mover_y;
-        initial_x = e.offsetX;
-        initial_y = e.offsetY;
-        initial_id = e.pointerId;
-      } else if (count === 1) {
-        second_initial_x = e.offsetX;
-        second_initial_y = e.offsetY;
-        second_initial_id = e.pointerId;
-      }
-      count++;
-      console.error(count, e);
-    });
     this.onpointermove = (ev) => {
       if (count === 0) return;
       if (ev.pointerId === initial_id) {
-        if (count === 2) {
-        }
-        this.canvas_x = mover_x + (ev.offsetX - initial_x);
-        this.canvas_y = mover_y + (ev.offsetY - initial_y);
+        this.canvas_x = mover_x + (ev.offsetX - initial_x) / count;
+        this.canvas_y = mover_y + (ev.offsetY - initial_y) / count;
       } else if (ev.pointerId === second_initial_id) {
         if (count < 2) return;
-        console.error(
-          ev.offsetX - second_initial_x,
-          ev.offsetY - second_initial_y,
-        );
+        this.canvas_x = mover_x + (ev.offsetX - initial_x) / count;
+        this.canvas_y = mover_y + (ev.offsetY - initial_y) / count;
       }
     };
     this.onpointerup = (ev) => {
@@ -219,8 +199,7 @@ export class Viewport extends Base {
   }
 
   /**Zooms coordinate aware to offset canvas position so hover position stays
-   * coordinates are relative to the center
-   */
+   * coordinates are relative to the center */
   #zoom_coordinates(scale: number, x: number, y: number) {
     scale = Math.max(0.001, Math.min(10000, scale));
     const zoom_factor = scale / this.#zoomer_scale;
