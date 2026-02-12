@@ -5,19 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "auto",
-      "type": "auto-debug",
+      "type": "lldb",
       "request": "launch",
-      "map": {
-        "**/frontend/src/**/*": "Fontend Launch Chrome"
-      }
-    },
-    {
-      "name": "Fontend Launch Chrome",
-      "request": "launch",
-      "type": "chrome",
-      "url": "http://localhost:9998",
-      "webRoot": "${workspaceFolder}/frontend/src"
+      "name": "Debug executable 'open_alarm_system'",
+      "preLaunchTask": "cargo build",
+      "program": "${workspaceFolder}/backend/target/debug/open_alarm_system",
+      "args": [],
+      "cwd": "${workspaceFolder}/backend"
     }
   ]
 }
