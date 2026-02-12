@@ -1,0 +1,15 @@
+@use "../../base";
+
+form-text {
+  @include base.base;
+  display: block;
+  min-height: base.$size_height;
+  color: base.$color_text;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .anim-all & {
+    transition: color base.$animation;
+  }
+}

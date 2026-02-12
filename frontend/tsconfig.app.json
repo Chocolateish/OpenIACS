@@ -1,0 +1,51 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": [],
+    "skipLibCheck": true,
+
+    /* Paths */
+    "paths": {
+      "@package": ["./package.json"],
+
+      //Lib
+      "@libBase": ["./src/lib/base/index"],
+      "@libCommon": ["./src/lib/common/index"],
+      "@libComposition": ["./src/lib/composition/index"],
+      "@libContextmenu": ["./src/lib/contextmenu/index"],
+      "@libDocument": ["./src/lib/document/index"],
+      "@libEditor": ["./src/lib/editor/index"],
+      "@libForm": ["./src/lib/form/index"],
+      "@libIcons": ["./src/lib/icons/index"],
+      "@libIconsFonts": ["./src/lib/icons/font.scss"],
+      "@libList": ["./src/lib/list/index"],
+      "@libRepository": ["./src/lib/repository/index"],
+      "@libSettings": ["./src/lib/settings/index"],
+      "@libSpinners": ["./src/lib/spinners/index"],
+      "@libState": ["./src/lib/state/index"],
+      "@libString": ["./src/lib/string/index"],
+      "@libTheme": ["./src/lib/theme/index"],
+      "@libThemeCommon": ["./src/lib/theme/builtIn"]
+    },
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

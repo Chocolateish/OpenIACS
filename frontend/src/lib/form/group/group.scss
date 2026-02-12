@@ -1,0 +1,128 @@
+@use "../base";
+
+form-group {
+  @include base.base;
+  --max_height: none;
+
+  display: flex;
+  flex-direction: column;
+  background-color: inherit;
+  z-index: 0;
+
+  &.inset {
+    border: base.$border;
+    box-shadow: base.$shadow_in;
+    border-radius: base.$size_cornerRadius;
+  }
+
+  &.outset {
+    border: base.$border;
+    border-radius: base.$size_cornerRadius;
+  }
+
+  &:not(.collapsible) {
+    max-height: var(--max_height);
+    overflow-y: auto;
+    padding: 0.8rem;
+    min-width: fit-content;
+
+    &.outset {
+      box-shadow: base.$shadow_out;
+    }
+  }
+
+  &.collapsible {
+    > div {
+      max-height: var(--max_height);
+      overflow-y: auto;
+      padding: 0.8rem;
+      min-width: fit-content;
+
+      &.collapsed {
+        display: none;
+      }
+    }
+    > span {
+      z-index: 2;
+      border: base.$border;
+      min-height: base.$size_height;
+      box-shadow: base.$shadow_out;
+      border-radius: base.$size_cornerRadius;
+      margin: -(base.$border_thickness);
+      background-color: base.$color_background;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      outline: none;
+
+      .touch & {
+        min-height: base.$size_touchHeight;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          background-color: base.$color_background_hover;
+        }
+      }
+
+      &:focus-visible {
+        box-shadow: base.$focus_out;
+
+        &.active {
+          box-shadow: base.$focus_out;
+        }
+      }
+
+      > span {
+        color: base.$color_text;
+        font-size: base.$font_size;
+        line-height: calc(base.$font_size + 0.2rem);
+        padding-left: 0.2rem;
+        flex-grow: 1;
+        text-align: center;
+
+        .touch & {
+          font-size: base.$touch_font_size;
+          line-height: calc(base.$touch_font_size + 0.2rem);
+        }
+      }
+
+      > svg {
+        fill: base.$color_text;
+        max-width: base.$size_height;
+        height: calc(base.$size_height - 2px);
+        box-sizing: border-box;
+        width: auto;
+        flex-shrink: 0;
+
+        .touch & {
+          height: base.$size_touchHeight;
+          max-width: base.$size_touchHeight + 1rem;
+          padding: 0.5rem;
+        }
+      }
+    }
+  }
+
+  &.collapsed.collapsible {
+    > div {
+      display: none;
+    }
+
+    > span {
+      > :nth-last-child(2) {
+        display: none;
+      }
+    }
+  }
+
+  &:not(.collapsed).collapsible {
+    > span {
+      > :last-child {
+        display: none;
+      }
+    }
+  }
+}

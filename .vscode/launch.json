@@ -5,30 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "auto",
-      "type": "auto-debug",
-      "request": "launch",
-      "map": {
-        "**/backend/src/**/*": "Backend Build Run Debug",
-        "**/frontend/src/**/*": "Fontend Launch Chrome"
-      }
-    },
-    {
-      "name": "Backend Build Run Debug",
       "type": "lldb",
       "request": "launch",
-      "preLaunchTask": "rust: cargo build",
-      "program": "${workspaceFolder}/backend/target/debug/LM_Service.exe",
+      "name": "Debug executable 'open_alarm_system'",
+      "preLaunchTask": "cargo build",
+      "program": "${workspaceFolder}/backend/target/debug/open_alarm_system",
       "args": [],
-      "cwd": "${workspaceFolder}/backend",
-      "terminal": "integrated"
-    },
-    {
-      "name": "Fontend Launch Chrome",
-      "request": "launch",
-      "type": "chrome",
-      "url": "http://localhost:5151",
-      "webRoot": "${workspaceFolder}/frontend"
+      "cwd": "${workspaceFolder}/backend"
     }
   ]
 }

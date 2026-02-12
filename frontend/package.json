@@ -1,15 +1,38 @@
 {
-  "name": "frontend",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "name": "openalarmsystemui",
+  "version": "0.0.1",
+  "description": "",
+  "author": "chocolateandmilkwin",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chocolateish/OpenAlarmSystem.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Chocolateish/OpenAlarmSystem/issues"
+  },
+  "homepage": "https://github.com/Chocolateish/OpenAlarmSystem#readme",
+  "main": "index.ts",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "serve": "vite preview",
+    "dev:tests": "vite -m test",
+    "build:tests": "tsc && vite build -m tests",
+    "serve:tests": "vite preview --mode testServe",
+    "test": "npm run build:tests && start-server-and-test serve:tests http://localhost:999 'cypress run'",
+    "watch": "start-server-and-test dev:tests http://localhost:999 'cypress open --e2e --browser edge'"
   },
   "devDependencies": {
-    "typescript": "~5.8.3",
-    "vite": "^7.1.2"
-  }
+    "cypress": "^13.6.3",
+    "cypress-vite": "^1.5.0",
+    "sass": "^1.70.0",
+    "start-server-and-test": "^2.0.3",
+    "tslib": "^2.6.2",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12",
+    "vite-plugin-dts": "^3.7.1",
+    "vite-plugin-libcss": "^1.1.1"
+  },
+  "dependencies": {}
 }

@@ -6,4 +6,22 @@ edition = "2024"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+arrayvec = "0.7.6"
+concread = "0.5.5"
+crossbeam = "0.8.4"
+crossbeam-utils = "0.8.21"
+dashmap = "6.1.0"
+lazy_static = "1.5.0"
+orx-concurrent-vec = "3.6.0"
+rand = "0.9.1"
+scc = "2.3.4"
+sharded_queue = "2.0.1"
+strum = { version = "0.27.1", features = ["derive"] }
 tungstenite = "0.21.0"
+
+[dev-dependencies]
+criterion = "0.6.0"
+
+[[bench]]
+name = "test"
+harness = false
